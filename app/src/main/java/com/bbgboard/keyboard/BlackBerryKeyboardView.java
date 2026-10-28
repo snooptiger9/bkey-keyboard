@@ -1337,6 +1337,8 @@ public class BlackBerryKeyboardView extends View {
             drawLongPressPopupMenu(canvas);
         }
 
+        drawDeleteTagAnimation(canvas, now);
+
         // رسم الكلمة الطائرة على الكانفاس إذا لم تكن النافذة العلوية نشطة
         if (isFlyingActive && (topOverlayPopup == null || !topOverlayPopup.isShowing())) {
             float progress = (float) (now - flyingStartTime) / (float) FLY_OUTSIDE_DURATION_MS;
@@ -1347,6 +1349,72 @@ public class BlackBerryKeyboardView extends View {
             flyingWordText = null;
             animatingSlotIndex = -1;
         }
+    }
+
+    // ===== أنيميشن المسح بالسحب: علامة حذف تنزلق مع اتجاه السحب (مقاسة من فيديو بلاك بيري الأصلي) =====
+    // المدة ~380 ملّي ثانية، حركة S سلسة (تسارع ثم تباطؤ) مسافتها نحو نصف عرض الشاشة، وتكبر العلامة من 40% إلى 100%
+    // مع شفافية تبدأ باهتة ثم تصير ناصعة في المنتصف وتتلاشى في آخر الحركة.
+    private static final long DELETE_TAG_MS = 380L;
+    private long deleteTagStart = 0L;
+    private float deleteTagX0 = 0f, deleteTagY = 0f, deleteTagDir = 1f;
+    private final android.graphics.Path deleteTagPath = new android.graphics.Path();
+    private final Paint deleteTagFill = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint deleteTagCross = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    private void startDeleteTagAnimation(float x, float y, float dx) {
+        deleteTagStart = SystemClock.uptimeMillis();
+        deleteTagX0 = x;
+        deleteTagY = y;
+        deleteTagDir = dx >= 0f ? 1f : -1f;
+        invalidate();
+    }
+
+    private void drawDeleteTagAnimation(Canvas canvas, long now) {
+        if (deleteTagStart == 0L) return;
+        float t = (now - deleteTagStart) / (float) DELETE_TAG_MS;
+        if (t >= 1f) {
+            deleteTagStart = 0L;
+            return;
+        }
+        float w = getWidth();
+        float smooth = t * t * (3f - 2f * t);
+        float x1 = Math.max(0.04f * w, Math.min(0.96f * w, deleteTagX0 + deleteTagDir * 0.5f * w));
+        float cx = deleteTagX0 + (x1 - deleteTagX0) * smooth;
+        float scale = 0.4f + 0.6f * t;
+        float alpha;
+        if (t < 0.55f) alpha = 0.4f + 0.6f * (t / 0.55f);
+        else if (t < 0.7f) alpha = 1f;
+        else alpha = 1f - (t - 0.7f) / 0.3f;
+
+        float tw = 30f * density * scale;   // العرض الكلي مع الرأس المدبب
+        float th = 14f * density * scale;
+        float tip = th * 0.5f;              // عمق الرأس المدبب
+        float d = deleteTagDir;
+        float left = cx - d * tw / 2f;
+        float right = cx + d * tw / 2f;
+        float top = deleteTagY - th / 2f;
+        float bottom = deleteTagY + th / 2f;
+        deleteTagPath.reset();
+        deleteTagPath.moveTo(left, top);
+        deleteTagPath.lineTo(right - d * tip, top);
+        deleteTagPath.lineTo(right, deleteTagY);
+        deleteTagPath.lineTo(right - d * tip, bottom);
+        deleteTagPath.lineTo(left, bottom);
+        deleteTagPath.close();
+
+        deleteTagFill.setStyle(Paint.Style.FILL);
+        deleteTagFill.setColor(Color.argb((int) (230 * alpha), 232, 232, 232));
+        canvas.drawPath(deleteTagPath, deleteTagFill);
+
+        deleteTagCross.setStyle(Paint.Style.STROKE);
+        deleteTagCross.setStrokeCap(Paint.Cap.ROUND);
+        deleteTagCross.setStrokeWidth(Math.max(1f, 1.6f * density * scale));
+        deleteTagCross.setColor(Color.argb((int) (255 * alpha), 40, 40, 40));
+        float ccx = cx - d * tip * 0.25f;
+        float r = th * 0.2f;
+        canvas.drawLine(ccx - r, deleteTagY - r, ccx + r, deleteTagY + r, deleteTagCross);
+        canvas.drawLine(ccx - r, deleteTagY + r, ccx + r, deleteTagY - r, deleteTagCross);
+        postInvalidateOnAnimation();
     }
 
     /** بوب أب صغير يظهر فوراً فوق الزر المضغوط حالياً ليعاين حرفه مكبّراً، بنفس ألوان البطاقات الحالية حسب السمة. */
@@ -1872,6 +1940,7 @@ public class BlackBerryKeyboardView extends View {
                 if (prefs.isSwipeDeleteWordEnabled() && deleteDirOk && Math.abs(dx) > Math.abs(dy) * 1.25f) {
                     boolean deleted = listener != null && listener.onSwipeLeftDeleteWord();
                     if (deleted) {
+                        startDeleteTagAnimation(startX, startY, dx);
                         vibrateTap(true);
                         soundController.playSwipeDeleteSound();
                     }

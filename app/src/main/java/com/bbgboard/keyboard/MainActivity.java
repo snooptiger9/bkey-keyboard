@@ -1345,7 +1345,7 @@ public class MainActivity extends Activity {
         pHeader.setPadding(0, 0, 0, dp(8));
         keySoundCard.addView(pHeader);
 
-        final int[] soundOrder = {0, 1, 2, 3, 4, 6, 7, 8, 9, 5};
+        final int[] soundOrder = {10, 0, 1, 2, 3, 4, 6, 7, 8, 9, 5};
         String[] keySoundOptions = new String[soundOrder.length];
         int keySel = 0;
         for (int i = 0; i < soundOrder.length; i++) {
