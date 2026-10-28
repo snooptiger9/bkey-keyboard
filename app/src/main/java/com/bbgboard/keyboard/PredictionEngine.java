@@ -712,51 +712,60 @@ public class PredictionEngine {
         return sortKeysByScoreDesc(candidates).get(0);
     }
 
+    /**
+     * يجمع كلمات قريبة من الكلمة المكتوبة (احتمال خطأ إملائي):
+     * - فرق تعديل واحد: استبدال حرف، حذف، إضافة، أو حرفان متجاوران مقلوبان (مثل "الىن" بدل "الني").
+     * - فرق تعديلين: فقط للكلمات من 5 حروف فأكثر وبشرط أن يتطابق الحرف الأول (الخطأ في أول حرف نادر)،
+     *   وتأتي بعد كل كلمة من فرق واحد في الترتيب. داخل نفس الفرق يتقدم الأكثر استخداماً.
+     */
     private void collectNearMissCandidates(String prefixLower, java.util.TreeMap<String, List<String>> byFold,
                                             Map<String, Integer> wordCounts, Map<String, Integer> scored, int baseScore) {
+        final int plen = prefixLower.length();
+        final int maxDist = plen >= 5 ? 2 : 1;
         for (Map.Entry<String, List<String>> entry : byFold.entrySet()) {
             String key = entry.getKey();
-            if (Math.abs(key.length() - prefixLower.length()) > 1) continue;
-            if (!isNearMiss(prefixLower, key)) continue;
+            if (Math.abs(key.length() - plen) > maxDist) continue;
+            int dist = editDistance(prefixLower, key, maxDist);
+            if (dist < 1 || dist > maxDist) continue;
+            if (dist == 2 && key.charAt(0) != prefixLower.charAt(0)) continue;
             for (String w : entry.getValue()) {
                 Integer cnt = wordCounts.get(w);
                 if (cnt == null) continue;
                 if (!isTrustedWord(w)) continue;
                 int cur = scored.containsKey(w) ? scored.get(w) : 0;
-                scored.put(w, cur + baseScore);
+                scored.put(w, cur + baseScore + (dist == 1 ? 100000 : 0) + Math.min(cnt, 99999));
             }
         }
     }
 
-    /** صحيح لو الفرق بين الكلمتين حرف واحد بالضبط (استبدال حرف، أو حذف/إضافة حرف واحد). */
-    private static boolean isNearMiss(String a, String b) {
+    /**
+     * مسافة التعديل (Damerau-Levenshtein المقيّدة): استبدال/حذف/إضافة/قلب حرفين متجاورين كلٌّ بتعديل واحد.
+     * ترجع max+1 لو المسافة أكبر من max (مع خروج مبكر لتوفير الوقت).
+     */
+    private static int editDistance(String a, String b, int max) {
         int la = a.length(), lb = b.length();
-        if (Math.abs(la - lb) > 1) return false;
-        if (la == lb) {
-            int diff = 0;
-            for (int i = 0; i < la; i++) {
-                if (a.charAt(i) != b.charAt(i)) {
-                    diff++;
-                    if (diff > 1) return false;
+        if (Math.abs(la - lb) > max) return max + 1;
+        int[] prev2 = new int[lb + 1];
+        int[] prev = new int[lb + 1];
+        int[] cur = new int[lb + 1];
+        for (int j = 0; j <= lb; j++) prev[j] = j;
+        for (int i = 1; i <= la; i++) {
+            cur[0] = i;
+            int rowMin = cur[0];
+            char ca = a.charAt(i - 1);
+            for (int j = 1; j <= lb; j++) {
+                int cost = ca == b.charAt(j - 1) ? 0 : 1;
+                int v = Math.min(Math.min(cur[j - 1] + 1, prev[j] + 1), prev[j - 1] + cost);
+                if (i > 1 && j > 1 && ca == b.charAt(j - 2) && a.charAt(i - 2) == b.charAt(j - 1)) {
+                    v = Math.min(v, prev2[j - 2] + 1);
                 }
+                cur[j] = v;
+                if (v < rowMin) rowMin = v;
             }
-            return diff == 1;
+            if (rowMin > max) return max + 1;
+            int[] t = prev2; prev2 = prev; prev = cur; cur = t;
         }
-        String longer = la > lb ? a : b;
-        String shorter = la > lb ? b : a;
-        int i = 0, j = 0;
-        boolean usedSkip = false;
-        while (i < longer.length() && j < shorter.length()) {
-            if (longer.charAt(i) == shorter.charAt(j)) {
-                i++;
-                j++;
-            } else {
-                if (usedSkip) return false;
-                usedSkip = true;
-                i++;
-            }
-        }
-        return true;
+        return prev[lb];
     }
 
     private List<String> sortKeysByScoreDesc(final Map<String, Integer> scored) {
