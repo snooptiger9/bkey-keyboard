@@ -15,7 +15,9 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.inputmethodservice.InputMethodService;
 import android.net.Uri;
+import android.annotation.TargetApi;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -28,6 +30,7 @@ import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputContentInfo;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,6 +60,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private LinearLayout clipsListContainer;
     private TextView clipCountTv;
     private LinearLayout clipHeaderRow;
+    // شريط اقتراحات الملء التلقائي (حسابات/باسوردات) المدمج داخل الكيبورد بدل النافذة المنبثقة
+    private FrameLayout inlineStrip;
+    private LinearLayout inlineStripRow;
+    private boolean inlineHasSuggestions = false;
+    private int inlineGen = 0;
     private LinearLayout emojiHeaderRow;
     private ModernIconView emojiBackBtn;
     private int emojiGridCols = 8;
@@ -401,6 +409,112 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         setExtractViewShown(false);
     }
 
+
+    // ===== اقتراحات الملء التلقائي المدمجة (أندرويد 11+) =====
+    // بدون هذا الدعم النظام يعرض اقتراحات الحساب/الباسورد كنافذة منبثقة تاخذ التركيز وتخفي الكيبورد.
+    // مع الدعم تظهر الاقتراحات داخل الكيبورد نفسه فوق الأحرف مثل جي بورد، والكيبورد يبقى ظاهر.
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.R)
+    public android.view.inputmethod.InlineSuggestionsRequest onCreateInlineSuggestionsRequest(Bundle uiExtras) {
+        try {
+            int barH = keyboardView != null ? Math.round(keyboardView.getSuggestionBarHeightPx()) : dp(40);
+            if (barH <= 0) barH = dp(40);
+            Bundle styles = androidx.autofill.inline.UiVersions.newStylesBuilder()
+                    .addStyle(androidx.autofill.inline.v1.InlineSuggestionUi.newStyleBuilder().build())
+                    .build();
+            int screenW = getResources().getDisplayMetrics().widthPixels;
+            android.util.Size min = new android.util.Size(dp(80), Math.min(barH, dp(30)));
+            android.util.Size max = new android.util.Size(screenW, barH);
+            android.widget.inline.InlinePresentationSpec spec =
+                    new android.widget.inline.InlinePresentationSpec.Builder(min, max).setStyle(styles).build();
+            return new android.view.inputmethod.InlineSuggestionsRequest.Builder(
+                    java.util.Collections.singletonList(spec)).setMaxSuggestionCount(6).build();
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.R)
+    public boolean onInlineSuggestionsResponse(android.view.inputmethod.InlineSuggestionsResponse response) {
+        if (response == null) return false;
+        try {
+            List<android.view.inputmethod.InlineSuggestion> list = response.getInlineSuggestions();
+            ensureInlineStrip();
+            if (inlineStrip == null) return false;
+            final int gen = ++inlineGen;
+            inlineStripRow.removeAllViews();
+            inlineHasSuggestions = false;
+            updateInlineStripVisibility();
+            if (list == null || list.isEmpty()) return true;
+            int barH = keyboardView != null ? Math.round(keyboardView.getSuggestionBarHeightPx()) : dp(40);
+            if (barH <= 0) barH = dp(40);
+            final android.util.Size size = new android.util.Size(dp(170), barH);
+            for (android.view.inputmethod.InlineSuggestion suggestion : list) {
+                suggestion.inflate(this, size, getMainExecutor(), view -> {
+                    if (view == null || gen != inlineGen || inlineStripRow == null) return;
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size.getWidth(), size.getHeight());
+                    lp.rightMargin = dp(4);
+                    inlineStripRow.addView(view, lp);
+                    inlineHasSuggestions = true;
+                    updateInlineStripVisibility();
+                });
+            }
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private void ensureInlineStrip() {
+        if (inlineStrip != null || rootContainer == null) return;
+        inlineStrip = new FrameLayout(this);
+        inlineStrip.setBackgroundColor(Color.parseColor("#161920"));
+        HorizontalScrollView hs = new HorizontalScrollView(this);
+        hs.setHorizontalScrollBarEnabled(false);
+        inlineStripRow = new LinearLayout(this);
+        inlineStripRow.setOrientation(LinearLayout.HORIZONTAL);
+        inlineStripRow.setGravity(Gravity.CENTER_VERTICAL);
+        inlineStripRow.setPadding(dp(4), 0, dp(4), 0);
+        hs.addView(inlineStripRow, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        inlineStrip.addView(hs, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        inlineStrip.setVisibility(View.GONE);
+        rootContainer.addView(inlineStrip);
+    }
+
+    /** الشريط يظهر فقط لما فيه اقتراحات والكيبورد الرئيسي ظاهر (مو قائمة الإيموجي/الحافظة). */
+    private void updateInlineStripVisibility() {
+        if (inlineStrip == null || keyboardView == null) return;
+        boolean show = inlineHasSuggestions && keyboardView.getVisibility() == View.VISIBLE;
+        if (show) {
+            int barH = Math.round(keyboardView.getSuggestionBarHeightPx());
+            if (barH <= 0) barH = dp(40);
+            ViewGroup.LayoutParams kbLp = keyboardView.getLayoutParams();
+            int w = ViewGroup.LayoutParams.MATCH_PARENT;
+            int hGravity = Gravity.NO_GRAVITY;
+            if (kbLp instanceof FrameLayout.LayoutParams) {
+                w = kbLp.width;
+                int g = ((FrameLayout.LayoutParams) kbLp).gravity;
+                if (g != Gravity.NO_GRAVITY && g != -1) hGravity = g & Gravity.HORIZONTAL_GRAVITY_MASK;
+            }
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(w, barH);
+            lp.topMargin = Math.round(keyboardView.getSuggestionBarTopPx());
+            lp.gravity = Gravity.TOP | hGravity;
+            inlineStrip.setLayoutParams(lp);
+        }
+        inlineStrip.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void clearInlineSuggestions() {
+        inlineGen++;
+        inlineHasSuggestions = false;
+        if (inlineStripRow != null) inlineStripRow.removeAllViews();
+        updateInlineStripVisibility();
+    }
+
     @Override
     public boolean onEvaluateFullscreenMode() {
         // تعطيل وضع "ملء الشاشة" الافتراضي لنظام أندرويد (extract view) نهائياً. هذا الوضع القديم يخلي
@@ -424,6 +538,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             // الكيبورد يُغلق/يُخفى: أي اقتراح إيموجي لم يُلمس يختفي، ولا يبقى معلّقاً لجلسة الكتابة التالية.
             keyboardView.setEmojiKeySuggestion(null);
         }
+        clearInlineSuggestions();
         if (predictionEngine != null) {
             predictionEngine.flushPendingSave();
         }
@@ -531,6 +646,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.VISIBLE);
         clipboardDrawerView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.GONE);
+        updateInlineStripVisibility();
     }
 
     private void openAppSettingsActivity() {
@@ -554,6 +670,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.VISIBLE);
+        updateInlineStripVisibility();
         tryCaptureScreenshotClip();
     }
 
@@ -681,6 +798,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.VISIBLE);
+        updateInlineStripVisibility();
     }
 
     @Override
