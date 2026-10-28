@@ -1232,6 +1232,8 @@ public class BlackBerryKeyboardView extends View {
                 paint.setAlpha((int) (Math.min(1f, 0.35f + prog * 2.2f) * 255f));
                 canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
                 paint.setAlpha(prevAlpha);
+            } else if (i == 1 && middleIconType == 2 && shotThumb != null && !word.isEmpty()) {
+                drawScreenshotChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType != 0 && !word.isEmpty()) {
                 // أيقونة الحافظة نفسها (نفس شكل أيقونة القائمة) على يسار النص، والمجموعة كلها في منتصف الخانة
                 float iconW = 18f * density;
@@ -1566,6 +1568,73 @@ public class BlackBerryKeyboardView extends View {
             canvas.drawRect(rawRect, fillPaint);
             canvas.drawLine(rawRect.right, rawRect.top, rawRect.right, rawRect.bottom, keyDividerPaint);
         }
+    }
+
+    // ===== شريحة لقطة الشاشة: مربع بحواف ناعمة فيه معاينة صغيرة للقطة + كلمة "لقطة شاشة" =====
+    private android.graphics.Bitmap shotThumb = null;
+    private android.graphics.BitmapShader shotShader = null;
+    private final Paint shotThumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    private final Paint shotChipFill = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint shotChipStroke = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final android.graphics.Matrix shotMatrix = new android.graphics.Matrix();
+    private final RectF shotChipRect = new RectF();
+    private final RectF shotThumbRect = new RectF();
+
+    public void setScreenshotThumb(android.graphics.Bitmap b) {
+        shotThumb = b;
+        shotShader = b == null ? null
+                : new android.graphics.BitmapShader(b, android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP);
+        invalidate();
+    }
+
+    private void drawScreenshotChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
+        float chipH = Math.min(slot.height() - 12f * density, 38f * density);
+        float thumbW = chipH - 8f * density;
+        float pad = 6f * density;
+        float gap = 8f * density;
+        String shown = ellipsizeWord(label, slot.width() - 2f * pad - thumbW - gap - 10f * density, textPaint);
+        float textW = textPaint.measureText(shown);
+        float chipW = pad + thumbW + gap + textW + pad + 4f * density;
+        float cx = slot.centerX();
+        float cy = slot.centerY();
+        shotChipRect.set(cx - chipW / 2f, cy - chipH / 2f, cx + chipW / 2f, cy + chipH / 2f);
+        float radius = 11f * density;
+
+        // خلفية بنفس لون أزرار الكيبورد الخاصة وإطار رفيع بلون إطار الأزرار
+        shotChipFill.setStyle(Paint.Style.FILL);
+        shotChipFill.setColor(keySpecialBgPaint.getColor());
+        canvas.drawRoundRect(shotChipRect, radius, radius, shotChipFill);
+        shotChipStroke.setStyle(Paint.Style.STROKE);
+        shotChipStroke.setStrokeWidth(1f * density);
+        shotChipStroke.setColor(getKeyOutlineColor());
+        shotChipStroke.setAlpha(140);
+        canvas.drawRoundRect(shotChipRect, radius, radius, shotChipStroke);
+
+        // المعاينة على جهة الكتابة: يمين في العربي، ويسار في الإنجليزي
+        boolean thumbRight = isArabic;
+        float thumbLeft = thumbRight ? shotChipRect.right - pad - thumbW : shotChipRect.left + pad;
+        shotThumbRect.set(thumbLeft, cy - thumbW * 0.5f - (chipH - 8f * density - thumbW) / 2f, thumbLeft + thumbW, cy + chipH / 2f - 4f * density);
+        shotThumbRect.top = shotChipRect.top + 4f * density;
+        shotThumbRect.bottom = shotChipRect.bottom - 4f * density;
+
+        // قص مركزي (center-crop) للصورة داخل مستطيل المعاينة
+        float sw = shotThumb.getWidth(), sh = shotThumb.getHeight();
+        float tw = shotThumbRect.width(), th = shotThumbRect.height();
+        float scale = Math.max(tw / sw, th / sh);
+        shotMatrix.reset();
+        shotMatrix.setScale(scale, scale);
+        shotMatrix.postTranslate(shotThumbRect.left + (tw - sw * scale) / 2f, shotThumbRect.top + (th - sh * scale) / 2f);
+        shotShader.setLocalMatrix(shotMatrix);
+        shotThumbPaint.setShader(shotShader);
+        float tr = 7f * density;
+        canvas.drawRoundRect(shotThumbRect, tr, tr, shotThumbPaint);
+
+        float textX = thumbRight ? shotThumbRect.left - gap - textW : shotThumbRect.right + gap;
+        Paint.Align prevAlign = textPaint.getTextAlign();
+        textPaint.setTextAlign(Paint.Align.LEFT);
+        float textY = cy - (textPaint.descent() + textPaint.ascent()) / 2f;
+        canvas.drawText(shown, textX, textY, textPaint);
+        textPaint.setTextAlign(prevAlign);
     }
 
     /** أيقونة صورة (إطار وشمس وجبل) بنفس أسلوب أيقونة الحافظة: خطوط بدون لون. */

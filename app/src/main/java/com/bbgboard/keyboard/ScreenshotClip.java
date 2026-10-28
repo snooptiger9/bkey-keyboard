@@ -27,6 +27,26 @@ public final class ScreenshotClip {
 
     public static void clear(Context c) { file(c).delete(); }
 
+    /** نسخة صغيرة جداً (الضلع الأكبر maxSide بكسل) من المصغّرة المحفوظة لعرضها داخل شريط الاقتراحات. */
+    public static Bitmap loadSmallThumb(Context c, int maxSide) {
+        try {
+            File f = file(c);
+            if (!f.exists()) return null;
+            BitmapFactory.Options b = new BitmapFactory.Options();
+            b.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(f.getAbsolutePath(), b);
+            if (b.outWidth <= 0 || b.outHeight <= 0) return null;
+            int sample = 1;
+            int big = Math.max(b.outWidth, b.outHeight);
+            while (big / (sample * 2) >= maxSide) sample *= 2;
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inSampleSize = sample;
+            return BitmapFactory.decodeFile(f.getAbsolutePath(), o);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /** يحذف المصغّرة لو مرّ عليها أكثر من المدة المحددة (0 أو أقل = بدون حذف). يرجع true إذا حذفها. */
     public static boolean pruneIfOld(Context c, long maxAgeMs) {
         if (maxAgeMs <= 0) return false;
