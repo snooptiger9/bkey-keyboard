@@ -23,6 +23,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.ExtractedText;
+import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputContentInfo;
 import android.widget.FrameLayout;
@@ -706,11 +708,60 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onCursorStep(boolean moveRight) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
-        // نستخدم أحداث DPAD القياسية حتى يحترم النظام اتجاه النص (عربي RTL أو إنجليزي LTR) تلقائياً،
-        // بدل حساب الإزاحة يدوياً الذي قد يختلف حسب اتجاه الحقل.
-        int code = moveRight ? KeyEvent.KEYCODE_DPAD_RIGHT : KeyEvent.KEYCODE_DPAD_LEFT;
-        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
-        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, code));
+        // نحرّك المؤشر بـ setSelection داخل نص الحقل فقط (بدل أحداث DPAD)، لأن DPAD عند حافة النص
+        // كان ينقل التركيز لأزرار وعناصر ثانية في الصفحة. هنا المؤشر ما يطلع من مربع النص أبداً.
+        CharSequence before = ic.getTextBeforeCursor(2, 0);
+        CharSequence after = ic.getTextAfterCursor(2, 0);
+        boolean rtl = isRtlAroundCursor(before, after);
+        // الحركة المرئية (يمين/يسار) تتحول لاتجاه منطقي حسب اتجاه النص: في العربي اليمين = للخلف.
+        boolean forward = rtl ? !moveRight : moveRight;
+
+        boolean canMove = forward ? (after != null && after.length() > 0) : (before != null && before.length() > 0);
+        if (!canMove) return; // وصلنا حافة النص: لا نسوي شيء
+
+        int step = 1;
+        if (forward && after.length() >= 2 && Character.isHighSurrogate(after.charAt(0))
+                && Character.isLowSurrogate(after.charAt(1))) {
+            step = 2; // إيموجي من جزأين: نتخطاه كاملاً
+        } else if (!forward && before.length() >= 2
+                && Character.isLowSurrogate(before.charAt(before.length() - 1))
+                && Character.isHighSurrogate(before.charAt(before.length() - 2))) {
+            step = 2;
+        }
+
+        ExtractedText et = ic.getExtractedText(new ExtractedTextRequest(), 0);
+        if (et != null && et.text != null) {
+            int base = et.startOffset + (forward ? et.selectionEnd : et.selectionStart);
+            int target = forward ? base + step : base - step;
+            int max = et.startOffset + et.text.length();
+            if (target < 0) target = 0;
+            if (target > max) target = max;
+            ic.setSelection(target, target);
+        } else {
+            // بعض التطبيقات ما ترجع نص الحقل: نرجع لأحداث DPAD لكن فقط لما نتأكد إن فيه حرف باتجاه الحركة.
+            int code = moveRight ? KeyEvent.KEYCODE_DPAD_RIGHT : KeyEvent.KEYCODE_DPAD_LEFT;
+            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
+            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, code));
+        }
+    }
+
+    /** هل النص حول المؤشر اتجاهه من اليمين لليسار؟ يعتمد على أقرب حرف "قوي" ثم لغة الكيبورد. */
+    private boolean isRtlAroundCursor(CharSequence before, CharSequence after) {
+        if (before != null) {
+            for (int i = before.length() - 1; i >= 0; i--) {
+                byte d = Character.getDirectionality(before.charAt(i));
+                if (d == Character.DIRECTIONALITY_RIGHT_TO_LEFT || d == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) return true;
+                if (d == Character.DIRECTIONALITY_LEFT_TO_RIGHT) return false;
+            }
+        }
+        if (after != null) {
+            for (int i = 0; i < after.length(); i++) {
+                byte d = Character.getDirectionality(after.charAt(i));
+                if (d == Character.DIRECTIONALITY_RIGHT_TO_LEFT || d == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) return true;
+                if (d == Character.DIRECTIONALITY_LEFT_TO_RIGHT) return false;
+            }
+        }
+        return keyboardView != null && keyboardView.isArabic();
     }
 
     @Override
