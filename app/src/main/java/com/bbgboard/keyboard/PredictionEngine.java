@@ -827,20 +827,10 @@ public class PredictionEngine {
 
     /** اقتراحات افتراضية فقط (قبل اكتمال تحميل المحرك)، بدون لمس أي بيانات متعلمة قيد التحميل. */
     private List<String> placeholderSlots(boolean isArabic) {
-        List<String> d = activeDefaultWords(isArabic);
-        List<String> f = !d.isEmpty() ? d
-                : (isArabic ? Arrays.asList("السلام", "بسم", "مرحبا") : Arrays.asList("The", "I", "On"));
-        String center = f.get(0);
-        String left = f.size() > 1 ? f.get(1) : center;
-        String right = f.size() > 2 ? f.get(2) : center;
-        return Arrays.asList(left, center, right);
+        return Arrays.asList("", "", "");
     }
 
     private List<String> formatToThreeSlots(List<String> candidates, boolean isArabic) {
-        List<String> defaults = activeDefaultWords(isArabic);
-        List<String> fallback = !defaults.isEmpty() ? defaults
-                : (isArabic ? Arrays.asList("السلام", "بسم", "مرحبا") : Arrays.asList("The", "I", "On"));
-
         List<String> combined = new ArrayList<>();
         java.util.Set<String> seenFolded = new java.util.HashSet<>();
         for (String c : candidates) {
@@ -851,13 +841,10 @@ public class PredictionEngine {
             if (combined.size() >= 3) break;
             if (seenFolded.add(fold(t))) combined.add(t);
         }
-        for (String d : defaults) {
-            if (combined.size() >= 3) break;
-            if (seenFolded.add(fold(d))) combined.add(d);
-        }
-        String primaryCenter = combined.size() > 0 ? combined.get(0) : fallback.get(0);
-        String leftSlot = combined.size() > 1 ? combined.get(1) : (fallback.size() > 1 ? fallback.get(1) : fallback.get(0));
-        String rightSlot = combined.size() > 2 ? combined.get(2) : (fallback.size() > 2 ? fallback.get(2) : fallback.get(0));
+        // لا كلمات ثابتة: الخانات الناقصة تبقى فاضية (تظهر فقط كلماتك المتعلمة وما يناسب السياق)
+        String primaryCenter = combined.size() > 0 ? combined.get(0) : "";
+        String leftSlot = combined.size() > 1 ? combined.get(1) : "";
+        String rightSlot = combined.size() > 2 ? combined.get(2) : "";
         return Arrays.asList(leftSlot, primaryCenter, rightSlot);
     }
 
