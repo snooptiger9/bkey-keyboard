@@ -895,8 +895,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         try {
             ioExecutor.execute(() -> {
                 boolean changed = ScreenshotClip.captureLatest(appCtx);
+                final android.graphics.Bitmap thumb = changed ? ScreenshotClip.loadSmallThumb(appCtx, 160) : null;
                 if (changed) {
                     uiHandler.post(() -> {
+                        if (keyboardView != null) keyboardView.setScreenshotThumb(thumb);
                         if (keyboardPrefs.isClipChipEnabled()) {
                             clipChipText = null;
                             screenshotChipActive = true;
