@@ -648,14 +648,19 @@ public class BlackBerryKeyboardView extends View {
 
     /** clipIcon: يرسم أيقونة الحافظة (خطوط بدون لون) بجانب نص الخانة الوسطى — لعرض آخر نص منسوخ. */
     public void setSuggestions(List<String> newSuggestions, boolean clipIcon) {
+        setSuggestions(newSuggestions, clipIcon ? 1 : 0);
+    }
+
+    /** iconType: 0 بدون أيقونة، 1 أيقونة الحافظة (نص منسوخ)، 2 أيقونة صورة (لقطة شاشة). */
+    public void setSuggestions(List<String> newSuggestions, int iconType) {
         if (newSuggestions != null && newSuggestions.size() >= 3) {
             suggestions = new ArrayList<>(newSuggestions.subList(0, 3));
-            middleClipIcon = clipIcon;
+            middleIconType = iconType;
             invalidate();
         }
     }
 
-    private boolean middleClipIcon = false;
+    private int middleIconType = 0;
 
     /**
      * التعديل رقم 1: إطلاق الكلمة من صندوق الاقتراحات لأعلى الشاشة خارج الكيبورد بسرعة هادئة (520ms) ووضوح عالٍ.
@@ -1227,7 +1232,7 @@ public class BlackBerryKeyboardView extends View {
                 paint.setAlpha((int) (Math.min(1f, 0.35f + prog * 2.2f) * 255f));
                 canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
                 paint.setAlpha(prevAlpha);
-            } else if (i == 1 && middleClipIcon && !word.isEmpty()) {
+            } else if (i == 1 && middleIconType != 0 && !word.isEmpty()) {
                 // أيقونة الحافظة نفسها (نفس شكل أيقونة القائمة) على يسار النص، والمجموعة كلها في منتصف الخانة
                 float iconW = 18f * density;
                 float gap = 6f * density;
@@ -1235,7 +1240,7 @@ public class BlackBerryKeyboardView extends View {
                 float textW = paint.measureText(shown);
                 float startX = r.centerX() - (iconW + gap + textW) / 2f;
                 drawRectB.set(startX, r.top, startX + iconW, r.bottom);
-                drawClipboardMenuIcon(canvas, drawRectB);
+                if (middleIconType == 2) drawImageIcon(canvas, drawRectB); else drawClipboardMenuIcon(canvas, drawRectB);
                 Paint.Align prevAlign = paint.getTextAlign();
                 paint.setTextAlign(Paint.Align.LEFT);
                 canvas.drawText(shown, startX + iconW + gap, textY, paint);
@@ -1561,6 +1566,29 @@ public class BlackBerryKeyboardView extends View {
             canvas.drawRect(rawRect, fillPaint);
             canvas.drawLine(rawRect.right, rawRect.top, rawRect.right, rawRect.bottom, keyDividerPaint);
         }
+    }
+
+    /** أيقونة صورة (إطار وشمس وجبل) بنفس أسلوب أيقونة الحافظة: خطوط بدون لون. */
+    private void drawImageIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float hw = 8.2f * density;
+        float hh = 6.6f * density;
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.7f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+        RectF frame = drawRectA;
+        frame.set(cx - hw, cy - hh, cx + hw, cy + hh);
+        canvas.drawRoundRect(frame, 2.4f * density, 2.4f * density, iconStrokePaint);
+        iconStrokePaint.setStrokeWidth(1.4f * density);
+        canvas.drawCircle(cx - hw * 0.42f, cy - hh * 0.35f, 1.5f * density, iconStrokePaint);
+        canvas.drawLine(cx - hw + 1.5f * density, cy + hh - 1.8f * density, cx - hw * 0.1f, cy - 0.2f * density, iconStrokePaint);
+        canvas.drawLine(cx - hw * 0.1f, cy - 0.2f * density, cx + hw * 0.35f, cy + hh * 0.4f, iconStrokePaint);
+        canvas.drawLine(cx + hw * 0.1f, cy + hh * 0.1f, cx + hw * 0.5f, cy - hh * 0.2f, iconStrokePaint);
+        canvas.drawLine(cx + hw * 0.5f, cy - hh * 0.2f, cx + hw - 1.5f * density, cy + hh - 1.8f * density, iconStrokePaint);
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
     }
 
     /** أيقونة الحافظة الحديثة (لوح بمشبك علوي وسطور نص) بدل أيقونة الخطوط الثلاثة. */

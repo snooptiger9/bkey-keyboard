@@ -99,7 +99,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 && (SystemClock.elapsedRealtime() - clipChipTime) < CLIP_CHIP_MS;
     }
 
+    // لقطة شاشة جديدة: تظهر في الخانة الوسطى بنفس نظام النص المنسوخ (60 ثانية، وتختفي بالكتابة)
+    private boolean screenshotChipActive = false;
+    private long screenshotChipTime = 0L;
+
+    private boolean hasValidShotChip() {
+        return screenshotChipActive
+                && keyboardPrefs != null && keyboardPrefs.isScreenshotClipEnabled()
+                && keyboardPrefs.isClipChipEnabled()
+                && !keyboardPrefs.isIncognitoMode()
+                && !passwordFieldActive
+                && (SystemClock.elapsedRealtime() - screenshotChipTime) < CLIP_CHIP_MS
+                && ScreenshotClip.exists(this);
+    }
+
     private void clearClipChip() {
+        screenshotChipActive = false;
         clipChipText = null;
         uiHandler.removeCallbacks(clipChipExpiry);
     }
@@ -376,6 +391,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                         clipboardRepo.addClip(copiedText, false);
                         refreshClipboardDrawerList();
                         if (keyboardPrefs.isClipChipEnabled()) {
+                            screenshotChipActive = false;
                             clipChipText = copiedText;
                             clipChipTime = SystemClock.elapsedRealtime();
                             uiHandler.removeCallbacks(clipChipExpiry);
@@ -881,6 +897,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 boolean changed = ScreenshotClip.captureLatest(appCtx);
                 if (changed) {
                     uiHandler.post(() -> {
+                        if (keyboardPrefs.isClipChipEnabled()) {
+                            clipChipText = null;
+                            screenshotChipActive = true;
+                            screenshotChipTime = SystemClock.elapsedRealtime();
+                            uiHandler.removeCallbacks(clipChipExpiry);
+                            uiHandler.postDelayed(clipChipExpiry, CLIP_CHIP_MS + 100L);
+                            refreshPredictions();
+                        }
                         if (clipboardDrawerView != null && clipboardDrawerView.getVisibility() == View.VISIBLE) {
                             refreshClipboardDrawerList();
                         }
@@ -1154,6 +1178,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
+        if (hasValidShotChip() && ctx[0].isEmpty()) {
+            keyboardView.setSuggestions(Arrays.asList("", keyboardView.isArabic() ? "لقطة شاشة" : "Screenshot", ""), 2);
+            keyboardView.setEmojiKeySuggestion(null);
+            return;
+        }
         if (hasValidClipChip() && ctx[0].isEmpty()) {
             keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), true);
             keyboardView.setEmojiKeySuggestion(null);
@@ -1356,6 +1385,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
+        if (hasValidShotChip() && currentPrefix.isEmpty()) {
+            if (zoneIndex == 1) {
+                clearClipChip();
+                useScreenshotClip();
+                refreshPredictions();
+            }
+            return;
+        }
+
         if (hasValidClipChip() && currentPrefix.isEmpty()) {
             // الخانتان الجانبيتان فاضيتان وقت ظهور النص المنسوخ؛ فقط المنتصف يلصقه.
             if (zoneIndex == 1) {
@@ -1370,6 +1408,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (suggestions.isEmpty()) return;
         String chosen = (zoneIndex >= 0 && zoneIndex < suggestions.size()) ? suggestions.get(zoneIndex) : suggestions.get(0);
         // العبارات (فيها مسافة) والإيموجي (بدون أي حرف) لا تُعتبر "كلمة" يتعلمها محرك التوقع.
+        if (chosen == null || chosen.isEmpty()) return; // خانة فاضية: ما نكتب شي
         boolean learnableChoice = chosen.indexOf(' ') < 0 && containsLetter(chosen);
 
         if (!currentPrefix.isEmpty()) {
