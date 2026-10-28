@@ -1714,8 +1714,9 @@ public class BlackBerryKeyboardView extends View {
                         // الخيار يُحسب بالمسافة النسبية من نقطة انطلاق السحب (مكان الإصبع الحقيقي)
                         // بدءاً من الخلية اللي تقع تحته أصلاً، خطوة واحدة = عرض خلية واحدة — بدل
                         // اختبار موضع مطلق أو افتراض بداية من الخلية الأولى، حتى ما يصير قفز مفاجئ.
+                        // الخطوة أطول من عرض الخلية بـ 40% عشان السحب يكون أهدأ ولا يقفز بين الحروف بحركة صغيرة
                         int steps = longPressCellW > 0f
-                                ? Math.round((x - longPressDragBaseX) / longPressCellW)
+                                ? Math.round((x - longPressDragBaseX) / (longPressCellW * 1.4f))
                                 : 0;
                         int newIdx = Math.max(0, Math.min(longPressOptions.size() - 1, longPressBaseIndex + steps));
                         if (newIdx != longPressHighlightedIndex) {
