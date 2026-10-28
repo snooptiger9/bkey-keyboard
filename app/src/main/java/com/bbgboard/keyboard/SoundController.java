@@ -23,8 +23,8 @@ public class SoundController {
     private final AudioManager audioManager;
     private SoundPool soundPool;
 
-    private final int[] tapSoundIds = new int[10];
-    private final int[] swipeSoundIds = new int[10];
+    private final int[] tapSoundIds = new int[11];
+    private final int[] swipeSoundIds = new int[11];
     private int backspaceSoundId = 0;
 
     public SoundController(Context context, KeyboardPreferences prefs) {
@@ -54,17 +54,17 @@ public class SoundController {
                     .setAudioAttributes(attrs)
                     .build();
 
-            File cacheDir = new File(context.getCacheDir(), "bb_sounds_v9");
+            File cacheDir = new File(context.getCacheDir(), "bb_sounds_v10");
             if (!cacheDir.exists()) {
                 cacheDir.mkdirs();
             }
 
             // أرقام الملفات: النقر 0-4 و6-9 (الرقم 5 = صوت النظام)، السحب 0-4 و6-9 (الرقم 5 = صامت)
-            final int[] ids = {0, 1, 2, 3, 4, 6, 7, 8, 9};
+            final int[] ids = {0, 1, 2, 3, 4, 6, 7, 8, 9, 10};
             final String[] tapNames = {"tap_bb_classic.wav", "tap_bb_q10.wav", "tap_gboard_pop.wav", "tap_mech_switch.wav",
-                    "tap_ios_tick.wav", "tap_typewriter.wav", "tap_wooden.wav", "tap_waterdrop.wav", "tap_glass.wav"};
+                    "tap_ios_tick.wav", "tap_typewriter.wav", "tap_wooden.wav", "tap_waterdrop.wav", "tap_glass.wav", "tap_bb_original.wav"};
             final String[] swNames = {"sw_air_flick.wav", "sw_velvet.wav", "sw_double_pulse.wav", "sw_harmonic.wav",
-                    "sw_whoosh.wav", "sw_glass_ping.wav", "sw_paper.wav", "sw_bubble.wav", "sw_triple_tick.wav"};
+                    "sw_whoosh.wav", "sw_glass_ping.wav", "sw_paper.wav", "sw_bubble.wav", "sw_triple_tick.wav", "sw_bb_original.wav"};
             final String bsName = "tap_backspace_soft.wav";
 
             // إن كانت الملفات مولّدة مسبقاً نحمّلها مباشرة بدون إعادة توليد الصوت (يوفر المعالج عند كل تشغيل)
@@ -89,6 +89,7 @@ public class SoundController {
             tapSoundIds[7] = buildWoodenTapWav(cacheDir, tapNames[6]);
             tapSoundIds[8] = buildWaterDropTapWav(cacheDir, tapNames[7]);
             tapSoundIds[9] = buildSoftGlassTapWav(cacheDir, tapNames[8]);
+            tapSoundIds[10] = buildBlackBerryOriginalTapWav(cacheDir, tapNames[9]);
 
             backspaceSoundId = buildSoftBackspaceWav(cacheDir, bsName);
 
@@ -101,6 +102,7 @@ public class SoundController {
             swipeSoundIds[7] = buildSwipePaperSwishWav(cacheDir, swNames[6]);
             swipeSoundIds[8] = buildSwipeBubbleRiseWav(cacheDir, swNames[7]);
             swipeSoundIds[9] = buildSwipeTripleTickWav(cacheDir, swNames[8]);
+            swipeSoundIds[10] = buildSwipeBlackBerryOriginalWav(cacheDir, swNames[9]);
 
         } catch (Exception ignored) {}
     }
@@ -196,6 +198,20 @@ public class SoundController {
         return finishSound(dir, name, b, 0.80);
     }
 
+    /**
+     * 10: صوت لوحة بلاك بيري الأصلية كما قيس من تسجيل حقيقي: ثودة قصيرة جداً (حوالي 20 ملّي ثانية) طاقتها
+     * في الترددات المنخفضة (تحت 300 هرتز) مع ذيل خفيف جداً يصل لنحو 1 كيلو هرتز، وبدون حدة عالية.
+     */
+    private int buildBlackBerryOriginalTapWav(File dir, String name) {
+        double[] b = new double[ms(26)];
+        addResonance(b, 0, 115.0, 95.0, 6.5, 1.0, 0.3);
+        addResonance(b, 0, 205.0, 170.0, 4.5, 0.75, 0.3);
+        addResonance(b, ms(5), 170.0, 130.0, 5.0, 0.45, 0.3);
+        addNoiseBurst(b, 0, 520.0, 1.1, 2.2, 0.32, 101);
+        addNoiseBurst(b, 0, 1500.0, 1.2, 1.2, 0.10, 103);
+        return finishSound(dir, name, b, 0.78);
+    }
+
     /** 1: بلاك بيري Q10: ضربة مكتومة عميقة، شبه كتم مطاطي. */
     private int buildBlackBerryQ10DeepWav(File dir, String name) {
         double[] b = new double[ms(52)];
@@ -246,6 +262,27 @@ public class SoundController {
     // أصوات السحب الخمسة (مسموعة وواضحة، وكل واحد بشخصية مختلفة)
     // -------------------------------------------------------------------------
     /** 0: انطلاقة هوائية: نفحة هواء ترتفع نغمتها بسرعة. */
+    /**
+     * 10: سحب/مسح بلاك بيري الأصلي كما قيس من تسجيل حقيقي: حفيف قصير (حوالي 120 ملّي ثانية) ضوضاء واسعة
+     * بين 2 و8 كيلو هرتز، تبدأ حادة (نحو 3.8 كيلو) وتنزل لنحو 1.6 كيلو، بذروة عند 25-50 ملّي ثانية ثم ذيل خافت.
+     */
+    private int buildSwipeBlackBerryOriginalWav(File dir, String name) {
+        int n = ms(122);
+        double[] b = new double[n];
+        java.util.Random rnd = new java.util.Random(131);
+        Bandpass bp = new Bandpass(0.8);
+        for (int i = 0; i < n; i++) {
+            double t = i * 1000.0 / SAMPLE_RATE; // ملّي ثانية
+            double fc = 1500.0 + 2500.0 * Math.exp(-t / 28.0);
+            double attack = t < 24.0 ? Math.pow(t / 24.0, 1.3) : 1.0;
+            double decay = t < 24.0 ? 1.0 : Math.exp(-(t - 24.0) / 20.0);
+            double tail = 0.10 * Math.exp(-Math.pow((t - 104.0) / 7.0, 2.0));
+            b[i] = bp.process(rnd.nextDouble() * 2.0 - 1.0, fc) * (attack * decay + tail);
+        }
+        addResonance(b, 0, 190.0, 150.0, 30.0, 0.25, 4.0);
+        return finishSound(dir, name, b, 0.80);
+    }
+
     private int buildSwipeAirFlickWav(File dir, String name) {
         int n = ms(150);
         double[] b = new double[n];
@@ -555,6 +592,8 @@ public class SoundController {
                 return "قطرة ماء (Water Drop)";
             case 9:
                 return "كريستال ناعم (Soft Glass)";
+            case 10:
+                return "بلاك بيري الحقيقي — مقاس من التسجيل (BlackBerry Original)";
             case KeyboardPreferences.SOUND_PROFILE_SYSTEM:
                 return "صوت نظام أندرويد (System Default)";
             default:
@@ -582,6 +621,8 @@ public class SoundController {
                 return "فقاعة صاعدة (Bubble Rise)";
             case 9:
                 return "ثلاث نقرات سريعة (Triple Tick)";
+            case 10:
+                return "حفيف بلاك بيري الحقيقي — مقاس من التسجيل (BlackBerry Original)";
             case KeyboardPreferences.SWIPE_SOUND_SILENT:
                 return "صامت للسحب فقط (Silent Swipe)";
             default:
