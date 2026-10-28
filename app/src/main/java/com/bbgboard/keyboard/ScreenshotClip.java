@@ -27,6 +27,16 @@ public final class ScreenshotClip {
 
     public static void clear(Context c) { file(c).delete(); }
 
+    /** يحذف المصغّرة لو مرّ عليها أكثر من المدة المحددة (0 أو أقل = بدون حذف). يرجع true إذا حذفها. */
+    public static boolean pruneIfOld(Context c, long maxAgeMs) {
+        if (maxAgeMs <= 0) return false;
+        File f = file(c);
+        if (f.exists() && System.currentTimeMillis() - f.lastModified() > maxAgeMs) {
+            return f.delete();
+        }
+        return false;
+    }
+
     public static String neededPermission() {
         return Build.VERSION.SDK_INT >= 33 ? Manifest.permission.READ_MEDIA_IMAGES
                 : Manifest.permission.READ_EXTERNAL_STORAGE;

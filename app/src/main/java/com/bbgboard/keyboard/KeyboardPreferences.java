@@ -346,13 +346,18 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("clip_chip_enabled", enabled).apply();
     }
 
-    /** مدة بقاء النصوص غير المثبتة في الحافظة بالأيام (0 = لا حذف تلقائي). الافتراضي 7. */
-    public int getClipRetentionDays() {
-        return prefs.getInt("clip_retention_days", 7);
+    /**
+     * مدة بقاء النصوص غير المثبتة ولقطة الشاشة في الحافظة بالساعات (0 = لا حذف تلقائي). الافتراضي 168 (أسبوع).
+     * من اختار قبل كذا مدة بالأيام تنتقل قيمته تلقائياً.
+     */
+    public int getClipRetentionHours() {
+        if (prefs.contains("clip_retention_hours")) return prefs.getInt("clip_retention_hours", 168);
+        if (prefs.contains("clip_retention_days")) return prefs.getInt("clip_retention_days", 7) * 24;
+        return 168;
     }
 
-    public void setClipRetentionDays(int days) {
-        prefs.edit().putInt("clip_retention_days", days).apply();
+    public void setClipRetentionHours(int hours) {
+        prefs.edit().putInt("clip_retention_hours", hours).apply();
     }
 
     /** وضع التخفي: لا يتعلم كلمات ولا يحفظ الحافظة. */

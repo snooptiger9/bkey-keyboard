@@ -41,7 +41,7 @@ public class ClipboardRepository {
     private static final String KEY_PLAIN = "clips_v1";
     private static final String KEY_ENC = "clips_v2_enc";
     private static final String KS_ALIAS = "bkey_clip_key";
-    private static final long DAY_MS = 24L * 60L * 60L * 1000L;
+    private static final long HOUR_MS = 60L * 60L * 1000L;
 
     private final SharedPreferences prefs;
     private final KeyboardPreferences keyboardPrefs;
@@ -78,9 +78,9 @@ public class ClipboardRepository {
 
     /** يحذف النصوص غير المثبتة الأقدم من المدة المختارة. يرجع true إذا حذف شيئاً. */
     private boolean pruneOld() {
-        int days = keyboardPrefs.getClipRetentionDays();
-        if (days <= 0) return false;
-        long limit = System.currentTimeMillis() - days * DAY_MS;
+        int hours = keyboardPrefs.getClipRetentionHours();
+        if (hours <= 0) return false;
+        long limit = System.currentTimeMillis() - hours * HOUR_MS;
         boolean changed = false;
         for (int i = items.size() - 1; i >= 0; i--) {
             ClipEntry e = items.get(i);
