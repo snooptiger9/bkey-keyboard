@@ -1482,14 +1482,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        abcWrap.addView(abcBg);
-        refs.abcBg = abcBg;
+        // زر "أبجد/ABC": كبسولة بيضاء شفافة بنفس شكل ولون زر الرجوع في قائمة الإيموجي (بدل شكل مفتاح الكيبورد)
+        android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
+        abcPill.setColor(Color.parseColor("#33FFFFFF"));
+        abcPill.setCornerRadius(dp(40));
+        abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
+        refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
 
         TextView abcLabel = new TextView(this);
         abcLabel.setText((keyboardView == null || keyboardView.isArabic()) ? "أبجد" : "ABC");
-        abcLabel.setTextColor(labelColor);
+        abcLabel.setTextColor(Color.WHITE);
         abcLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        abcLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        abcLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         abcLabel.setGravity(Gravity.CENTER);
         abcLabel.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         abcWrap.addView(abcLabel);
@@ -1681,10 +1685,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setResizeDragMode(!keyboardView.isResizeDragMode());
         });
 
-        ModernIconView backIconBtn = new ModernIconView(this, ModernIconView.ICON_BACK_KEYBOARD,
-                Color.WHITE, Color.TRANSPARENT);
-        backIconBtn.setStyle(0.9f * 1.03f, 2.0f);
-        LinearLayout.LayoutParams lpBackClip = new LinearLayout.LayoutParams((int) (dp(44) * 1.03f), (int) (dp(42) * 1.03f));
+        // زر الرجوع: نفس شكل وأيقونة زر الرجوع في قائمة الإيموجي (سهم فوق كبسولة)
+        ModernIconView backIconBtn = new ModernIconView(this, ModernIconView.ICON_FORWARD_ARROW,
+                Color.WHITE, Color.parseColor("#33FFFFFF"));
+        backIconBtn.setPillBackground(true);
+        backIconBtn.setStyle(0.85f, 2.3f);
+        LinearLayout.LayoutParams lpBackClip = new LinearLayout.LayoutParams(dp(62), dp(42));
         lpBackClip.leftMargin = dp(10);
         backIconBtn.setLayoutParams(lpBackClip);
         backIconBtn.setOnClickListener(v -> {
