@@ -179,14 +179,6 @@ public class MainActivity extends Activity {
                 this::openLanguagesScreen
         ));
         group1.addView(createMenuRow(
-                ModernIconView.ICON_SLIDERS_PREFS,
-                tr("التفضيلات والبوب أب وحجم الخط", "Preferences & key size"),
-                tr("بوب أب معاينة الحرف • حجم الحروف (" + Math.round(prefs.getKeyFontScale() * 100) + "%) • ارتفاع الكيبورد",
-                        "Key preview popup • font size (" + Math.round(prefs.getKeyFontScale() * 100) + "%) • keyboard height"),
-                true,
-                this::openPreferencesScreen
-        ));
-        group1.addView(createMenuRow(
                 ModernIconView.ICON_THEME_PALETTE,
                 tr("المظهر وشكل الكيبورد", "Theme & key style"),
                 getThemeAndStyleSummary(),
