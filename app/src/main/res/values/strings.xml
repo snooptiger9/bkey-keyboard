@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">bkey</string>
+    <string name="ime_name">bkey</string>
+    <string name="subtype_ar">العربية (Gboard)</string>
+    <string name="subtype_en">English (US)</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ثيم خاص بنافذة الكيبورد فقط (غامق)، حتى لا يظهر الخلفية البيضاء الافتراضية للثيم العام
+         خلف زوايا الشاشة المدورة أو أي جزء غير مرسوم يدوياً من نافذة لوحة المفاتيح. -->
+    <style name="ImeWindowTheme" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+</resources>
