@@ -830,22 +830,22 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("ص"),
             new KeyDef("ث"),
             new KeyDef("ق"),
-            new KeyDef("ف", "", Arrays.asList("ڤ")),
+            new KeyDef("ف"),
             new KeyDef("غ"),
             new KeyDef("ع"),
             new KeyDef("ه", "", Arrays.asList("ـ")),
             new KeyDef("خ"),
             new KeyDef("ح"),
-            new KeyDef("ج", "", Arrays.asList("چ"))
+            new KeyDef("ج")
         );
         List<KeyDef> row2 = Arrays.asList(
             new KeyDef("ش"),
             new KeyDef("س"),
-            new KeyDef("ي", "", Arrays.asList("ئ", "ى")),
-            new KeyDef("ب", "", Arrays.asList("پ")),
-            new KeyDef("ل", "", Arrays.asList("لا", "لأ", "لإ", "لآ")),
-            new KeyDef("ا", "", Arrays.asList("أ", "إ", "آ", "ٱ")),
-            new KeyDef("ت", "", Arrays.asList("ة")),
+            new KeyDef("ي"),
+            new KeyDef("ب"),
+            new KeyDef("ل", "", Arrays.asList("لأ", "لإ", "لآ")),
+            new KeyDef("ا", "", Arrays.asList("أ", "إ", "آ")),
+            new KeyDef("ت"),
             new KeyDef("ن"),
             new KeyDef("م"),
             new KeyDef("ك", "", Arrays.asList("گ")),
@@ -853,15 +853,15 @@ public class BlackBerryKeyboardView extends View {
         );
         List<KeyDef> row3 = Arrays.asList(
             new KeyDef("ذ"),
-            new KeyDef("ء", "", Arrays.asList("أ", "إ", "ؤ", "ئ", "آ")),
-            new KeyDef("ؤ", "", Arrays.asList("ء", "ئ", "أ", "إ")),
-            new KeyDef("ر", "", Arrays.asList("ـ")),
+            new KeyDef("ء"),
+            new KeyDef("ؤ"),
+            new KeyDef("ر"),
             new KeyDef("ى", "", Arrays.asList("ئ", "ي")),
-            new KeyDef("ة", "", Arrays.asList("ه", "ت")),
-            new KeyDef("و", "", Arrays.asList("ؤ")),
-            new KeyDef("ز", "", Arrays.asList("ژ")),
-            new KeyDef("ظ", "", Arrays.asList("ط")),
-            new KeyDef("د", "", Arrays.asList("ذ")),
+            new KeyDef("ة"),
+            new KeyDef("و"),
+            new KeyDef("ز"),
+            new KeyDef("ظ"),
+            new KeyDef("د"),
             new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1.35f)
         );
         return Arrays.asList(row1, row2, row3);
