@@ -43,4 +43,6 @@ android {
 }
 
 dependencies {
+    // لبناء ستايل اقتراحات الملء التلقائي (حساب/باسورد) داخل شريط الكيبورد بدل نافذة منبثقة
+    implementation 'androidx.autofill:autofill:1.1.0'
 }

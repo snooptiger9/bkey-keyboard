@@ -563,6 +563,15 @@ public class BlackBerryKeyboardView extends View {
         return mainTextPaint.getColor();
     }
 
+    /** ارتفاع شريط الاقتراحات العلوي (px) ومكانه، يستخدمهم الشريط المدمج لاقتراحات الملء التلقائي. */
+    public float getSuggestionBarHeightPx() {
+        return getSuggestionBarHeight();
+    }
+
+    public float getSuggestionBarTopPx() {
+        return getResizeBarHeight();
+    }
+
     public float getBottomRowHeightPx() {
         return getBottomRowHeight();
     }
