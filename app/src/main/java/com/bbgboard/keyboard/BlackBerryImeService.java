@@ -420,8 +420,34 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         try {
             int barH = keyboardView != null ? Math.round(keyboardView.getSuggestionBarHeightPx()) : dp(40);
             if (barH <= 0) barH = dp(40);
+            // ستايل أزرار الاقتراحات: نفس شكل وألوان أزرار الكيبورد الحالية (الخلفية تُرسم بنفس دالة رسم المفاتيح)
+            androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder styleBuilder =
+                    androidx.autofill.inline.v1.InlineSuggestionUi.newStyleBuilder();
+            if (keyboardView != null) {
+                android.graphics.Bitmap chipBg = keyboardView.renderKeyChipBitmap(dp(170), barH);
+                androidx.autofill.inline.common.ViewStyle chipStyle =
+                        new androidx.autofill.inline.common.ViewStyle.Builder()
+                                .setBackground(android.graphics.drawable.Icon.createWithBitmap(chipBg))
+                                .setPadding(dp(12), 0, dp(12), 0)
+                                .build();
+                int label = keyboardView.getKeyLabelColor();
+                androidx.autofill.inline.common.TextViewStyle titleStyle =
+                        new androidx.autofill.inline.common.TextViewStyle.Builder()
+                                .setTextColor(label)
+                                .setTextSize(14f)
+                                .build();
+                androidx.autofill.inline.common.TextViewStyle subStyle =
+                        new androidx.autofill.inline.common.TextViewStyle.Builder()
+                                .setTextColor((label & 0x00FFFFFF) | 0xB0000000)
+                                .setTextSize(11f)
+                                .build();
+                styleBuilder.setChipStyle(chipStyle)
+                        .setSingleIconChipStyle(chipStyle)
+                        .setTitleStyle(titleStyle)
+                        .setSubtitleStyle(subStyle);
+            }
             Bundle styles = androidx.autofill.inline.UiVersions.newStylesBuilder()
-                    .addStyle(androidx.autofill.inline.v1.InlineSuggestionUi.newStyleBuilder().build())
+                    .addStyle(styleBuilder.build())
                     .build();
             int screenW = getResources().getDisplayMetrics().widthPixels;
             android.util.Size min = new android.util.Size(dp(80), Math.min(barH, dp(30)));
@@ -455,7 +481,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 suggestion.inflate(this, size, getMainExecutor(), view -> {
                     if (view == null || gen != inlineGen || inlineStripRow == null) return;
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size.getWidth(), size.getHeight());
-                    lp.rightMargin = dp(4);
+                    lp.rightMargin = 0;
                     inlineStripRow.addView(view, lp);
                     inlineHasSuggestions = true;
                     updateInlineStripVisibility();
@@ -476,7 +502,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         inlineStripRow = new LinearLayout(this);
         inlineStripRow.setOrientation(LinearLayout.HORIZONTAL);
         inlineStripRow.setGravity(Gravity.CENTER_VERTICAL);
-        inlineStripRow.setPadding(dp(4), 0, dp(4), 0);
+        inlineStripRow.setPadding(dp(2), 0, dp(2), 0);
         hs.addView(inlineStripRow, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         inlineStrip.addView(hs, new FrameLayout.LayoutParams(
@@ -490,6 +516,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (inlineStrip == null || keyboardView == null) return;
         boolean show = inlineHasSuggestions && keyboardView.getVisibility() == View.VISIBLE;
         if (show) {
+            inlineStrip.setBackgroundColor(keyboardView.getSuggestionBarColor());
             int barH = Math.round(keyboardView.getSuggestionBarHeightPx());
             if (barH <= 0) barH = dp(40);
             ViewGroup.LayoutParams kbLp = keyboardView.getLayoutParams();

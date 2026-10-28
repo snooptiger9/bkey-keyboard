@@ -543,6 +543,24 @@ public class BlackBerryKeyboardView extends View {
         return keyboardStyle;
     }
 
+    public int getSuggestionBarColor() {
+        return sugBarPaint.getColor();
+    }
+
+    /**
+     * يرسم زر حرف عادي بنفس ستايل وألوان الكيبورد الحالي على صورة بالحجم المطلوب بالضبط.
+     * تُستخدم كخلفية لأزرار اقتراحات الملء التلقائي حتى تطلع متناسقة مع أزرار الكيبورد.
+     */
+    public android.graphics.Bitmap renderKeyChipBitmap(int w, int h) {
+        android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(Math.max(1, w), Math.max(1, h),
+                android.graphics.Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmp);
+        KeyDef chip = new KeyDef("a");
+        chip.rect.set(0f, 0f, w, h);
+        drawStyledKeyCell(c, chip, keyBgPaint);
+        return bmp;
+    }
+
     public int getKeySpecialBgColor() {
         return keySpecialBgPaint.getColor();
     }
