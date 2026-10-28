@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.bbgboard.keyboard'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.bbgboard.keyboard"
+        minSdk 24
+        targetSdk 34
+        versionCode 46
+        versionName "46.0.0"
+    }
+
+    signingConfigs {
+        // مفتاح توقيع ثابت داخل المشروع نفسه (وليس مفتاح Debug العشوائي لجهازك)، حتى كل نسخة جديدة
+        // ترسل لك تحدّث النسخة المثبتة فوق بعضها طبيعي بدون حذف ولا فقدان الكلمات المحفوظة والحافظة.
+        bkeyStable {
+            storeFile file('bkey_release.keystore')
+            storePassword 'bkey2026pass'
+            keyAlias 'bkeyalias'
+            keyPassword 'bkey2026pass'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.bkeyStable
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.bkeyStable
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+}
