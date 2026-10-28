@@ -1726,6 +1726,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (clipsListContainer == null) return;
         clipsListContainer.removeAllViews();
 
+        ScreenshotClip.pruneIfOld(this, keyboardPrefs.getClipRetentionHours() * 3600L * 1000L);
         boolean hasShotThumb = keyboardPrefs.isScreenshotClipEnabled() && ScreenshotClip.exists(this);
         if (hasShotThumb) {
             clipsListContainer.addView(buildScreenshotThumbRow());
