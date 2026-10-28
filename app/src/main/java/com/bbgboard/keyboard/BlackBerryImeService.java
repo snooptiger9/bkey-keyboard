@@ -28,6 +28,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputConnectionWrapper;
 import android.view.inputmethod.InputContentInfo;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
@@ -40,6 +41,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * خدمة لوحة المفاتيح الأساسية في أندرويد (الإصدار 7.0):
@@ -309,6 +312,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     };
 
+    /** مدراء كلمات المرور وتطبيقات البنوك تعلّم النسخ الحساس بهذه العلامة؛ نحترمها ولا نخزنه. */
+    private static boolean isSensitiveClip(ClipData clip) {
+        try {
+            android.content.ClipDescription d = clip.getDescription();
+            if (d == null) return false;
+            android.os.PersistableBundle extras = d.getExtras();
+            if (extras == null) return false;
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                if (extras.getBoolean(android.content.ClipDescription.EXTRA_IS_SENSITIVE, false)) return true;
+            }
+            return extras.getBoolean("android.content.extra.IS_SENSITIVE", false);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private final ClipboardManager.OnPrimaryClipChangedListener clipListener = new ClipboardManager.OnPrimaryClipChangedListener() {
         @Override
         public void onPrimaryClipChanged() {
@@ -319,6 +338,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     && !clip.getDescription().hasMimeType("text/*")
                     && !clip.getDescription().hasMimeType("text/plain")) {
                 return; // نسخة صورة (مثل لقطة الشاشة التي ننسخها نحن) — ليست نصاً يُحفظ في قائمة الحافظة
+            }
+            if (clip != null && isSensitiveClip(clip)) {
+                return; // نسخة حساسة (كلمة مرور من مدير كلمات المرور مثلاً): لا تُحفظ في الحافظة
             }
             if (clip != null && clip.getItemCount() > 0) {
                 CharSequence cs = clip.getItemAt(0).coerceToText(BlackBerryImeService.this);
@@ -338,7 +360,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         super.onCreate();
         keyboardPrefs = new KeyboardPreferences(this);
         soundController = new SoundController(this, keyboardPrefs);
-        predictionEngine = new PredictionEngine(this, keyboardPrefs);
+        // التحميل على خيط خلفي حتى لا يتأخر ظهور الكيبورد؛ أول ما يجهز نحدّث الاقتراحات
+        predictionEngine = new PredictionEngine(this, keyboardPrefs, true);
+        predictionEngine.setOnReadyListener(() -> uiHandler.post(this::refreshPredictions));
         clipboardRepo = new ClipboardRepository(this);
         clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboardManager != null) {
@@ -351,8 +375,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onDestroy() {
         uiHandler.removeCallbacksAndMessages(null);
         if (predictionEngine != null) {
-            predictionEngine.flushPendingSave();
+            predictionEngine.flushPendingSaveBlocking();
         }
+        predictionExecutor.shutdownNow();
+        ioExecutor.shutdown();
+        if (soundController != null) soundController.release();
         if (clipboardManager != null) {
             clipboardManager.removePrimaryClipChangedListener(clipListener);
         }
@@ -391,6 +418,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
+        invalidateTextCache();
+        if (info != null) {
+            curSelStart = info.initialSelStart;
+            curSelEnd = info.initialSelEnd;
+        }
         updateLearningPolicy(info);
         if (keyboardView != null) {
             keyboardView.reloadAppearanceFromPrefs();
@@ -405,10 +437,97 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             clearPendingOtp();
         }
         refreshPredictions();
-        tryCaptureScreenshotClip();
+        tryCaptureScreenshotClip(false);
         setExtractViewShown(false);
     }
 
+
+    // ===== أداء الكتابة: كاش لنص ما قبل المؤشر، وحساب الاقتراحات على خيط خلفي =====
+
+    /** خيط واحد لحساب الاقتراحات، وآخر للعمليات البطيئة (فحص لقطة الشاشة) — بدل إنشاء Thread جديد كل مرة. */
+    private final ExecutorService predictionExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "bkey-predict");
+        t.setDaemon(true);
+        t.setPriority(Thread.NORM_PRIORITY - 1);
+        return t;
+    });
+    private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "bkey-io");
+        t.setDaemon(true);
+        t.setPriority(Thread.NORM_PRIORITY - 1);
+        return t;
+    });
+    private volatile int predictionGen = 0;
+    private long lastShotCheckTime = 0L;
+
+    // آخر 90 حرف قبل المؤشر: كل قراءة من التطبيق هي طلب IPC، وكانت الكتابة الواحدة تطلبها أكثر من مرة.
+    // الكاش يبطل تلقائياً مع أي تعديل نسويه (عبر غلاف InputConnection) ومع إشعارات النظام، وينتهي بعد 1.5 ثانية.
+    private String cachedBefore90 = null;
+    private long cachedBeforeTime = 0L;
+
+    // موضع المؤشر الحالي (للتحريك بالسحب على المسافة)
+    private static final long CURSOR_SESSION_MS = 600L;
+    private int curSelStart = -1;
+    private int curSelEnd = -1;
+    private long lastCursorStepTime = 0L;
+    private boolean cursorRtl = false;
+
+    private void invalidateTextCache() {
+        cachedBefore90 = null;
+    }
+
+    private String textBefore90(InputConnection ic) {
+        long now = SystemClock.uptimeMillis();
+        String c = cachedBefore90;
+        if (c != null && now - cachedBeforeTime < 1500L) return c;
+        CharSequence cs = ic.getTextBeforeCursor(90, 0);
+        String s = cs == null ? "" : cs.toString();
+        cachedBefore90 = s;
+        cachedBeforeTime = now;
+        return s;
+    }
+
+    /** آخر n حرف قبل المؤشر (من الكاش لو n ≤ 90). */
+    private CharSequence textBefore(InputConnection ic, int n) {
+        if (n > 90) return ic.getTextBeforeCursor(n, 0);
+        String all = textBefore90(ic);
+        return all.length() <= n ? all : all.substring(all.length() - n);
+    }
+
+    /** غلاف يبطل الكاش قبل أي أمر يعدّل النص أو المؤشر. */
+    private final class CacheInvalidatingConnection extends InputConnectionWrapper {
+        CacheInvalidatingConnection(InputConnection target) { super(target, true); }
+        @Override public boolean commitText(CharSequence text, int newCursorPosition) { invalidateTextCache(); return super.commitText(text, newCursorPosition); }
+        @Override public boolean deleteSurroundingText(int before, int after) { invalidateTextCache(); return super.deleteSurroundingText(before, after); }
+        @Override public boolean deleteSurroundingTextInCodePoints(int before, int after) { invalidateTextCache(); return super.deleteSurroundingTextInCodePoints(before, after); }
+        @Override public boolean setComposingText(CharSequence text, int newCursorPosition) { invalidateTextCache(); return super.setComposingText(text, newCursorPosition); }
+        @Override public boolean setComposingRegion(int start, int end) { invalidateTextCache(); return super.setComposingRegion(start, end); }
+        @Override public boolean finishComposingText() { invalidateTextCache(); return super.finishComposingText(); }
+        @Override public boolean setSelection(int start, int end) { invalidateTextCache(); return super.setSelection(start, end); }
+        @Override public boolean sendKeyEvent(KeyEvent event) { invalidateTextCache(); return super.sendKeyEvent(event); }
+        @Override public boolean performEditorAction(int editorAction) { invalidateTextCache(); return super.performEditorAction(editorAction); }
+        @Override public boolean commitCompletion(android.view.inputmethod.CompletionInfo text) { invalidateTextCache(); return super.commitCompletion(text); }
+        @Override public boolean commitCorrection(android.view.inputmethod.CorrectionInfo correctionInfo) { invalidateTextCache(); return super.commitCorrection(correctionInfo); }
+        @Override public boolean commitContent(InputContentInfo inputContentInfo, int flags, Bundle opts) { invalidateTextCache(); return super.commitContent(inputContentInfo, flags, opts); }
+    }
+
+    private InputConnection icTarget = null;
+    private InputConnection icWrapped = null;
+
+    @Override
+    public InputConnection getCurrentInputConnection() {
+        InputConnection ic = super.getCurrentInputConnection();
+        if (ic == null) {
+            icTarget = null;
+            icWrapped = null;
+            return null;
+        }
+        if (ic != icTarget) {
+            icTarget = ic;
+            icWrapped = new CacheInvalidatingConnection(ic);
+        }
+        return icWrapped;
+    }
 
     // ===== اقتراحات الملء التلقائي المدمجة (أندرويد 11+) =====
     // بدون هذا الدعم النظام يعرض اقتراحات الحساب/الباسورد كنافذة منبثقة تاخذ التركيز وتخفي الكيبورد.
@@ -568,8 +687,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.resetShiftState();
         }
         clearInlineSuggestions();
+        invalidateTextCache();
         if (predictionEngine != null) {
-            predictionEngine.flushPendingSave();
+            predictionEngine.flushPendingSave(); // غير متزامن: لا يوقف الخيط الرئيسي
         }
         super.onFinishInputView(finishingInput);
     }
@@ -577,6 +697,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd, int candidatesStart, int candidatesEnd) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd);
+        invalidateTextCache();
+        // أثناء سحب المؤشر نعتمد على تتبعنا المباشر (الإشعارات تتأخر وقد ترجع موضعاً أقدم)
+        if (SystemClock.uptimeMillis() - lastCursorStepTime > CURSOR_SESSION_MS) {
+            curSelStart = newSelStart;
+            curSelEnd = newSelEnd;
+        }
         refreshPredictions();
     }
 
@@ -700,27 +826,33 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiDrawerView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.VISIBLE);
         updateInlineStripVisibility();
-        tryCaptureScreenshotClip();
+        tryCaptureScreenshotClip(true);
     }
 
     /**
      * يبحث في الخلفية عن لقطة شاشة التُقطت قبل لحظات ويحفظ مصغّرة واحدة منها فقط؛
      * كل لقطة جديدة تحل محل القديمة تلقائياً. لا يعمل إلا إذا فعّل المستخدم الخيار ومنح الإذن.
      */
-    private void tryCaptureScreenshotClip() {
+    private void tryCaptureScreenshotClip(boolean force) {
         if (!keyboardPrefs.isScreenshotClipEnabled()) return;
         if (!ScreenshotClip.hasPermission(this)) return;
+        // ظهور الكيبورد يتكرر مع كل حقل؛ نكتفي بفحص واحد كل بضع ثوانٍ (فتح الحافظة يجبر الفحص دائماً)
+        long now = SystemClock.elapsedRealtime();
+        if (!force && now - lastShotCheckTime < 3000L) return;
+        lastShotCheckTime = now;
         final android.content.Context appCtx = getApplicationContext();
-        new Thread(() -> {
-            boolean changed = ScreenshotClip.captureLatest(appCtx);
-            if (changed) {
-                uiHandler.post(() -> {
-                    if (clipboardDrawerView != null && clipboardDrawerView.getVisibility() == View.VISIBLE) {
-                        refreshClipboardDrawerList();
-                    }
-                });
-            }
-        }).start();
+        try {
+            ioExecutor.execute(() -> {
+                boolean changed = ScreenshotClip.captureLatest(appCtx);
+                if (changed) {
+                    uiHandler.post(() -> {
+                        if (clipboardDrawerView != null && clipboardDrawerView.getVisibility() == View.VISIBLE) {
+                            refreshClipboardDrawerList();
+                        }
+                    });
+                }
+            });
+        } catch (Exception ignored) {}
     }
 
     /** يحاول إدراج لقطة الشاشة مباشرة في المحادثة إن كان التطبيق يدعم ذلك، وإلا ينسخها لتُلصق يدوياً. */
@@ -857,39 +989,44 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (ic == null) return;
         // نحرّك المؤشر بـ setSelection داخل نص الحقل فقط (بدل أحداث DPAD)، لأن DPAD عند حافة النص
         // كان ينقل التركيز لأزرار وعناصر ثانية في الصفحة. هنا المؤشر ما يطلع من مربع النص أبداً.
-        CharSequence before = ic.getTextBeforeCursor(2, 0);
-        CharSequence after = ic.getTextAfterCursor(2, 0);
-        boolean rtl = isRtlAroundCursor(before, after);
+        // موضع المؤشر نتتبعه بأنفسنا (من إشعارات النظام ثم تحديث مباشر مع كل خطوة)، فلا نطلب نص الحقل كاملاً.
+        long now = SystemClock.uptimeMillis();
+        boolean newSession = (now - lastCursorStepTime) > CURSOR_SESSION_MS;
+        lastCursorStepTime = now;
+
+        if (newSession) {
+            // اتجاه النص يُحدد مرة واحدة لكل سحبة (بدل كل خطوة)
+            cursorRtl = isRtlAroundCursor(textBefore(ic, 2), ic.getTextAfterCursor(2, 0));
+            if (curSelStart < 0 || curSelEnd < 0) {
+                // موضع المؤشر غير معروف (نادر): نسأل التطبيق مرة واحدة فقط لهذه السحبة
+                android.view.inputmethod.ExtractedTextRequest req = new android.view.inputmethod.ExtractedTextRequest();
+                android.view.inputmethod.ExtractedText et = ic.getExtractedText(req, 0);
+                if (et == null) return;
+                curSelStart = et.startOffset + et.selectionStart;
+                curSelEnd = et.startOffset + et.selectionEnd;
+            }
+        }
         // الحركة المرئية (يمين/يسار) تتحول لاتجاه منطقي حسب اتجاه النص: في العربي اليمين = للخلف.
-        boolean forward = rtl ? !moveRight : moveRight;
+        boolean forward = cursorRtl ? !moveRight : moveRight;
 
-        boolean canMove = forward ? (after != null && after.length() > 0) : (before != null && before.length() > 0);
-        if (!canMove) return; // وصلنا حافة النص: لا نسوي شيء
-
+        // قراءة حرف أو حرفين بجوار المؤشر تؤكد وجود نص باتجاه الحركة (حافة النص = لا شيء) وتكشف الإيموجي المزدوج
+        CharSequence neighbor = forward ? ic.getTextAfterCursor(2, 0) : ic.getTextBeforeCursor(2, 0);
+        if (neighbor == null || neighbor.length() == 0) return;
         int step = 1;
-        if (forward && after.length() >= 2 && Character.isHighSurrogate(after.charAt(0))
-                && Character.isLowSurrogate(after.charAt(1))) {
+        if (forward && neighbor.length() >= 2 && Character.isHighSurrogate(neighbor.charAt(0))
+                && Character.isLowSurrogate(neighbor.charAt(1))) {
             step = 2; // إيموجي من جزأين: نتخطاه كاملاً
-        } else if (!forward && before.length() >= 2
-                && Character.isLowSurrogate(before.charAt(before.length() - 1))
-                && Character.isHighSurrogate(before.charAt(before.length() - 2))) {
+        } else if (!forward && neighbor.length() >= 2
+                && Character.isLowSurrogate(neighbor.charAt(neighbor.length() - 1))
+                && Character.isHighSurrogate(neighbor.charAt(neighbor.length() - 2))) {
             step = 2;
         }
-
-        ExtractedText et = ic.getExtractedText(new ExtractedTextRequest(), 0);
-        if (et != null && et.text != null) {
-            int base = et.startOffset + (forward ? et.selectionEnd : et.selectionStart);
-            int target = forward ? base + step : base - step;
-            int max = et.startOffset + et.text.length();
-            if (target < 0) target = 0;
-            if (target > max) target = max;
-            ic.setSelection(target, target);
-        } else {
-            // بعض التطبيقات ما ترجع نص الحقل: نرجع لأحداث DPAD لكن فقط لما نتأكد إن فيه حرف باتجاه الحركة.
-            int code = moveRight ? KeyEvent.KEYCODE_DPAD_RIGHT : KeyEvent.KEYCODE_DPAD_LEFT;
-            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
-            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, code));
-        }
+        int base = forward ? curSelEnd : curSelStart;
+        int target = forward ? base + step : base - step;
+        if (target < 0) target = 0;
+        ic.setSelection(target, target);
+        curSelStart = target;
+        curSelEnd = target;
     }
 
     /** هل النص حول المؤشر اتجاهه من اليمين لليسار؟ يعتمد على أقرب حرف "قوي" ثم لغة الكيبورد. */
@@ -925,9 +1062,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private String[] getTypingContext() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return new String[]{"", "", ""};
-        CharSequence cs = ic.getTextBeforeCursor(90, 0);
-        if (cs == null || cs.length() == 0) return new String[]{"", "", ""};
-        String before = cs.toString();
+        String before = textBefore90(ic);
+        if (before.isEmpty()) return new String[]{"", "", ""};
 
         boolean endsWithSpace = Character.isWhitespace(before.charAt(before.length() - 1));
         String trimmed = before.trim();
@@ -949,7 +1085,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private boolean shouldAutoCapitalizeEnglish() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return true;
-        CharSequence cs = ic.getTextBeforeCursor(40, 0);
+        CharSequence cs = textBefore(ic, 40);
         if (cs == null || cs.length() == 0) return true;
         String before = cs.toString();
         if (before.endsWith("\n")) return true;
@@ -974,6 +1110,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void refreshPredictionsNow() {
         if (keyboardView == null) return;
+        final int gen = ++predictionGen; // أي حساب سابق لسا ما انتهى يصير قديماً ويُهمل
         String[] ctx = getTypingContext();
         // رمز التحقق (إن وُجد وصالح) يأخذ أولوية فوق أي شيء آخر، ويظهر في المنتصف فقط — حتى في لوحة الأرقام
         // (حيث الاقتراحات العادية معطّلة أصلاً)، طالما الحقل فاضي ولسه ما بدأ المستخدم يكتب فيه شيء.
@@ -987,16 +1124,28 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        List<String> suggestions = predictionEngine.getThreeSuggestions(ctx[0], ctx[1], ctx[2], keyboardView.isArabic());
-        keyboardView.setSuggestions(suggestions);
-        if (!keyboardView.isArabic()) {
-            keyboardView.updateAutoCapitalization(shouldAutoCapitalizeEnglish());
-        }
 
         // اقتراح الإيموجي يظهر على زر الإيموجي نفسه فقط لحظة إكمال كلمة معروفة (الحقل فاضي بعد مسافة)،
         // ويختفي تلقائياً أول ما تبدأ كتابة كلمة جديدة (لأن refreshPredictionsNow تُستدعى مع كل حرف).
         String emojiSuggestion = ctx[0].isEmpty() ? EmojiSuggester.suggestFor(ctx[1]) : null;
         keyboardView.setEmojiKeySuggestion(emojiSuggestion);
+
+        // حساب الاقتراحات (بحث وترتيب في قاموس كبير) يتم على خيط خلفي، والنتيجة ترجع للواجهة فقط لو ما تغيّر الإدخال
+        final String c0 = ctx[0], c1 = ctx[1], c2 = ctx[2];
+        final boolean arabic = keyboardView.isArabic();
+        try {
+            predictionExecutor.execute(() -> {
+                if (gen != predictionGen) return;
+                final List<String> suggestions = predictionEngine.getThreeSuggestions(c0, c1, c2, arabic);
+                uiHandler.post(() -> {
+                    if (gen != predictionGen || keyboardView == null) return;
+                    keyboardView.setSuggestions(suggestions);
+                    if (!arabic) {
+                        keyboardView.updateAutoCapitalization(shouldAutoCapitalizeEnglish());
+                    }
+                });
+            });
+        } catch (java.util.concurrent.RejectedExecutionException ignored) {}
     }
 
     @Override
@@ -1029,7 +1178,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 }
             }
             if (currentPrefix.isEmpty() && keyboardPrefs.isDoubleSpacePeriod() && (now - lastSpaceTapTime < 320L)) {
-                CharSequence beforeTwo = ic.getTextBeforeCursor(2, 0);
+                CharSequence beforeTwo = textBefore(ic, 2);
                 if (beforeTwo != null && beforeTwo.length() >= 2 && beforeTwo.charAt(1) == ' ' && !Character.isWhitespace(beforeTwo.charAt(0))) {
                     ic.deleteSurroundingText(1, 0);
                     ic.commitText(". ", 1);
@@ -1093,7 +1242,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     /** لو آخر شيء مكتوب هو بالضبط "النتيجة المصححة + مسافة"، يرجعه للكلمة الأصلية (بدون مسافة) دفعة واحدة. */
     private boolean undoAutoCorrectIfImmediate(InputConnection ic) {
         String expected = lastAutoCorrectResult + " ";
-        CharSequence before = ic.getTextBeforeCursor(expected.length(), 0);
+        CharSequence before = textBefore(ic, expected.length());
         if (before == null || !expected.equals(before.toString())) return false;
         ic.deleteSurroundingText(expected.length(), 0);
         ic.commitText(lastAutoCorrectOriginal, 1);
@@ -1102,7 +1251,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     /** طول آخر "حرف مرئي" قبل المؤشر (الإيموجي المركّب يتكوّن من عدة أكواد، فيُحذف دفعة واحدة). */
     private int lastGraphemeLength(InputConnection ic) {
-        CharSequence before = ic.getTextBeforeCursor(32, 0);
+        CharSequence before = textBefore(ic, 32);
         if (before == null || before.length() == 0) return 1;
         String str = before.toString();
         try {
@@ -1128,7 +1277,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public boolean onSwipeLeftDeleteWord() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
-        CharSequence cs = ic.getTextBeforeCursor(64, 0);
+        CharSequence cs = textBefore(ic, 64);
         if (cs == null || cs.length() == 0) return false;
         String before = cs.toString();
 
@@ -1177,7 +1326,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             ic.commitText(chosen + " ", 1);
             if (learnableChoice) predictionEngine.learnWordAndTransition(chosen, lastCompletedWord, lastCompletedWord2, keyboardView.isArabic());
         } else {
-            CharSequence beforeCs = ic.getTextBeforeCursor(2, 0);
+            CharSequence beforeCs = textBefore(ic, 2);
             String before = beforeCs != null ? beforeCs.toString() : "";
             String prefixSpace = (!before.isEmpty() && !Character.isWhitespace(before.charAt(before.length() - 1))) ? " " : "";
             ic.commitText(prefixSpace + chosen + " ", 1);

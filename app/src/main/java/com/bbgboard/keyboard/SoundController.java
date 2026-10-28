@@ -34,6 +34,14 @@ public class SoundController {
         initSoundPool();
     }
 
+    /** يحرر SoundPool عند إغلاق خدمة الكيبورد. */
+    public void release() {
+        try {
+            if (soundPool != null) soundPool.release();
+        } catch (Exception ignored) {}
+        soundPool = null;
+    }
+
     private void initSoundPool() {
         try {
             AudioAttributes attrs = new AudioAttributes.Builder()

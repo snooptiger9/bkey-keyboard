@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="bb_keyboard_clipboard_prefs.xml"/>
+        <exclude domain="file" path="screenshot_clip.jpg"/>
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="bb_keyboard_clipboard_prefs.xml"/>
+        <exclude domain="file" path="screenshot_clip.jpg"/>
+    </device-transfer>
+</data-extraction-rules>

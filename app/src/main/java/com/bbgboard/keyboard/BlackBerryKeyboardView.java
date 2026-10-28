@@ -125,6 +125,10 @@ public class BlackBerryKeyboardView extends View {
     /** مستطيل مؤقت يُعاد استخدامه بدل تخصيص RectF جديد مع كل مفتاح في كل رسمة، لتفادي تهنيج/تقطّع
      * الرسم (خصوصاً أثناء سحب إصبع فوق بوب أب الضغط المطول، حيث invalidate() يتكرر بسرعة عالية). */
     private final RectF scratchKeyRect = new RectF();
+    // مستطيلات مؤقتة للرسم: تُعاد استخدامها بدل إنشاء كائنات جديدة في كل إطار (تخفف الضغط على الذاكرة)
+    private final RectF drawRectA = new RectF();
+    private final RectF drawRectB = new RectF();
+    private final RectF drawRectC = new RectF();
     private int longPressHighlightedIndex = 0;
     /** عرض خلية واحدة ونقطة انطلاق السحب (مركز الزر المضغوط، أي مكان الإصبع فعلياً)، والخلية اللي
      * تقع تحت الإصبع في تلك اللحظة (longPressBaseIndex) — الاختيار أثناء السحب يُحسب بالمسافة
@@ -1332,7 +1336,8 @@ public class BlackBerryKeyboardView extends View {
         if (left + bubbleW > getWidth() - 4f * density) left = getWidth() - 4f * density - bubbleW;
         float top = key.rect.top - bubbleH - 2f * density;
         if (top < 2f * density) top = 2f * density;
-        RectF bubbleRect = new RectF(left, top, left + bubbleW, top + bubbleH);
+        RectF bubbleRect = drawRectA;
+        bubbleRect.set(left, top, left + bubbleW, top + bubbleH);
 
         canvas.drawRoundRect(bubbleRect, 10f * density, 10f * density, popupCardBgPaint);
         canvas.drawRoundRect(bubbleRect, 10f * density, 10f * density, popupCardBorderPaint);
@@ -1417,25 +1422,30 @@ public class BlackBerryKeyboardView extends View {
         if (keyboardStyle == KeyboardPreferences.STYLE_KEYCAP_3D) {
             // زر بارز بحافة سفلية سميكة تعطي إحساس الزر الميكانيكي
             float edge = pressed ? 1.2f * density : 3.4f * density;
-            RectF cap = new RectF(rawRect.left + 2.8f * density + gx, rawRect.top + 3.2f * density + gy,
+            RectF cap = drawRectA;
+            cap.set(rawRect.left + 2.8f * density + gx, rawRect.top + 3.2f * density + gy,
                     rawRect.right - 2.8f * density - gx, rawRect.bottom - 3.4f * density - edge + 3.4f * density - gy);
-            RectF base = new RectF(cap.left, cap.top + edge, cap.right, cap.bottom + edge);
+            RectF base = drawRectB;
+            base.set(cap.left, cap.top + edge, cap.right, cap.bottom + edge);
             float radius = 7.5f * density;
             canvas.drawRoundRect(base, radius, radius, keyShadowPaint);
-            RectF top = new RectF(cap.left, cap.top + (pressed ? edge : 0f), cap.right, cap.bottom + (pressed ? edge : 0f));
+            RectF top = drawRectC;
+            top.set(cap.left, cap.top + (pressed ? edge : 0f), cap.right, cap.bottom + (pressed ? edge : 0f));
             canvas.drawRoundRect(top, radius, radius, fillPaint);
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_ROUNDED) {
             float insetX = 2.6f * density + gx;
             float insetY = 3.6f * density + gy;
-            RectF cardRect = new RectF(
+            RectF cardRect = drawRectA;
+            cardRect.set(
                     rawRect.left + insetX,
                     rawRect.top + insetY,
                     rawRect.right - insetX,
                     rawRect.bottom - insetY
             );
-            RectF shadowRect = new RectF(
+            RectF shadowRect = drawRectB;
+            shadowRect.set(
                     cardRect.left,
                     cardRect.top + 1.5f * density,
                     cardRect.right,
@@ -1447,7 +1457,8 @@ public class BlackBerryKeyboardView extends View {
         } else if (keyboardStyle == KeyboardPreferences.STYLE_MODERN_PILL) {
             float insetX = 3.2f * density + gx;
             float insetY = 4.5f * density + gy;
-            RectF pillRect = new RectF(
+            RectF pillRect = drawRectA;
+            pillRect.set(
                     rawRect.left + insetX,
                     rawRect.top + insetY,
                     rawRect.right - insetX,
@@ -1470,12 +1481,14 @@ public class BlackBerryKeyboardView extends View {
         float prevW = iconStrokePaint.getStrokeWidth();
         iconStrokePaint.setStrokeWidth(1.7f * density);
 
-        RectF board = new RectF(cx - hw, cy - hh + 2f * density, cx + hw, cy + hh);
+        RectF board = drawRectA;
+        board.set(cx - hw, cy - hh + 2f * density, cx + hw, cy + hh);
         canvas.drawRoundRect(board, 2.6f * density, 2.6f * density, iconStrokePaint);
 
         Paint.Style prevStyle = iconStrokePaint.getStyle();
         iconStrokePaint.setStyle(Paint.Style.FILL);
-        RectF clip = new RectF(cx - 3.6f * density, cy - hh, cx + 3.6f * density, cy - hh + 4.6f * density);
+        RectF clip = drawRectA;
+        clip.set(cx - 3.6f * density, cy - hh, cx + 3.6f * density, cy - hh + 4.6f * density);
         canvas.drawRoundRect(clip, 1.8f * density, 1.8f * density, iconStrokePaint);
         iconStrokePaint.setStyle(prevStyle);
 
