@@ -643,11 +643,19 @@ public class BlackBerryKeyboardView extends View {
     }
 
     public void setSuggestions(List<String> newSuggestions) {
+        setSuggestions(newSuggestions, false);
+    }
+
+    /** clipIcon: يرسم أيقونة الحافظة (خطوط بدون لون) بجانب نص الخانة الوسطى — لعرض آخر نص منسوخ. */
+    public void setSuggestions(List<String> newSuggestions, boolean clipIcon) {
         if (newSuggestions != null && newSuggestions.size() >= 3) {
             suggestions = new ArrayList<>(newSuggestions.subList(0, 3));
+            middleClipIcon = clipIcon;
             invalidate();
         }
     }
+
+    private boolean middleClipIcon = false;
 
     /**
      * التعديل رقم 1: إطلاق الكلمة من صندوق الاقتراحات لأعلى الشاشة خارج الكيبورد بسرعة هادئة (520ms) ووضوح عالٍ.
@@ -1217,6 +1225,19 @@ public class BlackBerryKeyboardView extends View {
                 paint.setAlpha((int) (Math.min(1f, 0.35f + prog * 2.2f) * 255f));
                 canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
                 paint.setAlpha(prevAlpha);
+            } else if (i == 1 && middleClipIcon && !word.isEmpty()) {
+                // أيقونة الحافظة نفسها (نفس شكل أيقونة القائمة) على يسار النص، والمجموعة كلها في منتصف الخانة
+                float iconW = 18f * density;
+                float gap = 6f * density;
+                String shown = ellipsizeWord(word, r.width() - 14f * density - iconW - gap, paint);
+                float textW = paint.measureText(shown);
+                float startX = r.centerX() - (iconW + gap + textW) / 2f;
+                drawRectB.set(startX, r.top, startX + iconW, r.bottom);
+                drawClipboardMenuIcon(canvas, drawRectB);
+                Paint.Align prevAlign = paint.getTextAlign();
+                paint.setTextAlign(Paint.Align.LEFT);
+                canvas.drawText(shown, startX + iconW + gap, textY, paint);
+                paint.setTextAlign(prevAlign);
             } else {
                 canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
             }

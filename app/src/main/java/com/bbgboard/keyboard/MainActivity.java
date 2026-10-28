@@ -748,6 +748,13 @@ public class MainActivity extends Activity {
                 }
         ));
 
+        root.addView(createSwitchTile(
+                tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
+                tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
+                prefs.isClipChipEnabled(),
+                checked -> prefs.setClipChipEnabled(checked)
+        ));
+
         root.addView(createClipRetentionTile());
 
         root.addView(createSwitchTile(

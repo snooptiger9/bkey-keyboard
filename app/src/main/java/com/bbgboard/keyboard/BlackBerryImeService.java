@@ -83,6 +83,32 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView emojiAbcBackLabel;
     private long lastSpaceTapTime = 0L;
     private boolean numericFieldActive = false;
+    private boolean passwordFieldActive = false;
+
+    // ===== آخر نص منسوخ في الخانة الوسطى (مثل جي بورد) =====
+    private static final long CLIP_CHIP_MS = 60 * 1000L;
+    private String clipChipText = null;
+    private long clipChipTime = 0L;
+    private final Runnable clipChipExpiry = this::refreshPredictions;
+
+    private boolean hasValidClipChip() {
+        return clipChipText != null
+                && keyboardPrefs != null && keyboardPrefs.isClipChipEnabled()
+                && !keyboardPrefs.isIncognitoMode()
+                && !passwordFieldActive
+                && (SystemClock.elapsedRealtime() - clipChipTime) < CLIP_CHIP_MS;
+    }
+
+    private void clearClipChip() {
+        clipChipText = null;
+        uiHandler.removeCallbacks(clipChipExpiry);
+    }
+
+    /** النص للعرض: سطر واحد وقصير، واللصق يكون بالنص الكامل. */
+    private static String clipChipDisplay(String full) {
+        String flat = full.replaceAll("\\s+", " ").trim();
+        return flat.length() > 40 ? flat.substring(0, 40) + "…" : flat;
+    }
 
     // تصحيح تلقائي صامت (اختياري، معطّل افتراضياً): يحفظ آخر استبدال تلقائي حتى يمكن التراجع عنه فوراً
     // بالباكسبيس (زي Gboard بالضبط) طالما ما كتب المستخدم أي شيء آخر بعده.
@@ -349,6 +375,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     if (!copiedText.isEmpty() && !keyboardPrefs.isIncognitoMode()) {
                         clipboardRepo.addClip(copiedText, false);
                         refreshClipboardDrawerList();
+                        if (keyboardPrefs.isClipChipEnabled()) {
+                            clipChipText = copiedText;
+                            clipChipTime = SystemClock.elapsedRealtime();
+                            uiHandler.removeCallbacks(clipChipExpiry);
+                            uiHandler.postDelayed(clipChipExpiry, CLIP_CHIP_MS + 100L);
+                            refreshPredictions();
+                        }
                     }
                 }
             }
@@ -377,6 +410,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (predictionEngine != null) {
             predictionEngine.flushPendingSaveBlocking();
         }
+        uiHandler.removeCallbacks(clipChipExpiry);
         predictionExecutor.shutdownNow();
         ioExecutor.shutdown();
         if (soundController != null) soundController.release();
@@ -762,6 +796,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (keyboardPrefs.isIncognitoMode()) allowed = false;
         predictionEngine.setLearningAllowed(allowed);
         numericFieldActive = numericOnly;
+        passwordFieldActive = passwordField;
         if (keyboardView != null) {
             keyboardView.setPasswordFieldMode(passwordField);
             keyboardView.setNumericFieldMode(numericOnly);
@@ -1119,6 +1154,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
+        if (hasValidClipChip() && ctx[0].isEmpty()) {
+            keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), true);
+            keyboardView.setEmojiKeySuggestion(null);
+            return;
+        }
         if (numericFieldActive) {
             keyboardView.setSuggestions(java.util.Collections.<String>emptyList());
             keyboardView.setEmojiKeySuggestion(null);
@@ -1157,6 +1197,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String prevWord = ctx[1];
         String prevWord2 = ctx[2];
 
+        clearClipChip(); // بدأ يكتب بنفسه: يختفي النص المنسوخ
         // لو كان رمز تحقق معلّقاً والمستخدم بدأ يكتب يدوياً (بدل ما يضغط على الاقتراح)، نلغي الرمز
         // المعلّق فوراً. هذا يمنع رجوع ظهوره من جديد في حقول رمز التحقق المقسّمة لعدة خانات منفصلة
         // (كل خانة حقل مستقل يرجع فاضياً بعد كل رقم)، حيث كان الرمز يستمر يظهر ولا يختفي.
@@ -1310,6 +1351,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (zoneIndex == 1) {
                 ic.commitText(pendingOtpCode, 1);
                 clearPendingOtp();
+                refreshPredictions();
+            }
+            return;
+        }
+
+        if (hasValidClipChip() && currentPrefix.isEmpty()) {
+            // الخانتان الجانبيتان فاضيتان وقت ظهور النص المنسوخ؛ فقط المنتصف يلصقه.
+            if (zoneIndex == 1) {
+                ic.commitText(clipChipText, 1);
+                clearClipChip();
                 refreshPredictions();
             }
             return;
