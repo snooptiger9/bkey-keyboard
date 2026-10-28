@@ -537,6 +537,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.dismissFlyingPopup();
             // الكيبورد يُغلق/يُخفى: أي اقتراح إيموجي لم يُلمس يختفي، ولا يبقى معلّقاً لجلسة الكتابة التالية.
             keyboardView.setEmojiKeySuggestion(null);
+            // إخفاء الكيبورد يلغي تثبيت الكابتال حتى ما يرجع معلّق بالجلسة الجاية
+            keyboardView.resetShiftState();
         }
         clearInlineSuggestions();
         if (predictionEngine != null) {
