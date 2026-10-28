@@ -2,31 +2,56 @@ package com.bbgboard.keyboard;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.util.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 
+/**
+ * قائمة الحافظة. النصوص تُخزَّن مشفّرة (AES-GCM بمفتاح داخل Android Keystore لا يخرج من الجهاز)،
+ * وكل نص له وقت إضافة ليُحذف تلقائياً بعد المدة المختارة (المثبّت لا يُحذف أبداً).
+ */
 public class ClipboardRepository {
 
     public static class ClipEntry {
         public final String text;
         public boolean pinned;
+        public long time;
 
         public ClipEntry(String text, boolean pinned) {
+            this(text, pinned, System.currentTimeMillis());
+        }
+
+        public ClipEntry(String text, boolean pinned, long time) {
             this.text = text;
             this.pinned = pinned;
+            this.time = time;
         }
     }
 
+    private static final String KEY_PLAIN = "clips_v1";
+    private static final String KEY_ENC = "clips_v2_enc";
+    private static final String KS_ALIAS = "bkey_clip_key";
+    private static final long DAY_MS = 24L * 60L * 60L * 1000L;
+
     private final SharedPreferences prefs;
+    private final KeyboardPreferences keyboardPrefs;
     private final List<ClipEntry> items = new ArrayList<>();
 
     public ClipboardRepository(Context context) {
         this.prefs = context.getSharedPreferences("bb_keyboard_clipboard_prefs", Context.MODE_PRIVATE);
+        this.keyboardPrefs = new KeyboardPreferences(context);
         // الجمل الافتراضية تُضاف مرة واحدة فقط لمن لا توجد عنده حافظة محفوظة، ولا تعود بعد حذفها
-        boolean firstRun = !prefs.contains("clips_v1");
+        boolean firstRun = !prefs.contains(KEY_PLAIN) && !prefs.contains(KEY_ENC);
         load();
         if (!prefs.getBoolean("seeded_v14", false)) {
             if (firstRun && items.isEmpty()) {
@@ -37,19 +62,41 @@ public class ClipboardRepository {
             }
             prefs.edit().putBoolean("seeded_v14", true).apply();
         }
+        // ترحيل النسخة القديمة غير المشفرة (إن وُجدت) إلى المشفرة
+        if (prefs.contains(KEY_PLAIN)) {
+            save();
+        }
     }
 
-    public List<ClipEntry> getClips() {
+    public synchronized List<ClipEntry> getClips() {
         load();
+        if (pruneOld()) save();
         List<ClipEntry> sorted = new ArrayList<>(items);
         Collections.sort(sorted, (a, b) -> Boolean.compare(b.pinned, a.pinned));
         return sorted;
     }
 
-    public void addClip(String rawText, boolean pinned) {
+    /** يحذف النصوص غير المثبتة الأقدم من المدة المختارة. يرجع true إذا حذف شيئاً. */
+    private boolean pruneOld() {
+        int days = keyboardPrefs.getClipRetentionDays();
+        if (days <= 0) return false;
+        long limit = System.currentTimeMillis() - days * DAY_MS;
+        boolean changed = false;
+        for (int i = items.size() - 1; i >= 0; i--) {
+            ClipEntry e = items.get(i);
+            if (!e.pinned && e.time < limit) {
+                items.remove(i);
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    public synchronized void addClip(String rawText, boolean pinned) {
         if (rawText == null) return;
         String clean = rawText.trim();
         if (clean.isEmpty()) return;
+        load();
 
         int existingIndex = -1;
         for (int i = 0; i < items.size(); i++) {
@@ -61,6 +108,7 @@ public class ClipboardRepository {
 
         if (existingIndex != -1) {
             ClipEntry existing = items.remove(existingIndex);
+            existing.time = System.currentTimeMillis();
             items.add(0, existing);
         } else {
             items.add(0, new ClipEntry(clean, pinned));
@@ -73,10 +121,12 @@ public class ClipboardRepository {
                 }
             }
         }
+        pruneOld();
         save();
     }
 
-    public void togglePin(String text) {
+    public synchronized void togglePin(String text) {
+        load();
         for (ClipEntry item : items) {
             if (item.text.equals(text)) {
                 item.pinned = !item.pinned;
@@ -86,7 +136,8 @@ public class ClipboardRepository {
         }
     }
 
-    public void removeClip(String text) {
+    public synchronized void removeClip(String text) {
+        load();
         for (int i = items.size() - 1; i >= 0; i--) {
             if (items.get(i).text.equals(text)) {
                 items.remove(i);
@@ -102,25 +153,90 @@ public class ClipboardRepository {
                 JSONObject o = new JSONObject();
                 o.put("text", item.text);
                 o.put("pinned", item.pinned);
+                o.put("time", item.time);
                 arr.put(o);
             }
-            prefs.edit().putString("clips_v1", arr.toString()).apply();
+            String json = arr.toString();
+            String enc = encrypt(json);
+            SharedPreferences.Editor ed = prefs.edit();
+            if (enc != null) {
+                ed.putString(KEY_ENC, enc);
+                ed.remove(KEY_PLAIN); // لا نُبقي نسخة نصية صريحة
+            } else {
+                // Keystore غير متاح (نادر): نحافظ على الوظيفة بدل فقدان البيانات
+                ed.putString(KEY_PLAIN, json);
+            }
+            ed.apply();
         } catch (Exception ignored) {}
     }
 
     private void load() {
         try {
-            String str = prefs.getString("clips_v1", null);
-            if (str == null || str.isEmpty()) return;
-            JSONArray arr = new JSONArray(str);
+            String json = null;
+            String enc = prefs.getString(KEY_ENC, null);
+            if (enc != null && !enc.isEmpty()) {
+                json = decrypt(enc);
+            }
+            if (json == null) {
+                json = prefs.getString(KEY_PLAIN, null);
+            }
+            if (json == null || json.isEmpty()) return;
+            JSONArray arr = new JSONArray(json);
+            long migrated = System.currentTimeMillis();
             items.clear();
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject o = arr.getJSONObject(i);
                 String t = o.optString("text", "");
                 if (!t.isEmpty()) {
-                    items.add(new ClipEntry(t, o.optBoolean("pinned", false)));
+                    // النصوص القديمة بلا وقت تُعتبر مضافة الآن (لا تُحذف فجأة عند أول تحديث)
+                    items.add(new ClipEntry(t, o.optBoolean("pinned", false), o.optLong("time", migrated)));
                 }
             }
         } catch (Exception ignored) {}
+    }
+
+    // ===== التشفير =====
+
+    private static SecretKey getKey() throws Exception {
+        KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
+        ks.load(null);
+        if (!ks.containsAlias(KS_ALIAS)) {
+            KeyGenerator kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            kg.init(new KeyGenParameterSpec.Builder(KS_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(256)
+                    .build());
+            return kg.generateKey();
+        }
+        return (SecretKey) ks.getKey(KS_ALIAS, null);
+    }
+
+    private static String encrypt(String plain) {
+        try {
+            Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
+            c.init(Cipher.ENCRYPT_MODE, getKey());
+            byte[] iv = c.getIV();
+            byte[] ct = c.doFinal(plain.getBytes("UTF-8"));
+            byte[] out = new byte[iv.length + ct.length];
+            System.arraycopy(iv, 0, out, 0, iv.length);
+            System.arraycopy(ct, 0, out, iv.length, ct.length);
+            return Base64.encodeToString(out, Base64.NO_WRAP);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static String decrypt(String b64) {
+        try {
+            byte[] all = Base64.decode(b64, Base64.NO_WRAP);
+            if (all.length < 13) return null;
+            Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
+            c.init(Cipher.DECRYPT_MODE, getKey(), new GCMParameterSpec(128, all, 0, 12));
+            return new String(c.doFinal(all, 12, all.length - 12), "UTF-8");
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

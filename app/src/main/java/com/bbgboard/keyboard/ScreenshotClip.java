@@ -50,8 +50,24 @@ public final class ScreenshotClip {
                             MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media.RELATIVE_PATH}
                     : new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME,
                             MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media.DATA};
-            cur = c.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj,
-                    null, null, MediaStore.Images.Media.DATE_ADDED + " DESC");
+            // نطلب فقط الصور المضافة خلال آخر ٣٠ ثانية وبحد أقصى ٦ صفوف (بدل مسح مكتبة الصور كاملة)
+            long sinceSec = System.currentTimeMillis() / 1000L - 30L;
+            String sel = MediaStore.Images.Media.DATE_ADDED + " >= ?";
+            String[] selArgs = new String[]{String.valueOf(sinceSec)};
+            if (Build.VERSION.SDK_INT >= 26) {
+                android.os.Bundle q = new android.os.Bundle();
+                q.putString(android.content.ContentResolver.QUERY_ARG_SQL_SELECTION, sel);
+                q.putStringArray(android.content.ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, selArgs);
+                q.putStringArray(android.content.ContentResolver.QUERY_ARG_SORT_COLUMNS,
+                        new String[]{MediaStore.Images.Media.DATE_ADDED});
+                q.putInt(android.content.ContentResolver.QUERY_ARG_SORT_DIRECTION,
+                        android.content.ContentResolver.QUERY_SORT_DIRECTION_DESCENDING);
+                q.putInt(android.content.ContentResolver.QUERY_ARG_LIMIT, 6);
+                cur = c.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, q, null);
+            } else {
+                cur = c.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj,
+                        sel, selArgs, MediaStore.Images.Media.DATE_ADDED + " DESC");
+            }
             if (cur == null) return false;
             long nowSec = System.currentTimeMillis() / 1000L;
             long lastId = c.getSharedPreferences("bb_keyboard_clipboard_prefs", Context.MODE_PRIVATE)

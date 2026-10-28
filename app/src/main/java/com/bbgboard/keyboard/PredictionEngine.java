@@ -6,12 +6,17 @@ import org.json.JSONObject;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 public class PredictionEngine {
 
@@ -37,11 +42,28 @@ public class PredictionEngine {
     private final java.util.TreeMap<String, List<String>> learnedByFold = new java.util.TreeMap<>();
 
     private final java.util.Set<String> knownFolded = new java.util.HashSet<>();
-    private boolean learningAllowed = true;
-    private boolean dirty = true;
-    private String lastSavedWords = "";
-    private String lastSavedBigrams = "";
-    private String lastSavedTrigrams = "";
+    private volatile boolean learningAllowed = true;
+    private volatile boolean dirty = true;
+    private volatile String lastSavedWords = "";
+    private volatile String lastSavedBigrams = "";
+    private volatile String lastSavedTrigrams = "";
+
+    // المحرك جاهز فقط بعد تحميل القواميس والكلمات المتعلمة (قد يتم على خيط خلفي عند بدء الكيبورد حتى لا يتأخر ظهوره).
+    // قبل ذلك ترجع الدوال العامة نتائج فارغة بدون أن تلمس أي بنية بيانات.
+    private volatile boolean ready = false;
+    private volatile Runnable onReadyListener;
+
+    // خيط حفظ واحد مشترك بدل إنشاء Thread جديد مع كل عملية حفظ، وقفل يمنع تداخل كتابتين على نفس الملف.
+    private static final ExecutorService SAVE_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "bkey-prefs-save");
+        t.setDaemon(true);
+        t.setPriority(Thread.NORM_PRIORITY - 1);
+        return t;
+    });
+    private static final Object SAVE_LOCK = new Object();
+    private static final int BASE_TOP_K = 14;
+    private static final Pattern EMAIL_EDGE_PUNCT = Pattern.compile("^[،.؟!؛:\\\",()]+|[،.؟!؛:\\\",()]+$");
+    private static final Pattern ALL_PUNCT = Pattern.compile("[،.؟!؛:\\\",()]");
     private final android.os.Handler saveHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private boolean saveScheduled = false;
     private final Runnable saveRunnable = this::performScheduledSave;
@@ -55,36 +77,74 @@ public class PredictionEngine {
     };
 
     public PredictionEngine(Context context, KeyboardPreferences keyboardPrefs) {
+        this(context, keyboardPrefs, false);
+    }
+
+    /**
+     * @param asyncInit لو true يحمّل القواميس والكلمات المتعلمة على خيط خلفي (للكيبورد، حتى لا يتأخر ظهوره)،
+     *                  ولو false يحمّلها قبل أن ينتهي الإنشاء (لشاشة الإعدادات التي تحتاج الأعداد فوراً).
+     */
+    public PredictionEngine(Context context, KeyboardPreferences keyboardPrefs, boolean asyncInit) {
         this.prefs = context.getSharedPreferences("bb_keyboard_learned_prefs", Context.MODE_PRIVATE);
         this.keyboardPrefs = keyboardPrefs;
+        final Context appCtx = context.getApplicationContext();
+        Runnable init = () -> initialize(appCtx);
+        if (asyncInit) {
+            Thread t = new Thread(init, "bkey-engine-init");
+            t.setPriority(Thread.NORM_PRIORITY - 1);
+            t.start();
+        } else {
+            init.run();
+        }
+    }
+
+    private void initialize(Context context) {
         initBaseDictionaries();
-        loadBundledDictionary(context, "dict_ar.txt", baseArWords, 60, 22);
-        loadBundledDictionary(context, "dict_en.txt", baseEnWords, 60, 22);
-        for (String w : baseArWords.keySet()) knownFolded.add(fold(w));
-        for (String w : baseEnWords.keySet()) knownFolded.add(fold(w));
+        loadBundledDictionary(context, "dict_ar.txt", baseArWords, 60, 20);
+        loadBundledDictionary(context, "dict_en.txt", baseEnWords, 60, 20);
         buildFoldIndex(baseArWords, baseArByFold);
         buildFoldIndex(baseEnWords, baseEnByFold);
-        loadFromPrefs();
-        dirty = false;
-        cleanupOldLearnedDataOnce();
+        // نستخدم نفس نصوص الفهرس (بدون إعادة حسابها ولا نسخها) لتقليل الذاكرة وزمن التحميل
+        knownFolded.addAll(baseArByFold.keySet());
+        knownFolded.addAll(baseEnByFold.keySet());
+        synchronized (this) {
+            loadFromPrefs();
+            dirty = false;
+            cleanupOldLearnedDataOnce();
+        }
         prefs.registerOnSharedPreferenceChangeListener(prefListener);
+        ready = true;
+        Runnable l = onReadyListener;
+        if (l != null) l.run();
+    }
+
+    /** يُستدعى (على خيط المحرك أو فوراً لو جاهز) عند اكتمال التحميل؛ الكيبورد يستخدمه لتحديث الاقتراحات. */
+    public void setOnReadyListener(Runnable listener) {
+        this.onReadyListener = listener;
+        if (ready && listener != null) listener.run();
     }
 
     /** قاموس عربي/إنجليزي مدمج بقوة عادية: أوزانه أقل من الكلمات التي تعلمها الكيبورد من كتابتك. */
     private void loadBundledDictionary(Context context, String assetName, Map<String, Integer> target, int maxWeight, int minWeight) {
         try {
             java.io.BufferedReader r = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(context.getAssets().open(assetName), "UTF-8"));
+                    new java.io.InputStreamReader(context.getAssets().open(assetName), "UTF-8"), 32 * 1024);
+            List<String> words = new ArrayList<>(32768);
             String line;
-            int idx = 0;
             while ((line = r.readLine()) != null) {
                 String w = line.trim();
-                if (w.isEmpty()) continue;
-                int weight = Math.max(minWeight, maxWeight - idx / 12);
-                if (!target.containsKey(w)) target.put(w, weight);
-                idx++;
+                if (!w.isEmpty()) words.add(w);
             }
             r.close();
+            // الملف مرتب من الأكثر استخداماً للأقل؛ الوزن ينزل بمنحنى لوغاريتمي مع الترتيب (بدل تساوي آلاف
+            // الكلمات بنفس الوزن)، وكله أقل من وزن الكلمات التي تعلّمها الكيبورد من كتابتك.
+            double denom = Math.log(1.0 + Math.max(words.size(), 2));
+            for (int i = 0; i < words.size(); i++) {
+                String w = words.get(i);
+                if (target.containsKey(w)) continue;
+                int weight = (int) Math.round(maxWeight - (maxWeight - minWeight) * (Math.log(1.0 + i) / denom));
+                target.put(w, Math.max(minWeight, weight));
+            }
         } catch (Exception ignored) {}
     }
 
@@ -179,7 +239,7 @@ public class PredictionEngine {
     private void buildFoldIndex(Map<String, Integer> words, java.util.TreeMap<String, List<String>> index) {
         index.clear();
         for (String w : words.keySet()) {
-            String f = fold(w);
+            String f = foldUncached(w); // بدون الكاش: عشرات الآلاف من الكلمات كانت تفرّغ كاش الكلمات المستخدمة باستمرار
             List<String> list = index.get(f);
             if (list == null) {
                 list = new ArrayList<>(2);
@@ -293,9 +353,9 @@ public class PredictionEngine {
         String t = word.trim();
         // البريد الإلكتروني: نحافظ على النقاط داخله ونزيل علامات الترقيم من أطرافه فقط
         if (t.indexOf('@') > 0) {
-            return t.replaceAll("^[،.؟!؛:\\\",()]+|[،.؟!؛:\\\",()]+$", "");
+            return EMAIL_EDGE_PUNCT.matcher(t).replaceAll("");
         }
-        return t.replaceAll("[،.؟!؛:\\\",()]", "");
+        return ALL_PUNCT.matcher(t).replaceAll("");
     }
 
     private static final java.util.Set<String> COMMON_TLDS = new java.util.HashSet<>(Arrays.asList(
@@ -321,7 +381,8 @@ public class PredictionEngine {
         return tld.length() == 2 || COMMON_TLDS.contains(tld);
     }
 
-    public void reloadFromStorage() {
+    public synchronized void reloadFromStorage() {
+        if (!ready) return;
         loadFromPrefs();
         dirty = false;
     }
@@ -331,7 +392,8 @@ public class PredictionEngine {
     }
 
     /** نفس الدالة أعلاه، مع كلمة إضافية قبل previousWordRaw لتعلّم سياق أوسع (كلمتين سابقتين بدل واحدة). */
-    public void learnWordAndTransition(String currentWordRaw, String previousWordRaw, String previousWord2Raw, boolean isArabic) {
+    public synchronized void learnWordAndTransition(String currentWordRaw, String previousWordRaw, String previousWord2Raw, boolean isArabic) {
+        if (!ready) return;
         if (!learningAllowed || !keyboardPrefs.isAutoLearnEnabled() || keyboardPrefs.isIncognitoMode()) return;
         String curr = normalize(currentWordRaw);
         if (!isLearnable(curr)) return;
@@ -424,8 +486,8 @@ public class PredictionEngine {
         rebuildLearnedIndex();
     }
 
-    public void learnFullSentence(String sentence) {
-        if (sentence == null) return;
+    public synchronized void learnFullSentence(String sentence) {
+        if (sentence == null || !ready) return;
         String[] rawTokens = sentence.trim().split("\\s+");
         List<String> tokens = new ArrayList<>();
         for (String r : rawTokens) {
@@ -452,7 +514,8 @@ public class PredictionEngine {
     }
 
     /** نفس الدالة أعلاه، مع كلمة إضافية (ما قبل آخر كلمة) لتوقّع أدق واقتراح عبارات، واقتراح إيموجي للكلمة. */
-    public List<String> getThreeSuggestions(String currentPrefixRaw, String lastCompletedWordRaw, String lastCompletedWord2Raw, boolean isArabic) {
+    public synchronized List<String> getThreeSuggestions(String currentPrefixRaw, String lastCompletedWordRaw, String lastCompletedWord2Raw, boolean isArabic) {
+        if (!ready) return placeholderSlots(isArabic);
         if (dirty) { loadFromPrefs(); dirty = false; }
         String prefix = normalize(currentPrefixRaw);
         String lastWord = normalize(lastCompletedWordRaw);
@@ -508,14 +571,7 @@ public class PredictionEngine {
             }
 
             java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : baseEnByFold;
-            for (List<String> candidates : baseByFold.subMap(prefixLower, prefixUpperBound).values()) {
-                for (String w : candidates) {
-                    Integer cnt = baseWords.get(w);
-                    if (cnt == null) continue;
-                    int cur = scored.containsKey(w) ? scored.get(w) : 0;
-                    scored.put(w, cur + cnt);
-                }
-            }
+            addTopBaseCandidates(baseByFold.subMap(prefixLower, prefixUpperBound).values(), baseWords, scored);
 
             // لو ما في ولا مطابقة ببادئة الكلمة (يعني غالباً خطأ إملائي)، نفتش عن كلمة قريبة جداً
             // (فرق حرف واحد فقط) من نفس القاموس، ونعرضها كاقتراح يُلمس يدوياً — بدون أي استبدال صامت.
@@ -611,12 +667,37 @@ public class PredictionEngine {
         return formatToThreeSlots(Collections.<String>emptyList(), isArabic);
     }
 
+    /**
+     * يضيف من قاموس كبير أفضل BASE_TOP_K كلمة فقط (بحسب وزنها + نقاطها الحالية) بدل إدخال آلاف الكلمات في
+     * خريطة النقاط وترتيبها كلها مع كل حرف، خصوصاً مع البادئات القصيرة (حرف أو حرفين) في قاموس بحجم 30 ألف.
+     */
+    private void addTopBaseCandidates(Collection<List<String>> groups, Map<String, Integer> baseWords, Map<String, Integer> scored) {
+        PriorityQueue<Map.Entry<String, Integer>> heap = new PriorityQueue<>(BASE_TOP_K + 1,
+                (a, b) -> Integer.compare(a.getValue(), b.getValue()));
+        for (List<String> candidates : groups) {
+            for (String w : candidates) {
+                Integer cnt = baseWords.get(w);
+                if (cnt == null) continue;
+                Integer existing = scored.get(w);
+                int total = (existing != null ? existing : 0) + cnt;
+                if (heap.size() < BASE_TOP_K) {
+                    heap.add(new java.util.AbstractMap.SimpleEntry<>(w, total));
+                } else if (total > heap.peek().getValue()) {
+                    heap.poll();
+                    heap.add(new java.util.AbstractMap.SimpleEntry<>(w, total));
+                }
+            }
+        }
+        for (Map.Entry<String, Integer> e : heap) scored.put(e.getKey(), e.getValue());
+    }
+
     /** يفتش في فهرس كلمات معيّن عن كلمات قريبة جداً (فرق حرف واحد فقط: استبدال/حذف/إضافة) من البادئة
      *  المكتوبة، ويضيفها لقائمة النقاط بوزن منخفض ثابت حتى تظهر كاقتراح فقط دون أن تطغى على أي مطابقة حقيقية. */
     /** يرجع تصحيحاً تلقائياً للكلمة لو كانت قريبة جداً (فرق حرف واحد فقط) من كلمة معروفة موثوقة، أو null
      *  لو الكلمة نفسها معروفة أصلاً (ما تحتاج تصحيح) أو ما لقينا تصحيحاً واضحاً. يُستخدم فقط عند تفعيل
      *  التصحيح التلقائي الصامت من الإعدادات؛ لا علاقة له بشريط الاقتراحات العادي. */
-    public String findAutoCorrection(String wordRaw, boolean isArabic) {
+    public synchronized String findAutoCorrection(String wordRaw, boolean isArabic) {
+        if (!ready) return null;
         String word = normalize(wordRaw);
         if (word.length() < 3 || isTrustedWord(word)) return null;
         String wordLower = fold(word);
@@ -683,7 +764,10 @@ public class PredictionEngine {
         Collections.sort(keys, (a, b) -> {
             int sa = scored.containsKey(a) ? scored.get(a) : 0;
             int sb = scored.containsKey(b) ? scored.get(b) : 0;
-            return Integer.compare(sb, sa);
+            if (sa != sb) return Integer.compare(sb, sa);
+            // تعادل: الأقصر أولاً ثم أبجدياً (ترتيب ثابت بدل ترتيب عشوائي حسب الـHashMap)
+            if (a.length() != b.length()) return Integer.compare(a.length(), b.length());
+            return a.compareTo(b);
         });
         return keys;
     }
@@ -732,6 +816,17 @@ public class PredictionEngine {
         return false;
     }
 
+    /** اقتراحات افتراضية فقط (قبل اكتمال تحميل المحرك)، بدون لمس أي بيانات متعلمة قيد التحميل. */
+    private List<String> placeholderSlots(boolean isArabic) {
+        List<String> d = activeDefaultWords(isArabic);
+        List<String> f = !d.isEmpty() ? d
+                : (isArabic ? Arrays.asList("السلام", "بسم", "مرحبا") : Arrays.asList("The", "I", "On"));
+        String center = f.get(0);
+        String left = f.size() > 1 ? f.get(1) : center;
+        String right = f.size() > 2 ? f.get(2) : center;
+        return Arrays.asList(left, center, right);
+    }
+
     private List<String> formatToThreeSlots(List<String> candidates, boolean isArabic) {
         List<String> defaults = activeDefaultWords(isArabic);
         List<String> fallback = !defaults.isEmpty() ? defaults
@@ -757,19 +852,19 @@ public class PredictionEngine {
         return Arrays.asList(leftSlot, primaryCenter, rightSlot);
     }
 
-    public int getLearnedWordCount() {
+    public synchronized int getLearnedWordCount() {
         reloadFromStorage();
         return learnedWords.size();
     }
 
-    public List<Map.Entry<String, Integer>> getLearnedWordsSorted() {
+    public synchronized List<Map.Entry<String, Integer>> getLearnedWordsSorted() {
         reloadFromStorage();
         List<Map.Entry<String, Integer>> list = new ArrayList<>(learnedWords.entrySet());
         Collections.sort(list, (a, b) -> Integer.compare(b.getValue(), a.getValue()));
         return list;
     }
 
-    public List<String> getLearnedBigramsFormatted() {
+    public synchronized List<String> getLearnedBigramsFormatted() {
         reloadFromStorage();
         List<String> result = new ArrayList<>();
         for (Map.Entry<String, Map<String, Integer>> e : learnedBigrams.entrySet()) {
@@ -800,7 +895,7 @@ public class PredictionEngine {
     }
 
     /** قائمة موحدة: كل كلمة متعلمة مع عدد مرات استخدامها وأكثر كلمات تأتي بعدها. */
-    public List<LearnedEntry> getLearnedEntries() {
+    public synchronized List<LearnedEntry> getLearnedEntries() {
         loadFromPrefs();
         dirty = false;
         List<LearnedEntry> out = new ArrayList<>();
@@ -824,7 +919,7 @@ public class PredictionEngine {
         return out;
     }
 
-    public void removeLearnedWord(String word) {
+    public synchronized void removeLearnedWord(String word) {
         String f = fold(word);
         learnedWords.remove(word);
         learnedBigrams.remove(f);
@@ -840,7 +935,7 @@ public class PredictionEngine {
         saveToPrefs();
     }
 
-    public void clearAllLearnedData() {
+    public synchronized void clearAllLearnedData() {
         learnedWords.clear();
         learnedBigrams.clear();
         learnedTrigrams.clear();
@@ -878,12 +973,19 @@ public class PredictionEngine {
         saveToPrefsAsync();
     }
 
-    /** ينسخ البيانات بسرعة (نسخ مراجع بسيط) ثم يبني الـ JSON ويكتبها على خيط خلفية منفصل تماماً عن خيط الكتابة. */
+    /** كل شيء على خيط الحفظ المشترك: النسخ (تحت القفل لحظياً) ثم بناء الـ JSON وكتابته خارج القفل وبعيداً عن خيط الكتابة. */
     private void saveToPrefsAsync() {
-        final Map<String, Integer> wordsSnapshot = new HashMap<>(learnedWords);
-        final Map<String, Map<String, Integer>> bigramsSnapshot = deepCopyBigrams(learnedBigrams);
-        final Map<String, Map<String, Integer>> trigramsSnapshot = deepCopyBigrams(learnedTrigrams);
-        new Thread(() -> writeSnapshotToPrefs(wordsSnapshot, bigramsSnapshot, trigramsSnapshot), "bkey-prefs-save").start();
+        SAVE_EXECUTOR.execute(() -> {
+            final Map<String, Integer> wordsSnapshot;
+            final Map<String, Map<String, Integer>> bigramsSnapshot;
+            final Map<String, Map<String, Integer>> trigramsSnapshot;
+            synchronized (PredictionEngine.this) {
+                wordsSnapshot = new HashMap<>(learnedWords);
+                bigramsSnapshot = deepCopyBigrams(learnedBigrams);
+                trigramsSnapshot = deepCopyBigrams(learnedTrigrams);
+            }
+            writeSnapshotToPrefs(wordsSnapshot, bigramsSnapshot, trigramsSnapshot);
+        });
     }
 
     private JSONObject bigramsToJson(Map<String, Map<String, Integer>> bigrams) throws org.json.JSONException {
@@ -900,6 +1002,7 @@ public class PredictionEngine {
 
     private void writeSnapshotToPrefs(Map<String, Integer> words, Map<String, Map<String, Integer>> bigrams,
                                        Map<String, Map<String, Integer>> trigrams) {
+        synchronized (SAVE_LOCK) {
         try {
             JSONObject wordsJson = new JSONObject();
             for (Map.Entry<String, Integer> e : words.entrySet()) {
@@ -918,10 +1021,19 @@ public class PredictionEngine {
                     .putString("trigrams_v1", ts)
                     .apply();
         } catch (Exception ignored) {}
+        }
     }
 
-    /** يحفظ فوراً أي بيانات مؤجلة؛ يُستدعى عند إخفاء/إغلاق الكيبورد حتى لا تضيع آخر الكلمات المكتوبة. */
-    public void flushPendingSave() {
+    /** يحفظ أي بيانات مؤجلة على خيط الحفظ (بدون ما يوقف الخيط الرئيسي)؛ يُستدعى عند إخفاء الكيبورد. */
+    public synchronized void flushPendingSave() {
+        if (!saveScheduled) return;
+        saveHandler.removeCallbacks(saveRunnable);
+        saveScheduled = false;
+        saveToPrefsAsync();
+    }
+
+    /** نفس الدالة لكن متزامنة تماماً؛ تُستخدم فقط عند إغلاق الخدمة نفسها حتى لا يضيع شيء. */
+    public synchronized void flushPendingSaveBlocking() {
         if (!saveScheduled) return;
         saveHandler.removeCallbacks(saveRunnable);
         saveScheduled = false;

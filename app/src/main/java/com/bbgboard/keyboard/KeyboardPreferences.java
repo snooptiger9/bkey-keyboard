@@ -337,6 +337,15 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("screenshot_clip_enabled", enabled).apply();
     }
 
+    /** مدة بقاء النصوص غير المثبتة في الحافظة بالأيام (0 = لا حذف تلقائي). الافتراضي 7. */
+    public int getClipRetentionDays() {
+        return prefs.getInt("clip_retention_days", 7);
+    }
+
+    public void setClipRetentionDays(int days) {
+        prefs.edit().putInt("clip_retention_days", days).apply();
+    }
+
     /** وضع التخفي: لا يتعلم كلمات ولا يحفظ الحافظة. */
     public boolean isIncognitoMode() {
         return prefs.getBoolean("incognito_mode", false);

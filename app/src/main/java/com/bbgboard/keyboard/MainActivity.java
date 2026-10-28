@@ -426,6 +426,56 @@ public class MainActivity extends Activity {
     }
 
     /** صف تبديل بأسلوب قوائم Gboard: العنوان والوصف على جهة، ومفتاح التبديل في الطرف الآخر، داخل بطاقة بيضاء مستقلة. */
+    /** بطاقة اختيار مدة الحذف التلقائي لنصوص الحافظة القديمة (المثبّت مستثنى). */
+    private View createClipRetentionTile() {
+        final int[] values = {1, 3, 7, 14, 30, 0};
+        final String[] labels = {
+                tr("يوم واحد", "1 day"), tr("3 أيام", "3 days"), tr("7 أيام", "7 days"),
+                tr("14 يوماً", "14 days"), tr("30 يوماً", "30 days"), tr("بدون حذف تلقائي", "Never")};
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackground(roundedCard("#FFFFFF", 16));
+        card.setPadding(dp(16), dp(14), dp(16), dp(14));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(10);
+        card.setLayoutParams(lp);
+
+        TextView title = new TextView(this);
+        title.setText(tr("حذف نصوص الحافظة القديمة تلقائياً", "Auto-delete old clipboard items"));
+        title.setTextSize(16);
+        title.setTextColor(Color.parseColor("#202124"));
+        card.addView(title);
+
+        final TextView value = new TextView(this);
+        value.setTextSize(13);
+        value.setTextColor(Color.parseColor("#5F6368"));
+        card.addView(value);
+        final Runnable refresh = () -> {
+            int cur = prefs.getClipRetentionDays();
+            String label = labels[2];
+            for (int i = 0; i < values.length; i++) if (values[i] == cur) label = labels[i];
+            value.setText(tr("المدة: ", "Keep for: ") + label
+                    + tr("  (النصوص المثبّتة لا تُحذف)", "  (pinned items are kept)"));
+        };
+        refresh.run();
+
+        card.setOnClickListener(v -> {
+            int cur = prefs.getClipRetentionDays();
+            int sel = 2;
+            for (int i = 0; i < values.length; i++) if (values[i] == cur) sel = i;
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle(tr("حذف نصوص الحافظة القديمة", "Auto-delete old clipboard items"))
+                    .setSingleChoiceItems(labels, sel, (d, which) -> {
+                        prefs.setClipRetentionDays(values[which]);
+                        refresh.run();
+                        d.dismiss();
+                    })
+                    .show();
+        });
+        return card;
+    }
+
     private View createSwitchTile(String title, String subtitle, boolean checked, final SwitchListener listener) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
@@ -697,6 +747,8 @@ public class MainActivity extends Activity {
                     }
                 }
         ));
+
+        root.addView(createClipRetentionTile());
 
         root.addView(createSwitchTile(
                 tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
