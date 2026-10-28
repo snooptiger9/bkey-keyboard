@@ -337,6 +337,15 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("screenshot_clip_enabled", enabled).apply();
     }
 
+    /** إظهار آخر نص/رقم منسوخ في خانة الاقتراح الوسطى لمدة قصيرة (مثل جي بورد). */
+    public boolean isClipChipEnabled() {
+        return prefs.getBoolean("clip_chip_enabled", true);
+    }
+
+    public void setClipChipEnabled(boolean enabled) {
+        prefs.edit().putBoolean("clip_chip_enabled", enabled).apply();
+    }
+
     /** مدة بقاء النصوص غير المثبتة في الحافظة بالأيام (0 = لا حذف تلقائي). الافتراضي 7. */
     public int getClipRetentionDays() {
         return prefs.getInt("clip_retention_days", 7);
