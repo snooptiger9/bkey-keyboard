@@ -604,6 +604,14 @@ public class BlackBerryKeyboardView extends View {
         return isResizeDragMode;
     }
 
+    /** يلغي الشفت وتثبيت الكابتال (يستخدم عند إخفاء الكيبورد أو تبديل اللغة حتى ما يبقى الكابتال معلّق). */
+    public void resetShiftState() {
+        if (!isShift && !isCapsLock) return;
+        isShift = false;
+        isCapsLock = false;
+        rebuildKeys();
+    }
+
     public void updateAutoCapitalization(boolean shouldCapitalizeNext) {
         if (isArabic || isSymbols || isCapsLock) return;
         if (prefs.isAutoCapitalizeSentences() && shouldCapitalizeNext != isShift) {
@@ -1781,6 +1789,8 @@ public class BlackBerryKeyboardView extends View {
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
                         isSymbols = false;
                         isArabic = !isArabic;
+                        isShift = false;
+                        isCapsLock = false;
                         vibrateTap(false);
                         soundController.playLanguageSwitchSound();
                         rebuildKeys();
