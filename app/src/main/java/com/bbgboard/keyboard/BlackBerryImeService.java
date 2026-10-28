@@ -55,6 +55,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private LinearLayout clipsListContainer;
     private TextView clipCountTv;
     private LinearLayout clipHeaderRow;
+    private LinearLayout emojiHeaderRow;
+    private ModernIconView emojiBackBtn;
+    private int emojiGridCols = 8;
+    private int emojiGridCellW = 0;
     private LinearLayout emojiDrawerView;
     private ScrollView emojiScroll;
     private LinearLayout emojiSectionsHost;
@@ -667,11 +671,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onToggleEmoji() {
+        refreshBottomBarGeometry();
         rebuildEmojiSections();
         updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
         if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
         matchDrawerHeightToKeyboard(emojiDrawerView);
-        refreshBottomBarGeometry();
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.VISIBLE);
@@ -1042,6 +1046,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         FrameLayout abcWrap;
         TextView abcLabel;
         FrameLayout delWrap;
+        KeyShapeBackgroundView abcBg;
+        KeyShapeBackgroundView delBg;
     }
 
     private BottomBarRefs clipBottomBarRefs;
@@ -1079,6 +1085,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         abcWrap.addView(abcBg);
+        refs.abcBg = abcBg;
 
         TextView abcLabel = new TextView(this);
         abcLabel.setText((keyboardView == null || keyboardView.isArabic()) ? "أبجد" : "ABC");
@@ -1108,6 +1115,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             KeyShapeBackgroundView delBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
             delBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             delWrap.addView(delBg);
+            refs.delBg = delBg;
 
             // أيقونة حذف مرسومة (بدل رمز يونيكود "⌫" اللي يطلع مشوّهاً على بعض الأجهزة)، فوق نفس
             // خلفية زر "أبجد" المقابل لها بالضبط حتى يكون شكلهما متطابقاً.
@@ -1142,9 +1150,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         int edgeGap = Math.round(keyboardView.getBottomRowEdgeInsetPx(width));
         int symW = Math.round(keyboardView.getSymbolsKeyWidthPx(width));
         int rowH = Math.round(keyboardView.getBottomRowHeightPx());
+        float gapX = keyboardView.getTabletKeyGapXPx(width);
+        float gapY = keyboardView.getTabletKeyGapYPx(width);
+        boolean tablet = edgeGap > 0;
 
-        applyBottomBarGeometry(clipBottomBarRefs, edgeGap, symW, rowH);
-        applyBottomBarGeometry(emojiBottomBarRefs, edgeGap, symW, rowH);
+        applyBottomBarGeometry(clipBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
+        applyBottomBarGeometry(emojiBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
 
         int contentSidePad = dp(10) + edgeGap;
         if (clipsListContainer != null) {
@@ -1155,10 +1166,40 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             emojiSectionsHost.setPadding(contentSidePad, emojiSectionsHost.getPaddingTop(),
                     contentSidePad, emojiSectionsHost.getPaddingBottom());
         }
+
+        // الشريط العلوي (أقسام الإيموجي / ترويسة الحافظة) ياخذ نفس حواف الكيبورد والشريط السفلي في
+        // وضع التابلت، حتى تكون الأشرطة الثلاثة متناسقة ومحاذية لبعض.
+        if (emojiHeaderRow != null) {
+            emojiHeaderRow.setPadding(tablet ? edgeGap : dp(8), dp(5), tablet ? edgeGap : dp(8), dp(5));
+        }
+        if (clipHeaderRow != null) {
+            clipHeaderRow.setPadding(tablet ? edgeGap + dp(6) : dp(14), dp(6),
+                    tablet ? edgeGap + dp(6) : dp(12), dp(6));
+        }
+        // زر الرجوع العلوي في قائمة الإيموجي بنفس عرض زر الحذف اللي تحته مباشرة في وضع التابلت.
+        if (emojiBackBtn != null) {
+            ViewGroup.LayoutParams lp = emojiBackBtn.getLayoutParams();
+            if (lp != null) {
+                int target = tablet ? symW : dp(62);
+                if (lp.width != target) {
+                    lp.width = target;
+                    emojiBackBtn.setLayoutParams(lp);
+                }
+            }
+        }
+
+        // أعمدة وعرض خلايا الإيموجي تُحسب من العرض الفعلي المتاح بعد الحواف، بدل عرض الشاشة الكامل
+        // (هذا اللي كان يقص العمود الأخير ويخلّي الإيموجي ما يتناسق في التابلت).
+        int availW = width - contentSidePad * 2;
+        int cols = Math.max(8, Math.min(16, availW / dp(46)));
+        emojiGridCols = cols;
+        emojiGridCellW = Math.max(dp(30), availW / cols);
     }
 
-    private void applyBottomBarGeometry(BottomBarRefs refs, int edgeGap, int symW, int rowH) {
+    private void applyBottomBarGeometry(BottomBarRefs refs, int edgeGap, int symW, int rowH, float gapX, float gapY) {
         if (refs == null || refs.bar == null) return;
+        if (refs.abcBg != null) refs.abcBg.setExtraInset(gapX, gapY);
+        if (refs.delBg != null) refs.delBg.setExtraInset(gapX, gapY);
         refs.bar.setPadding(edgeGap, 0, edgeGap, 0);
         ViewGroup.LayoutParams barLp = refs.bar.getLayoutParams();
         if (barLp != null) {
@@ -1390,6 +1431,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         header.setGravity(Gravity.CENTER_VERTICAL);
         header.setBackgroundColor(Color.parseColor("#1A1E26"));
         header.setPadding(dp(8), dp(5), dp(8), dp(5));
+        emojiHeaderRow = header;
 
         LinearLayout tabsRow = new LinearLayout(this);
         tabsRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -1428,6 +1470,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         LinearLayout.LayoutParams lpBack = new LinearLayout.LayoutParams(dp(62), dp(42));
         lpBack.leftMargin = dp(10);
         backIconBtn.setLayoutParams(lpBack);
+        emojiBackBtn = backIconBtn;
         backIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             showKeyboardMain();
@@ -1475,7 +1518,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             emojiSectionHeaders.add(title);
 
             GridLayout grid = new GridLayout(this);
-            grid.setColumnCount(8);
+            grid.setColumnCount(emojiGridCols);
             if (c == 0) emojiRecentGrid = grid;
             fillEmojiGrid(grid, c == 0 ? keyboardPrefs.getRecentEmojis() : Arrays.asList(EMOJI_CATEGORIES[c]), c == 0);
             emojiSectionsHost.addView(grid);
@@ -1485,8 +1528,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void fillEmojiGrid(final GridLayout grid, List<String> emojis, final boolean recent) {
         grid.removeAllViews();
-        int screenW = getResources().getDisplayMetrics().widthPixels;
-        int cellW = Math.max(dp(38), (screenW - dp(16)) / 8);
+        int cellW = emojiGridCellW > 0 ? emojiGridCellW
+                : Math.max(dp(38), (getResources().getDisplayMetrics().widthPixels - dp(20)) / 8);
         for (final String em : emojis) {
             TextView tv = new TextView(this);
             tv.setText(em);
