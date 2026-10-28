@@ -1033,13 +1033,15 @@ public class BlackBerryKeyboardView extends View {
 
         resizeHandleBarRect.set(0f, 0f, w, resizeH);
 
+        // في وضع التابلت يأخذ شريط الاقتراحات نفس فجوتي الطرفين (يمين ويسار) اللي تأخذها صفوف الكيبورد
+        float sugEdge = getBottomRowEdgeInsetPx(w);
         float menuW = 42f * density;
-        menuButtonRect.set(0f, resizeH, menuW, resizeH + sugH);
+        menuButtonRect.set(sugEdge, resizeH, sugEdge + menuW, resizeH + sugH);
 
-        float remW = w - menuW;
+        float remW = w - sugEdge * 2f - menuW;
         float thirdW = remW / 3f;
         for (int i = 0; i < 3; i++) {
-            suggestionRects[i].set(menuW + i * thirdW, resizeH, menuW + (i + 1) * thirdW, resizeH + sugH);
+            suggestionRects[i].set(sugEdge + menuW + i * thirdW, resizeH, sugEdge + menuW + (i + 1) * thirdW, resizeH + sugH);
         }
 
         boolean splitActive = isSplitKeyboardActive(w);
@@ -1595,7 +1597,8 @@ public class BlackBerryKeyboardView extends View {
                 return i;
             }
         }
-        return 1;
+        // لمس في فجوة الطرف (وضع التابلت): أقرب خانة
+        return x < suggestionRects[0].left ? 0 : (x > suggestionRects[2].right ? 2 : 1);
     }
 
     @Override
