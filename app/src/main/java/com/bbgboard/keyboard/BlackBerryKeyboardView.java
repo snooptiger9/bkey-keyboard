@@ -137,6 +137,9 @@ public class BlackBerryKeyboardView extends View {
     private final List<List<KeyDef>> rows = new ArrayList<>();
     /** نسخ إضافية من الحروف المكررة على طرفي فجوة المنتصف (مثل Gboard)؛ تُحسب فقط عند تفعيل وضع التقسيم. */
     private final List<KeyDef> splitDuplicateKeys = new ArrayList<>();
+    // فجوة إضافية بين الأزرار تُفعَّل فقط في وضع التابلت (الكيبورد المقسوم)
+    private float tabletKeyGapX = 0f;
+    private float tabletKeyGapY = 0f;
     private static final java.util.Set<String> SPLIT_GAP_DUPLICATE_LETTERS =
             new java.util.HashSet<>(Arrays.asList("ا", "غ", "ة", "g", "v", "G", "V"));
 
@@ -573,11 +576,12 @@ public class BlackBerryKeyboardView extends View {
     public float getSymbolsKeyWidthPx(int widthPx) {
         List<KeyDef> bottomRow = buildBottomRow();
         if (bottomRow.isEmpty()) return 0f;
+        boolean tablet = isSplitKeyboardActive(widthPx);
         float totalWeight = 0f;
-        for (KeyDef k : bottomRow) totalWeight += k.weight;
+        for (KeyDef k : bottomRow) totalWeight += bottomRowWeight(k, tablet);
         float rowEdge = getBottomRowEdgeInsetPx(widthPx);
         float availRowW = widthPx - rowEdge * 2f;
-        return totalWeight > 0f ? (bottomRow.get(0).weight / totalWeight) * availRowW : 0f;
+        return totalWeight > 0f ? (bottomRowWeight(bottomRow.get(0), tablet) / totalWeight) * availRowW : 0f;
     }
 
     public void setResizeDragMode(boolean enabled) {
@@ -992,6 +996,8 @@ public class BlackBerryKeyboardView extends View {
         }
 
         boolean splitActive = isSplitKeyboardActive(w);
+        tabletKeyGapX = splitActive ? 2.2f * density : 0f;
+        tabletKeyGapY = splitActive ? 0.8f * density : 0f;
         splitDuplicateKeys.clear();
         // فجوة المنتصف 25% من العرض، وفجوتان أصغر على طرفي الكيبورد (يسار ويمين) نفس شكل الكيبورد
         // الأصلي على الشاشة الكبيرة بدل ما يلتصق الحروف بحافة الشاشة تماماً.
@@ -1014,17 +1020,44 @@ public class BlackBerryKeyboardView extends View {
                 // التقسيم مفعّل يأخذ نفس فجوتي الطرفين (يمين ويسار) مثل بقية الصفوف فوقه تماماً.
                 float rowEdge = splitActive ? edgeW : 0f;
                 float availRowW = w - rowEdge * 2f;
+                boolean bottomRowTablet = splitActive && rIdx == rows.size() - 1;
                 float totalWeight = 0f;
-                for (KeyDef k : row) totalWeight += k.weight;
+                for (KeyDef k : row) totalWeight += bottomRowWeight(k, bottomRowTablet);
                 float leftX = rowEdge;
                 for (KeyDef k : row) {
-                    float kw = (k.weight / totalWeight) * availRowW;
+                    float kw = (bottomRowWeight(k, bottomRowTablet) / totalWeight) * availRowW;
                     k.rect.set(leftX, topY, leftX + kw, topY + rowH);
                     leftX += kw;
                 }
             }
             topY += rowH;
         }
+    }
+
+    /**
+     * وزن مفتاح في الصف السفلي. في وضع التابلت زر المسافة أطول والأزرار اللي على جنبيه (؟123، الإيموجي،
+     * النقطة، الإدخال) أصغر شوي، لأن العرض الكبير يخلي الأزرار الجانبية ضخمة بلا فايدة.
+     */
+    private static float bottomRowWeight(KeyDef k, boolean tablet) {
+        if (!tablet) return k.weight;
+        switch (k.type) {
+            case SYMBOLS: return 1.05f;
+            case EMOJI: return 0.80f;
+            case SPACE: return 6.10f;
+            case PERIOD: return 0.80f;
+            case ENTER: return 1.10f;
+            default: return k.weight;
+        }
+    }
+
+    /** الفجوة الإضافية الأفقية بين الأزرار (px) في وضع التابلت، أو 0 خارجه. */
+    public float getTabletKeyGapXPx(int widthPx) {
+        return isSplitKeyboardActive(widthPx) ? 2.2f * density : 0f;
+    }
+
+    /** الفجوة الإضافية العمودية بين الأزرار (px) في وضع التابلت، أو 0 خارجه. */
+    public float getTabletKeyGapYPx(int widthPx) {
+        return isSplitKeyboardActive(widthPx) ? 0.8f * density : 0f;
     }
 
     /** هل يجب تفعيل وضع الكيبورد المقسوم لنصفين (بفاصل بالمنتصف) عند هذا العرض الحالي؟ */
@@ -1310,19 +1343,21 @@ public class BlackBerryKeyboardView extends View {
         boolean pressed = (fillPaint == keyPressedPaint);
         boolean isSpecialKey = (key.type != KeyType.CHAR && key.type != KeyType.SPACE);
         boolean pillKey = (key.type == KeyType.SYMBOLS || key.type == KeyType.ENTER);
+        final float gx = tabletKeyGapX;
+        final float gy = tabletKeyGapY;
 
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            RectF r = insetRect(rawRect, (soft ? 2.6f : 3.0f) * density, 4.0f * density);
+            RectF r = insetRect(rawRect, (soft ? 2.6f : 3.0f) * density + gx, 4.0f * density + gy);
             float radius = pillKey ? r.height() / 2f : (soft ? 17f : 9.5f) * density;
             canvas.drawRoundRect(r, radius, radius, fillPaint);
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_BORDERLESS) {
             // بدون حدود للأزرار (مثل خيار Gboard بدون إطار): الحروف تظهر بلا خلفية، والمفاتيح الخاصة كبسولات
-            RectF r = insetRect(rawRect, 3.0f * density, 4.5f * density);
+            RectF r = insetRect(rawRect, 3.0f * density + gx, 4.5f * density + gy);
             float radius = pillKey ? r.height() / 2f : 13f * density;
             if (pressed || isSpecialKey) {
                 canvas.drawRoundRect(r, radius, radius, fillPaint);
@@ -1330,7 +1365,7 @@ public class BlackBerryKeyboardView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_OUTLINED) {
-            RectF r = insetRect(rawRect, 3.2f * density, 4.2f * density);
+            RectF r = insetRect(rawRect, 3.2f * density + gx, 4.2f * density + gy);
             float radius = 11f * density;
             if (pressed) {
                 canvas.drawRoundRect(r, radius, radius, fillPaint);
@@ -1347,8 +1382,8 @@ public class BlackBerryKeyboardView extends View {
         if (keyboardStyle == KeyboardPreferences.STYLE_KEYCAP_3D) {
             // زر بارز بحافة سفلية سميكة تعطي إحساس الزر الميكانيكي
             float edge = pressed ? 1.2f * density : 3.4f * density;
-            RectF cap = new RectF(rawRect.left + 2.8f * density, rawRect.top + 3.2f * density,
-                    rawRect.right - 2.8f * density, rawRect.bottom - 3.4f * density - edge + 3.4f * density);
+            RectF cap = new RectF(rawRect.left + 2.8f * density + gx, rawRect.top + 3.2f * density + gy,
+                    rawRect.right - 2.8f * density - gx, rawRect.bottom - 3.4f * density - edge + 3.4f * density - gy);
             RectF base = new RectF(cap.left, cap.top + edge, cap.right, cap.bottom + edge);
             float radius = 7.5f * density;
             canvas.drawRoundRect(base, radius, radius, keyShadowPaint);
@@ -1357,8 +1392,8 @@ public class BlackBerryKeyboardView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_ROUNDED) {
-            float insetX = 2.6f * density;
-            float insetY = 3.6f * density;
+            float insetX = 2.6f * density + gx;
+            float insetY = 3.6f * density + gy;
             RectF cardRect = new RectF(
                     rawRect.left + insetX,
                     rawRect.top + insetY,
@@ -1375,8 +1410,8 @@ public class BlackBerryKeyboardView extends View {
             canvas.drawRoundRect(shadowRect, radius, radius, keyShadowPaint);
             canvas.drawRoundRect(cardRect, radius, radius, fillPaint);
         } else if (keyboardStyle == KeyboardPreferences.STYLE_MODERN_PILL) {
-            float insetX = 3.2f * density;
-            float insetY = 4.5f * density;
+            float insetX = 3.2f * density + gx;
+            float insetY = 4.5f * density + gy;
             RectF pillRect = new RectF(
                     rawRect.left + insetX,
                     rawRect.top + insetY,

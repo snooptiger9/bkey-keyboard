@@ -23,6 +23,16 @@ public class KeyShapeBackgroundView extends View {
     private final Paint outlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint dividerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rawRect = new RectF();
+    // فجوة إضافية بين الأزرار في وضع التابلت (نفس القيم اللي يستخدمها الكيبورد الرئيسي) حتى يتطابق الشكل
+    private float extraX = 0f;
+    private float extraY = 0f;
+
+    public void setExtraInset(float x, float y) {
+        if (x == extraX && y == extraY) return;
+        extraX = x;
+        extraY = y;
+        invalidate();
+    }
 
     public KeyShapeBackgroundView(Context ctx, int keyboardStyle,
                                    int fillColor, int shadowColor, int outlineColor, int dividerColor) {
@@ -54,8 +64,8 @@ public class KeyShapeBackgroundView extends View {
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            float insetX = (soft ? 2.6f : 3.0f) * density;
-            float insetY = 4.0f * density;
+            float insetX = (soft ? 2.6f : 3.0f) * density + extraX;
+            float insetY = 4.0f * density + extraY;
             RectF r = new RectF(rawRect.left + insetX, rawRect.top + insetY,
                     rawRect.right - insetX, rawRect.bottom - insetY);
             float radius = r.height() / 2f;
@@ -63,8 +73,8 @@ public class KeyShapeBackgroundView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_BORDERLESS) {
-            float insetX = 3.0f * density;
-            float insetY = 4.5f * density;
+            float insetX = 3.0f * density + extraX;
+            float insetY = 4.5f * density + extraY;
             RectF r = new RectF(rawRect.left + insetX, rawRect.top + insetY,
                     rawRect.right - insetX, rawRect.bottom - insetY);
             float radius = r.height() / 2f;
@@ -72,8 +82,8 @@ public class KeyShapeBackgroundView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_OUTLINED) {
-            float insetX = 3.2f * density;
-            float insetY = 4.2f * density;
+            float insetX = 3.2f * density + extraX;
+            float insetY = 4.2f * density + extraY;
             RectF r = new RectF(rawRect.left + insetX, rawRect.top + insetY,
                     rawRect.right - insetX, rawRect.bottom - insetY);
             float radius = 11f * density;
@@ -85,8 +95,8 @@ public class KeyShapeBackgroundView extends View {
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_KEYCAP_3D) {
             float edge = 3.4f * density;
-            RectF cap = new RectF(rawRect.left + 2.8f * density, rawRect.top + 3.2f * density,
-                    rawRect.right - 2.8f * density, rawRect.bottom - edge);
+            RectF cap = new RectF(rawRect.left + 2.8f * density + extraX, rawRect.top + 3.2f * density + extraY,
+                    rawRect.right - 2.8f * density - extraX, rawRect.bottom - edge - extraY);
             RectF base = new RectF(cap.left, cap.top + edge, cap.right, cap.bottom + edge);
             float radius = 7.5f * density;
             canvas.drawRoundRect(base, radius, radius, shadowPaint);
@@ -94,8 +104,8 @@ public class KeyShapeBackgroundView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_ROUNDED) {
-            float insetX = 2.6f * density;
-            float insetY = 3.6f * density;
+            float insetX = 2.6f * density + extraX;
+            float insetY = 3.6f * density + extraY;
             RectF cardRect = new RectF(rawRect.left + insetX, rawRect.top + insetY,
                     rawRect.right - insetX, rawRect.bottom - insetY);
             RectF shadowRect = new RectF(cardRect.left, cardRect.top + 1.5f * density,
@@ -106,8 +116,8 @@ public class KeyShapeBackgroundView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_MODERN_PILL) {
-            float insetX = 3.2f * density;
-            float insetY = 4.5f * density;
+            float insetX = 3.2f * density + extraX;
+            float insetY = 4.5f * density + extraY;
             RectF pillRect = new RectF(rawRect.left + insetX, rawRect.top + insetY,
                     rawRect.right - insetX, rawRect.bottom - insetY);
             float radius = 14f * density;
