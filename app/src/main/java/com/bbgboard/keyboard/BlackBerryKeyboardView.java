@@ -121,6 +121,8 @@ public class BlackBerryKeyboardView extends View {
 
     // 7. متغيرات بوب أب معاينة الحرف عند الضغط (Key Press Preview Popup)
     private KeyDef activePreviewKey = null;
+    /** عمل يُنفَّذ مباشرة بعد رسم الإطار الحالي (انظر ACTION_UP). */
+    private Runnable afterDrawAction = null;
 
     // 8. متغيرات بوب أب الخيارات عند الضغط المطول (Long-Press Alternatives Popup)
     private boolean isLongPressPopupVisible = false;
@@ -1208,6 +1210,11 @@ public class BlackBerryKeyboardView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (afterDrawAction != null) {
+            Runnable pending = afterDrawAction;
+            afterDrawAction = null;
+            post(pending);
+        }
         canvas.drawRect(0f, 0f, getWidth(), getHeight(), bgShellPaint);
 
         float baseLetterSp = (!isArabic && !isSymbols) ? 23.0f : 22.5f;
@@ -2183,7 +2190,14 @@ public class BlackBerryKeyboardView extends View {
                     } else {
                         soundController.playKeyClick();
                     }
-                    handleKeyTap(key);
+                    if (key.type == KeyType.CHAR || key.type == KeyType.PERIOD) {
+                        // الحرف ينكتب بعد رسم الإطار التالي: فقاعة المعاينة تختفي فوراً أول ما يرتفع الإصبع
+                        // بدل ما تنتظر انتهاء معالجة الحرف.
+                        afterDrawAction = () -> handleKeyTap(key);
+                        invalidate();
+                    } else {
+                        handleKeyTap(key);
+                    }
                 }
                 return true;
         }
