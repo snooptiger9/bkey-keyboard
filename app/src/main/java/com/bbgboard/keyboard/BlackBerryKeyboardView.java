@@ -2006,7 +2006,7 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 if (key != null && key.type == KeyType.SPACE && prefs.isSpaceSwipeLangEnabled()) {
-                    float spaceSwipeThreshold = 28f * density;
+                    float spaceSwipeThreshold = 22f * density; // كانت 28: أكثر حساسية بقليل
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
                         isSymbols = false;
                         isArabic = !isArabic;
