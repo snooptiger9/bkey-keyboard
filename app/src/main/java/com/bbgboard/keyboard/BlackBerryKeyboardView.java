@@ -1973,7 +1973,7 @@ public class BlackBerryKeyboardView extends View {
 
                     if (touchDownKey.type == KeyType.BACKSPACE) {
                         handler.postDelayed(repeatBackspaceRunnable, 380L);
-                    } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT) {
+                    } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT || touchDownKey.type == KeyType.LANGUAGE) {
                         handler.postDelayed(longPressRunnable, prefs.getLongPressDelayMs());
                     } else if (touchDownKey.type == KeyType.SPACE && prefs.isSpaceCursorDragEnabled()) {
                         spaceCursorModeActive = false;
