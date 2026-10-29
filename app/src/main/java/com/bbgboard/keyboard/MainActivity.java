@@ -547,6 +547,23 @@ public class MainActivity extends Activity {
     private void openLanguagesScreen() {
         LinearLayout root = createSubScreenTemplate(tr("اللغات وتوزيعة الحروف", "Languages & layout"));
 
+        // اللغات المفعّلة: الاثنتان (تبديل بالسحب) أو لغة واحدة فقط بدون تبديل
+        LinearLayout langModeCard = createGroupedWhiteCard();
+        langModeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        TextView langModeHeader = new TextView(this);
+        langModeHeader.setText(tr("اللغات المفعّلة:", "Enabled languages:"));
+        langModeHeader.setTextColor(Color.parseColor("#111827"));
+        langModeHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f);
+        langModeHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        langModeHeader.setPadding(0, 0, 0, dp(8));
+        langModeCard.addView(langModeHeader);
+        langModeCard.addView(createExclusiveRadioList(
+                tr(new String[]{"العربية والإنجليزية (تبديل بسحب المسافة)", "العربية فقط (بدون تبديل)", "الإنجليزية فقط (بدون تبديل)"},
+                   new String[]{"Arabic & English (swipe the space bar to switch)", "Arabic only (no switching)", "English only (no switching)"}),
+                prefs.getLanguageMode(),
+                idx -> prefs.setLanguageMode(idx)));
+        root.addView(langModeCard);
+
         root.addView(createSwitchTile(
                 tr("تغيير اللغة بسحب زر المسافة يميناً أو يساراً", "Swipe the space bar to switch language"),
                 tr("اسحب زر المسافة (‹ العربية ›) للتبديل الفوري بين العربية والإنجليزية بدون زر لغة منفصل",
@@ -745,6 +762,13 @@ public class MainActivity extends Activity {
                 tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
                 prefs.isClipChipEnabled(),
                 checked -> prefs.setClipChipEnabled(checked)
+        ));
+
+        root.addView(createSwitchTile(
+                tr("زر الكتابة بالصوت (المايك)", "Voice typing button (mic)"),
+                tr("يظهر على يمين صف الاقتراحات؛ اضغطه وتكلم ويكتب الكلام. يحتاج إذن الميكروفون واتصالاً بالإنترنت غالباً", "Shows on the right of the suggestion row; tap it and speak to type. Needs mic permission and usually an internet connection"),
+                prefs.isVoiceButtonEnabled(),
+                checked -> prefs.setVoiceButtonEnabled(checked)
         ));
 
         root.addView(createClipRetentionTile());

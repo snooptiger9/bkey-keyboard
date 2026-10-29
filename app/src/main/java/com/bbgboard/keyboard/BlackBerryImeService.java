@@ -428,6 +428,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             predictionEngine.flushPendingSaveBlocking();
         }
         unregisterShotObserver();
+        if (voiceController != null) voiceController.destroy();
         uiHandler.removeCallbacks(clipChipExpiry);
         predictionExecutor.shutdownNow();
         ioExecutor.shutdown();
@@ -494,6 +495,54 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         setExtractViewShown(false);
     }
 
+
+    // =====================================================================
+    // الكتابة بالصوت (المنطق في VoiceInputController، هنا الربط بالحقل فقط)
+    // =====================================================================
+
+    private VoiceInputController voiceController;
+
+    private VoiceInputController voice() {
+        if (voiceController == null) {
+            voiceController = new VoiceInputController(this, new VoiceInputController.Callback() {
+                @Override public void onPartial(String text) {
+                    InputConnection ic = getCurrentInputConnection();
+                    if (ic != null) ic.setComposingText(text, 1);
+                }
+                @Override public void onResult(String text) {
+                    InputConnection ic = getCurrentInputConnection();
+                    if (ic != null) ic.commitText(text + " ", 1);
+                    refreshPredictions();
+                }
+                @Override public void onListeningChanged(boolean listening) {
+                    if (keyboardView != null) keyboardView.setVoiceListening(listening);
+                    if (!listening) {
+                        InputConnection ic = getCurrentInputConnection();
+                        if (ic != null) ic.finishComposingText(); // أي نص جزئي لم يكتمل يُثبَّت كما هو
+                    }
+                }
+                @Override public void onError(String message) {
+                    if (message != null) Toast.makeText(BlackBerryImeService.this, message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        return voiceController;
+    }
+
+    @Override
+    public void onVoiceInputRequested() {
+        if (!VoiceInputController.hasPermission(this)) {
+            // الكيبورد ما يقدر يطلب الإذن بنفسه: نافذة شفافة صغيرة تطلبه
+            Intent i = new Intent(this, MicPermissionActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try { startActivity(i); } catch (Exception ignored) {}
+            return;
+        }
+        if (!VoiceInputController.isAvailable(this)) {
+            Toast.makeText(this, "الكتابة بالصوت غير متوفرة على هذا الجهاز", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        voice().toggle(keyboardView != null && keyboardView.isArabic());
+    }
 
     // ===== أداء الكتابة: كاش لنص ما قبل المؤشر، وحساب الاقتراحات على خيط خلفي =====
 
@@ -741,6 +790,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         clearInlineSuggestions();
         unregisterShotObserver();
+        if (voiceController != null) voiceController.cancel(); // الكيبورد يختفي: نوقف الاستماع
         invalidateTextCache();
         if (predictionEngine != null) {
             predictionEngine.flushPendingSave(); // غير متزامن: لا يوقف الخيط الرئيسي

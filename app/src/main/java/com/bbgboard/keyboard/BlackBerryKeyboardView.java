@@ -74,6 +74,8 @@ public class BlackBerryKeyboardView extends View {
         void onSwipeUpSuggestion(int zoneIndex);
         void onEnterKey();
         void onToggleClipboardMenu();
+        /** ضغط زر المايك (الكتابة بالصوت) في صف الاقتراحات. */
+        void onVoiceInputRequested();
         void onToggleEmoji();
         void onLanguageChanged(boolean isArabic);
         void onKeyboardScaleChanged(float newScale);
@@ -101,6 +103,11 @@ public class BlackBerryKeyboardView extends View {
     private final RectF[] suggestionRects = new RectF[]{new RectF(), new RectF(), new RectF()};
     private final RectF resizeHandleBarRect = new RectF();
     private boolean menuButtonPressed = false;
+    // زر المايك (الكتابة بالصوت) على يمين صف الاقتراحات، بنفس مساحة زر الحافظة على اليسار
+    private final RectF micButtonRect = new RectF();
+    private boolean micButtonPressed = false;
+    private boolean voiceEnabled = true;
+    private boolean voiceListening = false;
 
     // 1. متغيرات أنميشن الكلمة الطائرة (أبطأ وأكثر وضوحاً: 520ms)
     private PopupWindow topOverlayPopup;
@@ -421,6 +428,7 @@ public class BlackBerryKeyboardView extends View {
         this.suggestionBarScale = prefs.getSuggestionBarScale();
         this.themeMode = prefs.getThemeMode();
         this.keyboardStyle = prefs.getKeyboardStyle();
+        applyLanguageMode();
 
         applyThemeColors();
         requestLayout();
@@ -1006,7 +1014,10 @@ public class BlackBerryKeyboardView extends View {
 
     private List<KeyDef> buildBottomRow() {
         String symLabel = isSymbols ? (isArabic ? "أبجد" : "ABC") : "?123";
-        String spaceLabel = isArabic ? "‹  العربية  ›" : "‹  English  ›";
+        // لغة واحدة فقط: بدون أسهم التبديل لأن السحب للتبديل معطّل
+        boolean singleLanguage = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_BOTH;
+        String spaceLabel = singleLanguage ? (isArabic ? "العربية" : "English")
+                : (isArabic ? "‹  العربية  ›" : "‹  English  ›");
         return Arrays.asList(
             new KeyDef(symLabel, "", Collections.<String>emptyList(), KeyType.SYMBOLS, 1.25f),
             new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f),
@@ -1043,8 +1054,14 @@ public class BlackBerryKeyboardView extends View {
         float sugEdge = getBottomRowEdgeInsetPx(w);
         float menuW = 42f * density;
         menuButtonRect.set(sugEdge, resizeH, sugEdge + menuW, resizeH + sugH);
+        voiceEnabled = prefs.isVoiceButtonEnabled();
+        if (voiceEnabled) {
+            micButtonRect.set(w - sugEdge - menuW, resizeH, w - sugEdge, resizeH + sugH);
+        } else {
+            micButtonRect.setEmpty();
+        }
 
-        float remW = w - sugEdge * 2f - menuW;
+        float remW = w - sugEdge * 2f - menuW - (voiceEnabled ? menuW : 0f);
         float thirdW = remW / 3f;
         for (int i = 0; i < 3; i++) {
             suggestionRects[i].set(sugEdge + menuW + i * thirdW, resizeH, sugEdge + menuW + (i + 1) * thirdW, resizeH + sugH);
@@ -1213,6 +1230,13 @@ public class BlackBerryKeyboardView extends View {
         }
         drawClipboardMenuIcon(canvas, menuButtonRect);
         canvas.drawLine(menuButtonRect.right, sugTop + 5f * density, menuButtonRect.right, sugBottom - 5f * density, keyDividerPaint);
+        if (voiceEnabled) {
+            if (micButtonPressed || voiceListening) {
+                canvas.drawRect(micButtonRect, sugFlashPaint);
+            }
+            drawMicIcon(canvas, micButtonRect);
+            canvas.drawLine(micButtonRect.left, sugTop + 5f * density, micButtonRect.left, sugBottom - 5f * density, keyDividerPaint);
+        }
 
         long now = SystemClock.uptimeMillis();
         boolean isFlyingActive = (flyingWordText != null && (now - flyingStartTime) < FLY_OUTSIDE_DURATION_MS);
@@ -1638,6 +1662,49 @@ public class BlackBerryKeyboardView extends View {
         textPaint.setTextAlign(prevAlign);
     }
 
+    /** يميّز زر المايك أثناء الاستماع. */
+    public void setVoiceListening(boolean listening) {
+        if (voiceListening == listening) return;
+        voiceListening = listening;
+        invalidate();
+    }
+
+    /** لو اللغة الواحدة مفعّلة نثبّت لغة الكيبورد عليها (ويُلغى تأثير السحب للتبديل). */
+    private void applyLanguageMode() {
+        int mode = prefs.getLanguageMode();
+        if (mode == KeyboardPreferences.LANGUAGE_MODE_BOTH) return;
+        boolean wantArabic = mode == KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY;
+        if (isArabic == wantArabic) return;
+        isArabic = wantArabic;
+        isShift = false;
+        isCapsLock = false;
+        if (listener != null) listener.onLanguageChanged(isArabic);
+    }
+
+    /** أيقونة المايكروفون بنفس أسلوب أيقونة الحافظة: خطوط بدون لون وبنفس الحجم تقريباً. */
+    private void drawMicIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.7f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+
+        RectF body = drawRectA;
+        body.set(cx - 3.5f * density, cy - 9.2f * density, cx + 3.5f * density, cy + 2.6f * density);
+        canvas.drawRoundRect(body, 3.5f * density, 3.5f * density, iconStrokePaint);
+
+        RectF arc = drawRectC;
+        arc.set(cx - 6.8f * density, cy - 5.4f * density, cx + 6.8f * density, cy + 8.0f * density);
+        canvas.drawArc(arc, 0f, 180f, false, iconStrokePaint);
+
+        canvas.drawLine(cx, cy + 8.0f * density, cx, cy + 9.8f * density, iconStrokePaint);
+        canvas.drawLine(cx - 3.6f * density, cy + 9.8f * density, cx + 3.6f * density, cy + 9.8f * density, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
+    }
+
     /** أيقونة صورة (إطار وشمس وجبل) بنفس أسلوب أيقونة الحافظة: خطوط بدون لون. */
     private void drawImageIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
@@ -1806,6 +1873,7 @@ public class BlackBerryKeyboardView extends View {
                 suggestionLongPressConsumed = false;
                 touchDownSuggestionSlot = -1;
                 menuButtonPressed = false;
+                micButtonPressed = false;
                 touchDownKey = null;
                 visualPressedKey = null;
                 activePreviewKey = null;
@@ -1815,6 +1883,14 @@ public class BlackBerryKeyboardView extends View {
                 if (isResizeDragMode && y <= resizeH) {
                     isResizingDrag = true;
                     resizeStartScale = keyboardScale;
+                    return true;
+                }
+
+                if (voiceEnabled && micButtonRect.contains(x, y)) {
+                    micButtonPressed = true;
+                    vibrateTap(false);
+                    soundController.playKeyClick();
+                    invalidate();
                     return true;
                 }
 
@@ -1897,6 +1973,7 @@ public class BlackBerryKeyboardView extends View {
                 if (Math.hypot(dxMove, dyMove) > 9f * density) {
                     isDragging = true;
                     menuButtonPressed = false;
+                    micButtonPressed = false;
                     handler.removeCallbacks(longPressRunnable);
                     handler.removeCallbacks(repeatBackspaceRunnable);
                     handler.removeCallbacks(suggestionLongPressRunnable);
@@ -1965,12 +2042,14 @@ public class BlackBerryKeyboardView extends View {
                 float dy = y - startY;
                 KeyDef key = touchDownKey;
                 boolean wasMenuPressed = menuButtonPressed;
+                boolean wasMicPressed = micButtonPressed;
                 boolean wasResizing = isResizingDrag;
 
                 touchDownKey = null;
                 visualPressedKey = null;
                 activePreviewKey = null;
                 menuButtonPressed = false;
+                micButtonPressed = false;
                 isDragging = false;
                 isResizingDrag = false;
                 invalidate();
@@ -1992,6 +2071,11 @@ public class BlackBerryKeyboardView extends View {
                 }
                 touchDownSuggestionSlot = -1;
 
+                if (wasMicPressed && micButtonRect.contains(x, y)) {
+                    if (listener != null) listener.onVoiceInputRequested();
+                    return true;
+                }
+
                 if (wasMenuPressed && menuButtonRect.contains(x, y)) {
                     if (listener != null) listener.onToggleClipboardMenu();
                     return true;
@@ -2006,7 +2090,8 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                if (key != null && key.type == KeyType.SPACE && prefs.isSpaceSwipeLangEnabled()) {
+                if (key != null && key.type == KeyType.SPACE && prefs.isSpaceSwipeLangEnabled()
+                        && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH) {
                     float spaceSwipeThreshold = 22f * density; // كانت 28: أكثر حساسية بقليل
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
                         isSymbols = false;

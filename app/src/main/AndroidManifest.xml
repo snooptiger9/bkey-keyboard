@@ -6,6 +6,15 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <!-- لاقتراح رمز التحقق (OTP) تلقائياً من الرسائل الجديدة الواردة فقط (بدون قراءة صندوق الرسائل القديم) -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- للكتابة بالصوت (زر المايك في صف الاقتراحات) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- يسمح بالتعرف على خدمة التعرف على الكلام في الجهاز (مطلوب من أندرويد 11) -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -16,6 +25,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+
+        <activity
+            android:name=".MicPermissionActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
             android:name=".MainActivity"
