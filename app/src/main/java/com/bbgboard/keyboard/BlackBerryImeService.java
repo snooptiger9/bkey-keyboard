@@ -1042,8 +1042,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
         row.setLayoutDirection(arabicUi ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        GradientDrawable cardBg = roundedBg("#1B2436", 14);
-        cardBg.setStroke(dp(1), Color.parseColor("#2F4A7A"));
+        GradientDrawable cardBg = roundedBg(keyBgC(), 14);
+        cardBg.setStroke(dp(1), keyDividerC());
         row.setBackground(cardBg);
         row.setPadding(dp(6), dp(6), dp(6), dp(6));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -1055,7 +1055,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         int side = dp(52);
         thumb.setLayoutParams(new LinearLayout.LayoutParams(side, side));
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        thumb.setBackground(roundedBg("#0F1115", 10));
+        thumb.setBackground(roundedBg(shellC(), 10));
         try {
             Bitmap bmp = BitmapFactory.decodeFile(ScreenshotClip.file(this).getAbsolutePath());
             if (bmp != null) thumb.setImageBitmap(bmp);
@@ -1562,6 +1562,21 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return (int) (value * getResources().getDisplayMetrics().density);
     }
 
+    // ===== ألوان نوافذ الحافظة والإيموجي: نفس ألوان الكيبورد (سمته الحالية) =====
+    private int shellC()      { return keyboardView != null ? keyboardView.getShellColor() : Color.parseColor("#111111"); }
+    private int sugBarC()     { return keyboardView != null ? keyboardView.getSuggestionBarColor() : Color.parseColor("#171717"); }
+    private int keyBgC()      { return keyboardView != null ? keyboardView.getKeyBgColor() : Color.parseColor("#262626"); }
+    private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
+    private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
+    private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
+
+    private GradientDrawable roundedBg(int color, int radiusDp) {
+        GradientDrawable gd = new GradientDrawable();
+        gd.setColor(color);
+        gd.setCornerRadius(dp(radiusDp));
+        return gd;
+    }
+
     private GradientDrawable roundedBg(String hexColor, int radiusDp) {
         GradientDrawable gd = new GradientDrawable();
         gd.setColor(Color.parseColor(hexColor));
@@ -1596,7 +1611,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setBackgroundColor(Color.parseColor("#161920"));
+        bar.setBackgroundColor(sugBarC());
         bar.setPadding(dp(10), 0, dp(10), 0);
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(54)));
         refs.bar = bar;
@@ -1763,7 +1778,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private LinearLayout buildClipboardAndResizeDrawer() {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
-        container.setBackgroundColor(Color.parseColor("#0F1115"));
+        container.setBackgroundColor(shellC());
         container.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(304)));
         container.setVisibility(View.GONE);
 
@@ -1773,7 +1788,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // ما ينقلب بين العربي والإنجليزي.
         header.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        header.setBackgroundColor(Color.parseColor("#161920"));
+        header.setBackgroundColor(sugBarC());
         header.setPadding(dp(14), dp(6), dp(12), dp(6));
         clipHeaderRow = header;
 
@@ -1897,8 +1912,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
             row.setLayoutDirection(arabicUi ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            GradientDrawable cardBg = roundedBg(clip.pinned ? "#1B2436" : "#1A1E27", 14);
-            cardBg.setStroke(dp(1), Color.parseColor(clip.pinned ? "#2F4A7A" : "#252A35"));
+            GradientDrawable cardBg = roundedBg(keyBgC(), 14);
+            cardBg.setStroke(dp(1), clip.pinned ? keyOutlineC() : keyDividerC());
             row.setBackground(cardBg);
             row.setPadding(dp(4), dp(4), dp(4), dp(4));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -1958,14 +1973,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private LinearLayout buildCategorizedEmojiDrawer() {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
-        container.setBackgroundColor(Color.parseColor("#12141A"));
+        container.setBackgroundColor(shellC());
         container.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(309)));
         container.setVisibility(View.GONE);
 
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        header.setBackgroundColor(Color.parseColor("#1A1E26"));
+        header.setBackgroundColor(sugBarC());
         header.setPadding(dp(8), dp(5), dp(8), dp(5));
         emojiHeaderRow = header;
 
@@ -2112,7 +2127,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         for (int i = 0; i < emojiTabViews.size(); i++) {
             TextView tab = emojiTabViews.get(i);
             if (i == index) {
-                tab.setBackground(roundedBg("#2E384D", 8));
+                tab.setBackground(roundedBg(pressedC(), 8));
                 tab.setAlpha(1.0f);
             } else {
                 tab.setBackgroundColor(Color.TRANSPARENT);

@@ -459,7 +459,7 @@ public class BlackBerryKeyboardView extends View {
             flyingWordPaint.setColor(Color.parseColor("#0F172A"));
             flyingBadgeBgPaint.setColor(Color.parseColor("#FFFFFF"));
             flyingBadgeBorderPaint.setColor(Color.parseColor("#2563EB"));
-            popupCardBgPaint.setColor(Color.parseColor("#FFFFFF"));
+            popupCardBgPaint.setColor(keyBgPaint.getColor());
             popupCardBorderPaint.setColor(Color.parseColor("#94A3B8"));
             popupTextPaint.setColor(Color.parseColor("#0F172A"));
             iconStrokePaint.setColor(Color.parseColor("#334155"));
@@ -482,7 +482,7 @@ public class BlackBerryKeyboardView extends View {
             flyingWordPaint.setColor(Color.WHITE);
             flyingBadgeBgPaint.setColor(Color.parseColor("#1E293B"));
             flyingBadgeBorderPaint.setColor(Color.parseColor("#38BDF8"));
-            popupCardBgPaint.setColor(Color.parseColor("#1E293B"));
+            popupCardBgPaint.setColor(keyBgPaint.getColor());
             popupCardBorderPaint.setColor(Color.parseColor("#475569"));
             popupTextPaint.setColor(Color.WHITE);
             iconStrokePaint.setColor(Color.parseColor("#E2E8F0"));
@@ -505,7 +505,7 @@ public class BlackBerryKeyboardView extends View {
             flyingWordPaint.setColor(Color.WHITE);
             flyingBadgeBgPaint.setColor(Color.parseColor("#222631"));
             flyingBadgeBorderPaint.setColor(Color.parseColor("#10B981"));
-            popupCardBgPaint.setColor(Color.parseColor("#262B36"));
+            popupCardBgPaint.setColor(keyBgPaint.getColor());
             popupCardBorderPaint.setColor(Color.parseColor("#525B6C"));
             popupTextPaint.setColor(Color.WHITE);
             iconStrokePaint.setColor(Color.parseColor("#E5E7EB"));
@@ -585,6 +585,14 @@ public class BlackBerryKeyboardView extends View {
         return keyShadowPaint.getColor();
     }
 
+    public int getKeyBgColor() {
+        return keyBgPaint.getColor();
+    }
+
+    public int getKeyPressedColor() {
+        return keyPressedPaint.getColor();
+    }
+
     public int getKeyDividerColor() {
         return keyDividerPaint.getColor();
     }
@@ -616,7 +624,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     /** هامش صغير على يمين ويسار كل الصفوف (كل اللغات) خارج وضع التابلت، بدل التصاق الأزرار بحافة الشاشة. */
-    private static final float SIDE_MARGIN_DP = 4.5f;
+    private static final float SIDE_MARGIN_DP = 7f;
 
     /** إزاحة صف الإنجليزي الثاني (ASDF...) من الجانبين بنسبة من عرض مفتاح (جي بورد = 0.5، هنا أقل شوي). */
     private static final float ENGLISH_ROW2_INDENT_KEYS = 0.35f;
@@ -1514,8 +1522,7 @@ public class BlackBerryKeyboardView extends View {
             RectF cell = longPressCellRects.get(i);
             String opt = longPressOptions.get(i);
             if (i == longPressHighlightedIndex) {
-                canvas.drawRoundRect(cell, 8f * density, 8f * density, popupHighlightPaint);
-                popupTextPaint.setColor(Color.WHITE);
+                canvas.drawRoundRect(cell, 8f * density, 8f * density, keyPressedPaint);
             } else {
                 popupTextPaint.setColor(normalTextColor);
             }
