@@ -189,6 +189,9 @@ public class BlackBerryKeyboardView extends View {
     private final Paint popupTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint iconStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint enterArrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint enterFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint stylePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private boolean enterCustom = false;
     private final Paint shiftActiveAccentPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint resizeBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -435,9 +438,20 @@ public class BlackBerryKeyboardView extends View {
         applyLanguageMode();
 
         applyThemeColors();
+        applyEnterColor();
         requestLayout();
         computeKeyBounds(getWidth());
         rebuildKeys();
+    }
+
+    /** لون كبسولة زر الإدخال المخصص (من الإعدادات)، وسهمه أبيض ليبقى واضحاً فوق أي لون. */
+    private void applyEnterColor() {
+        int c = prefs.getEnterColor();
+        enterCustom = c != 0;
+        if (enterCustom) {
+            enterFillPaint.setColor(c);
+            enterArrowPaint.setColor(Color.WHITE);
+        }
     }
 
     private void applyThemeColors() {
@@ -1324,6 +1338,8 @@ public class BlackBerryKeyboardView extends View {
                 Paint bg;
                 if (k == visualPressedKey && !isDragging) {
                     bg = keyPressedPaint;
+                } else if (k.type == KeyType.ENTER && enterCustom) {
+                    bg = enterFillPaint;
                 } else if (isSpecial) {
                     bg = keySpecialBgPaint;
                 } else {
@@ -1571,7 +1587,7 @@ public class BlackBerryKeyboardView extends View {
             if (pressed) {
                 canvas.drawRoundRect(r, radius, radius, fillPaint);
             } else if (isSpecialKey) {
-                canvas.drawRoundRect(r, radius, radius, keySpecialBgPaint);
+                canvas.drawRoundRect(r, radius, radius, fillPaint);
             }
             outlinePaint.setStyle(Paint.Style.STROKE);
             outlinePaint.setStrokeWidth(1.3f * density);
@@ -1593,6 +1609,55 @@ public class BlackBerryKeyboardView extends View {
             RectF top = drawRectC;
             top.set(cap.left, cap.top + (pressed ? edge : 0f), cap.right, cap.bottom + (pressed ? edge : 0f));
             canvas.drawRoundRect(top, radius, radius, fillPaint);
+            return;
+        }
+        if (keyboardStyle == KeyboardPreferences.STYLE_SOFT_RAISED) {
+            // بطاقة بارزة ناعمة: ظل خفيف تحتها وخط لامع رفيع بحافتها العلوية
+            RectF r = insetRect(rawRect, 2.6f * density + gx, 3.6f * density + gy);
+            float radius = 12f * density;
+            RectF shadow = drawRectB;
+            shadow.set(r.left, r.top + 1.6f * density, r.right, r.bottom + 1.6f * density);
+            canvas.drawRoundRect(shadow, radius, radius, keyShadowPaint);
+            canvas.drawRoundRect(r, radius, radius, fillPaint);
+            stylePaint.setStyle(Paint.Style.STROKE);
+            stylePaint.setStrokeWidth(1f * density);
+            stylePaint.setStrokeCap(Paint.Cap.ROUND);
+            stylePaint.setColor(Color.WHITE);
+            stylePaint.setAlpha(isLightTheme() ? 230 : 45);
+            canvas.drawLine(r.left + radius * 0.7f, r.top + 1f * density, r.right - radius * 0.7f, r.top + 1f * density, stylePaint);
+            return;
+        }
+        if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
+            // الحروف دوائر، والمفاتيح العريضة (مسافة، شفت...) كبسولات
+            float w = rawRect.width(), h = rawRect.height();
+            float d = Math.min(w, h) - 6f * density;
+            RectF r = drawRectA;
+            if (w <= h * 1.1f) {
+                r.set(rawRect.centerX() - d / 2f, rawRect.centerY() - d / 2f, rawRect.centerX() + d / 2f, rawRect.centerY() + d / 2f);
+            } else {
+                r.set(rawRect.left + 3f * density + gx, rawRect.centerY() - d / 2f, rawRect.right - 3f * density - gx, rawRect.centerY() + d / 2f);
+            }
+            canvas.drawRoundRect(r, r.height() / 2f, r.height() / 2f, fillPaint);
+            return;
+        }
+        if (keyboardStyle == KeyboardPreferences.STYLE_GLASS) {
+            // زجاجي: تعبئة شبه شفافة مع إطار رفيع ولمعة علوية
+            RectF r = insetRect(rawRect, 2.8f * density + gx, 3.8f * density + gy);
+            float radius = 10f * density;
+            int fillColor = fillPaint.getColor();
+            stylePaint.setStyle(Paint.Style.FILL);
+            stylePaint.setColor(fillColor);
+            stylePaint.setAlpha(pressed ? 255 : 190);
+            canvas.drawRoundRect(r, radius, radius, stylePaint);
+            stylePaint.setStyle(Paint.Style.STROKE);
+            stylePaint.setStrokeWidth(1f * density);
+            stylePaint.setColor(isLightTheme() ? Color.parseColor("#94A3B8") : Color.WHITE);
+            stylePaint.setAlpha(isLightTheme() ? 150 : 70);
+            canvas.drawRoundRect(r, radius, radius, stylePaint);
+            stylePaint.setStrokeCap(Paint.Cap.ROUND);
+            stylePaint.setColor(Color.WHITE);
+            stylePaint.setAlpha(isLightTheme() ? 230 : 90);
+            canvas.drawLine(r.left + radius * 0.8f, r.top + 1.6f * density, r.right - radius * 0.8f, r.top + 1.6f * density, stylePaint);
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_ROUNDED) {
