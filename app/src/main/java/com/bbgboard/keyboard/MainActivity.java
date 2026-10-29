@@ -286,9 +286,11 @@ public class MainActivity extends Activity {
                 : prefs.getThemeMode() == KeyboardPreferences.THEME_MIDNIGHT_SLATE ? tr("السمة الكحلية", "Midnight theme")
                 : tr("سمة بلاك بيري السوداء", "BlackBerry black theme");
         String[] styleSummariesAr = {"شكل بلاك بيري الكلاسيكي", "شكل Gboard الحديث", "شكل كبسولات عصرية",
-                "شكل Gboard ماتيريال", "شكل Gboard بدون إطار", "شكل Gboard مستدير جداً", "شكل بإطار خفيف", "شكل أزرار ثلاثية الأبعاد"};
+                "شكل Gboard ماتيريال", "شكل Gboard بدون إطار", "شكل كبسولات عصرية", "شكل بإطار خفيف", "شكل أزرار ثلاثية الأبعاد",
+                "شكل بارز ناعم", "شكل دوائر", "شكل زجاجي"};
         String[] styleSummariesEn = {"Classic BlackBerry", "Gboard modern", "Modern pill",
-                "Gboard material", "Gboard borderless", "Gboard extra round", "Light outline", "3D keycaps"};
+                "Gboard material", "Gboard borderless", "Modern pill", "Light outline", "3D keycaps",
+                "Soft raised", "Circles", "Glass"};
         String[] styleSummaries = isDeviceArabic() ? styleSummariesAr : styleSummariesEn;
         int styleIdx = prefs.getKeyboardStyle();
         String st = (styleIdx >= 0 && styleIdx < styleSummaries.length) ? styleSummaries[styleIdx] : styleSummaries[0];
@@ -856,17 +858,41 @@ public class MainActivity extends Activity {
         styleCard.addView(sHeader);
 
         String[] styleNames = tr(
-                new String[]{"بلاك بيري", "Gboard حديث", "كبسولات", "Gboard ماتيريال", "بدون إطار", "مستدير جداً", "إطار خفيف", "ثلاثي الأبعاد"},
-                new String[]{"BlackBerry", "Gboard modern", "Pill", "Gboard material", "Borderless", "Extra round", "Outline", "3D keycap"});
-        int[] styleRadii = {2, 10, 20, 14, 8, 24, 10, 6};
+                new String[]{"بلاك بيري", "Gboard حديث", "كبسولات", "Gboard ماتيريال", "بدون إطار", "إطار خفيف", "ثلاثي الأبعاد", "بارز ناعم", "دوائر", "زجاجي"},
+                new String[]{"BlackBerry", "Gboard modern", "Pill", "Gboard material", "Borderless", "Outline", "3D keycap", "Soft raised", "Circles", "Glass"});
+        int[] styleIds = {0, 1, 2, 3, 4, 6, 7, 8, 9, 10};
+        int[] styleRadii = {2, 10, 20, 14, 8, 10, 6, 12, 24, 10};
         List<View> styleTiles = new ArrayList<>();
         for (int i = 0; i < styleNames.length; i++) {
-            final int idx = i;
-            styleTiles.add(createKeyStylePreviewTile(styleNames[i], styleRadii[i], prefs.getKeyboardStyle() == i,
-                    v -> { prefs.setKeyboardStyle(idx); openThemeAndStyleScreen(); }));
+            final int id = styleIds[i];
+            styleTiles.add(createKeyStylePreviewTile(styleNames[i], styleRadii[i], prefs.getKeyboardStyle() == id,
+                    v -> { prefs.setKeyboardStyle(id); openThemeAndStyleScreen(); }));
         }
         addTileGrid(styleCard, styleTiles, 3);
         root.addView(styleCard);
+
+        // لون كبسولة زر الإدخال (السهم يبقى أبيض)
+        LinearLayout enterCard = createGroupedWhiteCard();
+        enterCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        TextView eHeader = new TextView(this);
+        eHeader.setText(tr("3. لون زر الإدخال", "3. Enter key color"));
+        eHeader.setTextColor(Color.parseColor("#111827"));
+        eHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        eHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        eHeader.setPadding(0, 0, 0, dp(10));
+        enterCard.addView(eHeader);
+        String[] enterNames = tr(
+                new String[]{"افتراضي", "أزرق", "أخضر", "بنفسجي", "برتقالي", "وردي"},
+                new String[]{"Default", "Blue", "Green", "Purple", "Orange", "Pink"});
+        String[] enterHex = {"#4B5563", "#2563EB", "#16A34A", "#7C3AED", "#EA580C", "#DB2777"};
+        List<View> enterTiles = new ArrayList<>();
+        for (int i = 0; i < enterNames.length; i++) {
+            final int color = i == 0 ? 0 : Color.parseColor(enterHex[i]);
+            enterTiles.add(createPreviewTile(enterNames[i], enterHex[i], prefs.getEnterColor() == color,
+                    v -> { prefs.setEnterColor(color); openThemeAndStyleScreen(); }));
+        }
+        addTileGrid(enterCard, enterTiles, 3);
+        root.addView(enterCard);
     }
 
     /** بطاقة معاينة صغيرة بلون مصمت وعلامة اختيار، بنفس أسلوب شبكة السمات في إعدادات أندرويد. */

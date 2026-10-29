@@ -31,6 +31,10 @@ public class KeyboardPreferences {
     public static final int STYLE_GBOARD_SOFT_ROUND = 5;
     public static final int STYLE_OUTLINED = 6;
     public static final int STYLE_KEYCAP_3D = 7;
+    public static final int STYLE_SOFT_RAISED = 8;
+    public static final int STYLE_CIRCLES = 9;
+    public static final int STYLE_GLASS = 10;
+    // (رقم 5 "مستدير جداً" كان مكرراً مع "كبسولات" فأُزيل، ومن كان مختاره ينتقل لكبسولات)
 
     public static final int SOUND_PROFILE_BB_CLASSIC = 0;
     public static final int SOUND_PROFILE_BB_Q10_SOFT = 1;
@@ -161,7 +165,17 @@ public class KeyboardPreferences {
     }
 
     public int getKeyboardStyle() {
-        return prefs.getInt("keyboard_style", STYLE_BLACKBERRY_FRETS);
+        int style = prefs.getInt("keyboard_style", STYLE_BLACKBERRY_FRETS);
+        return style == STYLE_GBOARD_SOFT_ROUND ? STYLE_MODERN_PILL : style;
+    }
+
+    /** لون كبسولة زر الإدخال (ARGB)، أو 0 = لون الكيبورد الافتراضي. */
+    public int getEnterColor() {
+        return prefs.getInt("enter_color", 0);
+    }
+
+    public void setEnterColor(int color) {
+        prefs.edit().putInt("enter_color", color).apply();
     }
 
     public void setKeyboardStyle(int style) {
