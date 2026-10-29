@@ -462,12 +462,28 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         rootContainer.addView(keyboardView);
         rootContainer.addView(clipboardDrawerView);
         rootContainer.addView(emojiDrawerView);
+        drawersTheme = keyboardPrefs.getThemeMode();
 
         showKeyboardMain();
         refreshPredictions();
         applyNavigationBarColor();
         applyOneHandedMode();
         return rootContainer;
+    }
+
+    /** نافذتا الحافظة والإيموجي تُبنيان بألوان السمة وقت إنشائهما، فنعيد بناءهما لما تتغير السمة. */
+    private int drawersTheme = -1;
+
+    private void rebuildDrawersIfThemeChanged() {
+        int theme = keyboardPrefs.getThemeMode();
+        if (rootContainer == null || clipboardDrawerView == null || emojiDrawerView == null || theme == drawersTheme) return;
+        drawersTheme = theme;
+        rootContainer.removeView(clipboardDrawerView);
+        rootContainer.removeView(emojiDrawerView);
+        clipboardDrawerView = buildClipboardAndResizeDrawer();
+        emojiDrawerView = buildCategorizedEmojiDrawer();
+        rootContainer.addView(clipboardDrawerView);
+        rootContainer.addView(emojiDrawerView);
     }
 
     @Override
@@ -482,6 +498,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (keyboardView != null) {
             keyboardView.reloadAppearanceFromPrefs();
         }
+        rebuildDrawersIfThemeChanged();
         applyNavigationBarColor();
         applyOneHandedMode();
         showKeyboardMain();
