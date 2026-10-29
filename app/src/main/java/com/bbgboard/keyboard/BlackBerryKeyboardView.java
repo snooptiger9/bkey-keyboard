@@ -163,6 +163,7 @@ public class BlackBerryKeyboardView extends View {
     private float keyboardScale = 1.0f;
     private float keyFontScale = 1.12f;
     private float suggestionBarScale = 0.85f;
+    private float sugTextScale = 1f;
     private int themeMode = KeyboardPreferences.THEME_BLACKBERRY_DARK;
     private int keyboardStyle = KeyboardPreferences.STYLE_BLACKBERRY_FRETS;
 
@@ -437,6 +438,7 @@ public class BlackBerryKeyboardView extends View {
         this.keyboardScale = prefs.getKeyboardScale();
         this.keyFontScale = prefs.getKeyFontScale();
         this.suggestionBarScale = prefs.getSuggestionBarScale();
+        this.sugTextScale = 1f + 0.08f * prefs.getSuggestionTextLevel();
         this.themeMode = prefs.getThemeMode();
         this.keyboardStyle = prefs.getKeyboardStyle();
         applyLanguageMode();
@@ -1264,8 +1266,8 @@ public class BlackBerryKeyboardView extends View {
         float baseLetterSp = (!isArabic && !isSymbols) ? 23.0f : 22.5f;
         mainTextPaint.setTextSize(baseLetterSp * scaledDensity * keyFontScale);
         subTextPaint.setTextSize(10.5f * scaledDensity * Math.min(1.25f, keyFontScale));
-        sugTextPaint.setTextSize(14.5f * scaledDensity);
-        sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity);
+        sugTextPaint.setTextSize(14.5f * scaledDensity * sugTextScale);
+        sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity * sugTextScale);
 
         if (isResizeDragMode) {
             canvas.drawRect(resizeHandleBarRect, resizeBarPaint);
@@ -1276,7 +1278,7 @@ public class BlackBerryKeyboardView extends View {
             float ty = resizeHandleBarRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
             canvas.drawText(label, resizeHandleBarRect.centerX(), ty, sugPrimaryTextPaint);
             sugPrimaryTextPaint.setColor(prevColor);
-            sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity);
+            sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity * sugTextScale);
         }
 
         float sugTop = getResizeBarHeight();
