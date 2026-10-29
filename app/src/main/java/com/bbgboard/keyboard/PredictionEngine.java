@@ -476,11 +476,11 @@ public class PredictionEngine {
     }
 
     private void pruneWords() {
-        if (learnedWords.size() <= 4000) return;
+        if (learnedWords.size() <= 8000) return;
         List<Map.Entry<String, Integer>> list = new ArrayList<>(learnedWords.entrySet());
         Collections.sort(list, (x, y) -> Integer.compare(y.getValue(), x.getValue()));
         Map<String, Integer> keep = new HashMap<>();
-        for (int i = 0; i < 3000 && i < list.size(); i++) keep.put(list.get(i).getKey(), list.get(i).getValue());
+        for (int i = 0; i < 6000 && i < list.size(); i++) keep.put(list.get(i).getKey(), list.get(i).getValue());
         learnedWords.clear();
         learnedWords.putAll(keep);
         rebuildLearnedIndex();
