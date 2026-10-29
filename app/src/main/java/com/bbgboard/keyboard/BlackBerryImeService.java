@@ -1685,7 +1685,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         int rowH = Math.round(keyboardView.getBottomRowHeightPx());
         float gapX = keyboardView.getTabletKeyGapXPx(width);
         float gapY = keyboardView.getTabletKeyGapYPx(width);
-        boolean tablet = edgeGap > 0;
+        boolean tablet = gapX > 0f; // وضع التابلت فقط (edgeGap صار فيه هامش صغير للجوال أيضاً)
 
         applyBottomBarGeometry(clipBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
         applyBottomBarGeometry(emojiBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
