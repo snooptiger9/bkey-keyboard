@@ -854,17 +854,18 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("4"),
             new KeyDef("5"),
             new KeyDef("6"),
-            new KeyDef("-")
+            new KeyDef("-", "", Arrays.asList("_", "/"))
         );
+        // الرموز مثل لوحة جي بورد للأرقام: الرمز الصغير على زاوية الزر هو اللي يُكتب بالضغط المطول
         List<KeyDef> row3 = Arrays.asList(
             new KeyDef("7"),
             new KeyDef("8"),
             new KeyDef("9"),
-            new KeyDef(".")
+            new KeyDef(".", "#", Arrays.asList("#", "(", ")"))
         );
         List<KeyDef> row4 = Arrays.asList(
-            new KeyDef(","),
-            new KeyDef("0"),
+            new KeyDef(",", "*", Arrays.asList("*", ";")),
+            new KeyDef("0", "+", Collections.singletonList("+")),
             new KeyDef("00"),
             new KeyDef("↵", "", Collections.<String>emptyList(), KeyType.ENTER, 1f)
         );
