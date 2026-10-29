@@ -828,6 +828,16 @@ public class MainActivity extends Activity {
 
     private void openThemeAndStyleScreen() {
         LinearLayout root = createSubScreenTemplate(tr("المظهر وشكل الكيبورد", "Theme & key style"));
+        fillThemeAndStyleScreen(root);
+    }
+
+    /** تحديث الشاشة في مكانها بعد اختيار (بدون إعادة بناء الصفحة كلها: لا وميض ولا قفز بالسكرول). */
+    private void refreshThemeScreen(LinearLayout root) {
+        root.removeViews(1, root.getChildCount() - 1);
+        fillThemeAndStyleScreen(root);
+    }
+
+    private void fillThemeAndStyleScreen(final LinearLayout root) {
 
         LinearLayout themeCard = createGroupedWhiteCard();
         themeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
@@ -848,7 +858,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < themeNames.length; i++) {
             final int idx = i;
             themeTiles.add(createPreviewTile(themeNames[i], themeSwatches[i], prefs.getThemeMode() == i,
-                    v -> { prefs.setThemeMode(idx); reopenKeepingScroll(this::openThemeAndStyleScreen); }));
+                    v -> { prefs.setThemeMode(idx); refreshThemeScreen(root); }));
         }
         addTileGrid(themeCard, themeTiles, 3);
         root.addView(themeCard);
@@ -873,7 +883,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < styleNames.length; i++) {
             final int id = styleIds[i];
             styleTiles.add(createKeyStylePreviewTile(styleNames[i], id, prefs.getKeyboardStyle() == id,
-                    v -> { prefs.setKeyboardStyle(id); reopenKeepingScroll(this::openThemeAndStyleScreen); }));
+                    v -> { prefs.setKeyboardStyle(id); refreshThemeScreen(root); }));
         }
         addTileGrid(styleCard, styleTiles, 3);
         root.addView(styleCard);
@@ -896,7 +906,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < enterNames.length; i++) {
             final int color = i == 0 ? 0 : Color.parseColor(enterHex[i]);
             enterTiles.add(createPreviewTile(enterNames[i], enterHex[i], prefs.getEnterColor() == color,
-                    v -> { prefs.setEnterColor(color); reopenKeepingScroll(this::openThemeAndStyleScreen); }));
+                    v -> { prefs.setEnterColor(color); refreshThemeScreen(root); }));
         }
         addTileGrid(enterCard, enterTiles, 3);
         root.addView(enterCard);

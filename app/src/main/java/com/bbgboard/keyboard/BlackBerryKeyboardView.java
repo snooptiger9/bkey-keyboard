@@ -185,6 +185,8 @@ public class BlackBerryKeyboardView extends View {
     private final Paint flyingBadgeBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupCardBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupCardBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    /** إطار فقاعات المعاينة والبوب أب: بلون فواصل الكيبورد (نفس درجة الأزرار) بدل رمادي مزرق. */
+    private final Paint popupEdgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint iconStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -365,6 +367,8 @@ public class BlackBerryKeyboardView extends View {
 
         popupCardBorderPaint.setStyle(Paint.Style.STROKE);
         popupCardBorderPaint.setStrokeWidth(1.5f * density);
+        popupEdgePaint.setStyle(Paint.Style.STROKE);
+        popupEdgePaint.setStrokeWidth(1f * density);
 
         popupHighlightPaint.setStyle(Paint.Style.FILL);
         popupHighlightPaint.setColor(Color.parseColor("#2563EB"));
@@ -476,6 +480,7 @@ public class BlackBerryKeyboardView extends View {
             popupCardBgPaint.setColor(keyBgPaint.getColor());
             popupCardBorderPaint.setColor(Color.parseColor("#94A3B8"));
             popupTextPaint.setColor(Color.parseColor("#0F172A"));
+            popupEdgePaint.setColor(Color.parseColor("#C5CDD8"));
             iconStrokePaint.setColor(Color.parseColor("#334155"));
             enterArrowPaint.setColor(Color.parseColor("#1E293B"));
         } else if (themeMode == KeyboardPreferences.THEME_MIDNIGHT_SLATE) {
@@ -499,17 +504,18 @@ public class BlackBerryKeyboardView extends View {
             popupCardBgPaint.setColor(keyBgPaint.getColor());
             popupCardBorderPaint.setColor(Color.parseColor("#475569"));
             popupTextPaint.setColor(Color.WHITE);
+            popupEdgePaint.setColor(Color.parseColor("#334155"));
             iconStrokePaint.setColor(Color.parseColor("#E2E8F0"));
             enterArrowPaint.setColor(Color.WHITE);
         } else {
             bgShellPaint.setColor(Color.parseColor("#111111"));
             sugBarPaint.setColor(Color.parseColor("#171717"));
             sugCenterHighlightPaint.setColor(Color.parseColor("#20232A"));
-            sugFlashPaint.setColor(Color.parseColor("#283242"));
+            sugFlashPaint.setColor(Color.parseColor("#2E2E2E"));
             keyBgPaint.setColor(Color.parseColor("#262626"));
             keyShadowPaint.setColor(Color.parseColor("#090909"));
             keySpecialBgPaint.setColor(Color.parseColor("#181818"));
-            keyPressedPaint.setColor(Color.parseColor("#323846"));
+            keyPressedPaint.setColor(Color.parseColor("#3A3A3A"));
             fretLinePaint.setColor(Color.parseColor("#3B3B3B"));
             keyDividerPaint.setColor(Color.parseColor("#363636"));
             mainTextPaint.setColor(Color.WHITE);
@@ -522,6 +528,7 @@ public class BlackBerryKeyboardView extends View {
             popupCardBgPaint.setColor(keyBgPaint.getColor());
             popupCardBorderPaint.setColor(Color.parseColor("#525B6C"));
             popupTextPaint.setColor(Color.WHITE);
+            popupEdgePaint.setColor(Color.parseColor("#3A3A3A"));
             iconStrokePaint.setColor(Color.parseColor("#E5E7EB"));
             enterArrowPaint.setColor(Color.WHITE);
         }
@@ -1506,8 +1513,8 @@ public class BlackBerryKeyboardView extends View {
 
     /** بوب أب صغير يظهر فوراً فوق الزر المضغوط حالياً ليعاين حرفه مكبّراً، بنفس ألوان البطاقات الحالية حسب السمة. */
     private void drawKeyPreviewBubble(Canvas canvas, KeyDef key) {
-        float bubbleW = Math.max(key.rect.width() * 0.95f, 36f * density);
-        float bubbleH = key.rect.height() * 1.05f;
+        float bubbleW = key.rect.width() - 5f * density;
+        float bubbleH = key.rect.height() - 5f * density;
         float cx = key.rect.centerX();
         float left = cx - bubbleW / 2f;
         if (left < 4f * density) left = 4f * density;
@@ -1518,7 +1525,7 @@ public class BlackBerryKeyboardView extends View {
         bubbleRect.set(left, top, left + bubbleW, top + bubbleH);
 
         canvas.drawRoundRect(bubbleRect, 10f * density, 10f * density, popupCardBgPaint);
-        canvas.drawRoundRect(bubbleRect, 10f * density, 10f * density, popupCardBorderPaint);
+        canvas.drawRoundRect(bubbleRect, 10f * density, 10f * density, popupEdgePaint);
 
         float prevSize = popupTextPaint.getTextSize();
         popupTextPaint.setTextSize(19f * scaledDensity);
@@ -1529,7 +1536,7 @@ public class BlackBerryKeyboardView extends View {
 
     private void drawLongPressPopupMenu(Canvas canvas) {
         canvas.drawRoundRect(longPressPopupBoxRect, 12f * density, 12f * density, popupCardBgPaint);
-        canvas.drawRoundRect(longPressPopupBoxRect, 12f * density, 12f * density, popupCardBorderPaint);
+        canvas.drawRoundRect(longPressPopupBoxRect, 12f * density, 12f * density, popupEdgePaint);
 
         popupTextPaint.setTextSize(19.5f * scaledDensity);
         int normalTextColor = popupTextPaint.getColor();
