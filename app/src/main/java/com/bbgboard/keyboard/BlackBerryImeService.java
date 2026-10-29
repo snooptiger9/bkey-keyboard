@@ -1070,13 +1070,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         TextView t1 = new TextView(this);
         t1.setText("Last screenshot");
-        t1.setTextColor(Color.parseColor("#F3F4F6"));
+        t1.setTextColor(labelC());
         t1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
         t1.setTypeface(Typeface.DEFAULT_BOLD);
 
         TextView t2 = new TextView(this);
         t2.setText("Tap to copy and send");
-        t2.setTextColor(Color.parseColor("#7C8594"));
+        t2.setTextColor(subC());
         t2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
 
         textBox.addView(t1);
@@ -1566,6 +1566,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int shellC()      { return keyboardView != null ? keyboardView.getShellColor() : Color.parseColor("#111111"); }
     private int sugBarC()     { return keyboardView != null ? keyboardView.getSuggestionBarColor() : Color.parseColor("#171717"); }
     private int keyBgC()      { return keyboardView != null ? keyboardView.getKeyBgColor() : Color.parseColor("#262626"); }
+    private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
+    private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
+    private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
     private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
@@ -1630,14 +1633,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         // زر "أبجد/ABC": كبسولة بيضاء شفافة بنفس شكل ولون زر الرجوع في قائمة الإيموجي (بدل شكل مفتاح الكيبورد)
         android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
-        abcPill.setColor(Color.parseColor("#33FFFFFF"));
+        abcPill.setColor(pillC());
         abcPill.setCornerRadius(dp(40));
         abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
         refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
 
         TextView abcLabel = new TextView(this);
         abcLabel.setText((keyboardView == null || keyboardView.isArabic()) ? "أبجد" : "ABC");
-        abcLabel.setTextColor(Color.WHITE);
+        abcLabel.setTextColor(labelC());
         abcLabel.setTypeface(Typeface.DEFAULT_BOLD);
         abcLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         abcLabel.setGravity(Gravity.CENTER);
@@ -1800,14 +1803,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         titleBox.setLayoutParams(lpTitleBox);
 
         clipCountTv = new TextView(this);
-        clipCountTv.setTextColor(Color.parseColor("#E5E7EB"));
+        clipCountTv.setTextColor(labelC());
         clipCountTv.setTypeface(Typeface.DEFAULT_BOLD);
         clipCountTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
 
         titleBox.addView(clipCountTv);
 
         ModernIconView settingsIconBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR,
-                Color.WHITE, Color.TRANSPARENT);
+                labelC(), Color.TRANSPARENT);
         settingsIconBtn.setStyle(0.9f, 2.0f);
         LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(42), dp(42));
         lpSet.leftMargin = dp(10);
@@ -1819,7 +1822,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
-                Color.WHITE, Color.TRANSPARENT);
+                labelC(), Color.TRANSPARENT);
         resizeIconBtn.setStyle(0.9f, 2.0f);
         LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(42), dp(42));
         lpRes.leftMargin = dp(10);
@@ -1833,7 +1836,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         // زر الرجوع: نفس شكل وأيقونة زر الرجوع في قائمة الإيموجي (سهم فوق كبسولة)
         ModernIconView backIconBtn = new ModernIconView(this, ModernIconView.ICON_FORWARD_ARROW,
-                Color.WHITE, Color.parseColor("#33FFFFFF"));
+                labelC(), pillC());
         backIconBtn.setPillBackground(true);
         backIconBtn.setStyle(0.85f, 2.3f);
         LinearLayout.LayoutParams lpBackClip = new LinearLayout.LayoutParams(dp(62), dp(42));
@@ -1890,12 +1893,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             empty.setPadding(dp(16), dp(26), dp(16), dp(26));
 
             ModernIconView emptyIcon = new ModernIconView(this, ModernIconView.ICON_CLIPBOARD_PAD,
-                    Color.parseColor("#4B5563"), Color.TRANSPARENT);
+                    subC(), Color.TRANSPARENT);
             emptyIcon.setLayoutParams(new LinearLayout.LayoutParams(dp(54), dp(54)));
 
             TextView emptyTv = new TextView(this);
             emptyTv.setText("Nothing copied yet\nAnything you copy will show up here");
-            emptyTv.setTextColor(Color.parseColor("#7C8594"));
+            emptyTv.setTextColor(subC());
             emptyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             emptyTv.setGravity(Gravity.CENTER);
             emptyTv.setPadding(0, dp(6), 0, 0);
@@ -1924,7 +1927,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             row.setLayoutParams(lp);
 
             ModernIconView pinBtn = new ModernIconView(this, ModernIconView.ICON_PIN,
-                    clip.pinned ? Color.parseColor("#60A5FA") : Color.parseColor("#6B7280"), Color.TRANSPARENT);
+                    clip.pinned ? Color.parseColor("#60A5FA") : subC(), Color.TRANSPARENT);
             pinBtn.setFilled(clip.pinned);
             pinBtn.setStyle(0.85f, 2.0f);
             pinBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
@@ -1935,7 +1938,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
             TextView textTv = new TextView(this);
             textTv.setText(clip.text);
-            textTv.setTextColor(Color.parseColor("#F3F4F6"));
+            textTv.setTextColor(labelC());
             textTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
             textTv.setGravity((arabicUi ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);
             textTv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
@@ -2013,8 +2016,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ModernIconView backIconBtn = new ModernIconView(
                 this,
                 ModernIconView.ICON_FORWARD_ARROW,
-                Color.WHITE,
-                Color.parseColor("#33FFFFFF")
+                labelC(),
+                pillC()
         );
         backIconBtn.setPillBackground(true);
         backIconBtn.setStyle(0.85f, 2.3f);
@@ -2061,7 +2064,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             TextView title = new TextView(this);
             String longPressHint = emojiArabic ? "  •  اضغط مطولاً على أي رمز لحذفه" : "  •  Long-press any emoji to delete it";
             title.setText(c == 0 ? catTitles[0] + longPressHint : catTitles[c]);
-            title.setTextColor(Color.parseColor("#9CA3AF"));
+            title.setTextColor(subC());
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
             title.setTypeface(Typeface.DEFAULT_BOLD);
             title.setPadding(dp(8), dp(10), dp(8), dp(4));
