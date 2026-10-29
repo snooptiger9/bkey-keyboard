@@ -27,6 +27,8 @@ public class ModernIconView extends View {
     public static final int ICON_CLOSE = 15;
     public static final int ICON_FORWARD_ARROW = 16;
     public static final int ICON_BACKSPACE = 17;
+    public static final int ICON_PUSHPIN = 18;   // دبوس مائل (تثبيت نص الحافظة)
+    public static final int ICON_TRASH = 19;     // سلة محذوفات (حذف نص الحافظة)
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -249,6 +251,44 @@ public class ModernIconView extends View {
                 if (filled) canvas.drawPath(pin, fillPaint);
                 canvas.drawPath(pin, strokePaint);
                 canvas.drawLine(cx, cy + r * 0.28f, cx, cy + r * 0.95f, strokePaint);
+                break;
+            }
+            case ICON_PUSHPIN: {
+                // دبوس مائل 45° بخطوط فقط (يُملأ لما يكون مثبّتاً)
+                canvas.save();
+                canvas.rotate(45f, cx, cy);
+                Path pin = new Path();
+                pin.moveTo(cx - r * 0.32f, cy - r * 0.95f);
+                pin.lineTo(cx + r * 0.32f, cy - r * 0.95f);
+                pin.lineTo(cx + r * 0.32f, cy - r * 0.15f);
+                pin.lineTo(cx + r * 0.62f, cy + r * 0.2f);
+                pin.lineTo(cx - r * 0.62f, cy + r * 0.2f);
+                pin.lineTo(cx - r * 0.32f, cy - r * 0.15f);
+                pin.close();
+                if (filled) canvas.drawPath(pin, fillPaint);
+                canvas.drawPath(pin, strokePaint);
+                canvas.drawLine(cx, cy + r * 0.2f, cx, cy + r * 0.95f, strokePaint);
+                canvas.restore();
+                break;
+            }
+            case ICON_TRASH: {
+                // سلة: غطاء بمقبض، جسم مائل قليلاً، وخطان داخليان
+                float top = cy - r * 0.5f;
+                canvas.drawLine(cx - r * 0.85f, top, cx + r * 0.85f, top, strokePaint);
+                Path handle = new Path();
+                handle.moveTo(cx - r * 0.3f, top);
+                handle.lineTo(cx - r * 0.3f, cy - r * 0.85f);
+                handle.lineTo(cx + r * 0.3f, cy - r * 0.85f);
+                handle.lineTo(cx + r * 0.3f, top);
+                canvas.drawPath(handle, strokePaint);
+                Path body = new Path();
+                body.moveTo(cx - r * 0.62f, top);
+                body.lineTo(cx - r * 0.52f, cy + r * 0.9f);
+                body.lineTo(cx + r * 0.52f, cy + r * 0.9f);
+                body.lineTo(cx + r * 0.62f, top);
+                canvas.drawPath(body, strokePaint);
+                canvas.drawLine(cx - r * 0.2f, cy - r * 0.15f, cx - r * 0.2f, cy + r * 0.55f, strokePaint);
+                canvas.drawLine(cx + r * 0.2f, cy - r * 0.15f, cx + r * 0.2f, cy + r * 0.55f, strokePaint);
                 break;
             }
             case ICON_CLOSE: {
