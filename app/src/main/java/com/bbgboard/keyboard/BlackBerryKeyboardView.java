@@ -1100,7 +1100,10 @@ public class BlackBerryKeyboardView extends View {
             // الصف الأخير (الأسفل: الرموز، الإيموجي، المسافة، الإدخال) يبقى بشريط واحد متصل بدون فاصل —
             // بالضبط زي كيبورد الشاشات الكبيرة المعروف؛ الفاصل فقط في صفوف الحروف والأرقام فوقه.
             if (splitActive && rIdx != rows.size() - 1) {
-                layoutSplitRow(row, topY, rowH, leftStartX, halfW, rightStartX);
+                // صف ASDF... بالإنجليزي: نفس إزاحة الجوال من الطرفين الخارجيين (مفتاح النصف ≈ halfW/5.5)
+                float indent = (rIdx == 1 && !isArabic && !isSymbols && row.size() == 9)
+                        ? ENGLISH_ROW2_INDENT_KEYS * halfW / 5.5f : 0f;
+                layoutSplitRow(row, topY, rowH, leftStartX + indent, halfW - indent, rightStartX, halfW - indent);
             } else {
                 // الصف الأخير (المسافة/الإدخال) يبقى شريط واحد متصل بدون فاصل بالمنتصف، لكن لو وضع
                 // التقسيم مفعّل يأخذ نفس فجوتي الطرفين (يمين ويسار) مثل بقية الصفوف فوقه تماماً.
@@ -1168,7 +1171,7 @@ public class BlackBerryKeyboardView extends View {
      * عائم بحجم مختلف فوق الفجوة، هي تُحسب كعضو حقيقي ضمن توزيع أوزان نصفها الجديد، فتاخذ بالضبط
      * نفس حجم بقية مفاتيح ذلك النصف — هذا يحل مشكلة تفاوت حجم الحروف بين الجهتين.
      */
-    private void layoutSplitRow(List<KeyDef> row, float topY, float rowH, float leftStartX, float halfW, float rightStartX) {
+    private void layoutSplitRow(List<KeyDef> row, float topY, float rowH, float leftStartX, float leftW, float rightStartX, float rightW) {
         float totalWeight = 0f;
         for (KeyDef k : row) totalWeight += k.weight;
         float half = totalWeight / 2f;
@@ -1205,14 +1208,14 @@ public class BlackBerryKeyboardView extends View {
 
         float leftX = leftStartX;
         for (KeyDef k : leftKeys) {
-            float kw = leftWeight > 0f ? (k.weight / leftWeight) * halfW : 0f;
+            float kw = leftWeight > 0f ? (k.weight / leftWeight) * leftW : 0f;
             k.rect.set(leftX, topY, leftX + kw, topY + rowH);
             leftX += kw;
             if (k == dupForLeft) splitDuplicateKeys.add(k);
         }
         float rightX = rightStartX;
         for (KeyDef k : rightKeys) {
-            float kw = rightWeight > 0f ? (k.weight / rightWeight) * halfW : 0f;
+            float kw = rightWeight > 0f ? (k.weight / rightWeight) * rightW : 0f;
             k.rect.set(rightX, topY, rightX + kw, topY + rowH);
             rightX += kw;
             if (k == dupForRight) splitDuplicateKeys.add(k);
