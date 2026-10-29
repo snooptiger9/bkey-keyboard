@@ -35,7 +35,7 @@ import java.util.Locale;
 public class BlackBerryKeyboardView extends View {
 
     public enum KeyType {
-        CHAR, BACKSPACE, SHIFT, SYMBOLS, EMOJI, SPACE, PERIOD, ENTER
+        CHAR, BACKSPACE, SHIFT, SYMBOLS, EMOJI, LANGUAGE, SPACE, PERIOD, ENTER
     }
 
     public static class KeyDef {
@@ -125,6 +125,8 @@ public class BlackBerryKeyboardView extends View {
     // 8. متغيرات بوب أب الخيارات عند الضغط المطول (Long-Press Alternatives Popup)
     private boolean isLongPressPopupVisible = false;
     private boolean longPressAwaitingTap = false;
+    /** بوب أب زر اللغة: اختيار 😀 يفتح لوحة الإيموجي بدل كتابته كحرف. */
+    private boolean longPressOpensEmoji = false;
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
     private final List<RectF> longPressCellRects = new ArrayList<>();
@@ -234,7 +236,7 @@ public class BlackBerryKeyboardView extends View {
                     rebuildKeys();
                     return;
                 }
-                if ((touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD) && !touchDownKey.alts.isEmpty()) {
+                if ((touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.LANGUAGE) && !touchDownKey.alts.isEmpty()) {
                     longPressConsumed = true;
                     activePreviewKey = null;
                     vibrateTap(true);
@@ -722,6 +724,7 @@ public class BlackBerryKeyboardView extends View {
     private void openLongPressPopupForKey(KeyDef key) {
         if (key == null || key.alts == null || key.alts.isEmpty()) return;
         longPressOptions = new ArrayList<>(key.alts);
+        longPressOpensEmoji = key.type == KeyType.LANGUAGE;
         longPressCellRects.clear();
         isLongPressPopupVisible = true;
         longPressAwaitingTap = false;
@@ -1020,7 +1023,10 @@ public class BlackBerryKeyboardView extends View {
                 : (isArabic ? "‹  العربية  ›" : "‹  English  ›");
         return Arrays.asList(
             new KeyDef(symLabel, "", Collections.<String>emptyList(), KeyType.SYMBOLS, 1.25f),
-            new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f),
+            // لو السحب لتبديل اللغة مقفول واللغتين مفعّلتين: زر تبديل اللغة (🌐) مكان الإيموجي، والإيموجي بالضغط المطوّل
+            languageKeyShown()
+                ? new KeyDef("🌐", "", Collections.singletonList("😀"), KeyType.LANGUAGE, 1.0f)
+                : new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f),
             new KeyDef(spaceLabel, "", Collections.<String>emptyList(), KeyType.SPACE, 4.7f),
             new KeyDef(".", "؟", Arrays.asList("؟", "،", "!", "؛", ":", "…"), KeyType.PERIOD, 1.0f),
             new KeyDef("↵", "", Collections.<String>emptyList(), KeyType.ENTER, 1.35f)
@@ -1115,6 +1121,7 @@ public class BlackBerryKeyboardView extends View {
         switch (k.type) {
             case SYMBOLS: return 1.05f;
             case EMOJI: return 0.80f;
+            case LANGUAGE: return 0.80f;
             case SPACE: return 6.10f;
             case PERIOD: return 0.80f;
             case ENTER: return 1.10f;
@@ -1308,7 +1315,9 @@ public class BlackBerryKeyboardView extends View {
                     drawLargeEnterIcon(canvas, k.rect);
                 } else if (k.type == KeyType.SHIFT) {
                     drawShiftKeyIcon(canvas, k.rect);
-                } else if (k.type == KeyType.EMOJI) {
+                } else if (k.type == KeyType.LANGUAGE && emojiKeySuggestion == null) {
+                    drawGlobeIcon(canvas, k.rect);
+                } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
                     // التعديل رقم 6: تصغير لوقو الرمز التعبيري في الصف السفلي ليكون متناسقاً وأنيقاً
                     float prevSize = mainTextPaint.getTextSize();
                     String glyph = k.main;
@@ -1662,6 +1671,50 @@ public class BlackBerryKeyboardView extends View {
         textPaint.setTextAlign(prevAlign);
     }
 
+    // ===== زر تبديل اللغة (يظهر لما السحب على المسافة مقفول) =====
+
+    private boolean languageKeyShown() {
+        return !prefs.isSpaceSwipeLangEnabled()
+                && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH;
+    }
+
+    private void toggleLanguage() {
+        isSymbols = false;
+        isArabic = !isArabic;
+        isShift = false;
+        isCapsLock = false;
+        vibrateTap(false);
+        soundController.playLanguageSwitchSound();
+        rebuildKeys();
+        if (listener != null) listener.onLanguageChanged(isArabic);
+    }
+
+    private void commitLongPressChoice(String chosen) {
+        if (listener == null) return;
+        if (longPressOpensEmoji) listener.onToggleEmoji();
+        else listener.onCharacterTyped(chosen);
+    }
+
+    /** أيقونة الكرة الأرضية بنفس أسلوب أيقونتي الحافظة والمايك (خطوط بدون لون). */
+    private void drawGlobeIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float r = 8.2f * density;
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.7f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+
+        canvas.drawCircle(cx, cy, r, iconStrokePaint);
+        RectF meridian = drawRectA;
+        meridian.set(cx - r * 0.42f, cy - r, cx + r * 0.42f, cy + r);
+        canvas.drawOval(meridian, iconStrokePaint);
+        canvas.drawLine(cx - r, cy, cx + r, cy, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
+    }
+
     /** يميّز زر المايك أثناء الاستماع. */
     public void setVoiceListening(boolean listening) {
         if (voiceListening == listening) return;
@@ -1851,7 +1904,7 @@ public class BlackBerryKeyboardView extends View {
                             String chosenAlt = longPressOptions.get(idx);
                             vibrateTap(false);
                             soundController.playKeyClick();
-                            if (listener != null) listener.onCharacterTyped(chosenAlt);
+                            commitLongPressChoice(chosenAlt);
                         }
                         isLongPressPopupVisible = false;
                         longPressAwaitingTap = false;
@@ -2024,7 +2077,7 @@ public class BlackBerryKeyboardView extends View {
                         activePreviewKey = null;
                         vibrateTap(false);
                         soundController.playKeyClick();
-                        if (listener != null) listener.onCharacterTyped(chosen);
+                        commitLongPressChoice(chosen);
                         invalidate();
                         return true;
                     } else {
@@ -2094,14 +2147,7 @@ public class BlackBerryKeyboardView extends View {
                         && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH) {
                     float spaceSwipeThreshold = 22f * density; // كانت 28: أكثر حساسية بقليل
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
-                        isSymbols = false;
-                        isArabic = !isArabic;
-                        isShift = false;
-                        isCapsLock = false;
-                        vibrateTap(false);
-                        soundController.playLanguageSwitchSound();
-                        rebuildKeys();
-                        if (listener != null) listener.onLanguageChanged(isArabic);
+                        toggleLanguage();
                         return true;
                     }
                 }
@@ -2183,6 +2229,16 @@ public class BlackBerryKeyboardView extends View {
             case SYMBOLS:
                 isSymbols = !isSymbols;
                 rebuildKeys();
+                break;
+            case LANGUAGE:
+                if (emojiKeySuggestion != null) {
+                    String chosenEmoji = emojiKeySuggestion;
+                    emojiKeySuggestion = null;
+                    listener.onEmojiSuggestionAccepted(chosenEmoji);
+                    invalidate();
+                } else {
+                    toggleLanguage();
+                }
                 break;
             case EMOJI:
                 if (emojiKeySuggestion != null) {
