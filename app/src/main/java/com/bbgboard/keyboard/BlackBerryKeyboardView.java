@@ -624,7 +624,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     /** هامش صغير على يمين ويسار كل الصفوف (كل اللغات) خارج وضع التابلت، بدل التصاق الأزرار بحافة الشاشة. */
-    private static final float SIDE_MARGIN_DP = 2.5f;
+    private static final float SIDE_MARGIN_DP = 2f;
 
     /** إزاحة صف الإنجليزي الثاني (ASDF...) من الجانبين بنسبة من عرض مفتاح (جي بورد = 0.5، هنا أقل شوي). */
     private static final float ENGLISH_ROW2_INDENT_KEYS = 0.35f;
