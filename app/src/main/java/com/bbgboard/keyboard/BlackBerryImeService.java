@@ -130,6 +130,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // بالباكسبيس (زي Gboard بالضبط) طالما ما كتب المستخدم أي شيء آخر بعده.
     private String lastAutoCorrectOriginal = null;
     private String lastAutoCorrectResult = null;
+    /** كلمة ألغى المستخدم تصحيحها بالباكسبيس: ما نصححها تلقائياً مرة ثانية (يكسر اللوب). */
+    private String rejectedAutoCorrectWord = null;
 
     // اقتراح رمز التحقق (OTP) تلقائياً من رسائل SMS الجديدة فقط أثناء فتح الكيبورد
     private static final long OTP_VALIDITY_MS = 5 * 60 * 1000L; // يختفي الرمز تلقائياً بعد 5 دقائق
@@ -1348,7 +1350,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
             // تصحيح تلقائي صامت (اختياري، معطّل افتراضياً من الإعدادات): يستبدل الكلمة المكتوبة بأقرب كلمة
             // معروفة موثوقة لو كانت قريبة جداً (فرق حرف واحد فقط)، ويحفظ النسخة الأصلية للتراجع الفوري بالباكسبيس.
-            if (!currentPrefix.isEmpty() && keyboardPrefs.isAutoCorrectEnabled() && currentPrefix.indexOf('@') < 0) {
+            if (!currentPrefix.isEmpty() && keyboardPrefs.isAutoCorrectEnabled() && currentPrefix.indexOf('@') < 0
+                    && !currentPrefix.equalsIgnoreCase(rejectedAutoCorrectWord)) {
                 String correction = predictionEngine.findAutoCorrection(currentPrefix, keyboardView.isArabic());
                 if (correction != null) {
                     ic.deleteSurroundingText(currentPrefix.length(), 0);
@@ -1404,6 +1407,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (before == null || !expected.equals(before.toString())) return false;
         ic.deleteSurroundingText(expected.length(), 0);
         ic.commitText(lastAutoCorrectOriginal, 1);
+        rejectedAutoCorrectWord = lastAutoCorrectOriginal;
         return true;
     }
 
