@@ -575,6 +575,7 @@ public class PredictionEngine {
 
             // لو ما في ولا مطابقة ببادئة الكلمة (يعني غالباً خطأ إملائي)، نفتش عن كلمة قريبة جداً
             // (فرق حرف واحد فقط) من نفس القاموس، ونعرضها كاقتراح يُلمس يدوياً — بدون أي استبدال صامت.
+            boolean hadCompletions = !scored.isEmpty();
             if (scored.isEmpty() && prefixLower.length() >= 3) {
                 collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, scored, 30);
                 if (scored.isEmpty()) {
@@ -589,6 +590,13 @@ public class PredictionEngine {
             List<String> ordered = new ArrayList<>();
             String prefixFolded = fold(prefix);
             if (!sorted.isEmpty()) ordered.add(sorted.get(0));
+            // حتى لو في كلمات تكمل ما كتبته، نعرض التصحيح المحتمل (إن وُجد) في الخانة التالية
+            if (hadCompletions) {
+                String fix = findInlineFix(prefix, prefixLower, isArabic);
+                if (fix != null && (ordered.isEmpty() || !fold(fix).equals(fold(ordered.get(0))))) {
+                    ordered.add(fix);
+                }
+            }
             boolean prefixIsTop = !sorted.isEmpty() && fold(sorted.get(0)).equals(prefixFolded);
             if (!prefixIsTop) ordered.add(prefix);
             for (int i = 1; i < sorted.size() && ordered.size() < 3; i++) {
@@ -710,6 +718,41 @@ public class PredictionEngine {
         }
         if (candidates.isEmpty()) return null;
         return sortKeysByScoreDesc(candidates).get(0);
+    }
+
+    /**
+     * تصحيح محتمل للكلمة المكتوبة حتى لو كانت تبدأ بها كلمات أخرى (يعني ما نقدر نعرف إنها خطأ إلا بالمقارنة).
+     * لتجنب الإزعاج: لا يُعرض لو الكلمة المكتوبة معروفة أصلاً، ولا يُعرض ما هو مجرد إكمال لما كتبته (يظهر أصلاً)،
+     * والكلمات من 3 حروف لا يُقترح لها إلا قلب حرفين متجاورين، ومن 4 فأكثر تُقبل كل أنواع الخطأ.
+     */
+    private String findInlineFix(String prefix, String prefixLower, boolean isArabic) {
+        if (prefixLower.length() < 3 || isTrustedWord(prefix)) return null;
+        Map<String, Integer> cand = new HashMap<>();
+        collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, cand, 30);
+        if (cand.isEmpty()) {
+            java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : baseEnByFold;
+            Map<String, Integer> baseWords = isArabic ? baseArWords : baseEnWords;
+            collectNearMissCandidates(prefixLower, baseByFold, baseWords, cand, 1);
+        }
+        for (java.util.Iterator<String> it = cand.keySet().iterator(); it.hasNext(); ) {
+            String w = it.next();
+            String wf = fold(w);
+            boolean drop = wf.startsWith(prefixLower)
+                    || (prefixLower.length() == 3 && !isAdjacentSwap(prefixLower, wf));
+            if (drop) it.remove();
+        }
+        if (cand.isEmpty()) return null;
+        return sortKeysByScoreDesc(cand).get(0);
+    }
+
+    /** صحيح لو الكلمتان بنفس الطول وتختلفان فقط بقلب حرفين متجاورين. */
+    private static boolean isAdjacentSwap(String a, String b) {
+        if (a.length() != b.length()) return false;
+        int i = 0, n = a.length();
+        while (i < n && a.charAt(i) == b.charAt(i)) i++;
+        if (i >= n - 1) return false;
+        if (a.charAt(i) != b.charAt(i + 1) || a.charAt(i + 1) != b.charAt(i)) return false;
+        return a.regionMatches(i + 2, b, i + 2, n - i - 2);
     }
 
     /**
