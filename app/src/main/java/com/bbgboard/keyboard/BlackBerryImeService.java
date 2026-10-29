@@ -426,6 +426,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (predictionEngine != null) {
             predictionEngine.flushPendingSaveBlocking();
         }
+        unregisterShotObserver();
         uiHandler.removeCallbacks(clipChipExpiry);
         predictionExecutor.shutdownNow();
         ioExecutor.shutdown();
@@ -487,6 +488,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             clearPendingOtp();
         }
         refreshPredictions();
+        registerShotObserverIfNeeded();
         tryCaptureScreenshotClip(false);
         setExtractViewShown(false);
     }
@@ -737,6 +739,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.resetShiftState();
         }
         clearInlineSuggestions();
+        unregisterShotObserver();
         invalidateTextCache();
         if (predictionEngine != null) {
             predictionEngine.flushPendingSave(); // غير متزامن: لا يوقف الخيط الرئيسي
@@ -884,6 +887,38 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
      * يبحث في الخلفية عن لقطة شاشة التُقطت قبل لحظات ويحفظ مصغّرة واحدة منها فقط؛
      * كل لقطة جديدة تحل محل القديمة تلقائياً. لا يعمل إلا إذا فعّل المستخدم الخيار ومنح الإذن.
      */
+    // ===== مراقبة الصور الجديدة والكيبورد ظاهر: لقطة الشاشة تطلع فوراً بدون قفل الكيبورد وفتحه =====
+    private boolean shotObserverRegistered = false;
+    private final Runnable shotObserverRunnable = () -> tryCaptureScreenshotClip(true);
+    private final android.database.ContentObserver shotObserver =
+            new android.database.ContentObserver(new android.os.Handler(android.os.Looper.getMainLooper())) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    // الإشعار يتكرر أكثر من مرة لنفس اللقطة، فنؤخر الفحص قليلاً ونجمعها في فحص واحد
+                    uiHandler.removeCallbacks(shotObserverRunnable);
+                    uiHandler.postDelayed(shotObserverRunnable, 700L);
+                }
+            };
+
+    private void registerShotObserverIfNeeded() {
+        if (shotObserverRegistered) return;
+        if (!keyboardPrefs.isScreenshotClipEnabled() || !ScreenshotClip.hasPermission(this)) return;
+        try {
+            getContentResolver().registerContentObserver(
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, shotObserver);
+            shotObserverRegistered = true;
+        } catch (Exception ignored) {}
+    }
+
+    private void unregisterShotObserver() {
+        uiHandler.removeCallbacks(shotObserverRunnable);
+        if (!shotObserverRegistered) return;
+        try {
+            getContentResolver().unregisterContentObserver(shotObserver);
+        } catch (Exception ignored) {}
+        shotObserverRegistered = false;
+    }
+
     private void tryCaptureScreenshotClip(boolean force) {
         if (!keyboardPrefs.isScreenshotClipEnabled()) return;
         if (!ScreenshotClip.hasPermission(this)) return;
