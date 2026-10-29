@@ -1374,16 +1374,9 @@ public class BlackBerryKeyboardView extends View {
                     // التعديل رقم 6: تصغير لوقو الرمز التعبيري في الصف السفلي ليكون متناسقاً وأنيقاً
                     float prevSize = mainTextPaint.getTextSize();
                     String glyph = k.main;
-                    if (emojiKeySuggestion != null) {
-                        // اقتراح إيموجي جاهز: دائرة تمييز خلف الإيموجي نفسه بدل أيقونة زر الإيموجي الأساسية،
-                        // حتى يكون واضح إنه مختلف عن شكل الزر العادي 😊 وملفت للانتباه.
-                        float ringR = Math.min(k.rect.width(), k.rect.height()) * 0.40f;
-                        canvas.drawCircle(k.rect.centerX(), k.rect.centerY(), ringR, popupHighlightPaint);
-                        glyph = emojiKeySuggestion;
-                        mainTextPaint.setTextSize(17.5f * scaledDensity);
-                    } else {
-                        mainTextPaint.setTextSize(15.5f * scaledDensity);
-                    }
+                    // اقتراح إيموجي: يتبدّل رمز الزر نفسه فقط (بدون دائرة أو تكبير)
+                    if (emojiKeySuggestion != null) glyph = emojiKeySuggestion;
+                    mainTextPaint.setTextSize(15.5f * scaledDensity);
                     float textY = k.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.0f * density;
                     canvas.drawText(glyph, k.rect.centerX(), textY, mainTextPaint);
                     mainTextPaint.setTextSize(prevSize);

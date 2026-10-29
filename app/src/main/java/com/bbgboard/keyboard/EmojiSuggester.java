@@ -87,6 +87,35 @@ final class EmojiSuggester {
         put("sleep", "😴");
         put("hungry", "🍽️");
         put("money", "💰");
+        // ===== توسعة القاموس (كلمة|إيموجي) =====
+        addAll(
+            // مشاعر وأحوال - عربي
+            "سعيد|😊 سعيده|😊 فرحان|😄 فرحانه|😄 زعلان|😞 زعلانه|😞 غضبان|😠 معصب|😡 خايف|😨 مستحي|😳 مصدوم|😱 متحمس|🤩 مبسوط|😁 مبسوطه|😁 ضايق|😔 قلقان|😟 مشتاق|🥺 اشتقت|🥺 وحشتني|🥺 وحشتيني|🥺 بكيت|😭 ضحكت|😂 يضحك|😂 اضحك|😂 حلو|😍 حلوه|😍 جميله|😍 روعه|🤩 خرافي|🤯 مذهل|🤩 ابداع|👏 برافو|👏 كفو|👏 شكرا|🙏 شكراً|🙏 مشكور|🙏 يسلمو|🙏 يعطيك|💪 تسلم|🙏 عفوا|🤝 اسف|🙏 آسف|🙏 سامحني|🙏 تعال|👋 اهلا|👋 هلا|👋 مرحبا|👋 يا هلا|👋 مع السلامه|👋 تصبح على خير|🌙 صباح النور|☀️ مساء النور|🌙 الله يسلمك|🤲 ان شاء الله|🤲 الله يرحمه|🤲 الله يهديك|🤲 بالتوفيق|🍀 موفق|🍀 ناجح|🏆 نجاح|🏆 فوز|🏆 مبروك النجاح|🎓 تخرج|🎓 زواج|💍 عروس|👰 عريس|🤵 مولود|👶 طفل|👶 قلبي|❤️ عمري|❤️ روحي|❤️ حياتي|❤️ غالي|❤️ غاليه|❤️ يا قلبي|💕 وردة|🌹 ورد|🌹 زهرة|🌸 قمر|🌙 نجمة|⭐ نجوم|✨ شمس|☀️ سماء|☁️ غيم|☁️ ثلج|❄️ برد|🥶 حر|🥵 حار|🥵 رياح|💨 عاصفه|⛈️ رعد|⚡ سيل|🌊 جبل|⛰️ صحراء|🏜️ شجرة|🌳 زرع|🌱 ",
+            // أكل وشرب - عربي
+            "اكل|🍽️ اكلة|🍽️ غداء|🍛 عشاء|🍽️ فطور|🍳 رز|🍚 دجاج|🍗 لحم|🥩 سمك|🐟 برجر|🍔 بيتزا|🍕 شورما|🌯 مندي|🍖 كبسة|🍛 معجنات|🥐 خبز|🍞 جبن|🧀 بيض|🥚 حليب|🥛 عصير|🧃 ماء|💧 مويه|💧 كولا|🥤 ايس كريم|🍦 حلا|🍰 حلى|🍰 كيك|🎂 كيكة|🎂 شوكولاتة|🍫 شوكلاته|🍫 تمر|🌴 موز|🍌 تفاح|🍎 برتقال|🍊 فراولة|🍓 عنب|🍇 بطيخ|🍉 كرز|🍒 سلطة|🥗 شوربة|🍲 ",
+            // أماكن ونشاطات - عربي
+            "مدرسة|🏫 جامعة|🎓 شغل|💼 دوام|💼 عمل|💼 مكتب|🏢 اجتماع|📅 مستشفى|🏥 دكتور|👨‍⚕️ طبيب|👨‍⚕️ دواء|💊 صيدلية|💊 سوق|🛒 مول|🛍️ مطعم|🍴 كافيه|☕ مسجد|🕌 صلاة|🕌 صلي|🕌 قرآن|📖 قران|📖 دعاء|🤲 مكة|🕋 الكعبه|🕋 عمرة|🕋 حج|🕋 مطار|✈️ طيارة|✈️ طائرة|✈️ قطار|🚆 باص|🚌 سيارتي|🚗 بنزين|⛽ سفره|🧳 اجازة|🏖️ فندق|🏨 شاطئ|🏖️ مسبح|🏊 جيم|🏋️ تمرين|💪 كرة|⚽ مباراة|⚽ هدف|🥅 لعب|🎮 العاب|🎮 فيلم|🎬 مسلسل|📺 اغنية|🎵 صوره|📷 تصوير|📸 كتاب|📚 قراءة|📖 دراسة|📚 امتحان|📝 اختبار|📝 واجب|📝 نوم|😴 احلام|💭 ",
+            // اشياء - عربي
+            "جوال|📱 هاتف|📱 اتصل|📞 اتصال|📞 رسالة|💬 ايميل|📧 بريد|📧 هدية|🎁 هديه|🎁 هدايا|🎁 مفتاح|🔑 قفل|🔒 فكرة|💡 مهم|❗ تنبيه|⚠️ خطر|⚠️ ممنوع|🚫 صح|✅ خطأ|❌ غلط|❌ سؤال|❓ وقت|⏰ ساعة|⏰ منبه|⏰ تاريخ|📅 موعد|📅 كمبيوتر|💻 لابتوب|💻 انترنت|🌐 واي فاي|📶 شاحن|🔌 بطارية|🔋 ",
+            // حيوانات - عربي
+            "قطه|🐱 قط|🐱 كلب|🐶 حصان|🐴 جمل|🐪 ناقه|🐪 اسد|🦁 ذئب|🐺 طير|🐦 صقر|🦅 سمكه|🐠 دب|🐻 ",
+            // English feelings
+            "happy|😊 glad|😊 excited|🤩 angry|😠 mad|😡 upset|😞 scared|😨 afraid|😨 shocked|😱 surprised|😮 nervous|😬 embarrassed|😳 lonely|😔 bored|😐 sorry|🙏 please|🙏 welcome|🤝 hello|👋 hi|👋 hey|👋 bye|👋 goodbye|👋 goodnight|🌙 good night|🌙 good morning|☀️ good evening|🌆 great|👍 awesome|🤩 amazing|🤩 wow|😮 perfect|👌 nice|👍 beautiful|😍 cute|🥰 lovely|😍 miss you|🥺 miss|🥺 hug|🤗 kiss|😘 laugh|😂 funny|😂 smile|😊 cry|😭 crying|😭 tears|😢 sick|🤒 ill|🤒 hurt|🤕 pain|🤕 headache|🤕 dead|💀 dying|💀 hot|🥵 cold|🥶 hurry|🏃 run|🏃 fast|⚡ slow|🐢 busy|⏳ ready|✅ done|✅ finished|✅ welcome back|🤗 ",
+            // English things
+            "food|🍽️ eat|🍽️ lunch|🍛 dinner|🍽️ breakfast|🍳 pizza|🍕 burger|🍔 fries|🍟 chicken|🍗 rice|🍚 fish|🐟 meat|🥩 bread|🍞 cheese|🧀 egg|🥚 milk|🥛 juice|🧃 water|💧 drink|🥤 beer|🍺 wine|🍷 cake|🍰 cookie|🍪 chocolate|🍫 candy|🍬 ice cream|🍦 apple|🍎 banana|🍌 orange|🍊 strawberry|🍓 grapes|🍇 watermelon|🍉 salad|🥗 soup|🍲 school|🏫 college|🎓 university|🎓 graduation|🎓 work|💼 job|💼 office|🏢 meeting|📅 boss|👔 hospital|🏥 doctor|👨‍⚕️ medicine|💊 pharmacy|💊 shop|🛒 shopping|🛍️ mall|🛍️ restaurant|🍴 cafe|☕ mosque|🕌 prayer|🕌 pray|🤲 quran|📖 mecca|🕋 hajj|🕋 umrah|🕋 airport|✈️ plane|✈️ flight|✈️ train|🚆 bus|🚌 taxi|🚕 gas|⛽ trip|🧳 vacation|🏖️ holiday|🏖️ hotel|🏨 beach|🏖️ pool|🏊 gym|🏋️ workout|💪 football|⚽ soccer|⚽ goal|🥅 game|🎮 games|🎮 movie|🎬 film|🎬 show|📺 song|🎵 photo|📷 picture|📸 book|📚 read|📖 study|📚 exam|📝 test|📝 homework|📝 dream|💭 phone|📱 call|📞 text|💬 message|💬 email|📧 mail|📧 gift|🎁 present|🎁 key|🔑 lock|🔒 idea|💡 important|❗ warning|⚠️ danger|⚠️ stop|🛑 correct|✅ wrong|❌ question|❓ time|⏰ clock|⏰ alarm|⏰ date|📅 computer|💻 laptop|💻 internet|🌐 wifi|📶 charger|🔌 battery|🔋 sun|☀️ moon|🌙 star|⭐ stars|✨ rain|🌧️ snow|❄️ storm|⛈️ wind|💨 cloud|☁️ flower|🌸 rose|🌹 tree|🌳 mountain|⛰️ ocean|🌊 sea|🌊 dog|🐶 cat|🐱 horse|🐴 bird|🐦 lion|🦁 bear|🐻 wedding|💍 married|💍 baby|👶 kid|👶 heart|❤️ darling|❤️ honey|❤️ sweet|🍯 sweetheart|💕 luck|🍀 good luck|🍀 success|🏆 win|🏆 winner|🏆 champion|🏆 trophy|🏆 prize|🏆 celebrate|🎉 celebration|🎉 congrats|🎊 new year|🎆 christmas|🎄 ramadan|🌙 eid|🎉 pray for|🤲 god|🙏 amen|🤲 peace|☮️ victory|✌️ strong|💪 power|💪 secret|🤫 shh|🤫 think|🤔 thinking|🤔 maybe|🤔 idk|🤷 sure|👍 of course|👍 okay|👌 fine|👌 agree|🤝 deal|🤝 promise|🤞 hope|🤞 wish|🤞 pray|🙏 bless|🙏 blessed|🙏 thank|🙏 thx|🙏 ty|🙏 omg|😱 oops|🙈 ugh|😩 yay|🎉 yeah|🙌 cheers|🥂 bravo|👏 clap|👏 applause|👏 "
+        );
+    }
+
+    /** يقرأ نصاً بصيغة "كلمة|إيموجي" مفصولة بمسافات (الكلمة قد تحوي مسافة)، ولا يستبدل الموجود. */
+    private static void addAll(String... chunks) {
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile("([^|]+?)\\|(\\S+)(?:\\s+|$)");
+        for (String chunk : chunks) {
+            java.util.regex.Matcher m = p.matcher(chunk);
+            while (m.find()) {
+                String k = fold(m.group(1));
+                if (!k.isEmpty() && !MAP.containsKey(k)) MAP.put(k, m.group(2));
+            }
+        }
     }
 
     private static void put(String word, String emoji) {
