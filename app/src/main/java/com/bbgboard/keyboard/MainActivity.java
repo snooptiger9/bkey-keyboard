@@ -48,6 +48,13 @@ public class MainActivity extends Activity {
         return v instanceof ScrollView ? v.getScrollY() : 0;
     }
 
+    /** إعادة فتح نفس الشاشة بعد تغيير إعداد، بنفس موضع السكرول وبدون إضافة مدخل جديد لسجل الرجوع. */
+    private void reopenKeepingScroll(Runnable open) {
+        pendingScrollY = currentScrollY();
+        returningBack = true;
+        open.run();
+    }
+
     private void goBack(Runnable parent) {
         pendingScrollY = scrollStack.isEmpty() ? 0 : scrollStack.pop();
         returningBack = true;
@@ -841,7 +848,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < themeNames.length; i++) {
             final int idx = i;
             themeTiles.add(createPreviewTile(themeNames[i], themeSwatches[i], prefs.getThemeMode() == i,
-                    v -> { prefs.setThemeMode(idx); openThemeAndStyleScreen(); }));
+                    v -> { prefs.setThemeMode(idx); reopenKeepingScroll(this::openThemeAndStyleScreen); }));
         }
         addTileGrid(themeCard, themeTiles, 3);
         root.addView(themeCard);
@@ -865,8 +872,8 @@ public class MainActivity extends Activity {
         List<View> styleTiles = new ArrayList<>();
         for (int i = 0; i < styleNames.length; i++) {
             final int id = styleIds[i];
-            styleTiles.add(createKeyStylePreviewTile(styleNames[i], styleRadii[i], prefs.getKeyboardStyle() == id,
-                    v -> { prefs.setKeyboardStyle(id); openThemeAndStyleScreen(); }));
+            styleTiles.add(createKeyStylePreviewTile(styleNames[i], id, prefs.getKeyboardStyle() == id,
+                    v -> { prefs.setKeyboardStyle(id); reopenKeepingScroll(this::openThemeAndStyleScreen); }));
         }
         addTileGrid(styleCard, styleTiles, 3);
         root.addView(styleCard);
@@ -882,14 +889,14 @@ public class MainActivity extends Activity {
         eHeader.setPadding(0, 0, 0, dp(10));
         enterCard.addView(eHeader);
         String[] enterNames = tr(
-                new String[]{"افتراضي", "أزرق", "أخضر", "بنفسجي", "برتقالي", "وردي"},
-                new String[]{"Default", "Blue", "Green", "Purple", "Orange", "Pink"});
-        String[] enterHex = {"#4B5563", "#2563EB", "#16A34A", "#7C3AED", "#EA580C", "#DB2777"};
+                new String[]{"افتراضي", "أزرق", "أخضر", "بنفسجي", "برتقالي", "وردي", "أحمر", "عنابي"},
+                new String[]{"Default", "Blue", "Green", "Purple", "Orange", "Pink", "Red", "Burgundy"});
+        String[] enterHex = {"#4B5563", "#2563EB", "#16A34A", "#7C3AED", "#EA580C", "#DB2777", "#DC2626", "#7F1D3F"};
         List<View> enterTiles = new ArrayList<>();
         for (int i = 0; i < enterNames.length; i++) {
             final int color = i == 0 ? 0 : Color.parseColor(enterHex[i]);
             enterTiles.add(createPreviewTile(enterNames[i], enterHex[i], prefs.getEnterColor() == color,
-                    v -> { prefs.setEnterColor(color); openThemeAndStyleScreen(); }));
+                    v -> { prefs.setEnterColor(color); reopenKeepingScroll(this::openThemeAndStyleScreen); }));
         }
         addTileGrid(enterCard, enterTiles, 3);
         root.addView(enterCard);
@@ -935,7 +942,7 @@ public class MainActivity extends Activity {
     }
 
     /** بطاقة معاينة لشكل المفاتيح: مربعان صغيران بنفس استدارة الشكل المختار. */
-    private View createKeyStylePreviewTile(String label, int radiusDp, boolean selected, View.OnClickListener onClick) {
+    private View createKeyStylePreviewTile(String label, int styleId, boolean selected, View.OnClickListener onClick) {
         LinearLayout tile = new LinearLayout(this);
         tile.setOrientation(LinearLayout.VERTICAL);
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -943,26 +950,28 @@ public class MainActivity extends Activity {
 
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(78), dp(64)));
-        GradientDrawable bg = roundedCard("#F3F4F6", 14);
-        bg.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E2E8F0"));
-        holder.setBackground(bg);
-
-        LinearLayout keysRow = new LinearLayout(this);
-        keysRow.setOrientation(LinearLayout.HORIZONTAL);
-        keysRow.setGravity(Gravity.CENTER);
-        FrameLayout.LayoutParams lpRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lpRow.gravity = Gravity.CENTER;
-        keysRow.setLayoutParams(lpRow);
-        for (int i = 0; i < 2; i++) {
-            View key = new View(this);
-            LinearLayout.LayoutParams lpKey = new LinearLayout.LayoutParams(dp(24), dp(24));
-            lpKey.leftMargin = dp(3);
-            lpKey.rightMargin = dp(3);
-            key.setLayoutParams(lpKey);
-            key.setBackground(roundedCard("#1F2937", Math.min(radiusDp, 12)));
-            keysRow.addView(key);
+        holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // إطار الاختيار فوق المعاينة + شارة ✓ زرقاء
+        GradientDrawable frame = new GradientDrawable();
+        frame.setCornerRadius(dp(14));
+        frame.setColor(Color.TRANSPARENT);
+        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E2E8F0"));
+        holder.setForeground(frame);
+        if (selected) {
+            TextView badge = new TextView(this);
+            badge.setText("✓");
+            badge.setTextColor(Color.WHITE);
+            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+            badge.setTypeface(Typeface.DEFAULT_BOLD);
+            badge.setGravity(Gravity.CENTER);
+            badge.setBackground(roundedCard("#2563EB", 9));
+            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(18), dp(18));
+            lpB.gravity = Gravity.TOP | Gravity.END;
+            lpB.topMargin = dp(3);
+            lpB.rightMargin = dp(3);
+            holder.addView(badge, lpB);
         }
-        holder.addView(keysRow);
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
