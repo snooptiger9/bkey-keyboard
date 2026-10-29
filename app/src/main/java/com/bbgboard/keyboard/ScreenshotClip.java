@@ -81,7 +81,7 @@ public final class ScreenshotClip {
                     : new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME,
                             MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media.DATA};
             // نطلب فقط الصور المضافة خلال آخر ٣٠ ثانية وبحد أقصى ٦ صفوف (بدل مسح مكتبة الصور كاملة)
-            long sinceSec = System.currentTimeMillis() / 1000L - 30L;
+            long sinceSec = System.currentTimeMillis() / 1000L - 45L;
             String sel = MediaStore.Images.Media.DATE_ADDED + " >= ?";
             String[] selArgs = new String[]{String.valueOf(sinceSec)};
             if (Build.VERSION.SDK_INT >= 26) {
@@ -108,7 +108,7 @@ public final class ScreenshotClip {
                 String name = cur.getString(1);
                 long added = cur.getLong(2);
                 String path = cur.getString(3);
-                if (nowSec - added > 25) break;
+                if (nowSec - added > 40) break; // اللقطة تُعتبر جديدة خلال 40 ثانية
                 String hay = ((name == null ? "" : name) + " " + (path == null ? "" : path)).toLowerCase(Locale.ROOT);
                 if (!(hay.contains("screenshot") || hay.contains("screen_shot") || hay.contains("screen shot")
                         || hay.contains("لقطة"))) continue;
