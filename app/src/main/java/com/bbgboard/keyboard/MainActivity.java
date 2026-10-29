@@ -372,6 +372,10 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout createSubScreenTemplate(String screenTitle) {
+        return createSubScreenTemplate(screenTitle, this::showHomeGboardSettingsMenu);
+    }
+
+    private LinearLayout createSubScreenTemplate(String screenTitle, final Runnable onBack) {
         mainFrame.removeAllViews();
 
         ScrollView scroll = new ScrollView(this);
@@ -395,7 +399,7 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams lpBack = new LinearLayout.LayoutParams(dp(40), dp(40));
         lpBack.leftMargin = dp(12);
         backBtn.setLayoutParams(lpBack);
-        backBtn.setOnClickListener(v -> showHomeGboardSettingsMenu());
+        backBtn.setOnClickListener(v -> onBack.run());
 
         TextView titleTv = new TextView(this);
         titleTv.setText(screenTitle);
@@ -430,7 +434,7 @@ public class MainActivity extends Activity {
         card.setPadding(dp(16), dp(14), dp(16), dp(14));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = dp(10);
+        lp.bottomMargin = dp(10);
         card.setLayoutParams(lp);
 
         TextView title = new TextView(this);
@@ -743,53 +747,6 @@ public class MainActivity extends Activity {
                 checked -> prefs.setIncognitoMode(checked)
         ));
 
-        root.addView(createSwitchTile(
-                tr("حفظ آخر لقطة شاشة في الحافظة", "Save last screenshot to clipboard"),
-                tr("تظهر مصغّرة واحدة فقط في قائمة الحافظة، وكل لقطة جديدة تحل محل السابقة. تحتاج إذن الوصول للصور", "Shows a single thumbnail in the clipboard list; each new screenshot replaces the last. Needs photos permission"),
-                prefs.isScreenshotClipEnabled(),
-                checked -> {
-                    prefs.setScreenshotClipEnabled(checked);
-                    if (!checked) {
-                        ScreenshotClip.clear(this);
-                    } else if (!ScreenshotClip.hasPermission(this)) {
-                        requestPermissions(new String[]{ScreenshotClip.neededPermission()}, 77);
-                    }
-                }
-        ));
-
-        root.addView(createSwitchTile(
-                tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
-                tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
-                prefs.isClipChipEnabled(),
-                checked -> prefs.setClipChipEnabled(checked)
-        ));
-
-        root.addView(createSwitchTile(
-                tr("زر الكتابة بالصوت (المايك)", "Voice typing button (mic)"),
-                tr("يظهر على يمين صف الاقتراحات؛ اضغطه وتكلم ويكتب الكلام. يحتاج إذن الميكروفون واتصالاً بالإنترنت غالباً", "Shows on the right of the suggestion row; tap it and speak to type. Needs mic permission and usually an internet connection"),
-                prefs.isVoiceButtonEnabled(),
-                checked -> prefs.setVoiceButtonEnabled(checked)
-        ));
-
-        root.addView(createClipRetentionTile());
-
-        root.addView(createSwitchTile(
-                tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
-                tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 5 دقائق فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 5 minutes. Needs SMS permission"),
-                prefs.isOtpSuggestEnabled() && checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED,
-                checked -> {
-                    if (checked) {
-                        if (checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                            prefs.setOtpSuggestEnabled(true);
-                        } else {
-                            requestPermissions(new String[]{android.Manifest.permission.RECEIVE_SMS}, 78);
-                        }
-                    } else {
-                        prefs.setOtpSuggestEnabled(false);
-                    }
-                }
-        ));
-
         LinearLayout oneHandCard = createGroupedWhiteCard();
         oneHandCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView ohHeader = new TextView(this);
@@ -1007,6 +964,31 @@ public class MainActivity extends Activity {
                 checked -> prefs.setAutoCorrectEnabled(checked)
         ));
 
+        // إعدادات الاقتراحات (زر المايك، رمز التحقق من الرسائل)
+        root.addView(createSwitchTile(
+                tr("زر الكتابة بالصوت (المايك)", "Voice typing button (mic)"),
+                tr("يظهر على يمين صف الاقتراحات؛ اضغطه وتكلم ويكتب الكلام. يحتاج إذن الميكروفون واتصالاً بالإنترنت غالباً", "Shows on the right of the suggestion row; tap it and speak to type. Needs mic permission and usually an internet connection"),
+                prefs.isVoiceButtonEnabled(),
+                checked -> prefs.setVoiceButtonEnabled(checked)
+        ));
+
+        root.addView(createSwitchTile(
+                tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
+                tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 5 دقائق فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 5 minutes. Needs SMS permission"),
+                prefs.isOtpSuggestEnabled() && checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED,
+                checked -> {
+                    if (checked) {
+                        if (checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                            prefs.setOtpSuggestEnabled(true);
+                        } else {
+                            requestPermissions(new String[]{android.Manifest.permission.RECEIVE_SMS}, 78);
+                        }
+                    } else {
+                        prefs.setOtpSuggestEnabled(false);
+                    }
+                }
+        ));
+
         LinearLayout trainCard = createGroupedWhiteCard();
         trainCard.setPadding(dp(16), dp(16), dp(16), dp(16));
 
@@ -1017,10 +999,6 @@ public class MainActivity extends Activity {
         trainBox.setBackground(borderedBox("#F9FAFB", "#D1D5DB", 12));
         trainBox.setPadding(dp(12), dp(10), dp(12), dp(10));
         trainCard.addView(trainBox);
-
-        final LinearLayout learnedListMount = new LinearLayout(this);
-        learnedListMount.setOrientation(LinearLayout.VERTICAL);
-        learnedListMount.setPadding(0, dp(12), 0, 0);
 
         Button btnTrain = new Button(this);
         btnTrain.setText(tr("حفظ وتدريب التوقعات على هذه الجملة", "Save & train predictions on this sentence"));
@@ -1035,7 +1013,6 @@ public class MainActivity extends Activity {
             if (!s.isEmpty()) {
                 predictionEngine.learnFullSentence(s);
                 trainBox.setText("");
-                populateLearnedWordsView(learnedListMount);
                 Toast.makeText(MainActivity.this, tr("تم حفظ الكلمات وتوقعات الكلمة التالية!", "Words and next-word predictions saved!"), Toast.LENGTH_SHORT).show();
             }
         });
@@ -1051,10 +1028,26 @@ public class MainActivity extends Activity {
         btnClear.setLayoutParams(lpCl);
         btnClear.setOnClickListener(v -> {
             predictionEngine.clearAllLearnedData();
-            populateLearnedWordsView(learnedListMount);
         });
         trainCard.addView(btnClear);
 
+        // قائمة الكلمات المتعلمة في نافذة مستقلة (فتح/إغلاق + بحث)
+        root.addView(trainCard);
+        root.addView(createMenuRow(
+                ModernIconView.ICON_SLIDERS_PREFS,
+                tr("الكلمات المتعلمة", "Learned words"),
+                tr(predictionEngine.getLearnedWordCount() + " كلمة محفوظة • بحث وحذف", predictionEngine.getLearnedWordCount() + " saved words • search & delete"),
+                false,
+                this::openLearnedWordsScreen));
+    }
+
+    /** نافذة الكلمات المتعلمة: مربع بحث وقائمة، والرجوع يعيد لشاشة التصحيح. */
+    private void openLearnedWordsScreen() {
+        LinearLayout root = createSubScreenTemplate(tr("الكلمات المتعلمة", "Learned words"), this::openCorrectionsAndMemoryScreen);
+        final LinearLayout learnedListMount = new LinearLayout(this);
+        learnedListMount.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout card = createGroupedWhiteCard();
+        card.setPadding(dp(16), dp(16), dp(16), dp(16));
         learnedFilter = "";
         final EditText searchBox = new EditText(this);
         searchBox.setHint(tr("ابحث عن كلمة في القائمة...", "Search for a word in the list..."));
@@ -1064,7 +1057,7 @@ public class MainActivity extends Activity {
         searchBox.setBackground(borderedBox("#F9FAFB", "#D1D5DB", 12));
         searchBox.setPadding(dp(12), dp(10), dp(12), dp(10));
         LinearLayout.LayoutParams lpSearch = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lpSearch.topMargin = dp(14);
+        lpSearch.topMargin = 0;
         searchBox.setLayoutParams(lpSearch);
         searchBox.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence cs, int a, int b, int c) {}
@@ -1075,11 +1068,13 @@ public class MainActivity extends Activity {
                 populateLearnedWordsView(learnedListMount);
             }
         });
-        trainCard.addView(searchBox);
+        card.addView(searchBox);
 
         populateLearnedWordsView(learnedListMount);
-        trainCard.addView(learnedListMount);
-        root.addView(trainCard);
+        card.addView(learnedListMount);
+        populateLearnedWordsView(learnedListMount);
+        card.addView(learnedListMount);
+        root.addView(card);
     }
 
     private String learnedFilter = "";
@@ -1400,6 +1395,31 @@ public class MainActivity extends Activity {
 
     private void openClipboardScreen() {
         LinearLayout root = createSubScreenTemplate(tr("الحافظة الذكية (Clipboard)", "Smart Clipboard"));
+
+        // إعدادات الحافظة (لقطة الشاشة، آخر نص منسوخ، مدة الحذف)
+        root.addView(createSwitchTile(
+                tr("حفظ آخر لقطة شاشة في الحافظة", "Save last screenshot to clipboard"),
+                tr("تظهر مصغّرة واحدة فقط في قائمة الحافظة، وكل لقطة جديدة تحل محل السابقة. تحتاج إذن الوصول للصور", "Shows a single thumbnail in the clipboard list; each new screenshot replaces the last. Needs photos permission"),
+                prefs.isScreenshotClipEnabled(),
+                checked -> {
+                    prefs.setScreenshotClipEnabled(checked);
+                    if (!checked) {
+                        ScreenshotClip.clear(this);
+                    } else if (!ScreenshotClip.hasPermission(this)) {
+                        requestPermissions(new String[]{ScreenshotClip.neededPermission()}, 77);
+                    }
+                }
+        ));
+
+        root.addView(createSwitchTile(
+                tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
+                tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
+                prefs.isClipChipEnabled(),
+                checked -> prefs.setClipChipEnabled(checked)
+        ));
+
+        root.addView(createClipRetentionTile());
+
 
         LinearLayout card = createGroupedWhiteCard();
         card.setPadding(dp(16), dp(16), dp(16), dp(16));

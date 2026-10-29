@@ -572,7 +572,7 @@ public class SoundController {
         playSwipeUpSound();
     }
 
-    public static String getProfileDisplayName(int profile) {
+    private static String getProfileDisplayNameAr(int profile) {
         switch (profile) {
             case KeyboardPreferences.SOUND_PROFILE_BB_CLASSIC:
                 return "بلاك بيري الأصلي (BlackBerry Classic Thock)";
@@ -601,7 +601,7 @@ public class SoundController {
         }
     }
 
-    public static String getSwipeProfileDisplayName(int swipeProfile) {
+    private static String getSwipeProfileDisplayNameAr(int swipeProfile) {
         switch (swipeProfile) {
             case KeyboardPreferences.SWIPE_SOUND_BB_AIR_FLICK:
                 return "انطلاقة بلاك بيري الهوائية (BlackBerry Air Flick)";
@@ -628,5 +628,20 @@ public class SoundController {
             default:
                 return "انطلاقة بلاك بيري الهوائية";
         }
+    }
+
+    // ===== أسماء النغمات تتبع لغة الجهاز: عربي كامل، أو الجزء الإنجليزي الذي بين القوسين =====
+    private static String localized(String full) {
+        if (java.util.Locale.getDefault().getLanguage().startsWith("ar")) return full;
+        int a = full.indexOf('('), b = full.lastIndexOf(')');
+        return (a >= 0 && b > a) ? full.substring(a + 1, b) : "BlackBerry Classic";
+    }
+
+    public static String getProfileDisplayName(int profile) {
+        return localized(getProfileDisplayNameAr(profile));
+    }
+
+    public static String getSwipeProfileDisplayName(int swipeProfile) {
+        return localized(getSwipeProfileDisplayNameAr(swipeProfile));
     }
 }
