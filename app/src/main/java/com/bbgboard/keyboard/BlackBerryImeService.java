@@ -87,6 +87,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     // ===== آخر نص منسوخ في الخانة الوسطى (مثل جي بورد) =====
     private static final long CLIP_CHIP_MS = 60 * 1000L;
+    private static final long SHOT_CHIP_MS = 80 * 1000L; // لقطة الشاشة تبقى أطول من النص المنسوخ
     private String clipChipText = null;
     private long clipChipTime = 0L;
     private final Runnable clipChipExpiry = this::refreshPredictions;
@@ -109,7 +110,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 && keyboardPrefs.isClipChipEnabled()
                 && !keyboardPrefs.isIncognitoMode()
                 && !passwordFieldActive
-                && (SystemClock.elapsedRealtime() - screenshotChipTime) < CLIP_CHIP_MS
+                && (SystemClock.elapsedRealtime() - screenshotChipTime) < SHOT_CHIP_MS
                 && ScreenshotClip.exists(this);
     }
 
@@ -939,7 +940,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                             screenshotChipActive = true;
                             screenshotChipTime = SystemClock.elapsedRealtime();
                             uiHandler.removeCallbacks(clipChipExpiry);
-                            uiHandler.postDelayed(clipChipExpiry, CLIP_CHIP_MS + 100L);
+                            uiHandler.postDelayed(clipChipExpiry, SHOT_CHIP_MS + 100L);
                             refreshPredictions();
                         }
                         if (clipboardDrawerView != null && clipboardDrawerView.getVisibility() == View.VISIBLE) {
