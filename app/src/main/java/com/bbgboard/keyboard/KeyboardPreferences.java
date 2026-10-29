@@ -39,6 +39,10 @@ public class KeyboardPreferences {
     public static final int SOUND_PROFILE_IOS_TICK = 4;
     public static final int SOUND_PROFILE_SYSTEM = 5;
 
+    public static final int LANGUAGE_MODE_BOTH = 0;
+    public static final int LANGUAGE_MODE_ARABIC_ONLY = 1;
+    public static final int LANGUAGE_MODE_ENGLISH_ONLY = 2;
+
     public static final int SWIPE_SOUND_BB_AIR_FLICK = 0;
     public static final int SWIPE_SOUND_VELVET_BRUSH = 1;
     public static final int SWIPE_SOUND_MICRO_THOCK = 2;
@@ -336,6 +340,30 @@ public class KeyboardPreferences {
     public void setScreenshotClipEnabled(boolean enabled) {
         prefs.edit().putBoolean("screenshot_clip_enabled", enabled).apply();
     }
+
+    // ===== اللغات =====
+
+    /** اللغات المفعّلة: 0 العربية والإنجليزية (تبديل بالسحب)، 1 عربي فقط، 2 إنجليزي فقط (لا تبديل). */
+    public int getLanguageMode() {
+        return prefs.getInt("language_mode", LANGUAGE_MODE_BOTH);
+    }
+
+    public void setLanguageMode(int mode) {
+        prefs.edit().putInt("language_mode", mode).apply();
+    }
+
+    // ===== الكتابة بالصوت =====
+
+    /** زر المايك في صف الاقتراحات (يمين الصف). */
+    public boolean isVoiceButtonEnabled() {
+        return prefs.getBoolean("voice_button_enabled", true);
+    }
+
+    public void setVoiceButtonEnabled(boolean enabled) {
+        prefs.edit().putBoolean("voice_button_enabled", enabled).apply();
+    }
+
+    // ===== الحافظة =====
 
     /** إظهار آخر نص/رقم منسوخ في خانة الاقتراح الوسطى لمدة قصيرة (مثل جي بورد). */
     public boolean isClipChipEnabled() {
