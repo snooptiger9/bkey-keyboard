@@ -37,6 +37,30 @@ public class MainActivity extends Activity {
     private FrameLayout mainFrame;
     private View homeMenuView;
 
+    // ===== تذكّر مكان السكرول: الرجوع يعيدك لنفس الموضع في الشاشة السابقة =====
+    private final java.util.ArrayDeque<Integer> scrollStack = new java.util.ArrayDeque<>();
+    private boolean returningBack = false;
+    private int pendingScrollY = 0;
+    private Runnable currentBack = null;
+
+    private int currentScrollY() {
+        View v = mainFrame != null && mainFrame.getChildCount() > 0 ? mainFrame.getChildAt(0) : null;
+        return v instanceof ScrollView ? v.getScrollY() : 0;
+    }
+
+    private void goBack(Runnable parent) {
+        pendingScrollY = scrollStack.isEmpty() ? 0 : scrollStack.pop();
+        returningBack = true;
+        parent.run();
+    }
+
+    private void restoreScroll(final ScrollView scroll) {
+        final int y = pendingScrollY;
+        pendingScrollY = 0;
+        returningBack = false;
+        if (y > 0) scroll.post(() -> scroll.scrollTo(0, y));
+    }
+
     private int dp(int v) {
         return (int) (v * getResources().getDisplayMetrics().density);
     }
@@ -93,7 +117,7 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) != homeMenuView) {
-            showHomeGboardSettingsMenu();
+            goBack(currentBack != null ? currentBack : this::showHomeGboardSettingsMenu);
             return;
         }
         super.onBackPressed();
@@ -253,6 +277,8 @@ public class MainActivity extends Activity {
         scroll.addView(root);
         homeMenuView = scroll;
         mainFrame.addView(scroll);
+        currentBack = null;
+        restoreScroll(scroll);
     }
 
     private String getThemeAndStyleSummary() {
@@ -376,6 +402,8 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout createSubScreenTemplate(String screenTitle, final Runnable onBack) {
+        if (!returningBack) scrollStack.push(currentScrollY());
+        currentBack = onBack;
         mainFrame.removeAllViews();
 
         ScrollView scroll = new ScrollView(this);
@@ -399,7 +427,7 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams lpBack = new LinearLayout.LayoutParams(dp(40), dp(40));
         lpBack.leftMargin = dp(12);
         backBtn.setLayoutParams(lpBack);
-        backBtn.setOnClickListener(v -> onBack.run());
+        backBtn.setOnClickListener(v -> goBack(onBack));
 
         TextView titleTv = new TextView(this);
         titleTv.setText(screenTitle);
@@ -414,6 +442,7 @@ public class MainActivity extends Activity {
 
         scroll.addView(root);
         mainFrame.addView(scroll);
+        restoreScroll(scroll);
         return root;
     }
 
@@ -1070,8 +1099,6 @@ public class MainActivity extends Activity {
         });
         card.addView(searchBox);
 
-        populateLearnedWordsView(learnedListMount);
-        card.addView(learnedListMount);
         populateLearnedWordsView(learnedListMount);
         card.addView(learnedListMount);
         root.addView(card);
