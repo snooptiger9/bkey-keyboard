@@ -129,6 +129,15 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
+    /** حجم خط الاقتراحات: 0 = افتراضي، 1..5 = أكبر بـ 8% لكل درجة (حتى 140%). */
+    public int getSuggestionTextLevel() {
+        return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 0)));
+    }
+
+    public void setSuggestionTextLevel(int level) {
+        prefs.edit().putInt("suggestion_text_level", Math.max(0, Math.min(5, level))).apply();
+    }
+
     public float getKeyFontScale() {
         return prefs.getFloat("key_font_scale", 1.12f);
     }

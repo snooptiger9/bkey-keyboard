@@ -729,6 +729,36 @@ public class MainActivity extends Activity {
         sugSizeCard.addView(sugSeek);
         root.addView(sugSizeCard);
 
+        // حجم خط الاقتراحات: افتراضي + 5 درجات أكبر
+        LinearLayout sugTextCard = createGroupedWhiteCard();
+        sugTextCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        final TextView sugTextLabel = new TextView(this);
+        sugTextLabel.setTextColor(Color.parseColor("#111827"));
+        sugTextLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        sugTextLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        final Runnable updateSugTextLabel = () -> {
+            int lv = prefs.getSuggestionTextLevel();
+            sugTextLabel.setText(tr("حجم خط الاقتراحات: ", "Suggestion text size: ")
+                    + (lv == 0 ? tr("افتراضي", "Default") : "+" + lv));
+        };
+        updateSugTextLabel.run();
+        sugTextCard.addView(sugTextLabel);
+        SeekBar sugTextSeek = new SeekBar(this);
+        sugTextSeek.setMax(5);
+        sugTextSeek.setProgress(prefs.getSuggestionTextLevel());
+        sugTextSeek.setPadding(0, dp(12), 0, dp(8));
+        sugTextSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                prefs.setSuggestionTextLevel(progress);
+                updateSugTextLabel.run();
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        sugTextCard.addView(sugTextSeek);
+        root.addView(sugTextCard);
+
         root.addView(createSwitchTile(
                 tr("أحرف كبيرة تلقائياً بداية كل جملة", "Auto-capitalize sentences"),
                 tr("يكتب أول حرف إنجليزي كابيتال تلقائياً في بداية النص أو بعد النقطة", "Automatically capitalizes the first letter at the start of text or after a period"),
