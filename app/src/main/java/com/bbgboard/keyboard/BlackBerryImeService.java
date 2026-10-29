@@ -1926,7 +1926,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             lp.bottomMargin = dp(7);
             row.setLayoutParams(lp);
 
-            ModernIconView pinBtn = new ModernIconView(this, ModernIconView.ICON_PIN,
+            ModernIconView pinBtn = new ModernIconView(this, ModernIconView.ICON_PUSHPIN,
                     clip.pinned ? Color.parseColor("#60A5FA") : subC(), Color.TRANSPARENT);
             pinBtn.setFilled(clip.pinned);
             pinBtn.setStyle(0.85f, 2.0f);
@@ -1953,7 +1953,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 showKeyboardMain();
             });
 
-            ModernIconView delBtn = new ModernIconView(this, ModernIconView.ICON_CLOSE,
+            ModernIconView delBtn = new ModernIconView(this, ModernIconView.ICON_TRASH,
                     Color.parseColor("#F87171"), Color.TRANSPARENT);
             delBtn.setStyle(0.85f, 2.0f);
             delBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
