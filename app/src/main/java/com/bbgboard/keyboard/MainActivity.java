@@ -661,7 +661,7 @@ public class MainActivity extends Activity {
         SeekBar fontSeek = new SeekBar(this);
         fontSeek.setMax(70);
         fontSeek.setProgress(Math.max(0, Math.min(70, fontPct - 80)));
-        fontSeek.setPadding(0, dp(12), 0, dp(8));
+        fontSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
         fontSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -688,7 +688,7 @@ public class MainActivity extends Activity {
         SeekBar heightSeek = new SeekBar(this);
         heightSeek.setMax(75);
         heightSeek.setProgress(Math.max(0, Math.min(75, heightPct - 70)));
-        heightSeek.setPadding(0, dp(12), 0, dp(8));
+        heightSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
         heightSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -715,7 +715,7 @@ public class MainActivity extends Activity {
         SeekBar sugSeek = new SeekBar(this);
         sugSeek.setMax(55);
         sugSeek.setProgress(Math.max(0, Math.min(55, sugPct - 70)));
-        sugSeek.setPadding(0, dp(12), 0, dp(8));
+        sugSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
         sugSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -746,7 +746,7 @@ public class MainActivity extends Activity {
         SeekBar sugTextSeek = new SeekBar(this);
         sugTextSeek.setMax(5);
         sugTextSeek.setProgress(prefs.getSuggestionTextLevel());
-        sugTextSeek.setPadding(0, dp(12), 0, dp(8));
+        sugTextSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
         sugTextSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1280,7 +1280,7 @@ public class MainActivity extends Activity {
         SeekBar sizeSeek = new SeekBar(this);
         sizeSeek.setMax(18);
         sizeSeek.setProgress(prefs.getEmojiSizeSp() - 16);
-        sizeSeek.setPadding(0, dp(12), 0, dp(8));
+        sizeSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
         sizeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1403,7 +1403,7 @@ public class MainActivity extends Activity {
         SeekBar volSeek = new SeekBar(this);
         volSeek.setMax(100);
         volSeek.setProgress(prefs.getSoundVolume());
-        volSeek.setPadding(0, dp(12), 0, dp(8));
+        volSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
         volSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1431,7 +1431,7 @@ public class MainActivity extends Activity {
         SeekBar swipeVolSeek = new SeekBar(this);
         swipeVolSeek.setMax(100);
         swipeVolSeek.setProgress(prefs.getSwipeSoundVolume());
-        swipeVolSeek.setPadding(0, dp(12), 0, dp(8));
+        swipeVolSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
         swipeVolSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
