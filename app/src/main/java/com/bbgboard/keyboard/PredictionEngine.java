@@ -467,7 +467,7 @@ public class PredictionEngine {
     }
 
     private void pruneTransitions(Map<String, Integer> t) {
-        if (t.size() <= 16) return;
+        if (t.size() <= 32) return;
         String minKey = null; int min = Integer.MAX_VALUE;
         for (Map.Entry<String, Integer> e : t.entrySet()) {
             if (e.getValue() < min) { min = e.getValue(); minKey = e.getKey(); }
