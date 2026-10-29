@@ -612,8 +612,14 @@ public class BlackBerryKeyboardView extends View {
 
     /** الفجوة الفارغة على طرفي الصف السفلي (يسار ويمين) عند تفعيل وضع الكيبورد المقسوم (تابلت). */
     public float getBottomRowEdgeInsetPx(int widthPx) {
-        return isSplitKeyboardActive(widthPx) ? widthPx * 0.03f : 0f;
+        return isSplitKeyboardActive(widthPx) ? widthPx * 0.03f : SIDE_MARGIN_DP * density;
     }
+
+    /** هامش صغير على يمين ويسار كل الصفوف (كل اللغات) خارج وضع التابلت، بدل التصاق الأزرار بحافة الشاشة. */
+    private static final float SIDE_MARGIN_DP = 4.5f;
+
+    /** إزاحة صف الإنجليزي الثاني (ASDF...) من الجانبين بنسبة من عرض مفتاح (جي بورد = 0.5، هنا أقل شوي). */
+    private static final float ENGLISH_ROW2_INDENT_KEYS = 0.35f;
 
     /** عرض زر "؟123" الحقيقي في الصف السفلي بالضبط، بنفس نسبة وزنه من إجمالي أوزان الصف. */
     public float getSymbolsKeyWidthPx(int widthPx) {
@@ -1098,12 +1104,18 @@ public class BlackBerryKeyboardView extends View {
             } else {
                 // الصف الأخير (المسافة/الإدخال) يبقى شريط واحد متصل بدون فاصل بالمنتصف، لكن لو وضع
                 // التقسيم مفعّل يأخذ نفس فجوتي الطرفين (يمين ويسار) مثل بقية الصفوف فوقه تماماً.
-                float rowEdge = splitActive ? edgeW : 0f;
+                float rowEdge = splitActive ? edgeW : SIDE_MARGIN_DP * density;
                 float availRowW = w - rowEdge * 2f;
                 boolean bottomRowTablet = splitActive && rIdx == rows.size() - 1;
                 float totalWeight = 0f;
                 for (KeyDef k : row) totalWeight += bottomRowWeight(k, bottomRowTablet);
                 float leftX = rowEdge;
+                if (!splitActive && rIdx == 1 && !isArabic && !isSymbols && row.size() == 9) {
+                    // صف ASDF... بالإنجليزي: نفس عرض مفاتيح الصف الأول مع إزاحة من الجانبين (مثل جي بورد)
+                    float pad = availRowW * ENGLISH_ROW2_INDENT_KEYS / (totalWeight + 2f * ENGLISH_ROW2_INDENT_KEYS);
+                    leftX += pad;
+                    availRowW -= 2f * pad;
+                }
                 for (KeyDef k : row) {
                     float kw = (bottomRowWeight(k, bottomRowTablet) / totalWeight) * availRowW;
                     k.rect.set(leftX, topY, leftX + kw, topY + rowH);
