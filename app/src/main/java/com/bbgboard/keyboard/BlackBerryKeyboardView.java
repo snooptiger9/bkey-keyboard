@@ -1051,7 +1051,8 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef(":", "", Collections.singletonList(":")),
             new KeyDef("؛", ";", Collections.singletonList(";")),
             new KeyDef("!", "¡", Collections.singletonList("¡")),
-            new KeyDef("؟", "?", Collections.singletonList("?")),
+            // زر الاستفهام يتبع لغة الكيبورد الحالية: عربي يطلع "؟" كبير و"?" صغير، وإنجليزي بالعكس.
+            new KeyDef(isArabic ? "؟" : "?", isArabic ? "?" : "؟", Collections.singletonList(isArabic ? "?" : "؟")),
             new KeyDef("،", ",", Collections.singletonList(",")),
             new KeyDef("%", "‰", Collections.singletonList("‰")),
             new KeyDef("=", "≈", Collections.singletonList("≈")),
