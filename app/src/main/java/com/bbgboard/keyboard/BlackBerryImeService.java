@@ -1618,6 +1618,30 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         int alpha = Math.round(255 * percent / 100f);
         return (rgb & 0x00FFFFFF) | (alpha << 24);
     }
+
+    /**
+     * خلفية الكبسولة العائمة: طبقتان فوق بعض — خلفية سوداء ثابتة قوتها تتحرك عكسياً مع مستوى
+     * الشفافية (كل ما قلّت الشفافية صار السواد أوضح)، وفوقها لون المستخدم بنفس مستوى الشفافية.
+     * هذا يخلي الكبسولة تحافظ على تباين وقراءة واضحة بأي مستوى شفافية بدل ما تذوب بالخلفية
+     * المزدحمة خلفها (إيموجي/محتوى).
+     */
+    private android.graphics.drawable.Drawable buildFloatingCapsuleDrawable() {
+        int percent = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleOpacity() : 85;
+        int colorAlpha = Math.round(255 * percent / 100f);
+        int blackAlpha = 255 - colorAlpha;
+
+        android.graphics.drawable.GradientDrawable blackLayer = new android.graphics.drawable.GradientDrawable();
+        blackLayer.setColor((0x000000) | (blackAlpha << 24));
+        blackLayer.setCornerRadius(dp(40));
+
+        android.graphics.drawable.GradientDrawable colorLayer = new android.graphics.drawable.GradientDrawable();
+        colorLayer.setColor(floatingPillC());
+        colorLayer.setCornerRadius(dp(40));
+
+        android.graphics.drawable.LayerDrawable layers = new android.graphics.drawable.LayerDrawable(
+                new android.graphics.drawable.Drawable[]{blackLayer, colorLayer});
+        return new android.graphics.drawable.InsetDrawable(layers, dp(3), dp(6), dp(3), dp(6));
+    }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
     private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
@@ -1653,18 +1677,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
      * عند إنشاء النافذة، فهذا يضمن انعكاس أي تغيير لاحق بالإعدادات (لون/شفافية) كل ما فُتحت القائمة. */
     private void refreshFloatingCapsuleColors(BottomBarRefs refs) {
         if (refs == null) return;
-        int color = floatingPillC();
         if (refs.abcWrap != null) {
-            android.graphics.drawable.GradientDrawable p = new android.graphics.drawable.GradientDrawable();
-            p.setColor(color);
-            p.setCornerRadius(dp(40));
-            refs.abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(p, dp(3), dp(6), dp(3), dp(6)));
+            refs.abcWrap.setBackground(buildFloatingCapsuleDrawable());
         }
         if (refs.delWrap != null) {
-            android.graphics.drawable.GradientDrawable p = new android.graphics.drawable.GradientDrawable();
-            p.setColor(color);
-            p.setCornerRadius(dp(40));
-            refs.delWrap.setBackground(new android.graphics.drawable.InsetDrawable(p, dp(3), dp(6), dp(3), dp(6)));
+            refs.delWrap.setBackground(buildFloatingCapsuleDrawable());
         }
     }
 
@@ -1701,10 +1718,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         // زر "أبجد/ABC" (في نافذتي الرموز والحافظة): كبسولة غامقة تتبع خلفية الكيبورد، مو لون زر الرجوع.
-        android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
-        abcPill.setColor(floatingPillC());
-        abcPill.setCornerRadius(dp(40));
-        abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
+        abcWrap.setBackground(buildFloatingCapsuleDrawable());
         refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
 
         TextView abcLabel = new TextView(this);
@@ -1734,10 +1748,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             refs.delBg = null;
 
             // نفس لون كبسولة "أبجد" الغامقة بالضبط.
-            android.graphics.drawable.GradientDrawable delPill = new android.graphics.drawable.GradientDrawable();
-            delPill.setColor(floatingPillC());
-            delPill.setCornerRadius(dp(40));
-            delWrap.setBackground(new android.graphics.drawable.InsetDrawable(delPill, dp(3), dp(6), dp(3), dp(6)));
+            delWrap.setBackground(buildFloatingCapsuleDrawable());
 
             // نفس رمز الحذف المستخدم بالكيبورد الرئيسية بالضبط (حرف "⌫" نصي)
             TextView delIcon = new TextView(this);
