@@ -1713,10 +1713,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
             refs.delBg = null;
 
-            // أيقونة حذف مرسومة (بدل رمز يونيكود "⌫" اللي يطلع مشوّهاً على بعض الأجهزة)، بدون أي خلفية
-            // مفتاح — فقط الأيقونة داخل مربع مفصول بالخط عن بقية الشريط.
-            ModernIconView delIcon = new ModernIconView(this, ModernIconView.ICON_BACKSPACE, labelColor, Color.TRANSPARENT);
-            delIcon.setStyle(0.85f, 2.1f);
+            // نفس رمز الحذف المستخدم بالكيبورد الرئيسية بالضبط (حرف "⌫" نصي)، بدل أيقونة مرسومة مختلفة الشكل.
+            TextView delIcon = new TextView(this);
+            delIcon.setText("⌫");
+            delIcon.setTextColor(labelColor);
+            delIcon.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+            delIcon.setGravity(Gravity.CENTER);
             delIcon.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             delWrap.addView(delIcon);
             delWrap.setOnClickListener(v -> {
@@ -1954,64 +1956,90 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        for (final ClipboardRepository.ClipEntry clip : clips) {
-            LinearLayout row = new LinearLayout(this);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
-            row.setLayoutDirection(arabicUi ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            GradientDrawable cardBg = roundedBg(keyBgC(), 14);
-            cardBg.setStroke(dp(1), clip.pinned ? keyOutlineC() : keyDividerC());
-            row.setBackground(cardBg);
-            row.setPadding(dp(4), dp(4), dp(4), dp(4));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-            lp.bottomMargin = dp(7);
-            row.setLayoutParams(lp);
+        // بطاقتين بجنب بعض بكل سطر بدل بطاقة وحدة تاخذ العرض كامل
+        for (int i = 0; i < clips.size(); i += 2) {
+            LinearLayout pairRow = new LinearLayout(this);
+            pairRow.setOrientation(LinearLayout.HORIZONTAL);
+            LinearLayout.LayoutParams pairLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            pairLp.bottomMargin = dp(7);
+            pairRow.setLayoutParams(pairLp);
 
-            ModernIconView pinBtn = new ModernIconView(this, ModernIconView.ICON_PUSHPIN,
-                    clip.pinned ? Color.parseColor("#60A5FA") : subC(), Color.TRANSPARENT);
-            pinBtn.setFilled(clip.pinned);
-            pinBtn.setStyle(0.85f, 2.0f);
-            pinBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
-            pinBtn.setOnClickListener(v -> {
-                clipboardRepo.togglePin(clip.text);
-                refreshClipboardDrawerList();
-            });
+            View cardA = buildClipCard(clips.get(i));
+            LinearLayout.LayoutParams cardALp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            cardALp.marginEnd = dp(5);
+            cardA.setLayoutParams(cardALp);
+            pairRow.addView(cardA);
 
-            TextView textTv = new TextView(this);
-            textTv.setText(clip.text);
-            textTv.setTextColor(labelC());
-            textTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
-            textTv.setGravity((arabicUi ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);
-            textTv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
-            textTv.setMaxLines(2);
-            textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
-            textTv.setPadding(dp(6), dp(6), dp(10), dp(6));
-            textTv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            textTv.setOnClickListener(v -> {
-                InputConnection ic = getCurrentInputConnection();
-                if (ic != null) ic.commitText(clip.text + " ", 1);
-                soundController.playKeyClick();
-                showKeyboardMain();
-            });
+            if (i + 1 < clips.size()) {
+                View cardB = buildClipCard(clips.get(i + 1));
+                LinearLayout.LayoutParams cardBLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                cardBLp.marginStart = dp(5);
+                cardB.setLayoutParams(cardBLp);
+                pairRow.addView(cardB);
+            } else {
+                android.widget.Space filler = new android.widget.Space(this);
+                filler.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 1f));
+                pairRow.addView(filler);
+            }
 
-            ModernIconView delBtn = new ModernIconView(this, ModernIconView.ICON_TRASH,
-                    Color.parseColor("#F87171"), Color.TRANSPARENT);
-            delBtn.setStyle(0.85f, 2.0f);
-            delBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
-            delBtn.setOnClickListener(v -> {
-                clipboardRepo.removeClip(clip.text);
-                refreshClipboardDrawerList();
-            });
-
-            row.addView(pinBtn);
-            row.addView(textTv);
-            row.addView(delBtn);
-            clipsListContainer.addView(row);
+            clipsListContainer.addView(pairRow);
         }
+    }
+
+    /** بطاقة عنصر واحد بقائمة الحافظة (نص + تثبيت + حذف)، تُستخدم بطاقتين بجنب بعض بكل سطر. */
+    private View buildClipCard(final ClipboardRepository.ClipEntry clip) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
+        row.setLayoutDirection(arabicUi ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        GradientDrawable cardBg = roundedBg(keyBgC(), 14);
+        cardBg.setStroke(dp(1), clip.pinned ? keyOutlineC() : keyDividerC());
+        row.setBackground(cardBg);
+        row.setPadding(dp(4), dp(4), dp(4), dp(4));
+
+        ModernIconView pinBtn = new ModernIconView(this, ModernIconView.ICON_PUSHPIN,
+                clip.pinned ? Color.parseColor("#60A5FA") : subC(), Color.TRANSPARENT);
+        pinBtn.setFilled(clip.pinned);
+        pinBtn.setStyle(0.8f, 1.9f);
+        pinBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(32), dp(32)));
+        pinBtn.setOnClickListener(v -> {
+            clipboardRepo.togglePin(clip.text);
+            refreshClipboardDrawerList();
+        });
+
+        TextView textTv = new TextView(this);
+        textTv.setText(clip.text);
+        textTv.setTextColor(labelC());
+        textTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        textTv.setGravity((arabicUi ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);
+        textTv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
+        textTv.setMaxLines(3);
+        textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        textTv.setPadding(dp(4), dp(6), dp(6), dp(6));
+        textTv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        textTv.setOnClickListener(v -> {
+            InputConnection ic = getCurrentInputConnection();
+            if (ic != null) ic.commitText(clip.text + " ", 1);
+            soundController.playKeyClick();
+            showKeyboardMain();
+        });
+
+        // نفس أيقونة الحذف المستخدمة في قائمة الكلمات المتعلمة (X)، بدل أيقونة سلة المهملات.
+        ModernIconView delBtn = new ModernIconView(this, ModernIconView.ICON_CLOSE,
+                Color.parseColor("#F87171"), Color.TRANSPARENT);
+        delBtn.setStyle(0.8f, 1.9f);
+        delBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(32), dp(32)));
+        delBtn.setOnClickListener(v -> {
+            clipboardRepo.removeClip(clip.text);
+            refreshClipboardDrawerList();
+        });
+
+        row.addView(pinBtn);
+        row.addView(textTv);
+        row.addView(delBtn);
+        return row;
     }
 
     /**
