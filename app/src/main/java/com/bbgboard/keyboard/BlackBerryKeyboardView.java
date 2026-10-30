@@ -1883,29 +1883,22 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
-    /** أيقونة الحافظة الحديثة (لوح بمشبك علوي وسطور نص) بدل أيقونة الخطوط الثلاثة. */
+    /** أيقونة الحافظة الحديثة (مربع بحواف دائرية مع خطين داخله)، شكل بسيط بدل اللوح بالمشبك. */
     private void drawClipboardMenuIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
-        float hw = 7.6f * density;
-        float hh = 9.2f * density;
+        float hw = 7.4f * density;
+        float hh = 7.4f * density;
         float prevW = iconStrokePaint.getStrokeWidth();
         iconStrokePaint.setStrokeWidth(1.7f * density);
 
         RectF board = drawRectA;
-        board.set(cx - hw, cy - hh + 2f * density, cx + hw, cy + hh);
-        canvas.drawRoundRect(board, 2.6f * density, 2.6f * density, iconStrokePaint);
+        board.set(cx - hw, cy - hh, cx + hw, cy + hh);
+        canvas.drawRoundRect(board, 3.2f * density, 3.2f * density, iconStrokePaint);
 
-        Paint.Style prevStyle = iconStrokePaint.getStyle();
-        iconStrokePaint.setStyle(Paint.Style.FILL);
-        RectF clip = drawRectA;
-        clip.set(cx - 3.6f * density, cy - hh, cx + 3.6f * density, cy - hh + 4.6f * density);
-        canvas.drawRoundRect(clip, 1.8f * density, 1.8f * density, iconStrokePaint);
-        iconStrokePaint.setStyle(prevStyle);
-
-        iconStrokePaint.setStrokeWidth(1.4f * density);
-        canvas.drawLine(cx - 3.8f * density, cy + 0.2f * density, cx + 3.8f * density, cy + 0.2f * density, iconStrokePaint);
-        canvas.drawLine(cx - 3.8f * density, cy + 3.6f * density, cx + 1.8f * density, cy + 3.6f * density, iconStrokePaint);
+        iconStrokePaint.setStrokeWidth(1.5f * density);
+        canvas.drawLine(cx - 3.4f * density, cy - 1.6f * density, cx + 3.4f * density, cy - 1.6f * density, iconStrokePaint);
+        canvas.drawLine(cx - 3.4f * density, cy + 1.9f * density, cx + 1.4f * density, cy + 1.9f * density, iconStrokePaint);
         iconStrokePaint.setStrokeWidth(prevW);
     }
 

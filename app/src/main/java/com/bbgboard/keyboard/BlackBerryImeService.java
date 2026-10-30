@@ -1699,18 +1699,23 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.addView(spacer);
 
         if (withBackspace) {
+            // خط فاصل رفيع قبل زر الحذف، بنفس شكل فواصل شريط الاقتراحات، بدل خلفية مفتاح كاملة غريبة الشكل
+            // هنا — يفصل منطقة زر الحذف كمربع واضح الحدود بخط بسيط بدل إطار مفتاح كامل.
+            View delDivider = new View(this);
+            delDivider.setBackgroundColor(dividerColor);
+            LinearLayout.LayoutParams dividerLp = new LinearLayout.LayoutParams(dp(1), dp(28));
+            dividerLp.gravity = Gravity.CENTER_VERTICAL;
+            delDivider.setLayoutParams(dividerLp);
+            bar.addView(delDivider);
+
             FrameLayout delWrap = new FrameLayout(this);
-            delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(64), dp(40)));
+            delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
+            refs.delBg = null;
 
-            KeyShapeBackgroundView delBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
-            delBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            delWrap.addView(delBg);
-            refs.delBg = delBg;
-
-            // أيقونة حذف مرسومة (بدل رمز يونيكود "⌫" اللي يطلع مشوّهاً على بعض الأجهزة)، فوق نفس
-            // خلفية زر "أبجد" المقابل لها بالضبط حتى يكون شكلهما متطابقاً.
+            // أيقونة حذف مرسومة (بدل رمز يونيكود "⌫" اللي يطلع مشوّهاً على بعض الأجهزة)، بدون أي خلفية
+            // مفتاح — فقط الأيقونة داخل مربع مفصول بالخط عن بقية الشريط.
             ModernIconView delIcon = new ModernIconView(this, ModernIconView.ICON_BACKSPACE, labelColor, Color.TRANSPARENT);
-            delIcon.setStyle(0.95f, 2.1f);
+            delIcon.setStyle(0.85f, 2.1f);
             delIcon.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             delWrap.addView(delIcon);
             delWrap.setOnClickListener(v -> {
