@@ -1325,6 +1325,8 @@ public class BlackBerryKeyboardView extends View {
                 paint.setAlpha(prevAlpha);
             } else if (i == 1 && middleIconType == 2 && shotThumb != null && !word.isEmpty()) {
                 drawScreenshotChip(canvas, r, word, paint);
+            } else if (i == 1 && middleIconType == 3 && !word.isEmpty()) {
+                drawTextChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType != 0 && !word.isEmpty()) {
                 // أيقونة الحافظة نفسها (نفس شكل أيقونة القائمة) على يسار النص، والمجموعة كلها في منتصف الخانة
                 float iconW = 18f * density;
@@ -1721,6 +1723,32 @@ public class BlackBerryKeyboardView extends View {
         shotShader = b == null ? null
                 : new android.graphics.BitmapShader(b, android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP);
         invalidate();
+    }
+
+    /** نفس شكل ونافذة شريحة لقطة الشاشة (مربع بخلفية وإطار)، بدون أي أيقونة — نص فقط في المنتصف. */
+    private void drawTextChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
+        float chipH = Math.min(slot.height() - 12f * density, 38f * density);
+        float padH = 14f * density;
+        String shown = ellipsizeWord(label, slot.width() - 2f * padH, textPaint);
+        float textW = textPaint.measureText(shown);
+        float chipW = textW + 2f * padH;
+        float cx = slot.centerX();
+        float cy = slot.centerY();
+        RectF chipRect = drawRectA;
+        chipRect.set(cx - chipW / 2f, cy - chipH / 2f, cx + chipW / 2f, cy + chipH / 2f);
+        float radius = 11f * density;
+
+        shotChipFill.setStyle(Paint.Style.FILL);
+        shotChipFill.setColor(keySpecialBgPaint.getColor());
+        canvas.drawRoundRect(chipRect, radius, radius, shotChipFill);
+        shotChipStroke.setStyle(Paint.Style.STROKE);
+        shotChipStroke.setStrokeWidth(1f * density);
+        shotChipStroke.setColor(getKeyOutlineColor());
+        shotChipStroke.setAlpha(140);
+        canvas.drawRoundRect(chipRect, radius, radius, shotChipStroke);
+
+        float textY = cy - (textPaint.descent() + textPaint.ascent()) / 2f;
+        canvas.drawText(shown, cx, textY, textPaint);
     }
 
     private void drawScreenshotChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
