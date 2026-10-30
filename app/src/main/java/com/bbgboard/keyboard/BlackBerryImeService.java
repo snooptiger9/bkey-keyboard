@@ -1321,9 +1321,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        // اقتراح الإيموجي يظهر على زر الإيموجي نفسه فقط لحظة إكمال كلمة معروفة (الحقل فاضي بعد مسافة)،
-        // ويختفي تلقائياً أول ما تبدأ كتابة كلمة جديدة (لأن refreshPredictionsNow تُستدعى مع كل حرف).
-        String emojiSuggestion = ctx[0].isEmpty() ? EmojiSuggester.suggestFor(ctx[1]) : null;
+        // اقتراح الإيموجي يظهر على زر الإيموجي نفسه فور إكمال كلمة معروفة، سواء كانت لسا بدون مسافة
+        // (ctx[0] = الكلمة الحالية قيد الكتابة) أو بعد ما ضغط مسافة (ctx[1] = آخر كلمة مكتملة)،
+        // ويختفي تلقائياً أول ما تبدأ كتابة حرف جديد لا يطابق كلمة معروفة (لأن refreshPredictionsNow تُستدعى مع كل حرف).
+        String emojiSuggestion = !ctx[0].isEmpty() ? EmojiSuggester.suggestFor(ctx[0])
+                : (ctx[1] != null && !ctx[1].isEmpty() ? EmojiSuggester.suggestFor(ctx[1]) : null);
         keyboardView.setEmojiKeySuggestion(emojiSuggestion);
 
         // حساب الاقتراحات (بحث وترتيب في قاموس كبير) يتم على خيط خلفي، والنتيجة ترجع للواجهة فقط لو ما تغيّر الإدخال
