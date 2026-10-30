@@ -201,6 +201,7 @@ public class BlackBerryKeyboardView extends View {
 
     private float startX = 0f;
     private float startY = 0f;
+    private float lastTouchX = 0f; // آخر موضع لمسة فعلي، يُستخدم لمعرفة هل بدأ سحب حقيقي قبل تفعيل وضع تحريك المؤشر
     private float resizeStartScale = 1.0f;
     private boolean isDragging = false;
     private boolean isResizingDrag = false;
@@ -277,7 +278,11 @@ public class BlackBerryKeyboardView extends View {
     private final Runnable spaceCursorHoldRunnable = new Runnable() {
         @Override
         public void run() {
-            if (touchDownKey != null && touchDownKey.type == KeyType.SPACE) {
+            // لا نفعّل وضع تحريك المؤشر إذا كان الإصبع تحرك أفقياً بشكل واضح قبل انتهاء المهلة —
+            // هذا يعني أن المستخدم يسحب لتبديل اللغة (خصوصاً عند بداية السحب قرب حافة الزر، حيث
+            // المسافة المتاحة أقل وتأخذ وقت أطول من المعتاد لتتجاوز عتبة التبديل).
+            if (touchDownKey != null && touchDownKey.type == KeyType.SPACE
+                    && Math.abs(lastTouchX - startX) < 14f * density) {
                 spaceCursorModeActive = true;
                 spaceCursorStepBaseX = startX;
                 vibrateTap(true);
@@ -2091,6 +2096,7 @@ public class BlackBerryKeyboardView extends View {
 
                 startX = x;
                 startY = y;
+                lastTouchX = x;
                 isDragging = false;
                 isResizingDrag = false;
                 longPressConsumed = false;
@@ -2156,6 +2162,7 @@ public class BlackBerryKeyboardView extends View {
                 return true;
 
             case MotionEvent.ACTION_MOVE:
+                lastTouchX = x;
                 float dxMove = x - startX;
                 float dyMove = y - startY;
 
