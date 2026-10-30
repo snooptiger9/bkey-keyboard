@@ -188,7 +188,11 @@ public class KeyboardPreferences {
         prefs.edit().putInt("enter_color", color).apply();
     }
 
-    /** لون كبسولتي "أبجد"/الحذف العائمتين في نافذتي الرموز والحافظة (RGB بدون ألفا). افتراضي: أسود. */
+    /** قيمة خاصة لـ getFloatingCapsuleColor: الكبسولة تاخذ لون النص المعكوس (مثل زر الرجوع) بدل لون ثابت. */
+    public static final int FLOATING_CAPSULE_FOLLOW_LABEL = -1;
+
+    /** لون كبسولتي "أبجد"/الحذف العائمتين في نافذتي الرموز والحافظة (RGB بدون ألفا)، أو
+     * FLOATING_CAPSULE_FOLLOW_LABEL لتتبع لون زر الرجوع. افتراضي: أسود. */
     public int getFloatingCapsuleColor() {
         return prefs.getInt("floating_capsule_color", 0x000000);
     }

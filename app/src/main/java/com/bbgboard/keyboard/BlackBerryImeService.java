@@ -1613,6 +1613,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // (أبيض/زجاجي/رمادي فاتح/عنابي/أسود + مستوى عتامة). زر الرجوع ما له علاقة فيها — يبقى على pillC.
     private int floatingPillC() {
         int rgb = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleColor() : 0x000000;
+        if (rgb == KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL) rgb = labelC() & 0x00FFFFFF;
         int percent = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleOpacity() : 85;
         int alpha = Math.round(255 * percent / 100f);
         return (rgb & 0x00FFFFFF) | (alpha << 24);
