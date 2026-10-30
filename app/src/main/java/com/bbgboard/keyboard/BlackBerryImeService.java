@@ -1234,8 +1234,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onEmojiSuggestionAccepted(String emoji) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null || emoji == null) return;
-        // مسافة بعده حتى يبقى السياق نظيفاً (ما يتحول الإيموجي نفسه لـ"بادئة" تحت الكتابة بالخطأ).
-        ic.commitText(emoji + " ", 1);
+        // مسافة قبله (لو ما كانت موجودة فعلاً قبل المؤشر) ومسافة بعده، حتى لو انحذفت المسافة الأصلية
+        // بسبب التصحيح التلقائي أو تحويل "نقطتين" لنقطة في نفس اللحظة — يضمن عدم التصاق الإيموجي بالكلمة.
+        CharSequence beforeCs = textBefore(ic, 1);
+        String before = beforeCs != null ? beforeCs.toString() : "";
+        String prefixSpace = (!before.isEmpty() && !Character.isWhitespace(before.charAt(before.length() - 1))) ? " " : "";
+        ic.commitText(prefixSpace + emoji + " ", 1);
         // ليست "كلمة" يتعلمها محرك التوقع، فقط إدراج مباشر، ثم تحديث الاقتراحات عادي.
         refreshPredictions();
     }
