@@ -192,6 +192,7 @@ public class BlackBerryKeyboardView extends View {
     private final Paint popupTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint iconStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint enterArrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int enterActionId = android.view.inputmethod.EditorInfo.IME_ACTION_NONE; // نوع أيقونة زر الإدخال (بحث/تم/إرسال..)
     private final Paint enterFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint stylePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private boolean enterCustom = false;
@@ -1936,7 +1937,29 @@ public class BlackBerryKeyboardView extends View {
         return text.substring(0, len) + ellipsis;
     }
 
+    /** يحدد أي أيقونة تُرسم على زر الإدخال حسب نوع الحقل (بحث، تم، إرسال...) مثل جي بورد. */
+    public void setEnterActionIcon(int actionId) {
+        if (this.enterActionId != actionId) {
+            this.enterActionId = actionId;
+            invalidate();
+        }
+    }
+
     private void drawLargeEnterIcon(Canvas canvas, RectF rect) {
+        switch (enterActionId) {
+            case android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH:
+                drawSearchIcon(canvas, rect); return;
+            case android.view.inputmethod.EditorInfo.IME_ACTION_GO:
+                drawArrowRightIcon(canvas, rect); return;
+            case android.view.inputmethod.EditorInfo.IME_ACTION_DONE:
+                drawCheckIcon(canvas, rect); return;
+            case android.view.inputmethod.EditorInfo.IME_ACTION_SEND:
+                drawSendIcon(canvas, rect); return;
+            case android.view.inputmethod.EditorInfo.IME_ACTION_NEXT:
+                drawArrowRightIcon(canvas, rect); return;
+            default:
+                break;
+        }
         float cx = rect.centerX();
         float cy = rect.centerY();
         float halfW = 12.0f * density;
@@ -1953,6 +1976,58 @@ public class BlackBerryKeyboardView extends View {
         path.lineTo(cx - halfW + arrowHead, cy + 2f * density + arrowHead);
 
         canvas.drawPath(path, enterArrowPaint);
+    }
+
+    private void drawSearchIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX() - 1.5f * density;
+        float cy = rect.centerY() - 1.5f * density;
+        float r = 6.2f * density;
+        canvas.drawCircle(cx, cy, r, enterArrowPaint);
+        float hx1 = cx + r * 0.72f, hy1 = cy + r * 0.72f;
+        canvas.drawLine(hx1, hy1, hx1 + 5.5f * density, hy1 + 5.5f * density, enterArrowPaint);
+    }
+
+    private void drawCheckIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        Path path = new Path();
+        path.moveTo(cx - 9f * density, cy);
+        path.lineTo(cx - 2.5f * density, cy + 6.5f * density);
+        path.lineTo(cx + 9f * density, cy - 7f * density);
+        canvas.drawPath(path, enterArrowPaint);
+    }
+
+    private void drawArrowRightIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float halfW = 9f * density;
+        float head = 6f * density;
+        boolean rtl = isArabic;
+        float dir = rtl ? -1f : 1f;
+        Path path = new Path();
+        path.moveTo(cx - dir * halfW, cy);
+        path.lineTo(cx + dir * halfW, cy);
+        path.moveTo(cx + dir * (halfW - head), cy - head);
+        path.lineTo(cx + dir * halfW, cy);
+        path.lineTo(cx + dir * (halfW - head), cy + head);
+        canvas.drawPath(path, enterArrowPaint);
+    }
+
+    private void drawSendIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        boolean rtl = isArabic;
+        float dir = rtl ? -1f : 1f;
+        Path path = new Path();
+        path.moveTo(cx - dir * 8.5f * density, cy - 6.5f * density);
+        path.lineTo(cx + dir * 9f * density, cy);
+        path.lineTo(cx - dir * 8.5f * density, cy + 6.5f * density);
+        path.lineTo(cx - dir * 2.5f * density, cy);
+        path.close();
+        Paint.Style prevStyle = enterArrowPaint.getStyle();
+        enterArrowPaint.setStyle(Paint.Style.FILL);
+        canvas.drawPath(path, enterArrowPaint);
+        enterArrowPaint.setStyle(prevStyle);
     }
 
     private KeyDef findKeyAt(float x, float y) {
