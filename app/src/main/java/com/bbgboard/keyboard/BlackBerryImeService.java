@@ -2007,26 +2007,25 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             pairLp.bottomMargin = dp(7);
             pairRow.setLayoutParams(pairLp);
 
-            // البطاقة تلتصق بعرض محتواها (الكلمة نفسها) بدل تقسيم ثابت نص بنص، حتى ما يبين فراغ
-            // واضح بين كلمتين قصار. نص البطاقة له حد أقصى لعرضه عشان ما تتصادم مع البطاقة الثانية
-            // إذا كان طويلاً (الأيقونتين + الحشوات تاخذ تقريباً dp(90) من عرض البطاقة).
-            int rowW = clipsListContainer.getWidth() > 0 ? clipsListContainer.getWidth() : dp(300);
-            int maxTextW = Math.max(dp(50), rowW / 2 - dp(90));
-
-            View cardA = buildClipCard(clips.get(i), maxTextW);
-            LinearLayout.LayoutParams cardALp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            // كل بطاقة نص عرض السطر بالضبط (50/50)، وكل صف مستقل عن اللي فوقه وتحته — بطاقة طويلة
+            // (سطرين) في صف ما تأثر إطلاقاً على ترتيب أو محاذاة الصف الثاني، لأن كل صف LinearLayout
+            // منفصل بارتفاعه الخاص (WRAP_CONTENT) محسوب من أطول بطاقة داخله هو فقط.
+            View cardA = buildClipCard(clips.get(i));
+            LinearLayout.LayoutParams cardALp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             cardALp.setMarginEnd(dp(5));
             cardA.setLayoutParams(cardALp);
             pairRow.addView(cardA);
 
             if (i + 1 < clips.size()) {
-                View cardB = buildClipCard(clips.get(i + 1), maxTextW);
-                LinearLayout.LayoutParams cardBLp = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                View cardB = buildClipCard(clips.get(i + 1));
+                LinearLayout.LayoutParams cardBLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
                 cardBLp.setMarginStart(dp(5));
                 cardB.setLayoutParams(cardBLp);
                 pairRow.addView(cardB);
+            } else {
+                android.widget.Space filler = new android.widget.Space(this);
+                filler.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 1f));
+                pairRow.addView(filler);
             }
 
             clipsListContainer.addView(pairRow);
@@ -2034,7 +2033,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     /** بطاقة عنصر واحد بقائمة الحافظة (نص + تثبيت + حذف)، تُستخدم بطاقتين بجنب بعض بكل سطر. */
-    private View buildClipCard(final ClipboardRepository.ClipEntry clip, int maxTextWidthPx) {
+    private View buildClipCard(final ClipboardRepository.ClipEntry clip) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
@@ -2064,10 +2063,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         textTv.setMaxLines(3);
         textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
         textTv.setPadding(dp(4), dp(6), dp(6), dp(6));
-        // البطاقة تلتصق بعرض الكلمة نفسها (WRAP_CONTENT) بدل تمدد نص العرض الثابت، وtextTv يحدّ
-        // أقصى عرضه حتى لا تتصادم البطاقتان ببعض إذا كان النص طويل.
-        textTv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        textTv.setMaxWidth(maxTextWidthPx);
+        textTv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         textTv.setOnClickListener(v -> {
             InputConnection ic = getCurrentInputConnection();
             if (ic != null) ic.commitText(clip.text + " ", 1);
