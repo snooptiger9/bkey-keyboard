@@ -67,6 +67,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private FrameLayout inlineStrip;
     private LinearLayout inlineStripRow;
     private boolean inlineHasSuggestions = false;
+
+    // ===== الشريط السريع فوق الكيبورد (حافظة/ترجمة دائماً، + ضبط/ارتفاع عند عدم الكتابة إطلاقاً) =====
+    private LinearLayout quickToolbar;
+    private ModernIconView qtClipBtn, qtTranslateBtn, qtSettingsBtn, qtResizeBtn;
+    private boolean quickToolbarExpanded = false;
+    private com.google.mlkit.nl.translate.Translator activeTranslator;
+    private String activeTranslatorKey;
     private int inlineGen = 0;
     private LinearLayout emojiHeaderRow;
     private ModernIconView emojiBackBtn;
@@ -426,6 +433,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onDestroy() {
         uiHandler.removeCallbacksAndMessages(null);
+        if (activeTranslator != null) activeTranslator.close();
         if (predictionEngine != null) {
             predictionEngine.flushPendingSaveBlocking();
         }
@@ -716,6 +724,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             inlineStripRow.removeAllViews();
             inlineHasSuggestions = false;
             updateInlineStripVisibility();
+            refreshQuickToolbarState();
             if (list == null || list.isEmpty()) return true;
             int barH = keyboardView != null ? Math.round(keyboardView.getSuggestionBarHeightPx()) : dp(40);
             if (barH <= 0) barH = dp(40);
@@ -728,6 +737,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     inlineStripRow.addView(view, lp);
                     inlineHasSuggestions = true;
                     updateInlineStripVisibility();
+                    refreshQuickToolbarState();
                 });
             }
             return true;
@@ -783,6 +793,139 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         inlineHasSuggestions = false;
         if (inlineStripRow != null) inlineStripRow.removeAllViews();
         updateInlineStripVisibility();
+    }
+
+    // ===== الشريط السريع =====
+
+    private void ensureQuickToolbar() {
+        if (quickToolbar != null || rootContainer == null) return;
+        quickToolbar = new LinearLayout(this);
+        quickToolbar.setOrientation(LinearLayout.HORIZONTAL);
+        quickToolbar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR); // ترتيب الأيقونات ثابت دايماً بغض النظر عن اللغة
+        quickToolbar.setGravity(Gravity.CENTER_VERTICAL);
+        quickToolbar.setVisibility(View.GONE);
+
+        qtClipBtn = new ModernIconView(this, ModernIconView.ICON_CLIPBOARD_PAD, labelC(), Color.TRANSPARENT);
+        qtClipBtn.setStyle(0.85f, 2.0f);
+        qtClipBtn.setOnClickListener(v -> { soundController.playKeyClick(); onToggleClipboardMenu(); });
+
+        qtTranslateBtn = new ModernIconView(this, ModernIconView.ICON_GLOBE_LANG, labelC(), Color.TRANSPARENT);
+        qtTranslateBtn.setStyle(0.85f, 2.0f);
+        qtTranslateBtn.setOnClickListener(v -> { soundController.playKeyClick(); translateCurrentField(); });
+
+        qtSettingsBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR, labelC(), Color.TRANSPARENT);
+        qtSettingsBtn.setStyle(0.85f, 2.0f);
+        qtSettingsBtn.setOnClickListener(v -> { soundController.playKeyClick(); openAppSettingsActivity(); });
+
+        qtResizeBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT, labelC(), Color.TRANSPARENT);
+        qtResizeBtn.setStyle(0.85f, 2.0f);
+        qtResizeBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            showKeyboardMain();
+            keyboardView.setResizeDragMode(true);
+            refreshQuickToolbarState();
+        });
+
+        quickToolbar.addView(qtClipBtn, new LinearLayout.LayoutParams(dp(42), ViewGroup.LayoutParams.MATCH_PARENT));
+        quickToolbar.addView(qtTranslateBtn, new LinearLayout.LayoutParams(dp(42), ViewGroup.LayoutParams.MATCH_PARENT));
+        quickToolbar.addView(qtSettingsBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        quickToolbar.addView(qtResizeBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+
+        rootContainer.addView(quickToolbar);
+    }
+
+    /** يحدد مكان/حجم الشريط السريع ليطابق شريط الاقتراحات بالضبط (نفس أسلوب شريط الملء التلقائي). */
+    private void updateQuickToolbarVisibility(boolean visible, boolean expanded) {
+        ensureQuickToolbar();
+        if (keyboardView == null || quickToolbar == null) return;
+        keyboardView.setSuppressMenuButton(visible); // زر الحافظة يتولاه الشريط السريع بدل الكانفس تحته
+        if (!visible) {
+            quickToolbar.setVisibility(View.GONE);
+            return;
+        }
+        quickToolbar.setBackgroundColor(Color.TRANSPARENT); // المساحة الفاضية يبان من خلالها شريط الاقتراحات الأصلي تحته
+        int barH = Math.round(keyboardView.getSuggestionBarHeightPx());
+        if (barH <= 0) barH = dp(40);
+        ViewGroup.LayoutParams kbLp = keyboardView.getLayoutParams();
+        int w = ViewGroup.LayoutParams.MATCH_PARENT;
+        int hGravity = Gravity.NO_GRAVITY;
+        if (kbLp instanceof FrameLayout.LayoutParams) {
+            w = kbLp.width;
+            int g = ((FrameLayout.LayoutParams) kbLp).gravity;
+            if (g != Gravity.NO_GRAVITY && g != -1) hGravity = g & Gravity.HORIZONTAL_GRAVITY_MASK;
+        }
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(w, barH);
+        lp.topMargin = Math.round(keyboardView.getSuggestionBarTopPx());
+        lp.gravity = Gravity.TOP | hGravity;
+        quickToolbar.setLayoutParams(lp);
+
+        if (expanded != quickToolbarExpanded || quickToolbar.getVisibility() != View.VISIBLE) {
+            quickToolbarExpanded = expanded;
+            qtSettingsBtn.setVisibility(expanded ? View.VISIBLE : View.GONE);
+            qtResizeBtn.setVisibility(expanded ? View.VISIBLE : View.GONE);
+            // أنميشن ظهور/اختفاء بسيط (تلاشي) بدل قفزة مفاجئة
+            quickToolbar.setAlpha(0f);
+            quickToolbar.animate().alpha(1f).setDuration(160).start();
+        }
+        quickToolbar.setVisibility(View.VISIBLE);
+    }
+
+    /** يعيد حساب حالة الشريط السريع (ظاهر/مخفي، موسّع/مطوي) حسب محتوى الحقل الحالي. */
+    private void refreshQuickToolbarState() {
+        if (keyboardView == null) return;
+        boolean mainVisible = keyboardView.getVisibility() == View.VISIBLE;
+        if (!mainVisible || numericFieldActive || keyboardView.isResizeDragMode()) {
+            updateQuickToolbarVisibility(false, false);
+            return;
+        }
+        if (inlineHasSuggestions) {
+            // شريط اقتراحات الملء التلقائي (حساب/باسورد) له أولوية — نخفي الشريط السريع كامل بدل التعارض بصرياً.
+            updateQuickToolbarVisibility(false, false);
+            return;
+        }
+        String[] ctx = getTypingContext();
+        boolean fieldEmpty = ctx[0].isEmpty() && ctx[1].isEmpty() && ctx[2].isEmpty();
+        boolean expanded = fieldEmpty && !hasValidPendingOtp() && !hasValidShotChip() && !hasValidClipChip();
+        updateQuickToolbarVisibility(true, expanded);
+    }
+
+    /** يترجم كل النص الحالي في الحقل (عربي↔إنجليزي حسب لغة الكيبورد الحالية) ويستبدله بالترجمة. */
+    private void translateCurrentField() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return;
+        android.view.inputmethod.ExtractedText et = ic.getExtractedText(new android.view.inputmethod.ExtractedTextRequest(), 0);
+        String source = (et != null && et.text != null) ? et.text.toString() : "";
+        if (source.trim().isEmpty()) {
+            Toast.makeText(this, tr("اكتب نصاً أولاً", "Type some text first"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean fromArabic = keyboardView == null || keyboardView.isArabic();
+        String srcLang = fromArabic ? com.google.mlkit.nl.translate.TranslateLanguage.ARABIC : com.google.mlkit.nl.translate.TranslateLanguage.ENGLISH;
+        String tgtLang = fromArabic ? com.google.mlkit.nl.translate.TranslateLanguage.ENGLISH : com.google.mlkit.nl.translate.TranslateLanguage.ARABIC;
+        String key = srcLang + ">" + tgtLang;
+        if (activeTranslator == null || !key.equals(activeTranslatorKey)) {
+            if (activeTranslator != null) activeTranslator.close();
+            com.google.mlkit.nl.translate.TranslatorOptions options = new com.google.mlkit.nl.translate.TranslatorOptions.Builder()
+                    .setSourceLanguage(srcLang).setTargetLanguage(tgtLang).build();
+            activeTranslator = com.google.mlkit.nl.translate.Translation.getClient(options);
+            activeTranslatorKey = key;
+        }
+        final com.google.mlkit.nl.translate.Translator translator = activeTranslator;
+        Toast.makeText(this, tr("جاري الترجمة…", "Translating…"), Toast.LENGTH_SHORT).show();
+        com.google.mlkit.common.model.DownloadConditions conditions = new com.google.mlkit.common.model.DownloadConditions.Builder().build();
+        translator.downloadModelIfNeeded(conditions).addOnSuccessListener(unused ->
+                translator.translate(source).addOnSuccessListener(translated -> {
+                    InputConnection ic2 = getCurrentInputConnection();
+                    if (ic2 == null || translated == null) return;
+                    ic2.beginBatchEdit();
+                    ic2.performContextMenuAction(android.R.id.selectAll);
+                    ic2.commitText(translated, 1);
+                    ic2.endBatchEdit();
+                    refreshPredictions();
+                }).addOnFailureListener(e ->
+                        Toast.makeText(this, tr("تعذّرت الترجمة", "Translation failed"), Toast.LENGTH_SHORT).show())
+        ).addOnFailureListener(e ->
+                Toast.makeText(this, tr("تعذّر تحميل نموذج الترجمة، تأكد من الاتصال بالإنترنت", "Couldn't download the translation model — check your internet connection"), Toast.LENGTH_LONG).show());
     }
 
     @Override
@@ -940,6 +1083,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiDrawerView.setVisibility(View.GONE);
         if (wasDrawer) fadeIn(keyboardView, 0);
         updateInlineStripVisibility();
+        refreshQuickToolbarState();
     }
 
     private void openAppSettingsActivity() {
@@ -965,6 +1109,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         clipboardDrawerView.setVisibility(View.VISIBLE);
         fadeIn(clipboardDrawerView, 10);
         updateInlineStripVisibility();
+        refreshQuickToolbarState();
         tryCaptureScreenshotClip(true);
     }
 
@@ -1142,6 +1287,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiDrawerView.setVisibility(View.VISIBLE);
         fadeIn(emojiDrawerView, 10);
         updateInlineStripVisibility();
+        refreshQuickToolbarState();
     }
 
     @Override
@@ -1296,6 +1442,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void refreshPredictionsNow() {
         if (keyboardView == null) return;
+        refreshQuickToolbarState();
         final int gen = ++predictionGen; // أي حساب سابق لسا ما انتهى يصير قديماً ويُهمل
         String[] ctx = getTypingContext();
         // رمز التحقق (إن وُجد وصالح) يأخذ أولوية فوق أي شيء آخر، ويظهر في المنتصف فقط — حتى في لوحة الأرقام
@@ -1605,6 +1752,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // ===== ألوان نوافذ الحافظة والإيموجي: نفس ألوان الكيبورد (سمته الحالية) =====
     private int shellC()      { return keyboardView != null ? keyboardView.getShellColor() : Color.parseColor("#111111"); }
     private int sugBarC()     { return keyboardView != null ? keyboardView.getSuggestionBarColor() : Color.parseColor("#171717"); }
+    private String tr(String ar, String en) { return (keyboardView == null || keyboardView.isArabic()) ? ar : en; }
     private int keyBgC()      { return keyboardView != null ? keyboardView.getKeyBgColor() : Color.parseColor("#262626"); }
     private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
     private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
@@ -1654,7 +1802,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setBackgroundColor(sugBarC());
+        // شريط الرموز السفلي (أبجد/حذف) بدون خلفية خاصة — شفاف يندمج بخلفية نافذة الرموز نفسها،
+        // بينما شريط الحافظة يبقى بخلفيته المعتادة.
+        bar.setBackgroundColor(withBackspace ? Color.TRANSPARENT : sugBarC());
         bar.setPadding(dp(10), 0, dp(10), 0);
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(54)));
         refs.bar = bar;
@@ -1671,11 +1821,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // زر "أبجد/ABC": كبسولة بيضاء شفافة بنفس شكل ولون زر الرجوع في قائمة الإيموجي (بدل شكل مفتاح الكيبورد)
-        android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
-        abcPill.setColor(pillC());
-        abcPill.setCornerRadius(dp(40));
-        abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
+        if (withBackspace) {
+            // في نافذة الرموز: بدون أي خلفية كبسولة خلف "أبجد" — نص شفاف فقط.
+            abcWrap.setBackground(null);
+        } else {
+            // زر "أبجد/ABC": كبسولة بيضاء شفافة بنفس شكل ولون زر الرجوع في قائمة الإيموجي (بدل شكل مفتاح الكيبورد)
+            android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
+            abcPill.setColor(pillC());
+            abcPill.setCornerRadius(dp(40));
+            abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
+        }
         refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
 
         TextView abcLabel = new TextView(this);
@@ -1700,15 +1855,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.addView(spacer);
 
         if (withBackspace) {
-            // خط فاصل رفيع قبل زر الحذف، بنفس شكل فواصل شريط الاقتراحات، بدل خلفية مفتاح كاملة غريبة الشكل
-            // هنا — يفصل منطقة زر الحذف كمربع واضح الحدود بخط بسيط بدل إطار مفتاح كامل.
-            View delDivider = new View(this);
-            delDivider.setBackgroundColor(dividerColor);
-            LinearLayout.LayoutParams dividerLp = new LinearLayout.LayoutParams(dp(1), dp(28));
-            dividerLp.gravity = Gravity.CENTER_VERTICAL;
-            delDivider.setLayoutParams(dividerLp);
-            bar.addView(delDivider);
-
             FrameLayout delWrap = new FrameLayout(this);
             delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
             refs.delBg = null;
