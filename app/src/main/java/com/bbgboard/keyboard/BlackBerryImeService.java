@@ -1608,7 +1608,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int keyBgC()      { return keyboardView != null ? keyboardView.getKeyBgColor() : Color.parseColor("#262626"); }
     private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
     private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
-    private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
+    private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x66000000; }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
     private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
@@ -1654,8 +1654,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        // في نافذة الرموز: بدون خلفية خاصة للشريط — شفاف يبيّن خلفية الكيبورد نفسها (أسود/أبيض حسب السمة).
-        bar.setBackgroundColor(withBackspace ? Color.TRANSPARENT : sugBarC());
+        // بدون خلفية خاصة للشريط في النافذتين — شفاف يبيّن المحتوى خلفه (الإيموجي أو المقصوصات).
+        bar.setBackgroundColor(Color.TRANSPARENT);
         bar.setPadding(dp(10), 0, dp(10), 0);
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(54)));
         refs.bar = bar;
@@ -1902,20 +1902,31 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         header.addView(backIconBtn);
         container.addView(header);
 
+        // نفس أسلوب نافذة الرموز: إطار واحد يحط فيه القائمة وزر "أبجد" فوق بعض (Overlay)، بدل ما
+        // ياخذ زر أبجد شريط مستقل بخلفيته الخاصة — الآن عايم فوق المقصوصات مباشرة.
+        FrameLayout clipContentFrame = new FrameLayout(this);
+        clipContentFrame.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
         ScrollView scroll = new ScrollView(this);
-        scroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        scroll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         scroll.setVerticalScrollBarEnabled(false);
 
         clipsListContainer = new LinearLayout(this);
         clipsListContainer.setOrientation(LinearLayout.VERTICAL);
-        clipsListContainer.setPadding(dp(10), dp(10), dp(10), dp(8));
+        clipsListContainer.setPadding(dp(10), dp(10), dp(10), dp(56));
 
         scroll.addView(clipsListContainer);
-        container.addView(scroll);
+        clipContentFrame.addView(scroll);
 
         clipBottomBarRefs = buildBottomLettersBar(false);
-        container.addView(clipBottomBarRefs.bar);
+        FrameLayout.LayoutParams clipBarLp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        clipBarLp.gravity = Gravity.BOTTOM;
+        clipBottomBarRefs.bar.setLayoutParams(clipBarLp);
+        clipContentFrame.addView(clipBottomBarRefs.bar);
         clipAbcBackLabel = clipBottomBarRefs.abcLabel;
+
+        container.addView(clipContentFrame);
 
         return container;
     }
