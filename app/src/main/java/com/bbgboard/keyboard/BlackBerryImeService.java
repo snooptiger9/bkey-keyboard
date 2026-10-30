@@ -1672,11 +1672,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // زر "أبجد/ABC": كبسولة بيضاء شفافة بنفس شكل ولون زر الرجوع في قائمة الإيموجي (بدل شكل مفتاح الكيبورد)
-        android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
-        abcPill.setColor(pillC());
-        abcPill.setCornerRadius(dp(40));
-        abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
+        // زر "أبجد/ABC" في نافذة الرموز: بدون أي خلفية — شفاف بالكامل يتبع خلفية الكيبورد (أسود/أبيض حسب السمة).
+        if (withBackspace) {
+            abcWrap.setBackground(null);
+        } else {
+            android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
+            abcPill.setColor(pillC());
+            abcPill.setCornerRadius(dp(40));
+            abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
+        }
         refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
 
         TextView abcLabel = new TextView(this);
@@ -1705,11 +1709,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
             refs.delBg = null;
 
-            // نفس شكل كبسولة "أبجد" العائمة بالضبط (بيضاوية شفافة)، بدل خلفية مفتاح أو خط فاصل.
-            android.graphics.drawable.GradientDrawable delPill = new android.graphics.drawable.GradientDrawable();
-            delPill.setColor(pillC());
-            delPill.setCornerRadius(dp(40));
-            delWrap.setBackground(new android.graphics.drawable.InsetDrawable(delPill, dp(3), dp(6), dp(3), dp(6)));
+            // بدون أي خلفية — عائم وشفاف بالكامل زي زر "أبجد" بالضبط، يتبع خلفية الكيبورد نفسها.
+            delWrap.setBackground(null);
 
             // نفس رمز الحذف المستخدم بالكيبورد الرئيسية بالضبط (حرف "⌫" نصي)
             TextView delIcon = new TextView(this);
