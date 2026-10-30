@@ -1609,6 +1609,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
     private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
     private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
+    // كبسولة "زجاج مصنفر" عائمة فوق المحتوى: تاخذ لون خلفية الكيبورد نفسه (شفاف بالسمة الغامقة
+    // غامق، وبالسمة الفاتحة فاتح) بدل لون النص المعكوس، حتى تتبع السمة فعلاً بدون ميل للأبيض.
+    private int frostedPillC() { return (shellC() & 0x00FFFFFF) | 0xB0000000; }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
     private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
@@ -1672,15 +1675,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // زر "أبجد/ABC" في نافذة الرموز: بدون أي خلفية — شفاف بالكامل يتبع خلفية الكيبورد (أسود/أبيض حسب السمة).
-        if (withBackspace) {
-            abcWrap.setBackground(null);
-        } else {
-            android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
-            abcPill.setColor(pillC());
-            abcPill.setCornerRadius(dp(40));
-            abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
-        }
+        // زر "أبجد/ABC" في نافذة الرموز: كبسولة عائمة شبه شفافة (تأثير زجاج مصنفر) تتبع لون السمة
+        // نفسه (غامق بالسمة الغامقة، فاتح بالسمة الفاتحة)، عشان يبين الإيموجي خلفها بدل خلفية بيضاء ثابتة.
+        android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
+        abcPill.setColor(withBackspace ? frostedPillC() : pillC());
+        abcPill.setCornerRadius(dp(40));
+        abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
         refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
 
         TextView abcLabel = new TextView(this);
@@ -1709,8 +1709,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
             refs.delBg = null;
 
-            // بدون أي خلفية — عائم وشفاف بالكامل زي زر "أبجد" بالضبط، يتبع خلفية الكيبورد نفسها.
-            delWrap.setBackground(null);
+            // نفس كبسولة "أبجد" الزجاجية بالضبط — شبه شفافة وتتبع السمة.
+            android.graphics.drawable.GradientDrawable delPill = new android.graphics.drawable.GradientDrawable();
+            delPill.setColor(frostedPillC());
+            delPill.setCornerRadius(dp(40));
+            delWrap.setBackground(new android.graphics.drawable.InsetDrawable(delPill, dp(3), dp(6), dp(3), dp(6)));
 
             // نفس رمز الحذف المستخدم بالكيبورد الرئيسية بالضبط (حرف "⌫" نصي)
             TextView delIcon = new TextView(this);
@@ -2106,20 +2109,31 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         header.addView(backIconBtn);
         container.addView(header);
 
+        // إطار واحد يحط فيه شريط الإيموجي وزري أبجد/الحذف فوق بعض (Overlay)، حتى تختفي مساحة الشريط
+        // السفلي المنفصلة ويبين الإيموجي خلف الزرين العائمين، بدل أخذهما صف كامل مستقل.
+        FrameLayout emojiContentFrame = new FrameLayout(this);
+        emojiContentFrame.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
         emojiScroll = new ScrollView(this);
-        emojiScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        emojiScroll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         emojiScroll.setVerticalScrollBarEnabled(false);
         emojiScroll.setOnScrollChangeListener((v, sx, sy, ox, oy) -> updateActiveEmojiTabFromScroll(sy));
 
         emojiSectionsHost = new LinearLayout(this);
         emojiSectionsHost.setOrientation(LinearLayout.VERTICAL);
-        emojiSectionsHost.setPadding(dp(6), dp(2), dp(6), dp(10));
+        emojiSectionsHost.setPadding(dp(6), dp(2), dp(6), dp(56));
         emojiScroll.addView(emojiSectionsHost);
-        container.addView(emojiScroll);
+        emojiContentFrame.addView(emojiScroll);
 
         emojiBottomBarRefs = buildBottomLettersBar(true);
-        container.addView(emojiBottomBarRefs.bar);
+        FrameLayout.LayoutParams barLp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        barLp.gravity = Gravity.BOTTOM;
+        emojiBottomBarRefs.bar.setLayoutParams(barLp);
+        emojiContentFrame.addView(emojiBottomBarRefs.bar);
         emojiAbcBackLabel = emojiBottomBarRefs.abcLabel;
+
+        container.addView(emojiContentFrame);
 
         rebuildEmojiSections();
         return container;
