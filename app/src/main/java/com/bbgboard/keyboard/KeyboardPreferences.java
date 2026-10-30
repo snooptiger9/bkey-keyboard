@@ -180,7 +180,8 @@ public class KeyboardPreferences {
 
     /** لون كبسولة زر الإدخال (ARGB)، أو 0 = لون الكيبورد الافتراضي. */
     public int getEnterColor() {
-        return prefs.getInt("enter_color", 0);
+        int c = prefs.getInt("enter_color", 0);
+        return c == 0xFF2563EB ? 0xFF8AB4F8 : c; // الأزرق القديم صار أزرق فاتح (مثل جي بورد)
     }
 
     public void setEnterColor(int color) {

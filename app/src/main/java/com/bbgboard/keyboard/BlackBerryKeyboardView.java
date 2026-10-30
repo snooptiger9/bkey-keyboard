@@ -456,7 +456,7 @@ public class BlackBerryKeyboardView extends View {
         enterCustom = c != 0;
         if (enterCustom) {
             enterFillPaint.setColor(c);
-            enterArrowPaint.setColor(Color.WHITE);
+            enterArrowPaint.setColor(KeyStylePreviewView.isLightColor(c) ? Color.parseColor("#0B1B3A") : Color.WHITE);
         }
     }
 

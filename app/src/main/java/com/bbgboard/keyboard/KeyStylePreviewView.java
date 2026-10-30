@@ -58,7 +58,7 @@ final class KeyStylePreviewView extends View {
     }
 
     private void cell(Canvas c, float x, float y, float cw, float ch, boolean isSpecial, String txt) {
-        float s = 0.62f; // المعاينة أصغر من الكيبورد الحقيقي
+        float s = 0.8f; // المعاينة أصغر من الكيبورد الحقيقي
         int fill = isSpecial ? (enterColor != 0 ? enterColor : special) : keyBg;
         RectF raw = r2; raw.set(x, y, x + cw, y + ch);
         float ix, iy, radius;
@@ -126,10 +126,14 @@ final class KeyStylePreviewView extends View {
             }
         }
         // الحرف
-        p.setStyle(Paint.Style.FILL); p.setColor(isSpecial && enterColor != 0 ? Color.WHITE : label);
-        p.setTextAlign(Paint.Align.CENTER); p.setTextSize((isSpecial ? 11f : 12f) * d);
+        p.setStyle(Paint.Style.FILL); p.setColor(isSpecial && enterColor != 0 ? (isLightColor(enterColor) ? Color.parseColor("#0B1B3A") : Color.WHITE) : label);
+        p.setTextAlign(Paint.Align.CENTER); p.setTextSize((isSpecial ? 13f : 15f) * d);
         c.drawText(txt, raw.centerX(), raw.centerY() - (p.descent() + p.ascent()) / 2f, p);
         p.setAlpha(255);
+    }
+
+    static boolean isLightColor(int c) {
+        return (0.299f * Color.red(c) + 0.587f * Color.green(c) + 0.114f * Color.blue(c)) / 255f > 0.62f;
     }
 
     private void inset(RectF raw, float dx, float dy) {
