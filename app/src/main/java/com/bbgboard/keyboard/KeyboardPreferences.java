@@ -188,6 +188,25 @@ public class KeyboardPreferences {
         prefs.edit().putInt("enter_color", color).apply();
     }
 
+    /** لون كبسولتي "أبجد"/الحذف العائمتين في نافذتي الرموز والحافظة (RGB بدون ألفا). افتراضي: أسود. */
+    public int getFloatingCapsuleColor() {
+        return prefs.getInt("floating_capsule_color", 0x000000);
+    }
+
+    public void setFloatingCapsuleColor(int rgb) {
+        prefs.edit().putInt("floating_capsule_color", rgb).apply();
+    }
+
+    /** مستوى عتامة الكبسولة العائمة (0-100)، يتحكم فيه المستخدم بنفسه. افتراضي 85%. */
+    public int getFloatingCapsuleOpacity() {
+        return prefs.getInt("floating_capsule_opacity", 85);
+    }
+
+    public void setFloatingCapsuleOpacity(int percent) {
+        int clamped = Math.max(10, Math.min(100, percent));
+        prefs.edit().putInt("floating_capsule_opacity", clamped).apply();
+    }
+
     public void setKeyboardStyle(int style) {
         prefs.edit().putInt("keyboard_style", style).apply();
     }

@@ -1609,10 +1609,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
     private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
     private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
-    // كبسولة الأزرار العائمة (أبجد/الحذف) فقط: غامقة تتبع لون خلفية الكيبورد نفسه (shellC) بدل لون
-    // النص المعكوس (pillC)، حتى ما تبين فاتحة/بيضاء فوق سمة غامقة. زر الرجوع ما له علاقة فيها —
-    // يبقى على pillC الأصلي.
-    private int floatingPillC() { return (shellC() & 0x00FFFFFF) | 0xD8000000; }
+    // كبسولة الأزرار العائمة (أبجد/الحذف) فقط: لون وشفافية يتحكم فيهم المستخدم من الإعدادات
+    // (أبيض/زجاجي/رمادي فاتح/عنابي/أسود + مستوى عتامة). زر الرجوع ما له علاقة فيها — يبقى على pillC.
+    private int floatingPillC() {
+        int rgb = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleColor() : 0x000000;
+        int percent = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleOpacity() : 85;
+        int alpha = Math.round(255 * percent / 100f);
+        return (rgb & 0x00FFFFFF) | (alpha << 24);
+    }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
     private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
