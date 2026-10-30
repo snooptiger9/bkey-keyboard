@@ -1609,9 +1609,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
     private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
     private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
-    // كبسولة "زجاج مصنفر" عائمة فوق المحتوى: تاخذ لون خلفية الكيبورد نفسه (شفاف بالسمة الغامقة
-    // غامق، وبالسمة الفاتحة فاتح) بدل لون النص المعكوس، حتى تتبع السمة فعلاً بدون ميل للأبيض.
-    private int frostedPillC() { return (shellC() & 0x00FFFFFF) | 0xDA000000; }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
     private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
@@ -1675,10 +1672,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // زر "أبجد/ABC" (في نافذتي الرموز والحافظة): كبسولة عائمة شبه شفافة (تأثير زجاج مصنفر)
-        // تتبع لون السمة نفسه (غامق بالسمة الغامقة، فاتح بالسمة الفاتحة) بدل خلفية بيضاء ثابتة.
+        // زر "أبجد/ABC" (في نافذتي الرموز والحافظة): نفس لون وشفافية كبسولة زر الرجوع بالضبط.
         android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
-        abcPill.setColor(frostedPillC());
+        abcPill.setColor(pillC());
         abcPill.setCornerRadius(dp(40));
         abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
         refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
@@ -1709,9 +1705,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
             refs.delBg = null;
 
-            // نفس كبسولة "أبجد" الزجاجية بالضبط — شبه شفافة وتتبع السمة.
+            // نفس لون كبسولة "أبجد" وزر الرجوع بالضبط.
             android.graphics.drawable.GradientDrawable delPill = new android.graphics.drawable.GradientDrawable();
-            delPill.setColor(frostedPillC());
+            delPill.setColor(pillC());
             delPill.setCornerRadius(dp(40));
             delWrap.setBackground(new android.graphics.drawable.InsetDrawable(delPill, dp(3), dp(6), dp(3), dp(6)));
 
@@ -1757,7 +1753,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         applyBottomBarGeometry(clipBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
         applyBottomBarGeometry(emojiBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
 
-        int contentSidePad = dp(10) + edgeGap;
+        int contentSidePad = dp(4) + edgeGap;
         if (clipsListContainer != null) {
             clipsListContainer.setPadding(contentSidePad, clipsListContainer.getPaddingTop(),
                     contentSidePad, clipsListContainer.getPaddingBottom());
@@ -1800,10 +1796,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (refs == null || refs.bar == null) return;
         if (refs.abcBg != null) refs.abcBg.setExtraInset(gapX, gapY);
         if (refs.delBg != null) refs.delBg.setExtraInset(gapX, gapY);
-        // حد أدنى للهامش الجانبي حتى الكبسولة العائمة ما تنقص/تنقطع عند حافة الشاشة بالجوال
-        // (edgeGap لوحده صغير جداً بوضع الجوال العادي).
-        int barPad = Math.max(edgeGap, dp(8));
-        refs.bar.setPadding(barPad, 0, barPad, 0);
+        // يسار الشريط = نفس حافة زر "؟123" الحقيقي بالكيبورد الرئيسية بالضبط، حتى يصير زر "أبجد"
+        // بنفس موضعه. يمين الشريط ياخذ حد أدنى أكبر بس لو فيه زر حذف، حتى ما تنقص كبسولته عند الحافة.
+        int leftPad = edgeGap;
+        int rightPad = (refs.delWrap != null) ? Math.max(edgeGap, dp(8)) : edgeGap;
+        refs.bar.setPadding(leftPad, 0, rightPad, 0);
         ViewGroup.LayoutParams barLp = refs.bar.getLayoutParams();
         if (barLp != null) {
             barLp.height = rowH;
