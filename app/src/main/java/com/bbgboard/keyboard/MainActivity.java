@@ -1374,7 +1374,9 @@ public class MainActivity extends Activity {
         String[] capsuleNames = tr(
                 new String[]{"أسود", "أبيض", "زجاجي", "رمادي فاتح", "عنابي", "نفس زر الرجوع"},
                 new String[]{"Black", "White", "Glass", "Light gray", "Burgundy", "Like back button"});
-        String[] capsuleHex = {"#000000", "#FFFFFF", "#EAF2FB", "#D1D5DB", "#7F1D3F", followBackHex};
+        // الزجاجي والرمادي الفاتح صاروا بتدرّج أوضح (مو قريبين من الأبيض) حتى يبقوا متميزين عن
+        // "أبيض" حتى مع شفافية عالية، بدل ما يتحولوا كلهم لنفس اللون الأبيض تقريباً.
+        String[] capsuleHex = {"#000000", "#FFFFFF", "#8EC5F7", "#9CA3AF", "#7F1D3F", followBackHex};
         final int FOLLOW_BACK = KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL;
         List<View> capsuleTiles = new ArrayList<>();
         final Runnable[] updatePreviewRef = new Runnable[1];
