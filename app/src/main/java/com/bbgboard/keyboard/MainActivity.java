@@ -1345,15 +1345,46 @@ public class MainActivity extends Activity {
         capsuleHeader.setPadding(0, 0, 0, dp(10));
         capsuleCard.addView(capsuleHeader);
 
+        // معاينة حية: تطلع بنفس شكل الكبسولة العائمة الفعلي (لون + شفافية) وتتحدث فوراً مع أي تغيير.
+        FrameLayout previewHolder = new FrameLayout(this);
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+        GradientDrawable previewBg = new GradientDrawable();
+        previewBg.setColor(Color.parseColor("#1F2937"));
+        previewBg.setCornerRadius(dp(14));
+        previewHolder.setBackground(previewBg);
+        final TextView previewCapsule = new TextView(this);
+        previewCapsule.setText(tr("أبجد", "ABC"));
+        previewCapsule.setTextColor(Color.WHITE);
+        previewCapsule.setTypeface(Typeface.DEFAULT_BOLD);
+        previewCapsule.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        previewCapsule.setGravity(Gravity.CENTER);
+        GradientDrawable previewPill = new GradientDrawable();
+        previewPill.setCornerRadius(dp(40));
+        previewCapsule.setBackground(previewPill);
+        FrameLayout.LayoutParams pillLp = new FrameLayout.LayoutParams(dp(90), dp(42));
+        pillLp.gravity = Gravity.CENTER;
+        previewCapsule.setLayoutParams(pillLp);
+        previewHolder.addView(previewCapsule);
+        capsuleCard.addView(previewHolder);
+
+        // "نفس لون زر الرجوع" = قيمة خاصة (-1) تعني الكبسولة تاخذ لون النص المعكوس (أبيض بسمة غامقة،
+        // أسود بسمة فاتحة) بدل لون ثابت، مطابقةً لزر الرجوع في نفس النافذة بالضبط.
+        boolean darkThemeNow = prefs.getThemeMode() != KeyboardPreferences.THEME_GBOARD_WHITE;
+        final String followBackHex = darkThemeNow ? "#F8FAFC" : "#1E293B";
         String[] capsuleNames = tr(
-                new String[]{"أسود", "أبيض", "زجاجي", "رمادي فاتح", "عنابي"},
-                new String[]{"Black", "White", "Glass", "Light gray", "Burgundy"});
-        String[] capsuleHex = {"#000000", "#FFFFFF", "#EAF2FB", "#D1D5DB", "#7F1D3F"};
+                new String[]{"أسود", "أبيض", "زجاجي", "رمادي فاتح", "عنابي", "نفس زر الرجوع"},
+                new String[]{"Black", "White", "Glass", "Light gray", "Burgundy", "Like back button"});
+        String[] capsuleHex = {"#000000", "#FFFFFF", "#EAF2FB", "#D1D5DB", "#7F1D3F", followBackHex};
+        final int FOLLOW_BACK = KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL;
         List<View> capsuleTiles = new ArrayList<>();
+        final Runnable[] updatePreviewRef = new Runnable[1];
         for (int i = 0; i < capsuleNames.length; i++) {
-            final int color = Color.parseColor(capsuleHex[i]) & 0x00FFFFFF;
-            capsuleTiles.add(createPreviewTile(capsuleNames[i], capsuleHex[i],
-                    (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color,
+            final boolean isFollow = i == capsuleNames.length - 1;
+            final int color = isFollow ? FOLLOW_BACK : (Color.parseColor(capsuleHex[i]) & 0x00FFFFFF);
+            boolean selected = isFollow ? prefs.getFloatingCapsuleColor() == FOLLOW_BACK
+                    : (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color
+                      && prefs.getFloatingCapsuleColor() != FOLLOW_BACK;
+            capsuleTiles.add(createPreviewTile(capsuleNames[i], capsuleHex[i], selected,
                     v -> { prefs.setFloatingCapsuleColor(color); refreshEmojiScreen(root); }));
         }
         addTileGrid(capsuleCard, capsuleTiles, 3);
@@ -1376,12 +1407,23 @@ public class MainActivity extends Activity {
                 int percent = 10 + progress;
                 prefs.setFloatingCapsuleOpacity(percent);
                 opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + percent + "%");
+                updatePreviewRef[0].run();
             }
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
         capsuleCard.addView(opacitySeek);
         root.addView(capsuleCard);
+
+        updatePreviewRef[0] = () -> {
+            int storedColor = prefs.getFloatingCapsuleColor();
+            int rgb = storedColor == FOLLOW_BACK
+                    ? (Color.parseColor(followBackHex) & 0x00FFFFFF)
+                    : (storedColor & 0x00FFFFFF);
+            int alpha = Math.round(255 * prefs.getFloatingCapsuleOpacity() / 100f);
+            previewPill.setColor((rgb) | (alpha << 24));
+        };
+        updatePreviewRef[0].run();
 
         LinearLayout clearCard = createGroupedWhiteCard();
         clearCard.setPadding(dp(16), dp(16), dp(16), dp(16));
