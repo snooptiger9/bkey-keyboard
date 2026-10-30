@@ -100,15 +100,6 @@ public class BlackBerryKeyboardView extends View {
 
     private List<String> suggestions = Arrays.asList("السلام", "بسم", "مرحبا");
     private final RectF menuButtonRect = new RectF();
-    // صحيح لما الشريط السريع (ModernIconView فوق الكانفس) هو اللي يتولى زر الحافظة، حتى ما يتكرر
-    // رسمه ولا نقرته من الكانفس تحته في نفس الوقت.
-    private boolean suppressMenuButton = false;
-
-    public void setSuppressMenuButton(boolean suppress) {
-        if (this.suppressMenuButton == suppress) return;
-        this.suppressMenuButton = suppress;
-        invalidate();
-    }
     private final RectF[] suggestionRects = new RectF[]{new RectF(), new RectF(), new RectF()};
     private final RectF resizeHandleBarRect = new RectF();
     private boolean menuButtonPressed = false;
@@ -1300,13 +1291,11 @@ public class BlackBerryKeyboardView extends View {
         float sugBottom = sugTop + getSuggestionBarHeight();
         canvas.drawRect(0f, sugTop, getWidth(), sugBottom, sugBarPaint);
 
-        if (!suppressMenuButton) {
-            if (menuButtonPressed) {
-                canvas.drawRect(menuButtonRect, sugFlashPaint);
-            }
-            drawClipboardMenuIcon(canvas, menuButtonRect);
-            canvas.drawLine(menuButtonRect.right, sugTop + 5f * density, menuButtonRect.right, sugBottom - 5f * density, keyDividerPaint);
+        if (menuButtonPressed) {
+            canvas.drawRect(menuButtonRect, sugFlashPaint);
         }
+        drawClipboardMenuIcon(canvas, menuButtonRect);
+        canvas.drawLine(menuButtonRect.right, sugTop + 5f * density, menuButtonRect.right, sugBottom - 5f * density, keyDividerPaint);
         if (voiceEnabled) {
             if (micButtonPressed || voiceListening) {
                 canvas.drawRect(micButtonRect, sugFlashPaint);
@@ -2156,7 +2145,7 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                if (!suppressMenuButton && menuButtonRect.contains(x, y)) {
+                if (menuButtonRect.contains(x, y)) {
                     menuButtonPressed = true;
                     vibrateTap(false);
                     soundController.playKeyClick();
@@ -2339,7 +2328,7 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                if (!suppressMenuButton && wasMenuPressed && menuButtonRect.contains(x, y)) {
+                if (wasMenuPressed && menuButtonRect.contains(x, y)) {
                     if (listener != null) listener.onToggleClipboardMenu();
                     return true;
                 }
