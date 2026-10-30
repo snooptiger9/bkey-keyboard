@@ -104,6 +104,12 @@ final class EmojiSuggester {
             // English things
             "food|🍽️ eat|🍽️ lunch|🍛 dinner|🍽️ breakfast|🍳 pizza|🍕 burger|🍔 fries|🍟 chicken|🍗 rice|🍚 fish|🐟 meat|🥩 bread|🍞 cheese|🧀 egg|🥚 milk|🥛 juice|🧃 water|💧 drink|🥤 beer|🍺 wine|🍷 cake|🍰 cookie|🍪 chocolate|🍫 candy|🍬 ice cream|🍦 apple|🍎 banana|🍌 orange|🍊 strawberry|🍓 grapes|🍇 watermelon|🍉 salad|🥗 soup|🍲 school|🏫 college|🎓 university|🎓 graduation|🎓 work|💼 job|💼 office|🏢 meeting|📅 boss|👔 hospital|🏥 doctor|👨‍⚕️ medicine|💊 pharmacy|💊 shop|🛒 shopping|🛍️ mall|🛍️ restaurant|🍴 cafe|☕ mosque|🕌 prayer|🕌 pray|🤲 quran|📖 mecca|🕋 hajj|🕋 umrah|🕋 airport|✈️ plane|✈️ flight|✈️ train|🚆 bus|🚌 taxi|🚕 gas|⛽ trip|🧳 vacation|🏖️ holiday|🏖️ hotel|🏨 beach|🏖️ pool|🏊 gym|🏋️ workout|💪 football|⚽ soccer|⚽ goal|🥅 game|🎮 games|🎮 movie|🎬 film|🎬 show|📺 song|🎵 photo|📷 picture|📸 book|📚 read|📖 study|📚 exam|📝 test|📝 homework|📝 dream|💭 phone|📱 call|📞 text|💬 message|💬 email|📧 mail|📧 gift|🎁 present|🎁 key|🔑 lock|🔒 idea|💡 important|❗ warning|⚠️ danger|⚠️ stop|🛑 correct|✅ wrong|❌ question|❓ time|⏰ clock|⏰ alarm|⏰ date|📅 computer|💻 laptop|💻 internet|🌐 wifi|📶 charger|🔌 battery|🔋 sun|☀️ moon|🌙 star|⭐ stars|✨ rain|🌧️ snow|❄️ storm|⛈️ wind|💨 cloud|☁️ flower|🌸 rose|🌹 tree|🌳 mountain|⛰️ ocean|🌊 sea|🌊 dog|🐶 cat|🐱 horse|🐴 bird|🐦 lion|🦁 bear|🐻 wedding|💍 married|💍 baby|👶 kid|👶 heart|❤️ darling|❤️ honey|❤️ sweet|🍯 sweetheart|💕 luck|🍀 good luck|🍀 success|🏆 win|🏆 winner|🏆 champion|🏆 trophy|🏆 prize|🏆 celebrate|🎉 celebration|🎉 congrats|🎊 new year|🎆 christmas|🎄 ramadan|🌙 eid|🎉 pray for|🤲 god|🙏 amen|🤲 peace|☮️ victory|✌️ strong|💪 power|💪 secret|🤫 shh|🤫 think|🤔 thinking|🤔 maybe|🤔 idk|🤷 sure|👍 of course|👍 okay|👌 fine|👌 agree|🤝 deal|🤝 promise|🤞 hope|🤞 wish|🤞 pray|🙏 bless|🙏 blessed|🙏 thank|🙏 thx|🙏 ty|🙏 omg|😱 oops|🙈 ugh|😩 yay|🎉 yeah|🙌 cheers|🥂 bravo|👏 clap|👏 applause|👏 "
         );
+        // ضحك ممدود: "هه" لين "ه" متكررة 25 مره، كلها تقترح 😂 (أي طول يكتبه المستخدم بينهم يشتغل)
+        for (int i = 2; i <= 25; i++) {
+            char[] rep = new char[i];
+            java.util.Arrays.fill(rep, 'ه');
+            put(new String(rep), "😂");
+        }
     }
 
     /** يقرأ نصاً بصيغة "كلمة|إيموجي" مفصولة بمسافات (الكلمة قد تحوي مسافة)، ولا يستبدل الموجود. */
