@@ -45,4 +45,6 @@ android {
 dependencies {
     // لبناء ستايل اقتراحات الملء التلقائي (حساب/باسورد) داخل شريط الكيبورد بدل نافذة منبثقة
     implementation 'androidx.autofill:autofill:1.1.0'
+    // ترجمة نص الكتابة داخل الكيبورد (على الجهاز، يحمّل نموذج اللغة عند أول استخدام)
+    implementation 'com.google.mlkit:translate:17.0.3'
 }
