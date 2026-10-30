@@ -29,7 +29,20 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build release APK
-        run: ./gradlew assembleRelease --no-daemon
+        run: ./gradlew assembleRelease --no-daemon 2>&1 | tee build_output.log
+
+      # عند فشل البناء: نرفع سجل الخطأ داخل المستودع نفسه (بدل Artifacts اللي Claude ما يقدر يوصلها)
+      # حتى يقدر يسحبه بـ git pull عادي ويشوف سبب الفشل بالضبط.
+      - name: Commit build log on failure
+        if: failure()
+        run: |
+          mkdir -p release
+          tail -c 200000 build_output.log > release/build_error.log
+          git config user.name "bkey-ci"
+          git config user.email "ci@bkey.local"
+          git add release/build_error.log
+          git commit -m "ci: build error log [skip ci]" || true
+          git push || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
