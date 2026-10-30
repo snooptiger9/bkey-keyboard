@@ -1648,6 +1648,25 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private BottomBarRefs clipBottomBarRefs;
     private BottomBarRefs emojiBottomBarRefs;
 
+    /** يحدّث لون/شفافية كبسولتي "أبجد"/الحذف من الإعدادات الحالية — تُبنى الخلفية مرة واحدة فقط
+     * عند إنشاء النافذة، فهذا يضمن انعكاس أي تغيير لاحق بالإعدادات (لون/شفافية) كل ما فُتحت القائمة. */
+    private void refreshFloatingCapsuleColors(BottomBarRefs refs) {
+        if (refs == null) return;
+        int color = floatingPillC();
+        if (refs.abcWrap != null) {
+            android.graphics.drawable.GradientDrawable p = new android.graphics.drawable.GradientDrawable();
+            p.setColor(color);
+            p.setCornerRadius(dp(40));
+            refs.abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(p, dp(3), dp(6), dp(3), dp(6)));
+        }
+        if (refs.delWrap != null) {
+            android.graphics.drawable.GradientDrawable p = new android.graphics.drawable.GradientDrawable();
+            p.setColor(color);
+            p.setCornerRadius(dp(40));
+            refs.delWrap.setBackground(new android.graphics.drawable.InsetDrawable(p, dp(3), dp(6), dp(3), dp(6)));
+        }
+    }
+
     /**
      * شريط سفلي بنفس شكل ومكان زر "؟123" الحقيقي من الكيبورد الرئيسي بالضبط (نفس ستايل المفاتيح
      * المختار حالياً من الإعدادات، نفس نسبة عرضه وارتفاعه)، يُستخدم في قائمتي الحافظة والإيموجي.
@@ -1802,6 +1821,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void applyBottomBarGeometry(BottomBarRefs refs, int edgeGap, int symW, int rowH, float gapX, float gapY) {
         if (refs == null || refs.bar == null) return;
+        refreshFloatingCapsuleColors(refs);
         if (refs.abcBg != null) refs.abcBg.setExtraInset(gapX, gapY);
         if (refs.delBg != null) refs.delBg.setExtraInset(gapX, gapY);
         // يسار الشريط = نفس حافة زر "؟123" الحقيقي بالكيبورد الرئيسية بالضبط، حتى يصير زر "أبجد"
