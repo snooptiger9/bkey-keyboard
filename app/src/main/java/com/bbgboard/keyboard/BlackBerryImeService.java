@@ -1611,7 +1611,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
     // كبسولة "زجاج مصنفر" عائمة فوق المحتوى: تاخذ لون خلفية الكيبورد نفسه (شفاف بالسمة الغامقة
     // غامق، وبالسمة الفاتحة فاتح) بدل لون النص المعكوس، حتى تتبع السمة فعلاً بدون ميل للأبيض.
-    private int frostedPillC() { return (shellC() & 0x00FFFFFF) | 0xB0000000; }
+    private int frostedPillC() { return (shellC() & 0x00FFFFFF) | 0xDA000000; }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }
     private int keyOutlineC() { return keyboardView != null ? keyboardView.getKeyOutlineColor() : Color.parseColor("#525B6C"); }
@@ -1675,10 +1675,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // زر "أبجد/ABC" في نافذة الرموز: كبسولة عائمة شبه شفافة (تأثير زجاج مصنفر) تتبع لون السمة
-        // نفسه (غامق بالسمة الغامقة، فاتح بالسمة الفاتحة)، عشان يبين الإيموجي خلفها بدل خلفية بيضاء ثابتة.
+        // زر "أبجد/ABC" (في نافذتي الرموز والحافظة): كبسولة عائمة شبه شفافة (تأثير زجاج مصنفر)
+        // تتبع لون السمة نفسه (غامق بالسمة الغامقة، فاتح بالسمة الفاتحة) بدل خلفية بيضاء ثابتة.
         android.graphics.drawable.GradientDrawable abcPill = new android.graphics.drawable.GradientDrawable();
-        abcPill.setColor(withBackspace ? frostedPillC() : pillC());
+        abcPill.setColor(frostedPillC());
         abcPill.setCornerRadius(dp(40));
         abcWrap.setBackground(new android.graphics.drawable.InsetDrawable(abcPill, dp(3), dp(6), dp(3), dp(6)));
         refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
@@ -1800,7 +1800,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (refs == null || refs.bar == null) return;
         if (refs.abcBg != null) refs.abcBg.setExtraInset(gapX, gapY);
         if (refs.delBg != null) refs.delBg.setExtraInset(gapX, gapY);
-        refs.bar.setPadding(edgeGap, 0, edgeGap, 0);
+        // حد أدنى للهامش الجانبي حتى الكبسولة العائمة ما تنقص/تنقطع عند حافة الشاشة بالجوال
+        // (edgeGap لوحده صغير جداً بوضع الجوال العادي).
+        int barPad = Math.max(edgeGap, dp(8));
+        refs.bar.setPadding(barPad, 0, barPad, 0);
         ViewGroup.LayoutParams barLp = refs.bar.getLayoutParams();
         if (barLp != null) {
             barLp.height = rowH;
