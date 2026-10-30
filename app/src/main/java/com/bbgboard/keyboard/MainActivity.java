@@ -658,10 +658,12 @@ public class MainActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 77 && !ScreenshotClip.hasPermission(this)) {
-            prefs.setScreenshotClipEnabled(false);
-            Toast.makeText(this, tr("لم يُمنح إذن الصور، فلا يمكن حفظ لقطات الشاشة", "Photos permission was not granted, so screenshots can't be saved"), Toast.LENGTH_LONG).show();
-            openPreferencesScreen();
+        if (requestCode == 77) {
+            if (!ScreenshotClip.hasPermission(this)) {
+                prefs.setScreenshotClipEnabled(false);
+                Toast.makeText(this, tr("لم يُمنح إذن الصور، فلا يمكن حفظ لقطات الشاشة", "Photos permission was not granted, so screenshots can't be saved"), Toast.LENGTH_LONG).show();
+            }
+            openClipboardScreen(); // يبقى في نفس صفحة الحافظة اللي منها طلب الإذن، بدل القفز لصفحة ثانية
         }
         if (requestCode == 78) {
             boolean granted = checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -669,7 +671,7 @@ public class MainActivity extends Activity {
             if (!granted) {
                 Toast.makeText(this, tr("لم يُمنح إذن الرسائل، فلن يُقترح رمز التحقق تلقائياً", "SMS permission wasn't granted, so the code won't be suggested automatically"), Toast.LENGTH_LONG).show();
             }
-            openPreferencesScreen();
+            openCorrectionsAndMemoryScreen(); // يبقى في نفس صفحة التصحيح والذاكرة اللي منها طلب الإذن
         }
     }
 
