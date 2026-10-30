@@ -1654,7 +1654,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setBackgroundColor(sugBarC());
+        // في نافذة الرموز: بدون خلفية خاصة للشريط — شفاف يبيّن خلفية الكيبورد نفسها (أسود/أبيض حسب السمة).
+        bar.setBackgroundColor(withBackspace ? Color.TRANSPARENT : sugBarC());
         bar.setPadding(dp(10), 0, dp(10), 0);
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(54)));
         refs.bar = bar;
@@ -1700,20 +1701,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.addView(spacer);
 
         if (withBackspace) {
-            // خط فاصل رفيع قبل زر الحذف، بنفس شكل فواصل شريط الاقتراحات، بدل خلفية مفتاح كاملة غريبة الشكل
-            // هنا — يفصل منطقة زر الحذف كمربع واضح الحدود بخط بسيط بدل إطار مفتاح كامل.
-            View delDivider = new View(this);
-            delDivider.setBackgroundColor(dividerColor);
-            LinearLayout.LayoutParams dividerLp = new LinearLayout.LayoutParams(dp(1), dp(28));
-            dividerLp.gravity = Gravity.CENTER_VERTICAL;
-            delDivider.setLayoutParams(dividerLp);
-            bar.addView(delDivider);
-
             FrameLayout delWrap = new FrameLayout(this);
             delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
             refs.delBg = null;
 
-            // نفس رمز الحذف المستخدم بالكيبورد الرئيسية بالضبط (حرف "⌫" نصي)، بدل أيقونة مرسومة مختلفة الشكل.
+            // نفس شكل كبسولة "أبجد" العائمة بالضبط (بيضاوية شفافة)، بدل خلفية مفتاح أو خط فاصل.
+            android.graphics.drawable.GradientDrawable delPill = new android.graphics.drawable.GradientDrawable();
+            delPill.setColor(pillC());
+            delPill.setCornerRadius(dp(40));
+            delWrap.setBackground(new android.graphics.drawable.InsetDrawable(delPill, dp(3), dp(6), dp(3), dp(6)));
+
+            // نفس رمز الحذف المستخدم بالكيبورد الرئيسية بالضبط (حرف "⌫" نصي)
             TextView delIcon = new TextView(this);
             delIcon.setText("⌫");
             delIcon.setTextColor(labelColor);
