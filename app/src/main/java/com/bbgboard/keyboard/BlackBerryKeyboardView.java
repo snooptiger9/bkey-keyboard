@@ -1062,7 +1062,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private List<KeyDef> buildBottomRow() {
-        String symLabel = isSymbols ? (isArabic ? "أبجد" : "ABC") : "?123";
+        String symLabel = isSymbols ? (isArabic ? "أبجد" : "ABC") : (isArabic ? "؟123" : "?123");
         // لغة واحدة فقط: بدون أسهم التبديل لأن السحب للتبديل معطّل
         boolean singleLanguage = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_BOTH;
         String spaceLabel = singleLanguage ? (isArabic ? "العربية" : "English")
