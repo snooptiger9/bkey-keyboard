@@ -1301,7 +1301,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // رمز التحقق (إن وُجد وصالح) يأخذ أولوية فوق أي شيء آخر، ويظهر في المنتصف فقط — حتى في لوحة الأرقام
         // (حيث الاقتراحات العادية معطّلة أصلاً)، طالما الحقل فاضي ولسه ما بدأ المستخدم يكتب فيه شيء.
         if (hasValidPendingOtp() && ctx[0].isEmpty()) {
-            keyboardView.setSuggestions(Arrays.asList("", "🔐 " + pendingOtpCode, ""));
+            // نفس شكل ونافذة شريحة لقطة الشاشة بالضبط (مربع بخلفية وإطار)، بدون أي أيقونة قفل.
+            keyboardView.setSuggestions(Arrays.asList("", pendingOtpCode, ""), 3);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
