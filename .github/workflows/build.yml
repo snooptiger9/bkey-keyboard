@@ -29,7 +29,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build release APK
-        run: ./gradlew assembleRelease --no-daemon 2>&1 | tee build_output.log
+        run: |
+          set -o pipefail
+          ./gradlew assembleRelease --no-daemon 2>&1 | tee build_output.log
 
       # عند فشل البناء: نرفع سجل الخطأ داخل المستودع نفسه (بدل Artifacts اللي Claude ما يقدر يوصلها)
       # حتى يقدر يسحبه بـ git pull عادي ويشوف سبب الفشل بالضبط.
