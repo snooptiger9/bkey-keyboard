@@ -1290,7 +1290,16 @@ public class MainActivity extends Activity {
 
     private void openEmojiScreen() {
         LinearLayout root = createSubScreenTemplate(tr("الإيموجي والرموز", "Emoji & Symbols"));
+        fillEmojiScreen(root);
+    }
 
+    /** تحديث الشاشة في مكانها بعد اختيار (بدون إعادة بناء الصفحة كلها: لا وميض ولا قفز بالسكرول). */
+    private void refreshEmojiScreen(LinearLayout root) {
+        root.removeViews(1, root.getChildCount() - 1);
+        fillEmojiScreen(root);
+    }
+
+    private void fillEmojiScreen(final LinearLayout root) {
         LinearLayout sizeCard = createGroupedWhiteCard();
         sizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         final TextView sizeLabel = new TextView(this);
@@ -1324,6 +1333,55 @@ public class MainActivity extends Activity {
         });
         sizeCard.addView(sizeSeek);
         root.addView(sizeCard);
+
+        // لون وشفافية كبسولتي "أبجد"/الحذف العائمتين في نافذتي الرموز والحافظة
+        LinearLayout capsuleCard = createGroupedWhiteCard();
+        capsuleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        TextView capsuleHeader = new TextView(this);
+        capsuleHeader.setText(tr("لون الكبسولات العائمة", "Floating capsules color"));
+        capsuleHeader.setTextColor(Color.parseColor("#111827"));
+        capsuleHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        capsuleHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        capsuleHeader.setPadding(0, 0, 0, dp(10));
+        capsuleCard.addView(capsuleHeader);
+
+        String[] capsuleNames = tr(
+                new String[]{"أسود", "أبيض", "زجاجي", "رمادي فاتح", "عنابي"},
+                new String[]{"Black", "White", "Glass", "Light gray", "Burgundy"});
+        String[] capsuleHex = {"#000000", "#FFFFFF", "#EAF2FB", "#D1D5DB", "#7F1D3F"};
+        List<View> capsuleTiles = new ArrayList<>();
+        for (int i = 0; i < capsuleNames.length; i++) {
+            final int color = Color.parseColor(capsuleHex[i]) & 0x00FFFFFF;
+            capsuleTiles.add(createPreviewTile(capsuleNames[i], capsuleHex[i],
+                    (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color,
+                    v -> { prefs.setFloatingCapsuleColor(color); refreshEmojiScreen(root); }));
+        }
+        addTileGrid(capsuleCard, capsuleTiles, 3);
+
+        final TextView opacityLabel = new TextView(this);
+        opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + prefs.getFloatingCapsuleOpacity() + "%");
+        opacityLabel.setTextColor(Color.parseColor("#111827"));
+        opacityLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        opacityLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        opacityLabel.setPadding(0, dp(12), 0, 0);
+        capsuleCard.addView(opacityLabel);
+
+        SeekBar opacitySeek = new SeekBar(this);
+        opacitySeek.setMax(90);
+        opacitySeek.setProgress(prefs.getFloatingCapsuleOpacity() - 10);
+        opacitySeek.setPadding(dp(14), dp(10), dp(14), dp(4));
+        opacitySeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int percent = 10 + progress;
+                prefs.setFloatingCapsuleOpacity(percent);
+                opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + percent + "%");
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        capsuleCard.addView(opacitySeek);
+        root.addView(capsuleCard);
 
         LinearLayout clearCard = createGroupedWhiteCard();
         clearCard.setPadding(dp(16), dp(16), dp(16), dp(16));
