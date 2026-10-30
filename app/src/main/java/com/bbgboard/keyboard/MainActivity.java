@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
     private void reopenKeepingScroll(Runnable open) {
         pendingScrollY = currentScrollY();
         returningBack = true;
+        skipNavAnim = true;
         open.run();
     }
 
@@ -61,11 +62,38 @@ public class MainActivity extends Activity {
         parent.run();
     }
 
+    private boolean skipNavAnim = false;
+
+    /** يضبط موضع السكرول قبل أول رسم (بدون وميض) ويشغّل أنميشن الانتقال: للأمام من جهة، وللرجوع من الجهة المعاكسة. */
     private void restoreScroll(final ScrollView scroll) {
         final int y = pendingScrollY;
+        final int dir = returningBack ? -1 : 1;
+        final boolean animate = !skipNavAnim;
         pendingScrollY = 0;
         returningBack = false;
-        if (y > 0) scroll.post(() -> scroll.scrollTo(0, y));
+        skipNavAnim = false;
+        if (animate) {
+            float from = (isDeviceArabic() ? -1 : 1) * dir * dp(36);
+            scroll.setAlpha(0f);
+            scroll.setTranslationX(from);
+            scroll.animate().alpha(1f).translationX(0f).setDuration(220)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+        }
+        if (y > 0) {
+            scroll.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+                @Override public boolean onPreDraw() {
+                    scroll.getViewTreeObserver().removeOnPreDrawListener(this);
+                    scroll.scrollTo(0, y);
+                    return true;
+                }
+            });
+        }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     private int dp(int v) {
@@ -477,13 +505,13 @@ public class MainActivity extends Activity {
 
         TextView title = new TextView(this);
         title.setText(tr("حذف نصوص الحافظة ولقطة الشاشة تلقائياً", "Auto-delete old clipboard items & screenshot"));
-        title.setTextSize(16);
-        title.setTextColor(Color.parseColor("#202124"));
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        title.setTextColor(Color.parseColor("#1F2937"));
         card.addView(title);
 
         final TextView value = new TextView(this);
-        value.setTextSize(13);
-        value.setTextColor(Color.parseColor("#5F6368"));
+        value.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        value.setTextColor(Color.parseColor("#6B7280"));
         card.addView(value);
         final Runnable refresh = () -> {
             int cur = prefs.getClipRetentionHours();
@@ -569,7 +597,7 @@ public class MainActivity extends Activity {
             rb.setId(View.generateViewId());
             rb.setText(options[i]);
             rb.setTextColor(Color.parseColor("#1F2937"));
-            rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
+            rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             rb.setPadding(dp(8), dp(10), dp(8), dp(10));
             rb.setChecked(i == selectedIndex);
 
@@ -595,7 +623,7 @@ public class MainActivity extends Activity {
         TextView langModeHeader = new TextView(this);
         langModeHeader.setText(tr("اللغات المفعّلة:", "Enabled languages:"));
         langModeHeader.setTextColor(Color.parseColor("#111827"));
-        langModeHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f);
+        langModeHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         langModeHeader.setTypeface(Typeface.DEFAULT_BOLD);
         langModeHeader.setPadding(0, 0, 0, dp(8));
         langModeCard.addView(langModeHeader);
@@ -622,7 +650,7 @@ public class MainActivity extends Activity {
                 "• Arabic: a clean Gboard-style layout with no numbers printed on the letter keys. Long-press any Arabic letter to pick a hamza or alternate form.\n\n• English: standard QWERTY with auto-capitalize and a Caps Lock toggle."
         ));
         infoTv.setTextColor(Color.parseColor("#374151"));
-        infoTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        infoTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         infoCard.addView(infoTv);
         root.addView(infoCard);
     }
@@ -820,7 +848,7 @@ public class MainActivity extends Activity {
         TextView ohHeader = new TextView(this);
         ohHeader.setText(tr("وضع اليد الواحدة:", "One-handed mode:"));
         ohHeader.setTextColor(Color.parseColor("#111827"));
-        ohHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f);
+        ohHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         ohHeader.setTypeface(Typeface.DEFAULT_BOLD);
         ohHeader.setPadding(0, 0, 0, dp(8));
         oneHandCard.addView(ohHeader);
@@ -836,7 +864,7 @@ public class MainActivity extends Activity {
         TextView splitHeader = new TextView(this);
         splitHeader.setText(tr("تقسيم الكيبورد على الشاشات الكبيرة:", "Split keyboard on large screens:"));
         splitHeader.setTextColor(Color.parseColor("#111827"));
-        splitHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f);
+        splitHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         splitHeader.setTypeface(Typeface.DEFAULT_BOLD);
         splitHeader.setPadding(0, 0, 0, dp(8));
         splitCard.addView(splitHeader);
@@ -931,7 +959,7 @@ public class MainActivity extends Activity {
         String[] enterNames = tr(
                 new String[]{"افتراضي", "أزرق", "أخضر", "بنفسجي", "برتقالي", "وردي", "أحمر", "عنابي"},
                 new String[]{"Default", "Blue", "Green", "Purple", "Orange", "Pink", "Red", "Burgundy"});
-        String[] enterHex = {"#4B5563", "#2563EB", "#16A34A", "#7C3AED", "#EA580C", "#DB2777", "#DC2626", "#7F1D3F"};
+        String[] enterHex = {"#4B5563", "#8AB4F8", "#16A34A", "#7C3AED", "#EA580C", "#DB2777", "#DC2626", "#7F1D3F"};
         List<View> enterTiles = new ArrayList<>();
         for (int i = 0; i < enterNames.length; i++) {
             final int color = i == 0 ? 0 : Color.parseColor(enterHex[i]);
@@ -950,7 +978,7 @@ public class MainActivity extends Activity {
         tile.setOnClickListener(onClick);
 
         FrameLayout swatchHolder = new FrameLayout(this);
-        swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(dp(78), dp(64)));
+        swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
         GradientDrawable swatch = roundedCard(colorHex, 14);
         if (selected) swatch.setStroke(dp(3), Color.parseColor("#2563EB"));
         else swatch.setStroke(dp(1), Color.parseColor("#E2E8F0"));
@@ -989,7 +1017,7 @@ public class MainActivity extends Activity {
         tile.setOnClickListener(onClick);
 
         FrameLayout holder = new FrameLayout(this);
-        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(78), dp(64)));
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
         holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         // إطار الاختيار فوق المعاينة + شارة ✓ زرقاء
@@ -1334,7 +1362,7 @@ public class MainActivity extends Activity {
         TextView dirHeader = new TextView(this);
         dirHeader.setText(tr("اتجاه السحب للمسح:", "Swipe-to-delete direction:"));
         dirHeader.setTextColor(Color.parseColor("#111827"));
-        dirHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f);
+        dirHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         dirHeader.setTypeface(Typeface.DEFAULT_BOLD);
         dirHeader.setPadding(0, 0, 0, dp(8));
         dirCard.addView(dirHeader);
@@ -1453,7 +1481,7 @@ public class MainActivity extends Activity {
         TextView pHeader = new TextView(this);
         pHeader.setText(tr("1. اختر نغمة صوت الكتابة على الحروف (اضغط للتجربة):", "1. Choose the typing-tone profile (tap to preview):"));
         pHeader.setTextColor(Color.parseColor("#111827"));
-        pHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f);
+        pHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         pHeader.setTypeface(Typeface.DEFAULT_BOLD);
         pHeader.setPadding(0, 0, 0, dp(8));
         keySoundCard.addView(pHeader);
@@ -1477,7 +1505,7 @@ public class MainActivity extends Activity {
         TextView swHeader = new TextView(this);
         swHeader.setText(tr("2. اختر نغمة صوت السحب والمسح (اضغط للتجربة):", "2. Choose the swipe/delete-tone profile (tap to preview):"));
         swHeader.setTextColor(Color.parseColor("#111827"));
-        swHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f);
+        swHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         swHeader.setTypeface(Typeface.DEFAULT_BOLD);
         swHeader.setPadding(0, 0, 0, dp(8));
         swipeSoundCard.addView(swHeader);

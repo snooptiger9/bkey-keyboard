@@ -920,11 +920,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    /** ظهور تدريجي (تلاشي مع إزاحة خفيفة) للنافذة أو الكيبورد عند التبديل بينهم. */
+    private void fadeIn(View v, int slideDp) {
+        v.animate().cancel();
+        v.setAlpha(0f);
+        v.setTranslationY(dp(slideDp));
+        v.animate().alpha(1f).translationY(0f).setDuration(180)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+    }
+
     private void showKeyboardMain() {
         if (keyboardView == null) return;
+        boolean wasDrawer = clipboardDrawerView.getVisibility() == View.VISIBLE || emojiDrawerView.getVisibility() == View.VISIBLE;
         keyboardView.setVisibility(View.VISIBLE);
         clipboardDrawerView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.GONE);
+        if (wasDrawer) fadeIn(keyboardView, 0);
         updateInlineStripVisibility();
     }
 
@@ -949,6 +960,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.VISIBLE);
+        fadeIn(clipboardDrawerView, 10);
         updateInlineStripVisibility();
         tryCaptureScreenshotClip(true);
     }
@@ -1125,6 +1137,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.VISIBLE);
+        fadeIn(emojiDrawerView, 10);
         updateInlineStripVisibility();
     }
 
