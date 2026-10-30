@@ -497,6 +497,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateLearningPolicy(info);
         if (keyboardView != null) {
             keyboardView.reloadAppearanceFromPrefs();
+            int actionId = info != null ? (info.imeOptions & EditorInfo.IME_MASK_ACTION) : EditorInfo.IME_ACTION_NONE;
+            boolean noEnterAction = info != null && (info.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0;
+            keyboardView.setEnterActionIcon(noEnterAction ? EditorInfo.IME_ACTION_NONE : actionId);
         }
         rebuildDrawersIfThemeChanged();
         applyNavigationBarColor();
