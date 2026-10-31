@@ -90,6 +90,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private static final long SHOT_CHIP_MS = 80 * 1000L; // لقطة الشاشة تبقى أطول من النص المنسوخ
     private String clipChipText = null;
     private long clipChipTime = 0L;
+    /** نسخة معلّمة "حساسة" من أندرويد (مثل كود من تطبيق Authenticator): نقدر نلصقها زي جي بورد بالضبط،
+     * لكن ما نعرض نصها الحقيقي على الشاشة ولا نحفظها بسجل النسخ — فقط نقاط مخفية. */
+    private boolean clipChipSensitive = false;
     private final Runnable clipChipExpiry = this::refreshPredictions;
 
     private boolean hasValidClipChip() {
@@ -117,11 +120,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void clearClipChip() {
         screenshotChipActive = false;
         clipChipText = null;
+        clipChipSensitive = false;
         uiHandler.removeCallbacks(clipChipExpiry);
     }
 
-    /** النص للعرض: سطر واحد وقصير، واللصق يكون بالنص الكامل. */
-    private static String clipChipDisplay(String full) {
+    /** النص للعرض: سطر واحد وقصير، واللصق يكون بالنص الكامل. نسخة "حساسة" تظهر كنقاط مخفية فقط
+     * (نفس أسلوب جي بورد)، بدون كشف محتواها الحقيقي على الشاشة. */
+    private String clipChipDisplay(String full) {
+        if (clipChipSensitive) {
+            int len = Math.max(4, Math.min(full.trim().length(), 10));
+            StringBuilder dots = new StringBuilder(len);
+            for (int i = 0; i < len; i++) dots.append('•');
+            return dots.toString();
+        }
         String flat = full.replaceAll("\\s+", " ").trim();
         return flat.length() > 40 ? flat.substring(0, 40) + "…" : flat;
     }
@@ -399,19 +410,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     && !clip.getDescription().hasMimeType("text/plain")) {
                 return; // نسخة صورة (مثل لقطة الشاشة التي ننسخها نحن) — ليست نصاً يُحفظ في قائمة الحافظة
             }
-            if (clip != null && isSensitiveClip(clip)) {
-                return; // نسخة حساسة (كلمة مرور من مدير كلمات المرور مثلاً): لا تُحفظ في الحافظة
-            }
+            boolean sensitive = clip != null && isSensitiveClip(clip);
             if (clip != null && clip.getItemCount() > 0) {
                 CharSequence cs = clip.getItemAt(0).coerceToText(BlackBerryImeService.this);
                 if (cs != null) {
                     String copiedText = cs.toString().trim();
                     if (!copiedText.isEmpty() && !keyboardPrefs.isIncognitoMode()) {
-                        clipboardRepo.addClip(copiedText, false);
-                        refreshClipboardDrawerList();
+                        // النسخة الحساسة (مثل كود من تطبيق Authenticator) ما تُحفظ بسجل النسخ الدائم،
+                        // بس نقدر نعرضها كاقتراح لصق مؤقت بنقاط مخفية (نفس أسلوب جي بورد بالضبط).
+                        if (!sensitive) {
+                            clipboardRepo.addClip(copiedText, false);
+                            refreshClipboardDrawerList();
+                        }
                         if (keyboardPrefs.isClipChipEnabled()) {
                             screenshotChipActive = false;
                             clipChipText = copiedText;
+                            clipChipSensitive = sensitive;
                             clipChipTime = SystemClock.elapsedRealtime();
                             uiHandler.removeCallbacks(clipChipExpiry);
                             uiHandler.postDelayed(clipChipExpiry, CLIP_CHIP_MS + 100L);
