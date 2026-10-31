@@ -111,6 +111,12 @@ public class MainActivity extends Activity {
         return isDeviceArabic() ? ar : en;
     }
 
+    /** هل مانح المستخدم صلاحية "الوصول للإشعارات" لهذا التطبيق؟ (لازمة لاقتراح رمز واتساب). */
+    private boolean isNotificationAccessGranted() {
+        String enabled = android.provider.Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+        return enabled != null && enabled.contains(getPackageName());
+    }
+
     private String[] tr(String[] ar, String[] en) {
         return isDeviceArabic() ? ar : en;
     }
@@ -1119,6 +1125,21 @@ public class MainActivity extends Activity {
                         }
                     } else {
                         prefs.setOtpSuggestEnabled(false);
+                    }
+                }
+        ));
+
+        root.addView(createSwitchTile(
+                tr("اقتراح رمز التحقق تلقائياً من واتساب", "Auto-suggest verification code from WhatsApp"),
+                tr("يقرأ إشعارات واتساب فقط (بدون أي تطبيق آخر) بحثاً عن رمز تحقق، ويعرضه في منتصف الاقتراحات لمدة 5 دقائق. كل المعالجة محلية بالجهاز ولا تُرسل لأي سيرفر. يحتاج صلاحية «الوصول للإشعارات» تفعّلها بنفسك من شاشة أندرويد اللي تفتح", "Reads only WhatsApp notifications (no other app) looking for a verification code, and shows it in the middle suggestion slot for 5 minutes. Fully on-device, nothing sent to any server. Needs \"Notification access\", which you enable yourself on the Android screen that opens"),
+                prefs.isWhatsAppOtpSuggestEnabled() && isNotificationAccessGranted(),
+                checked -> {
+                    prefs.setWhatsAppOtpSuggestEnabled(checked);
+                    if (checked && !isNotificationAccessGranted()) {
+                        Toast.makeText(this, tr("فعّل الوصول للإشعارات لتطبيق bkey من الشاشة اللي بتفتح", "Enable notification access for bkey on the screen that opens"), Toast.LENGTH_LONG).show();
+                        try {
+                            startActivity(new android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                        } catch (Exception ignored) {}
                     }
                 }
         ));
