@@ -734,15 +734,11 @@ public class BlackBerryKeyboardView extends View {
 
     /** iconType: 0 بدون أيقونة، 1 أيقونة الحافظة (نص منسوخ)، 2 أيقونة صورة (لقطة شاشة). */
     public void setSuggestions(List<String> newSuggestions, int iconType) {
-        // كانت الدالة تتجاهل أي قائمة أقل من 3 عناصر بالكامل (حتى القائمة الفاضية المقصودة لمسح
-        // الاقتراحات)، فتبقى الكلمة القديمة ظاهرة. الآن تُكمَّل بفراغات بدل ما تُرفض.
-        List<String> padded = new ArrayList<>(3);
-        for (int i = 0; i < 3; i++) {
-            padded.add((newSuggestions != null && i < newSuggestions.size()) ? newSuggestions.get(i) : "");
+        if (newSuggestions != null && newSuggestions.size() >= 3) {
+            suggestions = new ArrayList<>(newSuggestions.subList(0, 3));
+            middleIconType = iconType;
+            invalidate();
         }
-        suggestions = padded;
-        middleIconType = iconType;
-        invalidate();
     }
 
     private int middleIconType = 0;
@@ -1370,9 +1366,7 @@ public class BlackBerryKeyboardView extends View {
                 canvas.drawLine(r.right, sugTop + 5f * density, r.right, sugBottom - 5f * density, keyDividerPaint);
             }
 
-            // أثناء الشريط المختصر (قبل الكتابة) ما يصير يظهر أي كلمة مقترحة إطلاقاً في هذي الخانات،
-            // حتى لو بقيت قيمة قديمة بقائمة الاقتراحات لأي سبب — الحقيقة البصرية مربوطة بهذي الحالة فقط.
-            String word = (!toolbarIdleMode && i < suggestions.size()) ? suggestions.get(i) : "";
+            String word = (i < suggestions.size()) ? suggestions.get(i) : "";
             Paint paint = sugTextPaint;
             float textY = r.centerY() - (paint.descent() + paint.ascent()) / 2f;
 
