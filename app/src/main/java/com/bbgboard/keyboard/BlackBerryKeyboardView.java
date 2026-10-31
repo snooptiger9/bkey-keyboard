@@ -87,7 +87,6 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private final KeyboardPreferences prefs;
-    private Fluent3DEmojiManager fluent3DManager;
     private final SoundController soundController;
     private KeyboardActionListener listener;
 
@@ -575,11 +574,6 @@ public class BlackBerryKeyboardView extends View {
 
     public void setKeyboardActionListener(KeyboardActionListener l) {
         this.listener = l;
-    }
-
-    /** يُستدعى مرة واحدة من الخدمة بعد إنشاء اللوحة، حتى يقدر زر الإيموجي يرسم بنمط Fluent 3D لو كان مفعّلاً. */
-    public void setFluent3DManager(Fluent3DEmojiManager manager) {
-        this.fluent3DManager = manager;
     }
 
     public boolean isArabic() {
@@ -1389,25 +1383,14 @@ public class BlackBerryKeyboardView extends View {
                     drawGlobeIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
                     // التعديل رقم 6: تصغير لوقو الرمز التعبيري في الصف السفلي ليكون متناسقاً وأنيقاً
+                    float prevSize = mainTextPaint.getTextSize();
                     String glyph = k.main;
                     // اقتراح إيموجي: يتبدّل رمز الزر نفسه فقط (بدون دائرة أو تكبير)
                     if (emojiKeySuggestion != null) glyph = emojiKeySuggestion;
-                    android.graphics.Bitmap keyBmp = (fluent3DManager != null
-                            && prefs.getEmojiStyle() == KeyboardPreferences.EMOJI_STYLE_FLUENT_3D)
-                            ? fluent3DManager.getBitmap(glyph) : null;
-                    if (keyBmp != null) {
-                        int iconSize = (int) (22f * density);
-                        android.graphics.Rect dst = new android.graphics.Rect(
-                                k.rect.centerX() - iconSize / 2, k.rect.centerY() - iconSize / 2,
-                                k.rect.centerX() + iconSize / 2, k.rect.centerY() + iconSize / 2);
-                        canvas.drawBitmap(keyBmp, null, dst, null);
-                    } else {
-                        float prevSize = mainTextPaint.getTextSize();
-                        mainTextPaint.setTextSize(15.5f * scaledDensity);
-                        float textY = k.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.0f * density;
-                        canvas.drawText(glyph, k.rect.centerX(), textY, mainTextPaint);
-                        mainTextPaint.setTextSize(prevSize);
-                    }
+                    mainTextPaint.setTextSize(15.5f * scaledDensity);
+                    float textY = k.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.0f * density;
+                    canvas.drawText(glyph, k.rect.centerX(), textY, mainTextPaint);
+                    mainTextPaint.setTextSize(prevSize);
                 } else {
                     float prevSize = mainTextPaint.getTextSize();
                     if (k.type == KeyType.SYMBOLS) {

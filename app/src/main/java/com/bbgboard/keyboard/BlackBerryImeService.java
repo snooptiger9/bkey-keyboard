@@ -55,7 +55,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private SoundController soundController;
     private PredictionEngine predictionEngine;
     private ClipboardRepository clipboardRepo;
-    private Fluent3DEmojiManager fluent3DManager;
     private ClipboardManager clipboardManager;
 
     private FrameLayout rootContainer;
@@ -78,7 +77,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private LinearLayout emojiSectionsHost;
     private GridLayout emojiRecentGrid;
     private final List<View> emojiSectionHeaders = new ArrayList<>();
-    private final List<View> emojiTabViews = new ArrayList<>();
+    private final List<TextView> emojiTabViews = new ArrayList<>();
     private int activeEmojiCategory = 0;
     private TextView clipAbcBackLabel;
     private TextView emojiAbcBackLabel;
@@ -424,7 +423,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         predictionEngine = new PredictionEngine(this, keyboardPrefs, true);
         predictionEngine.setOnReadyListener(() -> uiHandler.post(this::refreshPredictions));
         clipboardRepo = new ClipboardRepository(this);
-        fluent3DManager = new Fluent3DEmojiManager(this);
         clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboardManager != null) {
             clipboardManager.addPrimaryClipChangedListener(clipListener);
@@ -464,7 +462,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         keyboardView = new BlackBerryKeyboardView(this, keyboardPrefs, soundController);
         keyboardView.setKeyboardActionListener(this);
-        keyboardView.setFluent3DManager(fluent3DManager);
 
         clipboardDrawerView = buildClipboardAndResizeDrawer();
         emojiDrawerView = buildCategorizedEmojiDrawer();
@@ -2134,22 +2131,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiTabViews.clear();
         for (int i = 0; i < EMOJI_CAT_ICONS.length; i++) {
             final int catIdx = i;
-            android.graphics.Bitmap tabBmp = fluent3DBitmapFor(EMOJI_CAT_ICONS[i]);
-            View tab;
-            if (tabBmp != null) {
-                ImageView iv = new ImageView(this);
-                iv.setImageBitmap(tabBmp);
-                iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                iv.setPadding(dp(6), dp(6), dp(6), dp(6));
-                tab = iv;
-            } else {
-                TextView tv = new TextView(this);
-                tv.setText(EMOJI_CAT_ICONS[i]);
-                tv.setGravity(Gravity.CENTER);
-                tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
-                tv.setPadding(dp(2), dp(5), dp(2), dp(5));
-                tab = tv;
-            }
+            TextView tab = new TextView(this);
+            tab.setText(EMOJI_CAT_ICONS[i]);
+            tab.setGravity(Gravity.CENTER);
+            tab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+            tab.setPadding(dp(2), dp(5), dp(2), dp(5));
             LinearLayout.LayoutParams lpTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
             lpTab.leftMargin = dp(2);
             lpTab.rightMargin = dp(2);
@@ -2241,53 +2227,34 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateEmojiTabHighlight(0);
     }
 
-    /** هل نمط Fluent 3D مفعّل وله صورة محمّلة جاهزة لهذا الرمز؟ لو لا (مب مفعّل، أو الرمز غير
-     *  مدعوم مثل أعلام الدول) يرجع null ويستخدم المستدعي الرمز النصي العادي تلقائياً. */
-    private android.graphics.Bitmap fluent3DBitmapFor(String emoji) {
-        if (fluent3DManager == null || keyboardPrefs.getEmojiStyle() != KeyboardPreferences.EMOJI_STYLE_FLUENT_3D) return null;
-        return fluent3DManager.getBitmap(emoji);
-    }
-
     private void fillEmojiGrid(final GridLayout grid, List<String> emojis, final boolean recent) {
         grid.removeAllViews();
         int cellW = emojiGridCellW > 0 ? emojiGridCellW
                 : Math.max(dp(38), (getResources().getDisplayMetrics().widthPixels - dp(20)) / 8);
-        int cellH = dp(Math.max(42, keyboardPrefs.getEmojiSizeSp() + 19));
         for (final String em : emojis) {
-            android.graphics.Bitmap bmp = fluent3DBitmapFor(em);
-            View cell;
-            if (bmp != null) {
-                ImageView iv = new ImageView(this);
-                iv.setImageBitmap(bmp);
-                iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                iv.setPadding(dp(4), dp(4), dp(4), dp(4));
-                cell = iv;
-            } else {
-                TextView tv = new TextView(this);
-                tv.setText(em);
-                tv.setGravity(Gravity.CENTER);
-                tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, keyboardPrefs.getEmojiSizeSp());
-                cell = tv;
-            }
+            TextView tv = new TextView(this);
+            tv.setText(em);
+            tv.setGravity(Gravity.CENTER);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, keyboardPrefs.getEmojiSizeSp());
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
             lp.width = cellW;
-            lp.height = cellH;
-            cell.setLayoutParams(lp);
-            cell.setOnClickListener(v -> {
+            lp.height = dp(Math.max(42, keyboardPrefs.getEmojiSizeSp() + 19));
+            tv.setLayoutParams(lp);
+            tv.setOnClickListener(v -> {
                 InputConnection ic = getCurrentInputConnection();
                 if (ic != null) ic.commitText(em, 1);
                 soundController.playKeyClick();
                 keyboardPrefs.recordUsedEmoji(em);
             });
             if (recent) {
-                cell.setOnLongClickListener(v -> {
+                tv.setOnLongClickListener(v -> {
                     keyboardPrefs.removeRecentEmoji(em);
                     soundController.playKeyClick();
                     fillEmojiGrid(grid, keyboardPrefs.getRecentEmojis(), true);
                     return true;
                 });
             }
-            grid.addView(cell);
+            grid.addView(tv);
         }
     }
 
@@ -2308,7 +2275,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void updateEmojiTabHighlight(int index) {
         activeEmojiCategory = index;
         for (int i = 0; i < emojiTabViews.size(); i++) {
-            View tab = emojiTabViews.get(i);
+            TextView tab = emojiTabViews.get(i);
             if (i == index) {
                 tab.setBackground(roundedBg(pressedC(), 8));
                 tab.setAlpha(1.0f);
