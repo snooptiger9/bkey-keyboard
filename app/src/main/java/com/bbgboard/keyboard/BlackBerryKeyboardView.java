@@ -1397,9 +1397,11 @@ public class BlackBerryKeyboardView extends View {
                             ? fluent3DManager.getBitmap(glyph) : null;
                     if (keyBmp != null) {
                         int iconSize = (int) (22f * density);
+                        int cx = (int) k.rect.centerX();
+                        int cy = (int) k.rect.centerY();
                         android.graphics.Rect dst = new android.graphics.Rect(
-                                k.rect.centerX() - iconSize / 2, k.rect.centerY() - iconSize / 2,
-                                k.rect.centerX() + iconSize / 2, k.rect.centerY() + iconSize / 2);
+                                cx - iconSize / 2, cy - iconSize / 2,
+                                cx + iconSize / 2, cy + iconSize / 2);
                         canvas.drawBitmap(keyBmp, null, dst, null);
                     } else {
                         float prevSize = mainTextPaint.getTextSize();
