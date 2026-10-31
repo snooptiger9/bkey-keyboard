@@ -29,6 +29,7 @@ public class ModernIconView extends View {
     public static final int ICON_BACKSPACE = 17;
     public static final int ICON_PUSHPIN = 18;   // دبوس مائل (تثبيت نص الحافظة)
     public static final int ICON_TRASH = 19;     // سلة محذوفات (حذف نص الحافظة)
+    public static final int ICON_MIC = 20;       // مايكروفون (الكتابة بالصوت داخل قائمة الحافظة)
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -212,6 +213,15 @@ public class ModernIconView extends View {
                 canvas.drawPath(spk, strokePaint);
                 RectF arc = new RectF(cx - r * 0.2f, cy - r * 0.55f, cx + r * 0.75f, cy + r * 0.55f);
                 canvas.drawArc(arc, -45f, 90f, false, strokePaint);
+                break;
+            }
+            case ICON_MIC: {
+                RectF body = new RectF(cx - r * 0.32f, cy - r * 0.92f, cx + r * 0.32f, cy + r * 0.20f);
+                canvas.drawRoundRect(body, r * 0.32f, r * 0.32f, strokePaint);
+                RectF cup = new RectF(cx - r * 0.62f, cy - r * 0.30f, cx + r * 0.62f, cy + r * 0.42f);
+                canvas.drawArc(cup, 0f, 180f, false, strokePaint);
+                canvas.drawLine(cx, cy + r * 0.42f, cx, cy + r * 0.92f, strokePaint);
+                canvas.drawLine(cx - r * 0.38f, cy + r * 0.92f, cx + r * 0.38f, cy + r * 0.92f, strokePaint);
                 break;
             }
             case ICON_EMOJI_SMILE: {
