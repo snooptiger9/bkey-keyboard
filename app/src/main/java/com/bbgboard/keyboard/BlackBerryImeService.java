@@ -415,8 +415,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 CharSequence cs = clip.getItemAt(0).coerceToText(BlackBerryImeService.this);
                 if (cs != null) {
                     String copiedText = cs.toString().trim();
-                    if (!copiedText.isEmpty() && !keyboardPrefs.isIncognitoMode()) {
-                        // النسخة الحساسة (مثل كود من تطبيق Authenticator) ما تُحفظ بسجل النسخ الدائم،
+                    // أندرويد ما يكشف لنا اسم التطبيق اللي نسخ (محجوب لحماية الخصوصية)، فما نقدر نميّز
+                    // "تطبيق Authenticator" تحديداً من غيره. البديل العملي: نسمح بالنسخة الحساسة فقط
+                    // لو شكلها كود تحقق (أرقام فقط، 4-10 خانات) — أي نسخة حساسة ثانية (كلمة مرور
+                    // حقيقية مثلاً) تُرفض بالكامل زي ما كانت، بدون أي اقتراح حتى لو مخفي.
+                    boolean sensitiveLooksLikeCode = sensitive && copiedText.replaceAll("\\s+", "").matches("\\d{4,10}");
+                    boolean sensitiveBlocked = sensitive && !sensitiveLooksLikeCode;
+                    if (!copiedText.isEmpty() && !keyboardPrefs.isIncognitoMode() && !sensitiveBlocked) {
+                        // النسخة الحساسة اللي شكلها كود (Authenticator مثلاً) ما تُحفظ بسجل النسخ الدائم،
                         // بس نقدر نعرضها كاقتراح لصق مؤقت بنقاط مخفية (نفس أسلوب جي بورد بالضبط).
                         if (!sensitive) {
                             clipboardRepo.addClip(copiedText, false);
