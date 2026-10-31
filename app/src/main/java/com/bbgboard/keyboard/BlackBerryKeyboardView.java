@@ -123,7 +123,7 @@ public class BlackBerryKeyboardView extends View {
     private float overlayOffsetX = 0f;
     private long flyingStartTime = 0L;
     private int animatingSlotIndex = -1;
-    private static final long FLY_OUTSIDE_DURATION_MS = 650L;
+    private static final long FLY_OUTSIDE_DURATION_MS = 820L;
 
     // 7. متغيرات بوب أب معاينة الحرف عند الضغط (Key Press Preview Popup)
     private KeyDef activePreviewKey = null;
