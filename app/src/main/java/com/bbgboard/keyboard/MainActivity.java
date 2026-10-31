@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
     private SoundController soundController;
     private PredictionEngine predictionEngine;
     private ClipboardRepository clipboardRepo;
+    private Fluent3DEmojiManager fluent3DManager;
 
     private FrameLayout mainFrame;
     private View homeMenuView;
@@ -137,6 +138,7 @@ public class MainActivity extends Activity {
         soundController = new SoundController(this, prefs);
         predictionEngine = new PredictionEngine(this, prefs);
         clipboardRepo = new ClipboardRepository(this);
+        fluent3DManager = new Fluent3DEmojiManager(this);
 
         mainFrame = new FrameLayout(this);
         mainFrame.setBackgroundColor(Color.parseColor("#F2F4F8"));
@@ -1011,6 +1013,26 @@ public class MainActivity extends Activity {
         return tile;
     }
 
+    /** زر اختيار نصي بسيط (مقسّم/segmented)، لخيارين متقابلين مثل نمط الرموز التعبيرية. */
+    private TextView createSwitchStyleTile(String label, boolean selected) {
+        TextView tile = new TextView(this);
+        tile.setText(label);
+        tile.setGravity(Gravity.CENTER);
+        tile.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
+        tile.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+        tile.setTextColor(selected ? Color.WHITE : Color.parseColor("#374151"));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(10));
+        if (selected) {
+            bg.setColor(Color.parseColor("#2563EB"));
+        } else {
+            bg.setColor(Color.parseColor("#F1F5F9"));
+            bg.setStroke(dp(1), Color.parseColor("#E2E8F0"));
+        }
+        tile.setBackground(bg);
+        return tile;
+    }
+
     /** بطاقة معاينة لشكل المفاتيح: مربعان صغيران بنفس استدارة الشكل المختار. */
     private View createKeyStylePreviewTile(String label, int styleId, boolean selected, View.OnClickListener onClick) {
         LinearLayout tile = new LinearLayout(this);
@@ -1300,6 +1322,99 @@ public class MainActivity extends Activity {
     }
 
     private void fillEmojiScreen(final LinearLayout root) {
+        // نمط رسم الرموز التعبيرية: النظام الافتراضي (نص يونيكود، مو له حجم تنزيل) أو Fluent 3D
+        // (مايكروسوفت، MIT، مفتوحة المصدر) — تحميلها اختياري ومنفصل، وتُحذف بأي وقت. أعلام الدول
+        // ما تدعمها هذي الحزمة فترجع تلقائياً للرمز العادي بكل الأحوال.
+        LinearLayout styleCard = createGroupedWhiteCard();
+        styleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        TextView styleHeader = new TextView(this);
+        styleHeader.setText(tr("نمط الرموز التعبيرية", "Emoji style"));
+        styleHeader.setTextColor(Color.parseColor("#111827"));
+        styleHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        styleHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        styleHeader.setPadding(0, 0, 0, dp(10));
+        styleCard.addView(styleHeader);
+
+        final TextView styleStatus = new TextView(this);
+        styleStatus.setTextColor(Color.parseColor("#6B7280"));
+        styleStatus.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        styleStatus.setPadding(0, 0, 0, dp(10));
+        styleCard.addView(styleStatus);
+
+        LinearLayout styleTilesRow = new LinearLayout(this);
+        styleTilesRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        boolean isSystem = prefs.getEmojiStyle() == KeyboardPreferences.EMOJI_STYLE_SYSTEM;
+        boolean isFluent = !isSystem;
+        boolean downloaded = fluent3DManager.isDownloaded();
+
+        TextView systemTile = createSwitchStyleTile(tr("النظام الافتراضي", "System default"), isSystem);
+        systemTile.setLayoutParams(new LinearLayout.LayoutParams(0, dp(44), 1f));
+        systemTile.setOnClickListener(v -> {
+            prefs.setEmojiStyle(KeyboardPreferences.EMOJI_STYLE_SYSTEM);
+            refreshEmojiScreen(root);
+        });
+
+        TextView fluentTile = createSwitchStyleTile("Fluent 3D" + (downloaded ? "" : tr(" (تحميل)", " (download)")), isFluent);
+        LinearLayout.LayoutParams fluentLp = new LinearLayout.LayoutParams(0, dp(44), 1f);
+        fluentLp.setMarginStart(dp(8));
+        fluentTile.setLayoutParams(fluentLp);
+        fluentTile.setOnClickListener(v -> {
+            if (fluent3DManager.isDownloaded()) {
+                prefs.setEmojiStyle(KeyboardPreferences.EMOJI_STYLE_FLUENT_3D);
+                refreshEmojiScreen(root);
+                return;
+            }
+            styleStatus.setText(tr("جارٍ تنزيل الحزمة (~27 ميجا)... 0%", "Downloading pack (~27 MB)... 0%"));
+            fluentTile.setEnabled(false);
+            systemTile.setEnabled(false);
+            fluent3DManager.download(new Fluent3DEmojiManager.ProgressListener() {
+                @Override public void onProgress(int done, int total) {
+                    int pct = total > 0 ? (done * 100 / total) : 0;
+                    runOnUiThread(() -> styleStatus.setText(
+                            tr("جارٍ تنزيل الحزمة (~27 ميجا)... ", "Downloading pack (~27 MB)... ") + pct + "%"));
+                }
+                @Override public void onDone(boolean success, String error) {
+                    runOnUiThread(() -> {
+                        prefs.setEmojiStyle(KeyboardPreferences.EMOJI_STYLE_FLUENT_3D);
+                        if (error != null) {
+                            android.widget.Toast.makeText(MainActivity.this, error, android.widget.Toast.LENGTH_LONG).show();
+                        }
+                        refreshEmojiScreen(root);
+                    });
+                }
+            });
+        });
+
+        styleTilesRow.addView(systemTile);
+        styleTilesRow.addView(fluentTile);
+        styleCard.addView(styleTilesRow);
+
+        if (!downloaded) {
+            styleStatus.setText(tr(
+                    "Fluent 3D من مايكروسوفت (مفتوحة المصدر، مجانية). أعلام الدول غير متوفرة بهذا النمط وترجع للشكل العادي تلقائياً. التنزيل اختياري ولمرة واحدة فقط.",
+                    "Fluent 3D by Microsoft (open source, free). Country flags aren't available in this style and fall back to the default glyph automatically. Download is optional, once."));
+        } else {
+            styleStatus.setText(tr("الحزمة محمّلة وجاهزة على جهازك.", "Pack is downloaded and ready on your device."));
+        }
+
+        if (downloaded) {
+            TextView deleteBtn = new TextView(this);
+            deleteBtn.setText(tr("حذف الحزمة المحمّلة", "Delete downloaded pack"));
+            deleteBtn.setTextColor(Color.parseColor("#DC2626"));
+            deleteBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+            deleteBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            deleteBtn.setGravity(Gravity.CENTER);
+            deleteBtn.setPadding(0, dp(14), 0, dp(4));
+            deleteBtn.setOnClickListener(v -> {
+                fluent3DManager.deleteAll();
+                prefs.setEmojiStyle(KeyboardPreferences.EMOJI_STYLE_SYSTEM);
+                refreshEmojiScreen(root);
+            });
+            styleCard.addView(deleteBtn);
+        }
+        root.addView(styleCard);
+
         LinearLayout sizeCard = createGroupedWhiteCard();
         sizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         final TextView sizeLabel = new TextView(this);
