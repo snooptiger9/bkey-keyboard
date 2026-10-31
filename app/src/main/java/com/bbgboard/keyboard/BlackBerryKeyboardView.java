@@ -355,6 +355,22 @@ public class BlackBerryKeyboardView extends View {
         flyingWordPaint.setAlpha(255);
     }
 
+    /** خط حروف المفاتيح المختار من الإعدادات (يدعم العربي والإنجليزي)، أو خط النظام الافتراضي لو
+     * تعذّر تحميل ملف الخط لأي سبب. */
+    private static Typeface loadKeyTypeface(Context context, int fontId) {
+        String assetPath;
+        switch (fontId) {
+            case KeyboardPreferences.FONT_TAJAWAL: assetPath = "fonts/tajawal_bold.ttf"; break;
+            case KeyboardPreferences.FONT_ALMARAI: assetPath = "fonts/almarai_bold.ttf"; break;
+            default: return Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
+        }
+        try {
+            return Typeface.createFromAsset(context.getAssets(), assetPath);
+        } catch (Exception e) {
+            return Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
+        }
+    }
+
     public BlackBerryKeyboardView(Context context, KeyboardPreferences prefs, SoundController soundController) {
         super(context);
         this.prefs = prefs;
@@ -363,7 +379,7 @@ public class BlackBerryKeyboardView extends View {
         this.scaledDensity = getResources().getDisplayMetrics().scaledDensity;
 
         mainTextPaint.setTextAlign(Paint.Align.CENTER);
-        mainTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        mainTextPaint.setTypeface(loadKeyTypeface(context, prefs.getKeyFont()));
 
         subTextPaint.setTextAlign(Paint.Align.RIGHT);
 

@@ -242,6 +242,19 @@ public class KeyboardPreferences {
         prefs.edit().putInt("keyboard_style", style).apply();
     }
 
+    // خط حروف الكيبورد: 0 = افتراضي النظام، 1 = Tajawal، 2 = Almarai (كلاهما يدعم العربي والإنجليزي)
+    public static final int FONT_SYSTEM_DEFAULT = 0;
+    public static final int FONT_TAJAWAL = 1;
+    public static final int FONT_ALMARAI = 2;
+
+    public int getKeyFont() {
+        return prefs.getInt("key_font", FONT_SYSTEM_DEFAULT);
+    }
+
+    public void setKeyFont(int font) {
+        prefs.edit().putInt("key_font", font).apply();
+    }
+
     public boolean isAutoCapitalizeSentences() {
         return prefs.getBoolean("auto_cap_sentences", true);
     }
