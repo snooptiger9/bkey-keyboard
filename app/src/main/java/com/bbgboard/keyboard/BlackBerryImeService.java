@@ -1300,6 +1300,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (ic == null) return new String[]{"", "", ""};
         String before = textBefore90(ic);
         if (before.isEmpty()) return new String[]{"", "", ""};
+        // سطر جديد فاضي (زي أول ما تفتح ملاحظة وتنزل سطر): ما نكمل اقتراحات من آخر كلمة بسطر سابق،
+        // نفس تصرف جي بورد تماماً — السياق يبدأ من الصفر مع كل سطر جديد.
+        if (before.charAt(before.length() - 1) == '\n') return new String[]{"", "", ""};
 
         boolean endsWithSpace = Character.isWhitespace(before.charAt(before.length() - 1));
         String trimmed = before.trim();
