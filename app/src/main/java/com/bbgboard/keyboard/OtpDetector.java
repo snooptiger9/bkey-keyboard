@@ -17,7 +17,8 @@ final class OtpDetector {
 
     private static final String[] CODE_HINTS = {
             "رمز", "كود", "رمزك", "كودك", "code", "otp", "pin", "verification",
-            "تحقق", "التحقق", "password", "كلمة المرور المؤقتة", "passcode", "رمز التحقق"
+            "تحقق", "التحقق", "password", "كلمة المرور المؤقتة", "passcode", "رمز التحقق",
+            "سري", "السري", "الرقم السري" // مثل رسائل "نفاذ": "الرقم السري المؤقت للدخول..."
     };
 
     private static final String[] NOT_CODE_HINTS = {
@@ -39,8 +40,11 @@ final class OtpDetector {
             String digitsOnly = m.group().replaceAll("[^0-9]", "");
             if (digitsOnly.length() < 4 || digitsOnly.length() > 8) continue;
 
-            int start = Math.max(0, m.start() - 25);
-            int end = Math.min(body.length(), m.end() + 25);
+            // النافذة كانت 25 حرف بس رسائل رسمية زي "نفاذ" تحط كلمة الدلالة بأول الجملة والرقم
+            // بآخرها (أكثر من 60 حرف بينهم)، فوسّعناها حتى تلقطها بدون ما تضيع الدقة (لسه نتحقق
+            // من NOT_CODE_HINTS بنفس النافذة).
+            int start = Math.max(0, m.start() - 80);
+            int end = Math.min(body.length(), m.end() + 80);
             String window = body.substring(start, end).toLowerCase(Locale.ROOT);
 
             if (containsAny(window, NOT_CODE_HINTS)) continue;
