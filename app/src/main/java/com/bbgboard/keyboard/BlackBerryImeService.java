@@ -159,13 +159,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     };
 
+    /** هل فيه رمز تحقق صالح الآن، من SMS أو من إشعار واتساب (WhatsAppOtpListenerService)؟ */
     private boolean hasValidPendingOtp() {
-        return pendingOtpCode != null
-                && (SystemClock.elapsedRealtime() - pendingOtpTimestamp) < OTP_VALIDITY_MS;
+        return currentOtpCode() != null;
+    }
+
+    /** الرمز الفعلي اللي يُعرض الآن — SMS أولاً لو صالح، وإلا رمز واتساب المحفوظ بالإعدادات. */
+    private String currentOtpCode() {
+        if (pendingOtpCode != null && (SystemClock.elapsedRealtime() - pendingOtpTimestamp) < OTP_VALIDITY_MS) {
+            return pendingOtpCode;
+        }
+        return keyboardPrefs != null ? keyboardPrefs.getPendingWhatsAppOtp() : null;
     }
 
     private void clearPendingOtp() {
         pendingOtpCode = null;
+        if (keyboardPrefs != null) keyboardPrefs.clearPendingWhatsAppOtp();
     }
 
     private void registerOtpReceiverIfNeeded() {
@@ -417,6 +426,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onCreate() {
         super.onCreate();
+        activeInstance = this;
         keyboardPrefs = new KeyboardPreferences(this);
         soundController = new SoundController(this, keyboardPrefs);
         // التحميل على خيط خلفي حتى لا يتأخر ظهور الكيبورد؛ أول ما يجهز نحدّث الاقتراحات
@@ -446,7 +456,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             clipboardManager.removePrimaryClipChangedListener(clipListener);
         }
         unregisterOtpReceiverIfNeeded();
+        if (activeInstance == this) activeInstance = null;
         super.onDestroy();
+    }
+
+    /** مرجع ثابت للنسخة الحالية (نفس العملية)، يسمح لـ WhatsAppOtpListenerService يحدّث الاقتراح
+     *  فوراً لما يلقط رمز، بدون انتظار أول ضغطة زر. آمن: يُستخدم فقط من نفس عملية التطبيق. */
+    private static BlackBerryImeService activeInstance;
+
+    static void notifyWhatsAppOtpDetected() {
+        BlackBerryImeService instance = activeInstance;
+        if (instance != null) instance.uiHandler.post(instance::refreshPredictions);
     }
 
     @Override
@@ -516,7 +536,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             registerOtpReceiverIfNeeded();
         } else {
             unregisterOtpReceiverIfNeeded();
-            clearPendingOtp();
+            pendingOtpCode = null; // فقط رمز SMS؛ رمز واتساب له إعداده الخاص ومايتأثر بهذا
+        }
+        if (!keyboardPrefs.isWhatsAppOtpSuggestEnabled()) {
+            keyboardPrefs.clearPendingWhatsAppOtp();
         }
         refreshPredictions();
         registerShotObserverIfNeeded();
@@ -1309,7 +1332,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // (حيث الاقتراحات العادية معطّلة أصلاً)، طالما الحقل فاضي ولسه ما بدأ المستخدم يكتب فيه شيء.
         if (hasValidPendingOtp() && ctx[0].isEmpty()) {
             // نفس شكل ونافذة شريحة لقطة الشاشة بالضبط (مربع بخلفية وإطار)، بدون أي أيقونة قفل.
-            keyboardView.setSuggestions(Arrays.asList("", pendingOtpCode, ""), 3);
+            keyboardView.setSuggestions(Arrays.asList("", currentOtpCode(), ""), 3);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
@@ -1517,7 +1540,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (hasValidPendingOtp() && currentPrefix.isEmpty()) {
             // الجانبان فاضيان وقت ظهور رمز التحقق، فقط المنتصف (1) يُدخل الرمز؛ الباقي بدون أي إجراء.
             if (zoneIndex == 1) {
-                ic.commitText(pendingOtpCode, 1);
+                ic.commitText(currentOtpCode(), 1);
                 clearPendingOtp();
                 refreshPredictions();
             }

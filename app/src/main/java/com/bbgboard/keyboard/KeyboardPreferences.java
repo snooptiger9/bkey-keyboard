@@ -93,6 +93,33 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("otp_suggest_enabled", enabled).apply();
     }
 
+    /** اقتراح رمز التحقق تلقائياً من إشعارات واتساب؛ يتطلب صلاحية "الوصول للإشعارات" ويكون معطّلاً افتراضياً. */
+    public boolean isWhatsAppOtpSuggestEnabled() {
+        return prefs.getBoolean("whatsapp_otp_suggest_enabled", false);
+    }
+
+    public void setWhatsAppOtpSuggestEnabled(boolean enabled) {
+        prefs.edit().putBoolean("whatsapp_otp_suggest_enabled", enabled).apply();
+    }
+
+    /** رمز تحقق واتساب المكتشف من آخر إشعار (من WhatsAppOtpListenerService)، صالح 5 دقائق فقط ثم يختفي تلقائياً. */
+    public void setPendingWhatsAppOtp(String code) {
+        prefs.edit().putString("pending_wa_otp_code", code)
+                .putLong("pending_wa_otp_time", System.currentTimeMillis()).apply();
+    }
+
+    public String getPendingWhatsAppOtp() {
+        String code = prefs.getString("pending_wa_otp_code", null);
+        if (code == null) return null;
+        long time = prefs.getLong("pending_wa_otp_time", 0L);
+        if (System.currentTimeMillis() - time > 5 * 60 * 1000L) return null;
+        return code;
+    }
+
+    public void clearPendingWhatsAppOtp() {
+        prefs.edit().remove("pending_wa_otp_code").remove("pending_wa_otp_time").apply();
+    }
+
     public List<String> getRecentEmojis() {
         List<String> list = new ArrayList<>();
         try {
