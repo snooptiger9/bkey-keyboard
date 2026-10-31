@@ -1274,6 +1274,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshPredictions();
     }
 
+    @Override
+    public void onOpenKeyboardSettings() {
+        openAppSettingsActivity();
+    }
+
     /** [0]=البادئة الحالية (أو فاضية بعد مسافة)، [1]=آخر كلمة مكتملة، [2]=الكلمة قبلها (للسياق الأوسع). */
     private String[] getTypingContext() {
         InputConnection ic = getCurrentInputConnection();
@@ -1332,25 +1337,38 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // (حيث الاقتراحات العادية معطّلة أصلاً)، طالما الحقل فاضي ولسه ما بدأ المستخدم يكتب فيه شيء.
         if (hasValidPendingOtp() && ctx[0].isEmpty()) {
             // نفس شكل ونافذة شريحة لقطة الشاشة بالضبط (مربع بخلفية وإطار)، بدون أي أيقونة قفل.
+            keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", currentOtpCode(), ""), 3);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
         if (hasValidShotChip() && ctx[0].isEmpty()) {
+            keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", keyboardView.isArabic() ? "لقطة شاشة" : "Screenshot", ""), 2);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
         if (hasValidClipChip() && ctx[0].isEmpty()) {
+            keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), true);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
         if (numericFieldActive) {
+            keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(java.util.Collections.<String>emptyList());
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
+        // الحقل فاضي تماماً ولسه ما بدأ المستخدم يكتب فيه شيء (ولا فيه رمز/لقطة/نص منسوخ معلّق):
+        // نفس حالة جي بورد قبل أي كتابة — يبين الشريط المختصر بدل شريط الاقتراحات العادي.
+        if (ctx[0].isEmpty() && (ctx[1] == null || ctx[1].isEmpty())) {
+            keyboardView.setToolbarIdleMode(true);
+            keyboardView.setSuggestions(java.util.Collections.<String>emptyList());
+            keyboardView.setEmojiKeySuggestion(null);
+            return;
+        }
+        keyboardView.setToolbarIdleMode(false);
 
         // اقتراح الإيموجي يظهر على زر الإيموجي نفسه فور إكمال كلمة معروفة، سواء كانت لسا بدون مسافة
         // (ctx[0] = الكلمة الحالية قيد الكتابة) أو بعد ما ضغط مسافة (ctx[1] = آخر كلمة مكتملة)،
@@ -1940,6 +1958,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             openAppSettingsActivity();
         });
 
+        ModernIconView micIconBtn = new ModernIconView(this, ModernIconView.ICON_MIC,
+                labelC(), Color.TRANSPARENT);
+        micIconBtn.setStyle(0.9f, 2.0f);
+        LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(42), dp(42));
+        lpMic.leftMargin = dp(10);
+        lpMic.rightMargin = dp(10);
+        micIconBtn.setLayoutParams(lpMic);
+        micIconBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            showKeyboardMain();
+            onVoiceInputRequested();
+        });
+
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
                 labelC(), Color.TRANSPARENT);
         resizeIconBtn.setStyle(0.9f, 2.0f);
@@ -1968,6 +1999,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         header.addView(titleBox);
         header.addView(settingsIconBtn);
+        header.addView(micIconBtn);
         header.addView(resizeIconBtn);
         header.addView(backIconBtn);
         container.addView(header);
