@@ -52,6 +52,7 @@ final class EmojiSuggester {
         put("فلوس", "💰");
         put("سيارة", "🚗");
         put("سياره", "🚗");
+        put("سكين", "🔪");
         put("بيت", "🏠");
         put("سفر", "✈️");
         put("بحر", "🌊");
@@ -80,6 +81,7 @@ final class EmojiSuggester {
         put("coffee", "☕");
         put("tea", "🍵");
         put("car", "🚗");
+        put("knife", "🔪");
         put("home", "🏠");
         put("travel", "✈️");
         put("music", "🎵");
