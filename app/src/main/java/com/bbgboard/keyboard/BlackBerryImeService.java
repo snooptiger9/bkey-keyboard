@@ -1274,6 +1274,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshPredictions();
     }
 
+    @Override
+    public void onOpenKeyboardSettings() {
+        openAppSettingsActivity();
+    }
+
     /** [0]=البادئة الحالية (أو فاضية بعد مسافة)، [1]=آخر كلمة مكتملة، [2]=الكلمة قبلها (للسياق الأوسع). */
     private String[] getTypingContext() {
         InputConnection ic = getCurrentInputConnection();

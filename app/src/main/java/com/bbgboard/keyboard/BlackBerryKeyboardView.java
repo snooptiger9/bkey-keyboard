@@ -84,6 +84,8 @@ public class BlackBerryKeyboardView extends View {
         void onCursorStep(boolean moveRight);
         /** المستخدم لمس زر الإيموجي وهو يعرض اقتراحاً — يُدرج هذا الإيموجي مباشرة بدل فتح قائمة الإيموجي. */
         void onEmojiSuggestionAccepted(String emoji);
+        /** ضغط أيقونة الضبط في الشريط المختصر (toolbar) قبل بدء الكتابة. */
+        void onOpenKeyboardSettings();
     }
 
     private final KeyboardPreferences prefs;
@@ -114,6 +116,12 @@ public class BlackBerryKeyboardView extends View {
     private boolean toolbarIdleMode = false;
     private long toolbarModeChangedAt = 0L;
     private static final long TOOLBAR_ANIM_MS = 160L;
+    private boolean toolbarHeightButtonPressed = false;
+    private boolean toolbarSettingsButtonPressed = false;
+    // مواضع أيقونتي الشريط المختصر (ارتفاع + ضبط) — موزّعة بتباعد متساوٍ بين أيقونتي الحافظة والصوت
+    // الثابتتين، بدل خانات شريط الاقتراحات الثلاث العادية.
+    private final RectF toolbarHeightRect = new RectF();
+    private final RectF toolbarSettingsRect = new RectF();
 
     // 1. متغيرات أنميشن الكلمة الطائرة (أبطأ وأكثر وضوحاً: 520ms)
     private PopupWindow topOverlayPopup;
@@ -1141,6 +1149,17 @@ public class BlackBerryKeyboardView extends View {
             suggestionRects[i].set(sugEdge + menuW + i * thirdW, resizeH, sugEdge + menuW + (i + 1) * thirdW, resizeH + sugH);
         }
 
+        // أيقونتا الشريط المختصر: بتباعد متساوٍ تماماً بين حافة أيقونة الحافظة وحافة أيقونة الصوت
+        // (أو حافة الشريط لو الصوت متوقف)، بدل الاعتماد على خانات الاقتراحات الثلاث غير المتساوية معها.
+        float tbStart = menuButtonRect.right;
+        float tbEnd = voiceEnabled ? micButtonRect.left : (w - sugEdge);
+        float tbW = tbEnd - tbStart;
+        float tbC1 = tbStart + tbW * (1f / 3f);
+        float tbC2 = tbStart + tbW * (2f / 3f);
+        float tbHalf = Math.min(tbW / 6f, 24f * density);
+        toolbarHeightRect.set(tbC1 - tbHalf, resizeH, tbC1 + tbHalf, resizeH + sugH);
+        toolbarSettingsRect.set(tbC2 - tbHalf, resizeH, tbC2 + tbHalf, resizeH + sugH);
+
         boolean splitActive = isSplitKeyboardActive(w);
         tabletKeyGapX = splitActive ? 2.2f * density : 0f;
         tabletKeyGapY = splitActive ? 0.8f * density : 0f;
@@ -1384,6 +1403,14 @@ public class BlackBerryKeyboardView extends View {
                 canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
             }
 
+        }
+
+        if (idleVisual > 0.02f) {
+            int prevA = iconStrokePaint.getAlpha();
+            iconStrokePaint.setAlpha((int) (idleVisual * 255f));
+            drawToolbarHeightIcon(canvas, toolbarHeightRect);
+            drawToolbarSettingsIcon(canvas, toolbarSettingsRect);
+            iconStrokePaint.setAlpha(prevA);
         }
 
         canvas.drawLine(0f, sugBottom, getWidth(), sugBottom, fretLinePaint);
@@ -1993,6 +2020,66 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
+    /** أيقونة ضبط ارتفاع الكيبورد في الشريط المختصر (قبل بدء الكتابة) — سهم مزدوج بين خطين أفقيين،
+     * نفس تصميم أيقونة تغيير الحجم الأخرى بالتطبيق (مرسومة بخطوط لا كنص، حتى تتمركز بدقة). */
+    private void drawToolbarHeightIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float r = 9f * density;
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.7f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+
+        canvas.drawLine(cx, cy - r * 0.62f, cx, cy + r * 0.62f, iconStrokePaint);
+        Path arrows = new Path();
+        arrows.moveTo(cx - r * 0.38f, cy - r * 0.28f);
+        arrows.lineTo(cx, cy - r * 0.66f);
+        arrows.lineTo(cx + r * 0.38f, cy - r * 0.28f);
+        arrows.moveTo(cx - r * 0.38f, cy + r * 0.28f);
+        arrows.lineTo(cx, cy + r * 0.66f);
+        arrows.lineTo(cx + r * 0.38f, cy + r * 0.28f);
+        canvas.drawPath(arrows, iconStrokePaint);
+        canvas.drawLine(cx - r * 0.62f, cy - r * 0.92f, cx + r * 0.62f, cy - r * 0.92f, iconStrokePaint);
+        canvas.drawLine(cx - r * 0.62f, cy + r * 0.92f, cx + r * 0.62f, cy + r * 0.92f, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
+    }
+
+    /** أيقونة فتح الضبط في الشريط المختصر (قبل بدء الكتابة) — ترس بثمانية أسنان، نفس تصميم أيقونة
+     * الضبط الأخرى بالتطبيق تماماً حتى تتطابق بصرياً. */
+    private void drawToolbarSettingsIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float r = 9f * density;
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.6f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+
+        Path gear = new Path();
+        float outer = r * 0.95f;
+        float inner = r * 0.74f;
+        for (int i = 0; i < 8; i++) {
+            double a = Math.toRadians(i * 45.0);
+            double[] offs = {-15.0, -8.5, 8.5, 15.0};
+            float[] rads = {inner, outer, outer, inner};
+            for (int k = 0; k < 4; k++) {
+                double ang = a + Math.toRadians(offs[k]);
+                float px = cx + (float) Math.cos(ang) * rads[k];
+                float py = cy + (float) Math.sin(ang) * rads[k];
+                if (i == 0 && k == 0) gear.moveTo(px, py); else gear.lineTo(px, py);
+            }
+        }
+        gear.close();
+        canvas.drawPath(gear, iconStrokePaint);
+        canvas.drawCircle(cx, cy, r * 0.30f, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
+    }
+
     private void drawShiftKeyIcon(Canvas canvas, RectF rect) {
         float prevSize = mainTextPaint.getTextSize();
         int prevColor = mainTextPaint.getColor();
@@ -2216,6 +2303,25 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
+                toolbarHeightButtonPressed = false;
+                toolbarSettingsButtonPressed = false;
+                if (toolbarIdleMode) {
+                    if (toolbarHeightRect.contains(x, y)) {
+                        toolbarHeightButtonPressed = true;
+                        vibrateTap(false);
+                        soundController.playKeyClick();
+                        invalidate();
+                        return true;
+                    }
+                    if (toolbarSettingsRect.contains(x, y)) {
+                        toolbarSettingsButtonPressed = true;
+                        vibrateTap(false);
+                        soundController.playKeyClick();
+                        invalidate();
+                        return true;
+                    }
+                }
+
                 if (y <= sugBottom) {
                     touchDownSuggestionSlot = getClickedSuggestionSlot(x);
                     handler.postDelayed(suggestionLongPressRunnable, prefs.getLongPressDelayMs());
@@ -2358,6 +2464,8 @@ public class BlackBerryKeyboardView extends View {
                 KeyDef key = touchDownKey;
                 boolean wasMenuPressed = menuButtonPressed;
                 boolean wasMicPressed = micButtonPressed;
+                boolean wasToolbarHeightPressed = toolbarHeightButtonPressed;
+                boolean wasToolbarSettingsPressed = toolbarSettingsButtonPressed;
                 boolean wasResizing = isResizingDrag;
 
                 touchDownKey = null;
@@ -2365,6 +2473,8 @@ public class BlackBerryKeyboardView extends View {
                 activePreviewKey = null;
                 menuButtonPressed = false;
                 micButtonPressed = false;
+                toolbarHeightButtonPressed = false;
+                toolbarSettingsButtonPressed = false;
                 isDragging = false;
                 isResizingDrag = false;
                 invalidate();
@@ -2393,6 +2503,16 @@ public class BlackBerryKeyboardView extends View {
 
                 if (wasMenuPressed && menuButtonRect.contains(x, y)) {
                     if (listener != null) listener.onToggleClipboardMenu();
+                    return true;
+                }
+
+                if (wasToolbarHeightPressed && toolbarIdleMode && toolbarHeightRect.contains(x, y)) {
+                    setResizeDragMode(!isResizeDragMode);
+                    return true;
+                }
+
+                if (wasToolbarSettingsPressed && toolbarIdleMode && toolbarSettingsRect.contains(x, y)) {
+                    if (listener != null) listener.onOpenKeyboardSettings();
                     return true;
                 }
 
