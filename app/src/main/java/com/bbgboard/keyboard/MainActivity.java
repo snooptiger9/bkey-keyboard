@@ -905,11 +905,37 @@ public class MainActivity extends Activity {
 
     private void fillThemeAndStyleScreen(final LinearLayout root) {
 
+        LinearLayout fontCard = createGroupedWhiteCard();
+        fontCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+
+        TextView fHeader = new TextView(this);
+        fHeader.setText(tr("1. خط الحروف", "1. Letter font"));
+        fHeader.setTextColor(Color.parseColor("#111827"));
+        fHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        fHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        fHeader.setPadding(0, 0, 0, dp(10));
+        fontCard.addView(fHeader);
+
+        int[] fontIds = {KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_TAJAWAL, KeyboardPreferences.FONT_ALMARAI};
+        String[] fontNames = tr(
+                new String[]{"افتراضي", "Tajawal", "Almarai"},
+                new String[]{"Default", "Tajawal", "Almarai"});
+        String[] fontAssets = {null, "fonts/tajawal_bold.ttf", "fonts/almarai_bold.ttf"};
+        List<View> fontTiles = new ArrayList<>();
+        for (int i = 0; i < fontIds.length; i++) {
+            final int id = fontIds[i];
+            Typeface tf = fontAssets[i] == null ? Typeface.DEFAULT_BOLD : Typeface.createFromAsset(getAssets(), fontAssets[i]);
+            fontTiles.add(createFontPreviewTile(fontNames[i], tf, prefs.getKeyFont() == id,
+                    v -> { prefs.setKeyFont(id); refreshThemeScreen(root); }));
+        }
+        addTileGrid(fontCard, fontTiles, 3);
+        root.addView(fontCard);
+
         LinearLayout themeCard = createGroupedWhiteCard();
         themeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
 
         TextView tHeader = new TextView(this);
-        tHeader.setText(tr("1. لون السمة", "1. Theme color"));
+        tHeader.setText(tr("2. لون السمة", "2. Theme color"));
         tHeader.setTextColor(Color.parseColor("#111827"));
         tHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         tHeader.setTypeface(Typeface.DEFAULT_BOLD);
@@ -933,7 +959,7 @@ public class MainActivity extends Activity {
         styleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
 
         TextView sHeader = new TextView(this);
-        sHeader.setText(tr("2. شكل أزرار الكيبورد", "2. Key shape"));
+        sHeader.setText(tr("3. شكل أزرار الكيبورد", "3. Key shape"));
         sHeader.setTextColor(Color.parseColor("#111827"));
         sHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         sHeader.setTypeface(Typeface.DEFAULT_BOLD);
@@ -958,7 +984,7 @@ public class MainActivity extends Activity {
         LinearLayout enterCard = createGroupedWhiteCard();
         enterCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView eHeader = new TextView(this);
-        eHeader.setText(tr("3. لون زر الإدخال", "3. Enter key color"));
+        eHeader.setText(tr("4. لون زر الإدخال", "4. Enter key color"));
         eHeader.setTextColor(Color.parseColor("#111827"));
         eHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         eHeader.setTypeface(Typeface.DEFAULT_BOLD);
@@ -1013,6 +1039,58 @@ public class MainActivity extends Activity {
         labelTv.setMaxLines(2);
 
         tile.addView(swatchHolder);
+        tile.addView(labelTv);
+        return tile;
+    }
+
+    /** بطاقة معاينة لخط الحروف: حرف نموذجي مرسوم فعلياً بالخط المختار. */
+    private View createFontPreviewTile(String label, Typeface typeface, boolean selected, View.OnClickListener onClick) {
+        LinearLayout tile = new LinearLayout(this);
+        tile.setOrientation(LinearLayout.VERTICAL);
+        tile.setGravity(Gravity.CENTER_HORIZONTAL);
+        tile.setOnClickListener(onClick);
+
+        FrameLayout holder = new FrameLayout(this);
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
+        holder.setBackground(roundedCard("#F3F4F6", 14));
+
+        TextView sample = new TextView(this);
+        sample.setText("أب Ab");
+        sample.setTypeface(typeface);
+        sample.setTextColor(Color.parseColor("#111827"));
+        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        sample.setGravity(Gravity.CENTER);
+        holder.addView(sample, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        GradientDrawable frame = new GradientDrawable();
+        frame.setCornerRadius(dp(14));
+        frame.setColor(Color.TRANSPARENT);
+        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E2E8F0"));
+        holder.setForeground(frame);
+        if (selected) {
+            TextView badge = new TextView(this);
+            badge.setText("✓");
+            badge.setTextColor(Color.WHITE);
+            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+            badge.setTypeface(Typeface.DEFAULT_BOLD);
+            badge.setGravity(Gravity.CENTER);
+            badge.setBackground(roundedCard("#2563EB", 9));
+            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(18), dp(18));
+            lpB.gravity = Gravity.TOP | Gravity.END;
+            lpB.topMargin = dp(3);
+            lpB.rightMargin = dp(3);
+            holder.addView(badge, lpB);
+        }
+
+        TextView labelTv = new TextView(this);
+        labelTv.setText(label);
+        labelTv.setTextColor(Color.parseColor("#374151"));
+        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        labelTv.setGravity(Gravity.CENTER);
+        labelTv.setPadding(0, dp(5), 0, 0);
+        labelTv.setMaxLines(2);
+
+        tile.addView(holder);
         tile.addView(labelTv);
         return tile;
     }
