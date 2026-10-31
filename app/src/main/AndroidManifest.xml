@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <!-- للكتابة بالصوت (زر المايك في صف الاقتراحات) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- لتنزيل حزمة رموز Fluent 3D الاختيارية فقط عند تفعيلها من الإعدادات -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- يسمح بالتعرف على خدمة التعرف على الكلام في الجهاز (مطلوب من أندرويد 11) -->
     <queries>
