@@ -215,6 +215,18 @@ public class KeyboardPreferences {
         prefs.edit().putInt("keyboard_style", style).apply();
     }
 
+    /** نمط رسم الرموز التعبيرية: النظام الافتراضي (نص يونيكود) أو Fluent 3D (صور تُنزَّل اختيارياً). */
+    public static final int EMOJI_STYLE_SYSTEM = 0;
+    public static final int EMOJI_STYLE_FLUENT_3D = 1;
+
+    public int getEmojiStyle() {
+        return prefs.getInt("emoji_style", EMOJI_STYLE_SYSTEM);
+    }
+
+    public void setEmojiStyle(int style) {
+        prefs.edit().putInt("emoji_style", style).apply();
+    }
+
     public boolean isAutoCapitalizeSentences() {
         return prefs.getBoolean("auto_cap_sentences", true);
     }
