@@ -469,6 +469,7 @@ public class BlackBerryKeyboardView extends View {
         this.sugTextScale = 1f + 0.08f * prefs.getSuggestionTextLevel();
         this.themeMode = prefs.getThemeMode();
         this.keyboardStyle = prefs.getKeyboardStyle();
+        mainTextPaint.setTypeface(loadKeyTypeface(getContext(), prefs.getKeyFont()));
         applyLanguageMode();
 
         applyThemeColors();
