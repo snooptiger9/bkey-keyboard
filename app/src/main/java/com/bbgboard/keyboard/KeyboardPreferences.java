@@ -244,8 +244,11 @@ public class KeyboardPreferences {
 
     // خط حروف الكيبورد: 0 = افتراضي النظام، 1 = Tajawal، 2 = Almarai (كلاهما يدعم العربي والإنجليزي)
     public static final int FONT_SYSTEM_DEFAULT = 0;
-    public static final int FONT_TAJAWAL = 1;
-    public static final int FONT_ALMARAI = 2;
+    public static final int FONT_TAJAWAL = 1; // Tajawal Bold
+    public static final int FONT_ALMARAI = 2; // Almarai Bold
+    public static final int FONT_SYSTEM_DEFAULT_BOLD = 3;
+    public static final int FONT_TAJAWAL_REGULAR = 4;
+    public static final int FONT_ALMARAI_REGULAR = 5;
 
     public int getKeyFont() {
         return prefs.getInt("key_font", FONT_SYSTEM_DEFAULT);

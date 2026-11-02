@@ -362,6 +362,10 @@ public class BlackBerryKeyboardView extends View {
         switch (fontId) {
             case KeyboardPreferences.FONT_TAJAWAL: assetPath = "fonts/tajawal_bold.ttf"; break;
             case KeyboardPreferences.FONT_ALMARAI: assetPath = "fonts/almarai_bold.ttf"; break;
+            case KeyboardPreferences.FONT_TAJAWAL_REGULAR: assetPath = "fonts/tajawal_regular.ttf"; break;
+            case KeyboardPreferences.FONT_ALMARAI_REGULAR: assetPath = "fonts/almarai_regular.ttf"; break;
+            case KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD:
+                return Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
             default: return Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
         }
         try {
@@ -371,12 +375,9 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    /** خط نافذة معاينة الحرف وقائمة الضغط المطول: نفس خط المفاتيح المختار، إلا الخط الافتراضي
-     * فيبقى بولد زي ما كان دائماً (ملفات الخطوط الإضافية بولد أصلاً فما نحتاج نزيدها بولد). */
+    /** خط نافذة معاينة الحرف وقائمة الضغط المطول: نفس خط المفاتيح المختار بالضبط الآن إن كل خط
+     * (افتراضي/Tajawal/Almarai) له نسخة Regular وBold صريحة يختارها المستخدم بنفسه. */
     private Typeface popupTypefaceFor(int fontId) {
-        if (fontId == KeyboardPreferences.FONT_SYSTEM_DEFAULT) {
-            return Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
-        }
         return loadKeyTypeface(getContext(), fontId);
     }
 
