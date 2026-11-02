@@ -916,15 +916,27 @@ public class MainActivity extends Activity {
         fHeader.setPadding(0, 0, 0, dp(10));
         fontCard.addView(fHeader);
 
-        int[] fontIds = {KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_TAJAWAL, KeyboardPreferences.FONT_ALMARAI};
+        // كل خط (افتراضي/Tajawal/Almarai) بنسختين: عادي (Regular) وبولد، يختار المستخدم بينهم بنفسه.
+        int[] fontIds = {
+                KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD,
+                KeyboardPreferences.FONT_TAJAWAL_REGULAR, KeyboardPreferences.FONT_TAJAWAL,
+                KeyboardPreferences.FONT_ALMARAI_REGULAR, KeyboardPreferences.FONT_ALMARAI};
         String[] fontNames = tr(
-                new String[]{"افتراضي", "Tajawal", "Almarai"},
-                new String[]{"Default", "Tajawal", "Almarai"});
-        String[] fontAssets = {null, "fonts/tajawal_bold.ttf", "fonts/almarai_bold.ttf"};
+                new String[]{"افتراضي", "افتراضي بولد", "Tajawal", "Tajawal بولد", "Almarai", "Almarai بولد"},
+                new String[]{"Default", "Default Bold", "Tajawal", "Tajawal Bold", "Almarai", "Almarai Bold"});
+        String[] fontAssets = {
+                null, null,
+                "fonts/tajawal_regular.ttf", "fonts/tajawal_bold.ttf",
+                "fonts/almarai_regular.ttf", "fonts/almarai_bold.ttf"};
         List<View> fontTiles = new ArrayList<>();
         for (int i = 0; i < fontIds.length; i++) {
             final int id = fontIds[i];
-            Typeface tf = fontAssets[i] == null ? Typeface.DEFAULT_BOLD : Typeface.createFromAsset(getAssets(), fontAssets[i]);
+            Typeface tf;
+            if (fontAssets[i] == null) {
+                tf = id == KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT;
+            } else {
+                tf = Typeface.createFromAsset(getAssets(), fontAssets[i]);
+            }
             fontTiles.add(createFontPreviewTile(fontNames[i], tf, prefs.getKeyFont() == id,
                     v -> { prefs.setKeyFont(id); refreshThemeScreen(root); }));
         }
