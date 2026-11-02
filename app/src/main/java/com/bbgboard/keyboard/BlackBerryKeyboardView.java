@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -185,6 +186,7 @@ public class BlackBerryKeyboardView extends View {
     private final Paint keyDividerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mainTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint subTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Rect scratchSubBounds = new Rect();
     private final Paint sugTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint sugPrimaryTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint flyingWordPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -1442,22 +1444,31 @@ public class BlackBerryKeyboardView extends View {
                 drawStyledKeyCell(canvas, k, bg);
 
                 if (!k.sub.isEmpty()) {
-                    // موضع الرقم الصغير يتبع حافة الزر المرئية الفعلية (علوياً وأفقياً)، مو حافة
-                    // الخلية الخام — حتى لا يطلع خارج الزر في ثيمات Gboard Material/Soft Round.
-                    float subTopPad = 13.5f * density;
-                    float subRightPad = 5.5f * density;
                     if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                             || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
+                        // نقيس حدود الحبر الفعلية للنص (مو نقطة الإرساء فقط) ونثبّتها داخل حافة
+                        // الزر المرئية بهامش أمان يغطي انحناء الزاوية، بدل تخمين إزاحة ثابتة — لأن
+                        // تخمين الإزاحة كان يفشل مع بعض الخطوط (الرقم يطلع خارج الزر رغم الإزاحة).
                         boolean softSub = keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND;
-                        // الزاوية العلوية اليمنى للزر مدوّرة (نصف قطر ~9.5dp/17dp)، فلازم هامش أكبر
-                        // من مجرد الفراغ حتى الرقم ما يطلع فوق جزء الانحناء المقطوع من الزاوية.
-                        float cornerRadius = softSub ? 17.0f : 9.5f;
-                        float visibleTopInset = materialTopInsetDp(k.type, softSub) * density + tabletKeyGapY;
-                        subTopPad = Math.max(subTopPad, visibleTopInset + (cornerRadius * 0.55f) * density);
-                        float visibleHInset = (softSub ? 2.6f : 2.0f) * density + tabletKeyGapX;
-                        subRightPad = Math.max(subRightPad, visibleHInset + (cornerRadius * 0.55f) * density);
+                        float cornerRadius = (softSub ? 17.0f : 9.5f) * density;
+                        float hInsetPx = (softSub ? 2.6f : 2.1f) * density + tabletKeyGapX;
+                        float topInsetPx = materialTopInsetDp(k.type, softSub) * density + tabletKeyGapY;
+                        float safeMargin = cornerRadius + 2.0f * density;
+                        float visibleRight = k.rect.right - hInsetPx;
+                        float visibleTop = k.rect.top + topInsetPx;
+
+                        subTextPaint.getTextBounds(k.sub, 0, k.sub.length(), scratchSubBounds);
+                        float desiredInkRight = visibleRight - safeMargin;
+                        float desiredInkTop = visibleTop + safeMargin * 0.6f;
+                        float x = desiredInkRight - scratchSubBounds.right;
+                        float baselineY = desiredInkTop - scratchSubBounds.top;
+                        Paint.Align prevAlign = subTextPaint.getTextAlign();
+                        subTextPaint.setTextAlign(Paint.Align.LEFT);
+                        canvas.drawText(k.sub, x, baselineY, subTextPaint);
+                        subTextPaint.setTextAlign(prevAlign);
+                    } else {
+                        canvas.drawText(k.sub, k.rect.right - 5.5f * density, k.rect.top + 13.5f * density, subTextPaint);
                     }
-                    canvas.drawText(k.sub, k.rect.right - subRightPad, k.rect.top + subTopPad, subTextPaint);
                 }
 
                 if (k.type == KeyType.SPACE) {
@@ -1671,7 +1682,7 @@ public class BlackBerryKeyboardView extends View {
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            float hInset = (soft ? 2.6f : 2.0f) * density + gx;
+            float hInset = (soft ? 2.6f : 2.1f) * density + gx;
             float topInset = materialTopInsetDp(key.type, soft) * density + gy;
             float bottomInset = materialBottomInsetDp(key.type, soft) * density + gy;
             scratchKeyRect.set(rawRect.left + hInset, rawRect.top + topInset, rawRect.right - hInset, rawRect.bottom - bottomInset);
@@ -1982,8 +1993,8 @@ public class BlackBerryKeyboardView extends View {
                 || type == KeyType.SPACE || type == KeyType.PERIOD || type == KeyType.ENTER;
         // قياس فعلي من لقطة شاشة جي بورد الحقيقية: الفراغ بين الأسطر (حروف/صف المسافة) موحّد
         // تقريباً بنسبة ~6.8dp لكل جهة (وليس 12dp كما جُرّب سابقاً، لأنها طلعت أكبر من جي بورد فعلياً).
-        if (letterRowKey) return 6.0f;
-        if (bottomRowKey) return 6.0f;
+        if (letterRowKey) return 5.9f;
+        if (bottomRowKey) return 5.9f;
         return 4.0f;
     }
 
@@ -1991,7 +2002,7 @@ public class BlackBerryKeyboardView extends View {
     private float materialBottomInsetDp(KeyType type, boolean soft) {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
-        return letterRowKey ? 6.0f : 4.0f;
+        return letterRowKey ? 5.9f : 4.0f;
     }
 
     /** يميّز زر المايك أثناء الاستماع. */
