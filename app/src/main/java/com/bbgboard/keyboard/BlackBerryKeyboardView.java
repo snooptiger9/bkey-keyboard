@@ -1442,16 +1442,19 @@ public class BlackBerryKeyboardView extends View {
                 drawStyledKeyCell(canvas, k, bg);
 
                 if (!k.sub.isEmpty()) {
-                    // موضع الرقم الصغير يتبع حافة الزر المرئية الفعلية، مو حافة الخلية الخام — حتى لا
-                    // يطلع خارج الزر لمن يكبر الفراغ العمودي في ثيمات Gboard Material/Soft Round.
+                    // موضع الرقم الصغير يتبع حافة الزر المرئية الفعلية (علوياً وأفقياً)، مو حافة
+                    // الخلية الخام — حتى لا يطلع خارج الزر في ثيمات Gboard Material/Soft Round.
                     float subTopPad = 13.5f * density;
+                    float subRightPad = 5.5f * density;
                     if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                             || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
                         boolean softSub = keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND;
                         float visibleTopInset = materialTopInsetDp(k.type, softSub) * density + tabletKeyGapY;
                         subTopPad = Math.max(subTopPad, visibleTopInset + 7.0f * density);
+                        float visibleHInset = (softSub ? 2.6f : 2.5f) * density + tabletKeyGapX;
+                        subRightPad = Math.max(subRightPad, visibleHInset + 3.0f * density);
                     }
-                    canvas.drawText(k.sub, k.rect.right - 5.5f * density, k.rect.top + subTopPad, subTextPaint);
+                    canvas.drawText(k.sub, k.rect.right - subRightPad, k.rect.top + subTopPad, subTextPaint);
                 }
 
                 if (k.type == KeyType.SPACE) {
@@ -1665,7 +1668,7 @@ public class BlackBerryKeyboardView extends View {
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            float hInset = (soft ? 2.6f : 2.8f) * density + gx;
+            float hInset = (soft ? 2.6f : 2.5f) * density + gx;
             float topInset = materialTopInsetDp(key.type, soft) * density + gy;
             float bottomInset = materialBottomInsetDp(key.type, soft) * density + gy;
             scratchKeyRect.set(rawRect.left + hInset, rawRect.top + topInset, rawRect.right - hInset, rawRect.bottom - bottomInset);
@@ -1976,8 +1979,8 @@ public class BlackBerryKeyboardView extends View {
                 || type == KeyType.SPACE || type == KeyType.PERIOD || type == KeyType.ENTER;
         // قياس فعلي من لقطة شاشة جي بورد الحقيقية: الفراغ بين الأسطر (حروف/صف المسافة) موحّد
         // تقريباً بنسبة ~6.8dp لكل جهة (وليس 12dp كما جُرّب سابقاً، لأنها طلعت أكبر من جي بورد فعلياً).
-        if (letterRowKey) return 6.8f;
-        if (bottomRowKey) return 6.8f;
+        if (letterRowKey) return 6.5f;
+        if (bottomRowKey) return 6.5f;
         return 4.0f;
     }
 
@@ -1985,7 +1988,7 @@ public class BlackBerryKeyboardView extends View {
     private float materialBottomInsetDp(KeyType type, boolean soft) {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
-        return letterRowKey ? 6.8f : 4.0f;
+        return letterRowKey ? 6.5f : 4.0f;
     }
 
     /** يميّز زر المايك أثناء الاستماع. */
