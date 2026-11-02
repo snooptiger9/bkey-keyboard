@@ -1652,11 +1652,12 @@ public class BlackBerryKeyboardView extends View {
             float vInset = 4.0f * density + gy;
             float hInset = (soft ? 2.6f : 3.0f) * density + gx;
             if (!soft && key.type == KeyType.CHAR) {
-                // مفاتيح الحروف فقط في Gboard Material: فراغ جانبي أكبر حتى يقارب شكل الزر المربع
-                // الحقيقي بدل المستطيل العريض، بدون ما يأثر على باقي الأزرار (مسافة/إدخال/رموز...).
-                float targetSize = rawRect.height() - vInset * 2f;
-                float squareHInset = (rawRect.width() - targetSize) / 2f;
-                hInset = Math.max(hInset, squareHInset);
+                // مفاتيح الحروف فقط في Gboard Material: خلية الزر الخام أصلاً أطول من عرضها (صف 52dp
+                // مقابل عرض زر أضيق)، فنكبر الفراغ العمودي (بين السطور) حتى يصير الارتفاع قريب من
+                // العرض ويطلع الزر مربع زي جي بورد الحقيقي، بدل ما نضيّق العرض اللي يخليها أطول وأنحف.
+                float targetSize = rawRect.width() - hInset * 2f;
+                float squareVInset = (rawRect.height() - targetSize) / 2f;
+                vInset = Math.max(vInset, squareVInset);
             }
             RectF r = insetRect(rawRect, hInset, vInset);
             float radius = pillKey ? r.height() / 2f : (soft ? 17f : 9.5f) * density;
