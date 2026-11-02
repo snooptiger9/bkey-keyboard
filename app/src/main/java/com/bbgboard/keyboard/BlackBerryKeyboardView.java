@@ -371,6 +371,15 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
+    /** خط نافذة معاينة الحرف وقائمة الضغط المطول: نفس خط المفاتيح المختار، إلا الخط الافتراضي
+     * فيبقى بولد زي ما كان دائماً (ملفات الخطوط الإضافية بولد أصلاً فما نحتاج نزيدها بولد). */
+    private Typeface popupTypefaceFor(int fontId) {
+        if (fontId == KeyboardPreferences.FONT_SYSTEM_DEFAULT) {
+            return Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
+        }
+        return loadKeyTypeface(getContext(), fontId);
+    }
+
     public BlackBerryKeyboardView(Context context, KeyboardPreferences prefs, SoundController soundController) {
         super(context);
         this.prefs = prefs;
@@ -403,7 +412,7 @@ public class BlackBerryKeyboardView extends View {
         popupHighlightPaint.setColor(Color.parseColor("#2563EB"));
 
         popupTextPaint.setTextAlign(Paint.Align.CENTER);
-        popupTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        popupTextPaint.setTypeface(popupTypefaceFor(prefs.getKeyFont()));
 
         iconStrokePaint.setStyle(Paint.Style.STROKE);
         iconStrokePaint.setStrokeWidth(2.1f * density);
@@ -470,6 +479,7 @@ public class BlackBerryKeyboardView extends View {
         this.themeMode = prefs.getThemeMode();
         this.keyboardStyle = prefs.getKeyboardStyle();
         mainTextPaint.setTypeface(loadKeyTypeface(getContext(), prefs.getKeyFont()));
+        popupTextPaint.setTypeface(popupTypefaceFor(prefs.getKeyFont()));
         applyLanguageMode();
 
         applyThemeColors();
