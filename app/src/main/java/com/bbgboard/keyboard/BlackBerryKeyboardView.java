@@ -1438,6 +1438,9 @@ public class BlackBerryKeyboardView extends View {
                     drawShiftKeyIcon(canvas, k.rect);
                 } else if (k.type == KeyType.LANGUAGE && emojiKeySuggestion == null) {
                     drawGlobeIcon(canvas, k.rect);
+                } else if (k.type == KeyType.EMOJI && emojiKeySuggestion == null) {
+                    // ما فيه اقتراح إيموجي حالياً: نرسم أيقونة وجه مبتسم بخط أبيض بدل رمز الإيموجي الملون.
+                    drawEmojiIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
                     // التعديل رقم 6: تصغير لوقو الرمز التعبيري في الصف السفلي ليكون متناسقاً وأنيقاً
                     float prevSize = mainTextPaint.getTextSize();
@@ -1898,6 +1901,35 @@ public class BlackBerryKeyboardView extends View {
         meridian.set(cx - r * 0.42f, cy - r, cx + r * 0.42f, cy + r);
         canvas.drawOval(meridian, iconStrokePaint);
         canvas.drawLine(cx - r, cy, cx + r, cy, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
+    }
+
+    /** أيقونة وجه مبتسم بخط أبيض (دائرة + عينين + ابتسامة) بدل رمز الإيموجي الملون، بنفس أسلوب أيقونة الكرة الأرضية. */
+    private void drawEmojiIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float r = 8.2f * density;
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.7f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+
+        canvas.drawCircle(cx, cy, r, iconStrokePaint);
+
+        iconStrokePaint.setStyle(Paint.Style.FILL);
+        float eyeR = 0.9f * density;
+        float eyeOffsetX = r * 0.42f;
+        float eyeOffsetY = r * 0.28f;
+        canvas.drawCircle(cx - eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
+        canvas.drawCircle(cx + eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+
+        RectF smile = drawRectA;
+        float smileR = r * 0.62f;
+        smile.set(cx - smileR, cy - smileR * 0.35f, cx + smileR, cy + smileR * 1.15f);
+        canvas.drawArc(smile, 25f, 130f, false, iconStrokePaint);
 
         iconStrokePaint.setStrokeWidth(prevW);
         iconStrokePaint.setStyle(prevStyle);
