@@ -1649,17 +1649,26 @@ public class BlackBerryKeyboardView extends View {
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            float vInset = 4.0f * density + gy;
             float hInset = (soft ? 2.6f : 3.0f) * density + gx;
-            if (!soft && key.type == KeyType.CHAR) {
-                // مفاتيح الحروف فقط في Gboard Material: خلية الزر الخام أصلاً أطول من عرضها (صف 52dp
-                // مقابل عرض زر أضيق)، فنكبر الفراغ العمودي (بين السطور) حتى يصير الارتفاع قريب من
-                // العرض ويطلع الزر مربع زي جي بورد الحقيقي، بدل ما نضيّق العرض اللي يخليها أطول وأنحف.
-                float targetSize = rawRect.width() - hInset * 2f;
-                float squareVInset = (rawRect.height() - targetSize) / 2f;
-                vInset = Math.max(vInset, squareVInset);
+            float topInset = 4.0f * density + gy;
+            float bottomInset = 4.0f * density + gy;
+            if (!soft) {
+                // مقاسات مقاسة فعلياً من لقطة شاشة جي بورد: فراغ عمودي أكبر بين أسطر الحروف (فوق
+                // وتحت كل مفتاح حرف/شفت/حذف ضمن أسطر الحروف)، وفراغ أكبر منه تحديداً فوق صف
+                // المسافة/الرموز/الإدخال (الفاصل بين آخر سطر حروف وصف المسافة بالذات أوضح بجي بورد).
+                boolean letterRowKey = key.type == KeyType.CHAR || key.type == KeyType.SHIFT || key.type == KeyType.BACKSPACE;
+                boolean bottomRowKey = key.type == KeyType.SYMBOLS || key.type == KeyType.EMOJI
+                        || key.type == KeyType.LANGUAGE || key.type == KeyType.SPACE
+                        || key.type == KeyType.PERIOD || key.type == KeyType.ENTER;
+                if (letterRowKey) {
+                    topInset = 6.8f * density + gy;
+                    bottomInset = 6.8f * density + gy;
+                } else if (bottomRowKey) {
+                    topInset = 15.0f * density + gy;
+                }
             }
-            RectF r = insetRect(rawRect, hInset, vInset);
+            scratchKeyRect.set(rawRect.left + hInset, rawRect.top + topInset, rawRect.right - hInset, rawRect.bottom - bottomInset);
+            RectF r = scratchKeyRect;
             float radius = pillKey ? r.height() / 2f : (soft ? 17f : 9.5f) * density;
             canvas.drawRoundRect(r, radius, radius, fillPaint);
             return;
