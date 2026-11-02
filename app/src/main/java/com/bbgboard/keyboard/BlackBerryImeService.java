@@ -1957,11 +1957,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         lpTitleBox.leftMargin = dp(8);
         lpTitleBox.rightMargin = dp(6);
         titleBox.setLayoutParams(lpTitleBox);
+        // يفرض محاذاة يسار ثابتة لأقصى اليسار بكل اللغات (نفس مكان "2 items" بالإنجليزي)، بدل ما
+        // تنحسب تلقائياً حسب اتجاه نص اللغة الحالية.
+        titleBox.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        titleBox.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
 
         clipCountTv = new TextView(this);
         clipCountTv.setTextColor(labelC());
         clipCountTv.setTypeface(Typeface.DEFAULT_BOLD);
         clipCountTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        clipCountTv.setGravity(Gravity.LEFT);
 
         titleBox.addView(clipCountTv);
 
@@ -2009,7 +2014,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         backIconBtn.setPillBackground(true);
         backIconBtn.setStyle(0.85f, 2.3f);
         LinearLayout.LayoutParams lpBackClip = new LinearLayout.LayoutParams(dp(62), dp(42));
-        lpBackClip.leftMargin = dp(10);
+        // مسافة أكبر (درجتين إضافيتين) عن مجموعة أيقونات الارتفاع/المايك/الضبط، حتى يبين زر الرجوع منفصل عنها.
+        lpBackClip.leftMargin = dp(30);
         backIconBtn.setLayoutParams(lpBackClip);
         backIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
