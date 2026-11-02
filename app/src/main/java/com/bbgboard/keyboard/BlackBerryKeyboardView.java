@@ -601,6 +601,12 @@ public class BlackBerryKeyboardView extends View {
         return 50f * density * keyboardScale;
     }
 
+    /** فراغ إضافي حقيقي (مساحة زيادة بالتخطيط نفسه، مو اقتطاع من ارتفاع الزر) بين آخر سطر حروف
+     * وصف المسافة في ثيم Gboard Material، حتى يطلع فاصل أوضح بينهم بدون ما يصغّر زر المسافة نفسه. */
+    private float extraBottomRowGapPx() {
+        return (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL) ? 8.0f * density : 0f;
+    }
+
     private void vibrateTap(boolean longPress) {
         if (!prefs.isVibrationEnabled()) return;
         performHapticFeedback(longPress ? HapticFeedbackConstants.LONG_PRESS : HapticFeedbackConstants.KEYBOARD_TAP);
@@ -1133,7 +1139,7 @@ public class BlackBerryKeyboardView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int w = MeasureSpec.getSize(widthMeasureSpec);
         int keyRowCount = Math.max(3, rows.size() - 1);
-        int totalHeight = (int) (getResizeBarHeight() + getSuggestionBarHeight() + getKeyRowHeight() * keyRowCount + getBottomRowHeight());
+        int totalHeight = (int) (getResizeBarHeight() + getSuggestionBarHeight() + getKeyRowHeight() * keyRowCount + getBottomRowHeight() + extraBottomRowGapPx());
         setMeasuredDimension(w, totalHeight);
     }
 
@@ -1185,6 +1191,7 @@ public class BlackBerryKeyboardView extends View {
         for (int rIdx = 0; rIdx < rows.size(); rIdx++) {
             List<KeyDef> row = rows.get(rIdx);
             float rowH = (rIdx == rows.size() - 1) ? botH : keyH;
+            if (rIdx == rows.size() - 1) topY += extraBottomRowGapPx();
             // الصف الأخير (الأسفل: الرموز، الإيموجي، المسافة، الإدخال) يبقى بشريط واحد متصل بدون فاصل —
             // بالضبط زي كيبورد الشاشات الكبيرة المعروف؛ الفاصل فقط في صفوف الحروف والأرقام فوقه.
             if (splitActive && rIdx != rows.size() - 1) {
@@ -1965,11 +1972,9 @@ public class BlackBerryKeyboardView extends View {
     private float materialTopInsetDp(KeyType type, boolean soft) {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
-        boolean bottomRowKey = type == KeyType.SYMBOLS || type == KeyType.EMOJI || type == KeyType.LANGUAGE
-                || type == KeyType.SPACE || type == KeyType.PERIOD || type == KeyType.ENTER;
-        if (letterRowKey) return 12.0f;
-        if (bottomRowKey) return 12.0f;
-        return 4.0f;
+        // صف المسافة/الرموز/الإدخال يبقى بفراغه الأصلي 4dp: الفاصل الأكبر فوقه صار فراغ تخطيط حقيقي
+        // (extraBottomRowGapPx) بدل اقتطاع من ارتفاع الزر نفسه، حتى ما يصغّر زر المسافة.
+        return letterRowKey ? 12.0f : 4.0f;
     }
 
     /** نفس فكرة materialTopInsetDp لكن للفراغ السفلي؛ صف المسافة/الإدخال يبقى بفراغه السفلي الأصلي
