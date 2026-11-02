@@ -1435,7 +1435,16 @@ public class BlackBerryKeyboardView extends View {
                 drawStyledKeyCell(canvas, k, bg);
 
                 if (!k.sub.isEmpty()) {
-                    canvas.drawText(k.sub, k.rect.right - 5.5f * density, k.rect.top + 13.5f * density, subTextPaint);
+                    // موضع الرقم الصغير يتبع حافة الزر المرئية الفعلية، مو حافة الخلية الخام — حتى لا
+                    // يطلع خارج الزر لمن يكبر الفراغ العمودي في ثيمات Gboard Material/Soft Round.
+                    float subTopPad = 13.5f * density;
+                    if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
+                            || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
+                        boolean softSub = keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND;
+                        float visibleTopInset = materialTopInsetDp(k.type, softSub) * density + tabletKeyGapY;
+                        subTopPad = Math.max(subTopPad, visibleTopInset + 7.0f * density);
+                    }
+                    canvas.drawText(k.sub, k.rect.right - 5.5f * density, k.rect.top + subTopPad, subTextPaint);
                 }
 
                 if (k.type == KeyType.SPACE) {
@@ -1649,24 +1658,9 @@ public class BlackBerryKeyboardView extends View {
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            float hInset = (soft ? 2.6f : 3.0f) * density + gx;
-            float topInset = 4.0f * density + gy;
-            float bottomInset = 4.0f * density + gy;
-            if (!soft) {
-                // مقاسات مقاسة فعلياً من لقطة شاشة جي بورد: فراغ عمودي أكبر بين أسطر الحروف (فوق
-                // وتحت كل مفتاح حرف/شفت/حذف ضمن أسطر الحروف)، وفراغ أكبر منه تحديداً فوق صف
-                // المسافة/الرموز/الإدخال (الفاصل بين آخر سطر حروف وصف المسافة بالذات أوضح بجي بورد).
-                boolean letterRowKey = key.type == KeyType.CHAR || key.type == KeyType.SHIFT || key.type == KeyType.BACKSPACE;
-                boolean bottomRowKey = key.type == KeyType.SYMBOLS || key.type == KeyType.EMOJI
-                        || key.type == KeyType.LANGUAGE || key.type == KeyType.SPACE
-                        || key.type == KeyType.PERIOD || key.type == KeyType.ENTER;
-                if (letterRowKey) {
-                    topInset = 6.8f * density + gy;
-                    bottomInset = 6.8f * density + gy;
-                } else if (bottomRowKey) {
-                    topInset = 15.0f * density + gy;
-                }
-            }
+            float hInset = (soft ? 2.6f : 2.8f) * density + gx;
+            float topInset = materialTopInsetDp(key.type, soft) * density + gy;
+            float bottomInset = materialBottomInsetDp(key.type, soft) * density + gy;
             scratchKeyRect.set(rawRect.left + hInset, rawRect.top + topInset, rawRect.right - hInset, rawRect.bottom - bottomInset);
             RectF r = scratchKeyRect;
             float radius = pillKey ? r.height() / 2f : (soft ? 17f : 9.5f) * density;
@@ -1963,6 +1957,27 @@ public class BlackBerryKeyboardView extends View {
 
         iconStrokePaint.setStrokeWidth(prevW);
         iconStrokePaint.setStyle(prevStyle);
+    }
+
+    /** الفراغ العمودي العلوي (بالـdp) لمفتاح معيّن في ثيم Gboard Material/Soft Round. معزولة بدالة
+     * حتى نفس القيم تُستخدم في رسم شكل الزر وفي موضع الرقم الصغير أعلى الزر (sub label)، فما ينزاح
+     * الرقم خارج الزر لمن نكبر الفراغ. */
+    private float materialTopInsetDp(KeyType type, boolean soft) {
+        if (soft) return 4.0f;
+        boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
+        boolean bottomRowKey = type == KeyType.SYMBOLS || type == KeyType.EMOJI || type == KeyType.LANGUAGE
+                || type == KeyType.SPACE || type == KeyType.PERIOD || type == KeyType.ENTER;
+        if (letterRowKey) return 12.0f;
+        if (bottomRowKey) return 12.0f;
+        return 4.0f;
+    }
+
+    /** نفس فكرة materialTopInsetDp لكن للفراغ السفلي؛ صف المسافة/الإدخال يبقى بفراغه السفلي الأصلي
+     * (الفاصل المكبّر بينه وبين أسطر الحروف فوقه فقط، مو عند حافة الشاشة تحته). */
+    private float materialBottomInsetDp(KeyType type, boolean soft) {
+        if (soft) return 4.0f;
+        boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
+        return letterRowKey ? 12.0f : 4.0f;
     }
 
     /** يميّز زر المايك أثناء الاستماع. */
