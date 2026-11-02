@@ -1151,13 +1151,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         textBox.setLayoutParams(lpText);
 
         TextView t1 = new TextView(this);
-        t1.setText("Last screenshot");
+        t1.setText(arabicUi ? "آخر لقطة شاشة" : "Last screenshot");
         t1.setTextColor(labelC());
         t1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
         t1.setTypeface(Typeface.DEFAULT_BOLD);
 
         TextView t2 = new TextView(this);
-        t2.setText("Tap to copy and send");
+        t2.setText(arabicUi ? "اضغط للنسخ والإرسال" : "Tap to copy and send");
         t2.setTextColor(subC());
         t2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
 
@@ -2062,8 +2062,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         List<ClipboardRepository.ClipEntry> clips = clipboardRepo.getClips();
+        boolean arabicUi = keyboardView == null || keyboardView.isArabic();
         if (clipCountTv != null) {
-            clipCountTv.setText(clips.isEmpty() ? "No items" : clips.size() + (clips.size() == 1 ? " item" : " items"));
+            if (clips.isEmpty()) {
+                clipCountTv.setText(arabicUi ? "لا يوجد عناصر" : "No items");
+            } else {
+                clipCountTv.setText(arabicUi
+                        ? clips.size() + " عنصر"
+                        : clips.size() + (clips.size() == 1 ? " item" : " items"));
+            }
         }
         if (clips.isEmpty()) {
             if (hasShotThumb) return;
