@@ -1603,6 +1603,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
+        // لمن يكون الشريط فاضي فعلاً (وضع الخمول قبل أي كتابة)، ما نسحب أي كلمة حتى لو محرك التوقع
+        // عنده كلمات شائعة يملأ فيها الخانات داخلياً — لأن المستخدم ما يشوف شي على الشريط أصلاً.
+        if (currentPrefix.isEmpty() && (lastCompletedWord == null || lastCompletedWord.isEmpty())) return;
+
         List<String> suggestions = predictionEngine.getThreeSuggestions(currentPrefix, lastCompletedWord, lastCompletedWord2, keyboardView.isArabic());
         if (suggestions.isEmpty()) return;
         String chosen = (zoneIndex >= 0 && zoneIndex < suggestions.size()) ? suggestions.get(zoneIndex) : suggestions.get(0);
