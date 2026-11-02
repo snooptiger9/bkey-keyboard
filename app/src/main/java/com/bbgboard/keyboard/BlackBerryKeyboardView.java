@@ -601,10 +601,10 @@ public class BlackBerryKeyboardView extends View {
         return 50f * density * keyboardScale;
     }
 
-    /** فراغ إضافي حقيقي (مساحة زيادة بالتخطيط نفسه، مو اقتطاع من ارتفاع الزر) بين آخر سطر حروف
-     * وصف المسافة في ثيم Gboard Material، حتى يطلع فاصل أوضح بينهم بدون ما يصغّر زر المسافة نفسه. */
+    /** غير مستخدمة حالياً: الفراغ فوق صف المسافة صار يُضبط عبر materialTopInsetDp نفسه (6.8dp)
+     * بدل مساحة تخطيط إضافية منفصلة. أبقيناها 0 حتى لا نضيف ارتفاع زيادة غير مقصود للوحة. */
     private float extraBottomRowGapPx() {
-        return (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL) ? 8.0f * density : 0f;
+        return 0f;
     }
 
     private void vibrateTap(boolean longPress) {
@@ -1972,17 +1972,20 @@ public class BlackBerryKeyboardView extends View {
     private float materialTopInsetDp(KeyType type, boolean soft) {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
-        // صف المسافة/الرموز/الإدخال يبقى بفراغه الأصلي 4dp: الفاصل الأكبر فوقه صار فراغ تخطيط حقيقي
-        // (extraBottomRowGapPx) بدل اقتطاع من ارتفاع الزر نفسه، حتى ما يصغّر زر المسافة.
-        return letterRowKey ? 12.0f : 4.0f;
+        boolean bottomRowKey = type == KeyType.SYMBOLS || type == KeyType.EMOJI || type == KeyType.LANGUAGE
+                || type == KeyType.SPACE || type == KeyType.PERIOD || type == KeyType.ENTER;
+        // قياس فعلي من لقطة شاشة جي بورد الحقيقية: الفراغ بين الأسطر (حروف/صف المسافة) موحّد
+        // تقريباً بنسبة ~6.8dp لكل جهة (وليس 12dp كما جُرّب سابقاً، لأنها طلعت أكبر من جي بورد فعلياً).
+        if (letterRowKey) return 6.8f;
+        if (bottomRowKey) return 6.8f;
+        return 4.0f;
     }
 
-    /** نفس فكرة materialTopInsetDp لكن للفراغ السفلي؛ صف المسافة/الإدخال يبقى بفراغه السفلي الأصلي
-     * (الفاصل المكبّر بينه وبين أسطر الحروف فوقه فقط، مو عند حافة الشاشة تحته). */
+    /** نفس فكرة materialTopInsetDp لكن للفراغ السفلي. */
     private float materialBottomInsetDp(KeyType type, boolean soft) {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
-        return letterRowKey ? 12.0f : 4.0f;
+        return letterRowKey ? 6.8f : 4.0f;
     }
 
     /** يميّز زر المايك أثناء الاستماع. */
