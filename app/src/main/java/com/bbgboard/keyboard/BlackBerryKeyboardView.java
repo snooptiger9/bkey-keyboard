@@ -1453,13 +1453,16 @@ public class BlackBerryKeyboardView extends View {
                         float cornerRadius = (softSub ? 17.0f : 9.5f) * density;
                         float hInsetPx = (softSub ? 2.6f : 2.1f) * density + tabletKeyGapX;
                         float topInsetPx = materialTopInsetDp(k.type, softSub) * density + tabletKeyGapY;
-                        float safeMargin = cornerRadius + 2.0f * density;
+                        // أقل هامش يضمن الخروج من منطقة انحناء الزاوية (المسافة القطرية اللي
+                        // تلامس القوس تساوي نصف القطر × (1 − جذر2/2) ≈ 0.293)، زائد هامش بسيط —
+                        // مو نصف القطر كامل، عشان يضل الرقم "بالزاوية" فعلاً مو منزاح لمنتصف الزر.
+                        float safeMargin = cornerRadius * 0.38f + 1.0f * density;
                         float visibleRight = k.rect.right - hInsetPx;
                         float visibleTop = k.rect.top + topInsetPx;
 
                         subTextPaint.getTextBounds(k.sub, 0, k.sub.length(), scratchSubBounds);
                         float desiredInkRight = visibleRight - safeMargin;
-                        float desiredInkTop = visibleTop + safeMargin * 0.6f;
+                        float desiredInkTop = visibleTop + safeMargin;
                         float x = desiredInkRight - scratchSubBounds.right;
                         float baselineY = desiredInkTop - scratchSubBounds.top;
                         Paint.Align prevAlign = subTextPaint.getTextAlign();
