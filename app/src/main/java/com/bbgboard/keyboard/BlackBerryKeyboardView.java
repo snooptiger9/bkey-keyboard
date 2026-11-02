@@ -1649,7 +1649,16 @@ public class BlackBerryKeyboardView extends View {
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            RectF r = insetRect(rawRect, (soft ? 2.6f : 3.0f) * density + gx, 4.0f * density + gy);
+            float vInset = 4.0f * density + gy;
+            float hInset = (soft ? 2.6f : 3.0f) * density + gx;
+            if (!soft && key.type == KeyType.CHAR) {
+                // مفاتيح الحروف فقط في Gboard Material: فراغ جانبي أكبر حتى يقارب شكل الزر المربع
+                // الحقيقي بدل المستطيل العريض، بدون ما يأثر على باقي الأزرار (مسافة/إدخال/رموز...).
+                float targetSize = rawRect.height() - vInset * 2f;
+                float squareHInset = (rawRect.width() - targetSize) / 2f;
+                hInset = Math.max(hInset, squareHInset);
+            }
+            RectF r = insetRect(rawRect, hInset, vInset);
             float radius = pillKey ? r.height() / 2f : (soft ? 17f : 9.5f) * density;
             canvas.drawRoundRect(r, radius, radius, fillPaint);
             return;
