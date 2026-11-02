@@ -1127,7 +1127,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         GradientDrawable cardBg = roundedBg(keyBgC(), 14);
         cardBg.setStroke(dp(1), keyDividerC());
         row.setBackground(cardBg);
-        row.setPadding(dp(6), dp(6), dp(6), dp(6));
+        // نفس حشوة بطاقات المقصوصات (dp4) حتى تتطابق حواف بطاقة آخر لقطة شاشة مع حواف بطاقات النصوص تماماً.
+        row.setPadding(dp(4), dp(4), dp(4), dp(4));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.bottomMargin = dp(9);
@@ -2135,7 +2136,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
-        row.setLayoutDirection(arabicUi ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
+        // ترتيب الأيقونات (تثبيت/حذف) ثابت دائماً (LTR) بغض النظر عن لغة الكيبورد، حتى ما ينقلب
+        // مكانها بين عربي وإنجليزي ويخلي أيقونة بطاقة ملاصقة لأيقونة البطاقة المجاورة بشكل مختلف
+        // كل لغة. فقط محاذاة النص نفسه (أسفل) تتغير حسب اللغة.
+        row.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         row.setGravity(Gravity.CENTER_VERTICAL);
         GradientDrawable cardBg = roundedBg(keyBgC(), 14);
         cardBg.setStroke(dp(1), clip.pinned ? keyOutlineC() : keyDividerC());
