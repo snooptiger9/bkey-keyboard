@@ -1975,8 +1975,8 @@ public class BlackBerryKeyboardView extends View {
         float eyeOffsetY = r * 0.28f;
         canvas.drawCircle(cx - eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
         canvas.drawCircle(cx + eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
-        iconStrokePaint.setStyle(Paint.Style.STROKE);
-
+        // الفم مصمت (نفس شكل أيقونة جي بورد: نصف قرص مملوء مو خط منحني رفيع)، مو خط محيط فقط.
+        iconStrokePaint.setStyle(Paint.Style.FILL);
         RectF smile = drawRectA;
         float smileR = r * 0.62f;
         smile.set(cx - smileR, cy - smileR * 0.35f, cx + smileR, cy + smileR * 1.15f);

@@ -36,6 +36,8 @@ public class MainActivity extends Activity {
 
     private FrameLayout mainFrame;
     private View homeMenuView;
+    private EditText floatingTestEdit;
+    private View floatingTestFab;
 
     // ===== تذكّر مكان السكرول: الرجوع يعيدك لنفس الموضع في الشاشة السابقة =====
     private final java.util.ArrayDeque<Integer> scrollStack = new java.util.ArrayDeque<>();
@@ -152,7 +154,66 @@ public class MainActivity extends Activity {
         ));
 
         showHomeGboardSettingsMenu();
-        setContentView(mainFrame);
+
+        // حاوية جذر فوق mainFrame: زر الكيبورد العائم وحقل تجربته أبناء لها مباشرة، مو لـ
+        // mainFrame — حتى يضلّوا ظاهرين فوق كل الشاشات (كل شاشة تمسح أبناء mainFrame وتستبدلها).
+        FrameLayout rootContainer = new FrameLayout(this);
+        rootContainer.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        rootContainer.addView(mainFrame);
+        addFloatingKeyboardTester(rootContainer);
+        setContentView(rootContainer);
+    }
+
+    /** زر عائم يفتح حقل صغير ويطلع له الكيبورد فوراً، عشان تشوف تغييرات المظهر وأنت بأي شاشة
+     * إعدادات بدون ما ترجع لحقل التجربة بالأعلى. */
+    private void addFloatingKeyboardTester(FrameLayout root) {
+        floatingTestEdit = new EditText(this);
+        floatingTestEdit.setHint(tr("جرّب الكيبورد هنا...", "Try the keyboard here..."));
+        floatingTestEdit.setHintTextColor(Color.parseColor("#9CA3AF"));
+        floatingTestEdit.setTextColor(Color.parseColor("#111827"));
+        floatingTestEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        floatingTestEdit.setBackground(borderedBox("#FFFFFF", "#D1D5DB", 14));
+        floatingTestEdit.setPadding(dp(14), dp(10), dp(14), dp(10));
+        floatingTestEdit.setElevation(dp(6));
+        floatingTestEdit.setVisibility(View.GONE);
+        FrameLayout.LayoutParams lpEdit = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpEdit.gravity = Gravity.BOTTOM;
+        lpEdit.setMargins(dp(16), 0, dp(16), dp(86));
+        floatingTestEdit.setLayoutParams(lpEdit);
+        root.addView(floatingTestEdit);
+
+        FrameLayout fab = new FrameLayout(this);
+        fab.setBackground(roundedCard("#2563EB", 28));
+        fab.setElevation(dp(8));
+        ModernIconView fabIcon = new ModernIconView(this, ModernIconView.ICON_BACK_KEYBOARD, Color.WHITE, Color.parseColor("#33FFFFFF"));
+        fabIcon.setStyle(0.9f, 2.0f);
+        FrameLayout.LayoutParams lpFabIcon = new FrameLayout.LayoutParams(dp(26), dp(26));
+        lpFabIcon.gravity = Gravity.CENTER;
+        fab.addView(fabIcon, lpFabIcon);
+        FrameLayout.LayoutParams lpFab = new FrameLayout.LayoutParams(dp(56), dp(56));
+        lpFab.gravity = Gravity.BOTTOM | (isDeviceArabic() ? Gravity.START : Gravity.END);
+        lpFab.setMargins(dp(16), 0, dp(16), dp(16));
+        fab.setLayoutParams(lpFab);
+        fab.setOnClickListener(v -> toggleFloatingTester());
+        root.addView(fab);
+        floatingTestFab = fab;
+    }
+
+    private void toggleFloatingTester() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (floatingTestEdit.getVisibility() == View.VISIBLE) {
+            floatingTestEdit.setVisibility(View.GONE);
+            floatingTestEdit.clearFocus();
+            if (imm != null) imm.hideSoftInputFromWindow(floatingTestEdit.getWindowToken(), 0);
+        } else {
+            floatingTestEdit.setVisibility(View.VISIBLE);
+            floatingTestEdit.requestFocus();
+            floatingTestEdit.post(() -> {
+                if (imm != null) imm.showSoftInput(floatingTestEdit, InputMethodManager.SHOW_IMPLICIT);
+            });
+        }
     }
 
     @Override
