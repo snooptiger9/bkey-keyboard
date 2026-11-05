@@ -1601,7 +1601,7 @@ public class BlackBerryKeyboardView extends View {
         }
         // ثم ينقز ويرتد متجاوزاً حجمه الطبيعي بوضوح قبل ما يستقر (overshoot أقوى من قبل)
         float u = (t - 0.3f) / 0.7f;
-        float tension = 3.4f;
+        float tension = 4.2f;
         float um1 = u - 1f;
         float overshoot = um1 * um1 * ((tension + 1f) * um1 + tension) + 1f;
         return 0.74f + 0.26f * overshoot;
@@ -1611,14 +1611,14 @@ public class BlackBerryKeyboardView extends View {
      * مكانه: ينزل شوي وقت الانضغاط ثم يقفز لأعلى شوي وقت الارتداد قبل ما يرجع لمكانه الطبيعي. */
     private float keyBounceLiftPx(long elapsedMs) {
         float t = Math.max(0f, Math.min(1f, elapsedMs / (float) KEY_BOUNCE_MS));
-        float maxDown = 2.5f * density;   // ينزل شوي وقت الانضغاط
-        float maxUp = 6.0f * density;     // يقفز لأعلى وقت الارتداد
+        float maxDown = 4.0f * density;   // ينزل شوي وقت الانضغاط
+        float maxUp = 13.0f * density;    // يقفز لأعلى وقت الارتداد (نقزة أوضح بكثير)
         if (t < 0.3f) {
             float u = t / 0.3f;
             return maxDown * u; // موجب = نزول (نظام إحداثيات الكانفاس: Y يكبر لتحت)
         }
         float u = (t - 0.3f) / 0.7f;
-        float tension = 3.4f;
+        float tension = 4.2f;
         float um1 = u - 1f;
         float overshoot = um1 * um1 * ((tension + 1f) * um1 + tension) + 1f; // يبدأ 0 ويتجاوز 1 ثم يستقر على 1
         // نحول overshoot لإزاحة: يبدأ من maxDown (استمرار الانضغاط) وينتقل لقفزة فوق الصفر (سالب) ثم يرجع صفر
