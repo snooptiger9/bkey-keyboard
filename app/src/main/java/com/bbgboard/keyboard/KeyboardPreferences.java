@@ -374,6 +374,15 @@ public class KeyboardPreferences {
         prefs.edit().putInt("swipe_delete_direction", dir == 1 ? 1 : 0).apply();
     }
 
+    /** سحبة تحديد كل النص: دائماً بالاتجاه المعاكس لاتجاه سحبة المسح (حتى ما تتعارض الحركتين أبداً). */
+    public boolean isSwipeSelectAllEnabled() {
+        return prefs.getBoolean("swipe_select_all_enabled", true);
+    }
+
+    public void setSwipeSelectAllEnabled(boolean enabled) {
+        prefs.edit().putBoolean("swipe_select_all_enabled", enabled).apply();
+    }
+
     public int getEmojiSizeSp() {
         return prefs.getInt("emoji_size_sp", 23);
     }

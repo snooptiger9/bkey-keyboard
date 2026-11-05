@@ -72,6 +72,8 @@ public class BlackBerryKeyboardView extends View {
         void onCharacterTyped(String text);
         void onBackspaceSingle();
         boolean onSwipeLeftDeleteWord();
+        /** سحبة من اليمين لليسار (الاتجاه المعاكس تماماً لسحبة المسح) لتحديد كل النص المكتوب. */
+        boolean onSwipeSelectAll();
         void onSwipeUpSuggestion(int zoneIndex);
         void onEnterKey();
         void onToggleClipboardMenu();
@@ -2547,13 +2549,27 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                // السحب لمسح كلمة كاملة (الاتجاه من الإعدادات: الافتراضي من اليسار لليمين)
-                float swipeLeftThreshold = 40f * density;
+                // السحب لمسح كلمة كاملة (الاتجاه من الإعدادات: الافتراضي من اليسار لليمين).
+                // كبّرنا الحد الأدنى ونسبة الأفقي/العمودي عن قبل (كانت 40dp/1.25) لأن السحبة كانت
+                // حساسة زيادة وتمسح بالغلط أثناء الكتابة العادية.
+                float swipeLeftThreshold = 62f * density;
                 boolean deleteDirOk = (prefs.getSwipeDeleteDirection() == 1) ? (dx < -swipeLeftThreshold) : (dx > swipeLeftThreshold);
-                if (prefs.isSwipeDeleteWordEnabled() && deleteDirOk && Math.abs(dx) > Math.abs(dy) * 1.25f) {
+                if (prefs.isSwipeDeleteWordEnabled() && deleteDirOk && Math.abs(dx) > Math.abs(dy) * 1.5f) {
                     boolean deleted = listener != null && listener.onSwipeLeftDeleteWord();
                     if (deleted) {
                         startDeleteTagAnimation(startX, startY, dx);
+                        vibrateTap(true);
+                        soundController.playSwipeDeleteSound();
+                    }
+                    return true;
+                }
+
+                // سحبة تحديد كل النص: نفس الحد لكن بالاتجاه المعاكس تماماً لسحبة المسح، فالحركتان
+                // ما تتعارضان أبداً مهما كان اتجاه المسح المختار بالإعدادات.
+                boolean selectAllDirOk = (prefs.getSwipeDeleteDirection() == 1) ? (dx > swipeLeftThreshold) : (dx < -swipeLeftThreshold);
+                if (prefs.isSwipeSelectAllEnabled() && selectAllDirOk && Math.abs(dx) > Math.abs(dy) * 1.5f) {
+                    boolean selected = listener != null && listener.onSwipeSelectAll();
+                    if (selected) {
                         vibrateTap(true);
                         soundController.playSwipeDeleteSound();
                     }

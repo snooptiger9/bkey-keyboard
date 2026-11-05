@@ -1628,9 +1628,18 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("السحب الأفقي لمسح كلمة كاملة", "Horizontal swipe to delete a whole word"),
-                tr("اسحب أفقياً فوق الحروف لحذف آخر كلمة دفعة واحدة", "Swipe sideways over the keys to delete the last word at once"),
+                tr("اسحب أفقياً فوق الحروف لحذف آخر كلمة دفعة واحدة (سحبة أوضح الآن، أقل حساسية حتى ما تنمسح كلمة بالغلط أثناء الكتابة)",
+                        "Swipe sideways over the keys to delete the last word at once (now needs a clearer swipe, less sensitive so it won't delete by accident while typing)"),
                 prefs.isSwipeDeleteWordEnabled(),
                 checked -> prefs.setSwipeDeleteWordEnabled(checked)
+        ));
+
+        root.addView(createSwitchTile(
+                tr("السحب الأفقي لتحديد كل النص", "Horizontal swipe to select all text"),
+                tr("اسحب بالاتجاه المعاكس تماماً لسحبة المسح فوق الحروف ليتحدد كل النص المكتوب دفعة واحدة",
+                        "Swipe over the keys in the exact opposite direction of swipe-to-delete to select all the typed text at once"),
+                prefs.isSwipeSelectAllEnabled(),
+                checked -> prefs.setSwipeSelectAllEnabled(checked)
         ));
 
         LinearLayout dirCard = createGroupedWhiteCard();
@@ -1647,6 +1656,13 @@ public class MainActivity extends Activity {
                    new String[]{"Left to right  →", "Right to left  ←"}),
                 prefs.getSwipeDeleteDirection(),
                 idx -> prefs.setSwipeDeleteDirection(idx)));
+        TextView dirNote = new TextView(this);
+        dirNote.setText(tr("سحبة تحديد الكل تاخذ تلقائياً الاتجاه المعاكس لهذا الاختيار",
+                "The select-all swipe automatically takes the opposite direction of this choice"));
+        dirNote.setTextColor(Color.parseColor("#6B7280"));
+        dirNote.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        dirNote.setPadding(0, dp(8), 0, 0);
+        dirCard.addView(dirNote);
         root.addView(dirCard);
 
         root.addView(createSwitchTile(
