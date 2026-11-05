@@ -219,6 +219,10 @@ public class BlackBerryKeyboardView extends View {
 
     private KeyDef touchDownKey = null;
     private KeyDef visualPressedKey = null;
+    // ===== أنيميشن ارتداد الزر (اختياري من الإعدادات): الزر ينضغط شوي ثم يرتد لحجمه الطبيعي =====
+    private KeyDef bounceKey = null;
+    private long bounceStartTime = 0L;
+    private static final long KEY_BOUNCE_MS = 170L;
 
     private int touchDownSuggestionSlot = -1;
     private boolean suggestionLongPressConsumed = false;
@@ -1431,6 +1435,13 @@ public class BlackBerryKeyboardView extends View {
         for (int rIdx = 0; rIdx < rows.size(); rIdx++) {
             List<KeyDef> row = rows.get(rIdx);
             for (KeyDef k : row) {
+                boolean bounceActive = (k == bounceKey) && (now - bounceStartTime < KEY_BOUNCE_MS);
+                int savedCount = -1;
+                if (bounceActive) {
+                    float scale = keyBounceScale(now - bounceStartTime);
+                    savedCount = canvas.save();
+                    canvas.scale(scale, scale, k.rect.centerX(), k.rect.centerY());
+                }
                 boolean isSpecial = (k.type != KeyType.CHAR && k.type != KeyType.SPACE);
                 Paint bg;
                 if (k == visualPressedKey && !isDragging) {
@@ -1513,11 +1524,19 @@ public class BlackBerryKeyboardView extends View {
                     canvas.drawText(displayLabel, k.rect.centerX(), textY, mainTextPaint);
                     mainTextPaint.setTextSize(prevSize);
                 }
+                if (bounceActive) {
+                    canvas.restoreToCount(savedCount);
+                }
             }
             if (keyboardStyle == KeyboardPreferences.STYLE_BLACKBERRY_FRETS && !row.isEmpty() && rIdx < rows.size() - 1) {
                 float rowBottom = row.get(0).rect.bottom;
                 canvas.drawLine(0f, rowBottom, getWidth(), rowBottom, fretLinePaint);
             }
+        }
+        if (bounceKey != null && now - bounceStartTime < KEY_BOUNCE_MS) {
+            postInvalidateOnAnimation();
+        } else {
+            bounceKey = null;
         }
 
         // 2ب. رسم نسخ الحروف المكررة على طرفي فجوة المنتصف (وضع الكيبورد المقسوم على الشاشات الكبيرة)
@@ -1567,6 +1586,21 @@ public class BlackBerryKeyboardView extends View {
     private final android.graphics.Path deleteTagPath = new android.graphics.Path();
     private final Paint deleteTagFill = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint deleteTagCross = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    /** مقدار تكبير/تصغير الزر أثناء أنيميشن الارتداد: ينضغط لأصغر حجم بسرعة ثم يرتد ويتجاوز
+     * حجمه الطبيعي شوي قبل ما يستقر عليه تماماً (منحنى overshoot بسيط، بدون مكتبات أنيميشن). */
+    private float keyBounceScale(long elapsedMs) {
+        float t = Math.max(0f, Math.min(1f, elapsedMs / (float) KEY_BOUNCE_MS));
+        if (t < 0.35f) {
+            float u = t / 0.35f;
+            return 1f - 0.14f * u;
+        }
+        float u = (t - 0.35f) / 0.65f;
+        float tension = 2.2f;
+        float um1 = u - 1f;
+        float overshoot = um1 * um1 * ((tension + 1f) * um1 + tension) + 1f;
+        return 0.86f + 0.14f * overshoot;
+    }
 
     private void startDeleteTagAnimation(float x, float y, float dx) {
         deleteTagStart = SystemClock.uptimeMillis();
@@ -2349,6 +2383,10 @@ public class BlackBerryKeyboardView extends View {
                 touchDownKey = findKeyAt(x, y);
                 if (touchDownKey != null) {
                     visualPressedKey = touchDownKey;
+                    if (prefs.isKeyBounceAnimationEnabled()) {
+                        bounceKey = touchDownKey;
+                        bounceStartTime = SystemClock.uptimeMillis();
+                    }
                     if (prefs.isKeyPreviewPopupEnabled()
                             && (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD)) {
                         // يظهر فوراً بدون أي تأخير (زي Gboard بالضبط)، ويُلغى فوراً أول ما يبدأ سحب حقيقي.

@@ -383,6 +383,15 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_select_all_enabled", enabled).apply();
     }
 
+    /** أنيميشن ارتداد الزر نفسه عند الضغط عليه (ينضغط ثم يرتد لحجمه الطبيعي). */
+    public boolean isKeyBounceAnimationEnabled() {
+        return prefs.getBoolean("key_bounce_anim_enabled", false);
+    }
+
+    public void setKeyBounceAnimationEnabled(boolean enabled) {
+        prefs.edit().putBoolean("key_bounce_anim_enabled", enabled).apply();
+    }
+
     public int getEmojiSizeSp() {
         return prefs.getInt("emoji_size_sp", 23);
     }
