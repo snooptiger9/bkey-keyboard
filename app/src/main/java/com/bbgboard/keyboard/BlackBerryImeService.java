@@ -1604,7 +1604,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         if (pasteMode) {
             try {
-                if (ic.performContextMenuAction(android.R.id.paste)) return true;
+                if (ic.performContextMenuAction(android.R.id.paste)) {
+                    lastCopyTime = 0L; // بعد اللصق مباشرة ترجع السحبة للأسفل "نسخ"، مو بعد دقيقة
+                    return true;
+                }
             } catch (Exception ignored) {
             }
             android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -1612,6 +1615,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 CharSequence text = cm.getPrimaryClip().getItemAt(0).coerceToText(this);
                 if (text != null) {
                     ic.commitText(text, 1);
+                    lastCopyTime = 0L;
                     return true;
                 }
             }
