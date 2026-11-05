@@ -1546,6 +1546,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public boolean onSwipeLeftDeleteWord() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
+
+        // إذا كان هناك تحديد نشط (مثلاً بعد سحبة "تحديد الكل")، نحذف المحدد نفسه مباشرة
+        // بدل البحث عن "الكلمة قبل المؤشر" (اللي تفشل لأن بداية التحديد تكون عند أول النص).
+        android.view.inputmethod.ExtractedTextRequest selReq = new android.view.inputmethod.ExtractedTextRequest();
+        android.view.inputmethod.ExtractedText selEt = ic.getExtractedText(selReq, 0);
+        if (selEt != null && selEt.selectionEnd > selEt.selectionStart) {
+            ic.commitText("", 1);
+            refreshPredictions();
+            return true;
+        }
+
         CharSequence cs = textBefore(ic, 64);
         if (cs == null || cs.length() == 0) return false;
         String before = cs.toString();
@@ -1579,6 +1590,42 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         android.view.inputmethod.ExtractedText et = ic.getExtractedText(req, 0);
         if (et == null || et.text == null || et.text.length() == 0) return false;
         return ic.setSelection(0, et.text.length());
+    }
+
+    private long lastCopyTime = 0L;
+    private static final long PASTE_WINDOW_MS = 60_000L; // دقيقة واحدة بعد النسخ يتحول السحب للأسفل إلى لصق
+
+    @Override
+    public boolean onSwipeDownCopyPaste() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return false;
+        long now = android.os.SystemClock.uptimeMillis();
+        boolean pasteMode = lastCopyTime != 0L && (now - lastCopyTime) < PASTE_WINDOW_MS;
+
+        if (pasteMode) {
+            try {
+                if (ic.performContextMenuAction(android.R.id.paste)) return true;
+            } catch (Exception ignored) {
+            }
+            android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (cm != null && cm.hasPrimaryClip() && cm.getPrimaryClip().getItemCount() > 0) {
+                CharSequence text = cm.getPrimaryClip().getItemAt(0).coerceToText(this);
+                if (text != null) {
+                    ic.commitText(text, 1);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        try {
+            if (ic.performContextMenuAction(android.R.id.copy)) {
+                lastCopyTime = now;
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     @Override
