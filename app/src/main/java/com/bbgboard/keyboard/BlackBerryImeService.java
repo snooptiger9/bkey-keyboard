@@ -1566,6 +1566,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     @Override
+    public boolean onSwipeSelectAll() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return false;
+        // أولاً نجرب أمر "تحديد الكل" الرسمي (يعمل صح مع أغلب حقول النص المعتادة في النظام).
+        try {
+            if (ic.performContextMenuAction(android.R.id.selectAll)) return true;
+        } catch (Exception ignored) {
+        }
+        // بديل احتياطي: نجيب طول النص كامل عبر ExtractedText ونحدده يدوياً من البداية للنهاية.
+        android.view.inputmethod.ExtractedTextRequest req = new android.view.inputmethod.ExtractedTextRequest();
+        android.view.inputmethod.ExtractedText et = ic.getExtractedText(req, 0);
+        if (et == null || et.text == null || et.text.length() == 0) return false;
+        return ic.setSelection(0, et.text.length());
+    }
+
+    @Override
     public void onSwipeUpSuggestion(int zoneIndex) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
