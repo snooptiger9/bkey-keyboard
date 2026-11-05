@@ -2180,14 +2180,16 @@ public class BlackBerryKeyboardView extends View {
         float prevSize = mainTextPaint.getTextSize();
         int prevColor = mainTextPaint.getColor();
         Typeface prevTypeface = mainTextPaint.getTypeface();
-        mainTextPaint.setTextSize(21f * scaledDensity);
+        mainTextPaint.setTextSize(23f * scaledDensity);
         mainTextPaint.setTypeface(Typeface.create(prevTypeface, Typeface.BOLD));
+        mainTextPaint.setFakeBoldText(true);
         if (isCapsLock || isShift) {
             mainTextPaint.setColor(Color.parseColor("#3B82F6"));
         }
         float textY = rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
         canvas.drawText("⬆", rect.centerX(), textY, mainTextPaint);
         mainTextPaint.setTypeface(prevTypeface);
+        mainTextPaint.setFakeBoldText(false);
 
         if (isCapsLock) {
             float lineHalfW = 9f * density;
