@@ -1627,6 +1627,14 @@ public class MainActivity extends Activity {
         ));
 
         root.addView(createSwitchTile(
+                tr("أنميشن ارتداد الزر عند الضغط", "Key bounce animation on press"),
+                tr("الزر نفسه ينضغط شوي ثم يرتد لحجمه الطبيعي مع كل نقرة، بدل تغيير لون الخلفية فقط",
+                        "The key itself compresses slightly then springs back to its normal size with every tap, instead of just a background color change"),
+                prefs.isKeyBounceAnimationEnabled(),
+                checked -> prefs.setKeyBounceAnimationEnabled(checked)
+        ));
+
+        root.addView(createSwitchTile(
                 tr("السحب الأفقي لمسح كلمة كاملة", "Horizontal swipe to delete a whole word"),
                 tr("اسحب أفقياً فوق الحروف لحذف آخر كلمة دفعة واحدة (سحبة أوضح الآن، أقل حساسية حتى ما تنمسح كلمة بالغلط أثناء الكتابة)",
                         "Swipe sideways over the keys to delete the last word at once (now needs a clearer swipe, less sensitive so it won't delete by accident while typing)"),
