@@ -222,7 +222,7 @@ public class BlackBerryKeyboardView extends View {
     // ===== أنيميشن ارتداد الزر (اختياري من الإعدادات): الزر ينضغط شوي ثم يرتد لحجمه الطبيعي =====
     private KeyDef bounceKey = null;
     private long bounceStartTime = 0L;
-    private static final long KEY_BOUNCE_MS = 170L;
+    private static final long KEY_BOUNCE_MS = 240L;
 
     private int touchDownSuggestionSlot = -1;
     private boolean suggestionLongPressConsumed = false;
@@ -1438,8 +1438,11 @@ public class BlackBerryKeyboardView extends View {
                 boolean bounceActive = (k == bounceKey) && (now - bounceStartTime < KEY_BOUNCE_MS);
                 int savedCount = -1;
                 if (bounceActive) {
-                    float scale = keyBounceScale(now - bounceStartTime);
+                    long el = now - bounceStartTime;
+                    float scale = keyBounceScale(el);
+                    float lift = keyBounceLiftPx(el);
                     savedCount = canvas.save();
+                    canvas.translate(0f, lift);
                     canvas.scale(scale, scale, k.rect.centerX(), k.rect.centerY());
                 }
                 boolean isSpecial = (k.type != KeyType.CHAR && k.type != KeyType.SPACE);
@@ -1591,15 +1594,35 @@ public class BlackBerryKeyboardView extends View {
      * حجمه الطبيعي شوي قبل ما يستقر عليه تماماً (منحنى overshoot بسيط، بدون مكتبات أنيميشن). */
     private float keyBounceScale(long elapsedMs) {
         float t = Math.max(0f, Math.min(1f, elapsedMs / (float) KEY_BOUNCE_MS));
-        if (t < 0.35f) {
-            float u = t / 0.35f;
-            return 1f - 0.14f * u;
+        if (t < 0.3f) {
+            // انضغاط واضح وسريع (مو خفيف) أول ما تلمس الزر
+            float u = t / 0.3f;
+            return 1f - 0.26f * u;
         }
-        float u = (t - 0.35f) / 0.65f;
-        float tension = 2.2f;
+        // ثم ينقز ويرتد متجاوزاً حجمه الطبيعي بوضوح قبل ما يستقر (overshoot أقوى من قبل)
+        float u = (t - 0.3f) / 0.7f;
+        float tension = 3.4f;
         float um1 = u - 1f;
         float overshoot = um1 * um1 * ((tension + 1f) * um1 + tension) + 1f;
-        return 0.86f + 0.14f * overshoot;
+        return 0.74f + 0.26f * overshoot;
+    }
+
+    /** إزاحة رأسية خفيفة (بكسل) تواكب الانضغاط/الارتداد، عشان يحس إنه "ينقز" فعلاً مو بس يتمدد
+     * مكانه: ينزل شوي وقت الانضغاط ثم يقفز لأعلى شوي وقت الارتداد قبل ما يرجع لمكانه الطبيعي. */
+    private float keyBounceLiftPx(long elapsedMs) {
+        float t = Math.max(0f, Math.min(1f, elapsedMs / (float) KEY_BOUNCE_MS));
+        float maxDown = 2.5f * density;   // ينزل شوي وقت الانضغاط
+        float maxUp = 6.0f * density;     // يقفز لأعلى وقت الارتداد
+        if (t < 0.3f) {
+            float u = t / 0.3f;
+            return maxDown * u; // موجب = نزول (نظام إحداثيات الكانفاس: Y يكبر لتحت)
+        }
+        float u = (t - 0.3f) / 0.7f;
+        float tension = 3.4f;
+        float um1 = u - 1f;
+        float overshoot = um1 * um1 * ((tension + 1f) * um1 + tension) + 1f; // يبدأ 0 ويتجاوز 1 ثم يستقر على 1
+        // نحول overshoot لإزاحة: يبدأ من maxDown (استمرار الانضغاط) وينتقل لقفزة فوق الصفر (سالب) ثم يرجع صفر
+        return maxDown * (1f - overshoot) - maxUp * Math.max(0f, overshoot - 1f);
     }
 
     private void startDeleteTagAnimation(float x, float y, float dx) {
