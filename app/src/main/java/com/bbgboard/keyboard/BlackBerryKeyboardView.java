@@ -2179,12 +2179,15 @@ public class BlackBerryKeyboardView extends View {
     private void drawShiftKeyIcon(Canvas canvas, RectF rect) {
         float prevSize = mainTextPaint.getTextSize();
         int prevColor = mainTextPaint.getColor();
-        mainTextPaint.setTextSize(19f * scaledDensity);
+        Typeface prevTypeface = mainTextPaint.getTypeface();
+        mainTextPaint.setTextSize(21f * scaledDensity);
+        mainTextPaint.setTypeface(Typeface.create(prevTypeface, Typeface.BOLD));
         if (isCapsLock || isShift) {
             mainTextPaint.setColor(Color.parseColor("#3B82F6"));
         }
         float textY = rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
         canvas.drawText("⬆", rect.centerX(), textY, mainTextPaint);
+        mainTextPaint.setTypeface(prevTypeface);
 
         if (isCapsLock) {
             float lineHalfW = 9f * density;
