@@ -1650,6 +1650,14 @@ public class MainActivity extends Activity {
                 checked -> prefs.setSwipeSelectAllEnabled(checked)
         ));
 
+        root.addView(createSwitchTile(
+                tr("السحب للأسفل للنسخ واللصق", "Swipe down to copy/paste"),
+                tr("اسحب للأسفل فوق الحروف لنسخ النص المحدد، وبعد النسخ تتحول السحبة للأسفل إلى لصق لمدة دقيقة ثم ترجع نسخ",
+                        "Swipe down over the keys to copy selected text; after copying, swipe-down turns into paste for one minute, then reverts to copy"),
+                prefs.isSwipeDownCopyPasteEnabled(),
+                checked -> prefs.setSwipeDownCopyPasteEnabled(checked)
+        ));
+
         LinearLayout dirCard = createGroupedWhiteCard();
         dirCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView dirHeader = new TextView(this);

@@ -383,6 +383,15 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_select_all_enabled", enabled).apply();
     }
 
+    /** سحبة للأسفل: نسخ النص المحدد، وتتحول للصق تلقائياً لمدة دقيقة بعد كل نسخة. */
+    public boolean isSwipeDownCopyPasteEnabled() {
+        return prefs.getBoolean("swipe_down_copy_paste_enabled", true);
+    }
+
+    public void setSwipeDownCopyPasteEnabled(boolean enabled) {
+        prefs.edit().putBoolean("swipe_down_copy_paste_enabled", enabled).apply();
+    }
+
     /** أنيميشن ارتداد الزر نفسه عند الضغط عليه (ينضغط ثم يرتد لحجمه الطبيعي). */
     public boolean isKeyBounceAnimationEnabled() {
         return prefs.getBoolean("key_bounce_anim_enabled", false);

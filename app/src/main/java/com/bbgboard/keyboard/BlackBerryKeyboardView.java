@@ -74,6 +74,8 @@ public class BlackBerryKeyboardView extends View {
         boolean onSwipeLeftDeleteWord();
         /** سحبة من اليمين لليسار (الاتجاه المعاكس تماماً لسحبة المسح) لتحديد كل النص المكتوب. */
         boolean onSwipeSelectAll();
+        /** سحبة للأسفل: نسخ النص المحدد (أو لصق إذا كنا بعد النسخ مباشرة بفترة اللصق المؤقتة). */
+        boolean onSwipeDownCopyPaste();
         void onSwipeUpSuggestion(int zoneIndex);
         void onEnterKey();
         void onToggleClipboardMenu();
@@ -2607,6 +2609,17 @@ public class BlackBerryKeyboardView extends View {
                     soundController.playSwipeUpSound();
                     launchWordOutsideKeyboard(zone);
                     if (listener != null) listener.onSwipeUpSuggestion(zone);
+                    return true;
+                }
+
+                // السحب للأسفل: نسخ النص المحدد، وإذا تم النسخ يتحول السحب للأسفل إلى لصق لمدة دقيقة.
+                float swipeDownThreshold = 32f * density;
+                if (prefs.isSwipeDownCopyPasteEnabled() && dy > swipeDownThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
+                    boolean done = listener != null && listener.onSwipeDownCopyPaste();
+                    if (done) {
+                        vibrateTap(true);
+                        soundController.playSwipeDeleteSound();
+                    }
                     return true;
                 }
 
