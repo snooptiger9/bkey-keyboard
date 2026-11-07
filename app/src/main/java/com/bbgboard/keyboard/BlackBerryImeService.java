@@ -2143,7 +2143,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         boolean arabicUi = keyboardView == null || keyboardView.isArabic();
         if (clipCountTv != null) {
             if (clips.isEmpty()) {
-                clipCountTv.setText(arabicUi ? "لا يوجد عناصر" : "No items");
+                clipCountTv.setText("");
             } else {
                 clipCountTv.setText(arabicUi
                         ? clips.size() + " عنصر"
