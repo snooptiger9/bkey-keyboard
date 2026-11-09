@@ -720,18 +720,6 @@ public class MainActivity extends Activity {
                 prefs.isSpaceSwipeLangEnabled(),
                 checked -> prefs.setSpaceSwipeLangEnabled(checked)
         ));
-
-        LinearLayout infoCard = createGroupedWhiteCard();
-        infoCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        TextView infoTv = new TextView(this);
-        infoTv.setText(tr(
-                "• اللغة العربية: توزيعة Gboard الصافية بدون أرقام على الحروف. اضغط مطولاً على أي حرف عربي ليظهر بوب أب الهمزات والحروف البديلة وتختار منها.\n\n• اللغة الإنجليزية: توزيعة QWERTY القياسية مع دعم الكابيتال التلقائي وتثبيت Caps Lock.",
-                "• Arabic: a clean Gboard-style layout with no numbers printed on the letter keys. Long-press any Arabic letter to pick a hamza or alternate form.\n\n• English: standard QWERTY with auto-capitalize and a Caps Lock toggle."
-        ));
-        infoTv.setTextColor(Color.parseColor("#374151"));
-        infoTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-        infoCard.addView(infoTv);
-        root.addView(infoCard);
     }
 
     @Override
@@ -941,9 +929,9 @@ public class MainActivity extends Activity {
         eHeader.setPadding(0, 0, 0, dp(10));
         enterCard.addView(eHeader);
         String[] enterNames = tr(
-                new String[]{"افتراضي", "أزرق", "أخضر", "بنفسجي", "برتقالي", "وردي", "أحمر", "عنابي"},
-                new String[]{"Default", "Blue", "Green", "Purple", "Orange", "Pink", "Red", "Burgundy"});
-        String[] enterHex = {"#4B5563", "#8AB4F8", "#16A34A", "#7C3AED", "#EA580C", "#DB2777", "#DC2626", "#7F1D3F"};
+                new String[]{"افتراضي", "أزرق", "أخضر", "أحمر", "عنابي"},
+                new String[]{"Default", "Blue", "Green", "Red", "Burgundy"});
+        String[] enterHex = {"#4B5563", "#8AB4F8", "#16A34A", "#DC2626", "#7F1D3F"};
         List<View> enterTiles = new ArrayList<>();
         for (int i = 0; i < enterNames.length; i++) {
             final int color = i == 0 ? 0 : Color.parseColor(enterHex[i]);
