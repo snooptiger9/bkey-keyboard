@@ -59,21 +59,32 @@ public class KeyboardPreferences {
 
     public KeyboardPreferences(Context context) {
         this.prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        initDefaultShortcutsIfNeeded();
+        removeDefaultShortcutsOnce();
     }
 
-    private void initDefaultShortcutsIfNeeded() {
-        if (!prefs.contains("shortcuts_initialized_v7")) {
-            Map<String, String> defaults = new LinkedHashMap<>();
-            defaults.put("سع", "السلام عليكم ورحمة الله وبركاته");
-            defaults.put("جخ", "جزاك الله خيراً");
-            defaults.put("اشل", "إن شاء الله");
-            defaults.put("مشل", "ما شاء الله تبارك الله");
-            defaults.put("يعاف", "يعطيك العافية");
-            defaults.put("صلعم", "اللهم صل وسلم على نبينا محمد");
-            saveShortcutsMap(defaults);
-            prefs.edit().putBoolean("shortcuts_initialized_v7", true).apply();
+    // كانت النسخ القديمة تضيف اختصارات جاهزة تلقائياً (سع، جخ، اشل...). هذا تنظيف لمرة وحدة
+    // يشيلها من أي تركيب قديم فيه هالاختصارات محفوظة، بدون ما يمسح أي اختصار المستخدم ضافه بنفسه
+    // بنفس المفتاح (نتأكد النص مطابق تماماً للقيمة الافتراضية القديمة قبل الحذف).
+    private void removeDefaultShortcutsOnce() {
+        if (prefs.contains("default_shortcuts_removed_v7")) return;
+        Map<String, String> oldDefaults = new LinkedHashMap<>();
+        oldDefaults.put("سع", "السلام عليكم ورحمة الله وبركاته");
+        oldDefaults.put("جخ", "جزاك الله خيراً");
+        oldDefaults.put("اشل", "إن شاء الله");
+        oldDefaults.put("مشل", "ما شاء الله تبارك الله");
+        oldDefaults.put("يعاف", "يعطيك العافية");
+        oldDefaults.put("صلعم", "اللهم صل وسلم على نبينا محمد");
+        Map<String, String> current = getShortcuts();
+        boolean changed = false;
+        for (Map.Entry<String, String> e : oldDefaults.entrySet()) {
+            String currentVal = current.get(e.getKey());
+            if (currentVal != null && currentVal.equals(e.getValue())) {
+                current.remove(e.getKey());
+                changed = true;
+            }
         }
+        if (changed) saveShortcutsMap(current);
+        prefs.edit().putBoolean("default_shortcuts_removed_v7", true).apply();
     }
 
     public boolean isKeyPreviewPopupEnabled() {
