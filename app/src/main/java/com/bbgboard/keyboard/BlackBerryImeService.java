@@ -59,6 +59,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private FrameLayout rootContainer;
     private BlackBerryKeyboardView keyboardView;
+    // زر صغير بالمساحة الفاضية لوضع اليد الواحدة، يبدّل جهة الكيبورد (يمين/يسار) بضغطة وحدة
+    private FrameLayout oneHandedSwitchBtn;
+    private ModernIconView oneHandedSwitchIcon;
     private LinearLayout clipboardDrawerView;
     private LinearLayout clipsListContainer;
     private TextView clipCountTv;
@@ -511,6 +514,27 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         rootContainer.addView(emojiDrawerView);
         drawersTheme = keyboardPrefs.getThemeMode();
 
+        // زر تبديل جهة اليد الواحدة، يظهر بالمساحة الفاضية فقط لما يكون الوضع مفعّلاً.
+        oneHandedSwitchIcon = new ModernIconView(this, ModernIconView.ICON_FORWARD_ARROW, Color.WHITE, Color.parseColor("#33FFFFFF"));
+        oneHandedSwitchIcon.setStyle(0.85f, 2.0f);
+        oneHandedSwitchBtn = new FrameLayout(this);
+        GradientDrawable oneHandedBtnBg = new GradientDrawable();
+        oneHandedBtnBg.setShape(GradientDrawable.OVAL);
+        oneHandedBtnBg.setColor(Color.parseColor("#33FFFFFF"));
+        oneHandedSwitchBtn.setBackground(oneHandedBtnBg);
+        FrameLayout.LayoutParams lpOneHandedIcon = new FrameLayout.LayoutParams(dp(22), dp(22));
+        lpOneHandedIcon.gravity = Gravity.CENTER;
+        oneHandedSwitchBtn.addView(oneHandedSwitchIcon, lpOneHandedIcon);
+        oneHandedSwitchBtn.setVisibility(View.GONE);
+        oneHandedSwitchBtn.setOnClickListener(v -> {
+            int mode = keyboardPrefs.getOneHandedMode();
+            keyboardPrefs.setOneHandedMode(mode == 2 ? 1 : 2);
+            applyOneHandedMode();
+            soundController.playKeyClick();
+        });
+        FrameLayout.LayoutParams lpOneHandedBtn = new FrameLayout.LayoutParams(dp(40), dp(40));
+        rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
+
         showKeyboardMain();
         refreshPredictions();
         applyNavigationBarColor();
@@ -958,6 +982,25 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             lp.gravity = (mode == 1) ? Gravity.LEFT : Gravity.RIGHT;
         }
         keyboardView.setLayoutParams(lp);
+        updateOneHandedSwitchButton();
+    }
+
+    /** يحدّث ظهور وموضع واتجاه سهم زر تبديل جهة اليد الواحدة حسب الوضع الحالي. مخفي تماماً لو
+     *  وضع اليد الواحدة معطّل أو لو الكيبورد نفسه مو ظاهر حالياً (فتحة الحافظة/الإيموجي). */
+    private void updateOneHandedSwitchButton() {
+        if (oneHandedSwitchBtn == null) return;
+        int mode = keyboardPrefs.getOneHandedMode();
+        boolean keyboardShown = keyboardView != null && keyboardView.getVisibility() == View.VISIBLE;
+        if (mode == 0 || !keyboardShown) {
+            oneHandedSwitchBtn.setVisibility(View.GONE);
+            return;
+        }
+        // الكيبورد يسار (mode==1) ⇒ الفراغ يمين ⇒ الزر يمين وسهمه لليمين، والعكس بالعكس.
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) oneHandedSwitchBtn.getLayoutParams();
+        lp.gravity = Gravity.CENTER_VERTICAL | (mode == 1 ? Gravity.RIGHT : Gravity.LEFT);
+        oneHandedSwitchBtn.setLayoutParams(lp);
+        oneHandedSwitchIcon.setIconType(mode == 1 ? ModernIconView.ICON_FORWARD_ARROW : ModernIconView.ICON_BACK_ARROW);
+        oneHandedSwitchBtn.setVisibility(View.VISIBLE);
     }
 
     /** يجعل ارتفاع القائمة (الحافظة/الإيموجي) مساوياً لارتفاع الكيبورد الحالي حتى لا يصغر الكيبورد عند فتحها. */
@@ -990,6 +1033,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiDrawerView.setVisibility(View.GONE);
         if (wasDrawer) fadeIn(keyboardView, 0);
         updateInlineStripVisibility();
+        updateOneHandedSwitchButton();
     }
 
     private void openAppSettingsActivity() {
@@ -1015,6 +1059,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         clipboardDrawerView.setVisibility(View.VISIBLE);
         fadeIn(clipboardDrawerView, 10);
         updateInlineStripVisibility();
+        updateOneHandedSwitchButton();
         tryCaptureScreenshotClip(true);
     }
 
@@ -1193,6 +1238,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiDrawerView.setVisibility(View.VISIBLE);
         fadeIn(emojiDrawerView, 10);
         updateInlineStripVisibility();
+        updateOneHandedSwitchButton();
     }
 
     @Override

@@ -54,7 +54,13 @@ public class ModernIconView extends View {
         invalidate();
     }
 
-    private final int iconType;
+    /** يغيّر شكل الأيقونة المرسومة بعد الإنشاء (مثل تبديل اتجاه السهم). */
+    public void setIconType(int type) {
+        this.iconType = type;
+        invalidate();
+    }
+
+    private int iconType;
     private int iconColor;
     private int bgCircleColor;
     private final float density;
