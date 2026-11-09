@@ -371,14 +371,14 @@ public class MainActivity extends Activity {
         LinearLayout group1 = createGroupedWhiteCard();
         group1.addView(createMenuRow(
                 ModernIconView.ICON_GLOBE_LANG,
-                tr("اللغات وتوزيعة الحروف", "Languages & layout"),
+                tr("اللغة", "Language"),
                 tr("العربية والإنجليزية • بوب أب الضغط المطول", "Arabic & English • long-press popup"),
                 true,
                 this::openLanguagesScreen
         ));
         group1.addView(createMenuRow(
                 ModernIconView.ICON_THEME_PALETTE,
-                tr("المظهر وشكل الكيبورد", "Theme & key style"),
+                tr("المظهر وشكل الكيبورد والحجم", "Theme, key style & size"),
                 getThemeAndStyleSummary(),
                 false,
                 this::openThemeAndStyleScreen
@@ -749,7 +749,7 @@ public class MainActivity extends Activity {
     }
 
     private void openLanguagesScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("اللغات وتوزيعة الحروف", "Languages & layout"));
+        LinearLayout root = createSubScreenTemplate(tr("اللغة", "Language"));
 
         // اللغات المفعّلة: الاثنتان (تبديل بالسحب) أو لغة واحدة فقط بدون تبديل
         LinearLayout langModeCard = createGroupedWhiteCard();
@@ -868,7 +868,7 @@ public class MainActivity extends Activity {
     }
 
     private void openThemeAndStyleScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("المظهر وشكل الكيبورد", "Theme & key style"));
+        LinearLayout root = createSubScreenTemplate(tr("المظهر وشكل الكيبورد والحجم", "Theme, key style & size"));
         fillThemeAndStyleScreen(root);
     }
 
