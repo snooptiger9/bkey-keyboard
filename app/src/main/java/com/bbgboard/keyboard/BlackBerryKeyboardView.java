@@ -704,6 +704,9 @@ public class BlackBerryKeyboardView extends View {
 
     /** هامش صغير على يمين ويسار كل الصفوف (كل اللغات) خارج وضع التابلت، بدل التصاق الأزرار بحافة الشاشة. */
     private static final float SIDE_MARGIN_DP = 1.5f;
+    // هامش جانبي أوسع للوحة الأرقام (نسبة من عرض الشاشة) عشان تصير اللوحة أضيق ومتمركزة،
+    // ورقم 5 (منتصف الأعمدة الثلاثة) يصير فعلياً في منتصف الشاشة.
+    private static final float NUMERIC_FIELD_SIDE_MARGIN_FRAC = 0.14f;
 
     /** إزاحة صف الإنجليزي الثاني (ASDF...) من الجانبين بنسبة من عرض مفتاح (جي بورد = 0.5، هنا أقل شوي). */
     private static final float ENGLISH_ROW2_INDENT_KEYS = 0.35f;
@@ -965,33 +968,37 @@ public class BlackBerryKeyboardView extends View {
      * لوحة أرقام مخصصة تظهر تلقائياً في الحقول التي تقبل أرقاماً فقط (رقم/هاتف/تاريخ ووقت)،
      * مبنية بنفس نظام KeyDef/KeyType لتأخذ ألوان وشكل السمة والنمط المختارين تلقائياً.
      */
+    // لوحة أرقام بثلاثة أعمدة بالضبط (زي لوحة اتصال الهاتف الكلاسيكية) عشان رقم 5 يكون تماماً
+    // في منتصف اللوحة أفقياً، وزر الحذف/الإدخال بصف مستقل تحت بدل ما يكونون عمود رابع يزيح
+    // الأعمدة عن المنتصف. مع هوامش جانبية أوسع (numericFieldSideMarginFrac) تصغر عرض اللوحة
+    // وتقرّب الأزرار من بعض عشان الكتابة تكون أسهل وأسرع.
     private List<List<KeyDef>> buildNumericFieldRows() {
         List<KeyDef> row1 = Arrays.asList(
             new KeyDef("1"),
             new KeyDef("2"),
-            new KeyDef("3"),
-            new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1f)
+            new KeyDef("3")
         );
         List<KeyDef> row2 = Arrays.asList(
             new KeyDef("4"),
             new KeyDef("5"),
-            new KeyDef("6"),
-            new KeyDef("-", "", Arrays.asList("_", "/"))
+            new KeyDef("6")
         );
-        // الرموز مثل لوحة جي بورد للأرقام: الرمز الصغير على زاوية الزر هو اللي يُكتب بالضغط المطول
         List<KeyDef> row3 = Arrays.asList(
             new KeyDef("7"),
             new KeyDef("8"),
-            new KeyDef("9"),
-            new KeyDef(".", "#", Arrays.asList("#", "(", ")"))
+            new KeyDef("9")
         );
+        // الرموز مثل لوحة جي بورد للأرقام: الرمز الصغير على زاوية الزر هو اللي يُكتب بالضغط المطول
         List<KeyDef> row4 = Arrays.asList(
             new KeyDef(",", "*", Arrays.asList("*", ";")),
-            new KeyDef("0", "+", Collections.singletonList("+")),
-            new KeyDef("00"),
+            new KeyDef("0", "00", Arrays.asList("00", "+")),
+            new KeyDef(".", "#", Arrays.asList("#", "(", ")"))
+        );
+        List<KeyDef> row5 = Arrays.asList(
+            new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1f),
             new KeyDef("↵", "", Collections.<String>emptyList(), KeyType.ENTER, 1f)
         );
-        return Arrays.asList(row1, row2, row3, row4);
+        return Arrays.asList(row1, row2, row3, row4, row5);
     }
 
     /**
@@ -1212,7 +1219,14 @@ public class BlackBerryKeyboardView extends View {
             } else {
                 // الصف الأخير (المسافة/الإدخال) يبقى شريط واحد متصل بدون فاصل بالمنتصف، لكن لو وضع
                 // التقسيم مفعّل يأخذ نفس فجوتي الطرفين (يمين ويسار) مثل بقية الصفوف فوقه تماماً.
-                float rowEdge = splitActive ? edgeW : SIDE_MARGIN_DP * density;
+                float rowEdge;
+                if (splitActive) {
+                    rowEdge = edgeW;
+                } else if (isNumericFieldMode) {
+                    rowEdge = w * NUMERIC_FIELD_SIDE_MARGIN_FRAC;
+                } else {
+                    rowEdge = SIDE_MARGIN_DP * density;
+                }
                 float availRowW = w - rowEdge * 2f;
                 boolean bottomRowTablet = splitActive && rIdx == rows.size() - 1;
                 float totalWeight = 0f;
