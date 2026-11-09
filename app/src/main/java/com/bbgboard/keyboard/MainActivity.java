@@ -1,6 +1,7 @@
 package com.bbgboard.keyboard;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -253,11 +254,18 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** المعرّف الحقيقي اللي يستخدمه أندرويد لهذا الكيبورد (نفس صيغة ComponentName.flattenToShortString()
+     *  اللي يرجعها InputMethodInfo.getId() ويخزنها Settings.Secure.DEFAULT_INPUT_METHOD، مثل
+     *  "com.bbgboard.keyboard/.BlackBerryImeService" وليس اسم الكلاس الكامل). */
+    private String ownImeId() {
+        return new ComponentName(this, BlackBerryImeService.class).flattenToShortString();
+    }
+
     /** هل الكيبورد مفعّل حالياً ضمن قائمة لوحات المفاتيح المفعّلة بالنظام؟ */
     private boolean isOwnImeEnabled() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm == null) return false;
-        String myId = getPackageName() + "/" + BlackBerryImeService.class.getName();
+        String myId = ownImeId();
         for (InputMethodInfo info : imm.getEnabledInputMethodList()) {
             if (myId.equals(info.getId())) return true;
         }
@@ -266,9 +274,8 @@ public class MainActivity extends Activity {
 
     /** هل الكيبورد هو المختار حالياً كلوحة المفاتيح الافتراضية بالنظام؟ */
     private boolean isOwnImeSelected() {
-        String myId = getPackageName() + "/" + BlackBerryImeService.class.getName();
         String current = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
-        return myId.equals(current);
+        return ownImeId().equals(current);
     }
 
     private void showHomeGboardSettingsMenu() {
