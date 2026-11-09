@@ -954,10 +954,10 @@ public class MainActivity extends Activity {
         styleCard.addView(sHeader);
 
         String[] styleNames = tr(
-                new String[]{"بلاك بيري", "Gboard حديث", "كبسولات", "Gboard ماتيريال", "بدون إطار", "إطار خفيف", "ثلاثي الأبعاد", "بارز ناعم", "دوائر", "زجاجي"},
-                new String[]{"BlackBerry", "Gboard modern", "Pill", "Gboard material", "Borderless", "Outline", "3D keycap", "Soft raised", "Circles", "Glass"});
-        int[] styleIds = {0, 1, 2, 3, 4, 6, 7, 8, 9, 10};
-        int[] styleRadii = {2, 10, 20, 14, 8, 10, 6, 12, 24, 10};
+                new String[]{"بلاك بيري", "Gboard حديث", "كبسولات", "Gboard ماتيريال", "بدون إطار", "إطار خفيف", "بارز ناعم", "دوائر", "زجاجي"},
+                new String[]{"BlackBerry", "Gboard modern", "Pill", "Gboard material", "Borderless", "Outline", "Soft raised", "Circles", "Glass"});
+        int[] styleIds = {0, 1, 2, 3, 4, 6, 8, 9, 10};
+        int[] styleRadii = {2, 10, 20, 14, 8, 10, 12, 24, 10};
         List<View> styleTiles = new ArrayList<>();
         for (int i = 0; i < styleNames.length; i++) {
             final int id = styleIds[i];
