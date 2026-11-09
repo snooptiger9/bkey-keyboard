@@ -1020,20 +1020,20 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("س"),
             new KeyDef("ي"),
             new KeyDef("ب"),
-            new KeyDef("ل", "", Arrays.asList("لأ", "لإ", "لآ")),
-            new KeyDef("ا", "", Arrays.asList("أ", "إ", "آ")),
+            new KeyDef("ل", "", Arrays.asList("لأ", "لإ")),
+            new KeyDef("ا", "", Arrays.asList("أ", "إ")),
             new KeyDef("ت"),
             new KeyDef("ن"),
             new KeyDef("م"),
             new KeyDef("ك", "", Arrays.asList("گ")),
-            new KeyDef("ط", "", Arrays.asList("ظ"))
+            new KeyDef("ط")
         );
         List<KeyDef> row3 = Arrays.asList(
             new KeyDef("ذ"),
             new KeyDef("ء"),
             new KeyDef("ؤ"),
             new KeyDef("ر"),
-            new KeyDef("ى", "", Arrays.asList("ئ", "ي")),
+            new KeyDef("ى", "", Arrays.asList("ئ")),
             new KeyDef("ة"),
             new KeyDef("و"),
             new KeyDef("ز"),
