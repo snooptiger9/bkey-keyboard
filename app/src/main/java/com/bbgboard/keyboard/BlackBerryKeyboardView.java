@@ -1751,8 +1751,8 @@ public class BlackBerryKeyboardView extends View {
         final float gx = tabletKeyGapX;
         // لوحة الأرقام فقط: نقصان بسيط بالفراغ العمودي بين الصفوف (يُطبّق على كل الأنماط بنفس
         // طريقة tabletKeyGapY، بدون ما يأثر على لوحة الحروف العادية).
-        // الهامش الأساسي 5.9dp لكل جهة، ناقص 0.9dp في لوحة الأرقام فقط عشان يصير 5.0dp.
-        final float gy = tabletKeyGapY + (isNumericFieldMode ? -0.9f * density : 0f);
+        // الهامش الأساسي 5.9dp لكل جهة، ناقص 1.9dp في لوحة الأرقام فقط عشان يصير 4.0dp.
+        final float gy = tabletKeyGapY + (isNumericFieldMode ? -1.9f * density : 0f);
 
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
