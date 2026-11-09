@@ -1758,7 +1758,7 @@ public class BlackBerryKeyboardView extends View {
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
             // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
-            float hInset = (soft ? 2.6f : 1.0f) * density + gx;
+            float hInset = (soft ? 2.6f : 2.0f) * density + gx;
             float topInset = materialTopInsetDp(key.type, soft) * density + gy;
             float bottomInset = materialBottomInsetDp(key.type, soft) * density + gy;
             scratchKeyRect.set(rawRect.left + hInset, rawRect.top + topInset, rawRect.right - hInset, rawRect.bottom - bottomInset);
