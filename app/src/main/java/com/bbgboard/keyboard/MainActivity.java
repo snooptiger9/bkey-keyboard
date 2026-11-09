@@ -365,9 +365,9 @@ public class MainActivity extends Activity {
         ));
         group2.addView(createMenuRow(
                 ModernIconView.ICON_SLIDERS_PREFS,
-                tr("التفضيلات وأحجام الكيبورد", "Preferences & sizes"),
-                tr("حجم الحروف • ارتفاع الكيبورد • صف الأرقام • وضع التخفي • اليد الواحدة",
-                        "Font size • keyboard height • number row • incognito • one-handed mode"),
+                tr("التفضيلات", "Preferences"),
+                tr("صف الأرقام • وضع التخفي • اليد الواحدة • تقسيم الشاشة",
+                        "Number row • incognito • one-handed mode • split screen"),
                 false,
                 this::openPreferencesScreen
         ));
@@ -760,118 +760,7 @@ public class MainActivity extends Activity {
     }
 
     private void openPreferencesScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("التفضيلات وأحجام الكيبورد", "Preferences & sizes"));
-
-        LinearLayout fontCard = createGroupedWhiteCard();
-        fontCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView fontLabel = new TextView(this);
-        int fontPct = Math.round(prefs.getKeyFontScale() * 100);
-        fontLabel.setText(tr("حجم الحروف داخل المربعات: ", "Key letter size: ") + fontPct + "%");
-        fontLabel.setTextColor(Color.parseColor("#111827"));
-        fontLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        fontLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        fontCard.addView(fontLabel);
-
-        SeekBar fontSeek = new SeekBar(this);
-        fontSeek.setMax(70);
-        fontSeek.setProgress(Math.max(0, Math.min(70, fontPct - 80)));
-        fontSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        fontSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int pct = 80 + progress;
-                prefs.setKeyFontScale(pct / 100f);
-                fontLabel.setText(tr("حجم الحروف داخل المربعات: ", "Key letter size: ") + pct + "%");
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        fontCard.addView(fontSeek);
-        root.addView(fontCard);
-
-        LinearLayout heightCard = createGroupedWhiteCard();
-        heightCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView heightLabel = new TextView(this);
-        int heightPct = Math.round(prefs.getKeyboardScale() * 100);
-        heightLabel.setText(tr("ارتفاع الكيبورد العام: ", "Overall keyboard height: ") + heightPct + "%");
-        heightLabel.setTextColor(Color.parseColor("#111827"));
-        heightLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        heightLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        heightCard.addView(heightLabel);
-
-        SeekBar heightSeek = new SeekBar(this);
-        heightSeek.setMax(75);
-        heightSeek.setProgress(Math.max(0, Math.min(75, heightPct - 70)));
-        heightSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        heightSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int pct = 70 + progress;
-                prefs.setKeyboardScale(pct / 100f);
-                heightLabel.setText(tr("ارتفاع الكيبورد العام: ", "Overall keyboard height: ") + pct + "%");
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        heightCard.addView(heightSeek);
-        root.addView(heightCard);
-
-        LinearLayout sugSizeCard = createGroupedWhiteCard();
-        sugSizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView sugLabel = new TextView(this);
-        int sugPct = Math.round(prefs.getSuggestionBarScale() * 100);
-        sugLabel.setText(tr("ارتفاع صف الاقتراحات العلوي: ", "Suggestion bar height: ") + sugPct + "%");
-        sugLabel.setTextColor(Color.parseColor("#111827"));
-        sugLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        sugLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        sugSizeCard.addView(sugLabel);
-
-        SeekBar sugSeek = new SeekBar(this);
-        sugSeek.setMax(55);
-        sugSeek.setProgress(Math.max(0, Math.min(55, sugPct - 70)));
-        sugSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        sugSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int pct = 70 + progress;
-                prefs.setSuggestionBarScale(pct / 100f);
-                sugLabel.setText(tr("ارتفاع صف الاقتراحات العلوي: ", "Suggestion bar height: ") + pct + "%");
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        sugSizeCard.addView(sugSeek);
-        root.addView(sugSizeCard);
-
-        // حجم خط الاقتراحات: افتراضي + 5 درجات أكبر
-        LinearLayout sugTextCard = createGroupedWhiteCard();
-        sugTextCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView sugTextLabel = new TextView(this);
-        sugTextLabel.setTextColor(Color.parseColor("#111827"));
-        sugTextLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        sugTextLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        final Runnable updateSugTextLabel = () -> {
-            int lv = prefs.getSuggestionTextLevel();
-            sugTextLabel.setText(tr("حجم خط الاقتراحات: ", "Suggestion text size: ")
-                    + (lv == 0 ? tr("افتراضي", "Default") : "+" + lv));
-        };
-        updateSugTextLabel.run();
-        sugTextCard.addView(sugTextLabel);
-        SeekBar sugTextSeek = new SeekBar(this);
-        sugTextSeek.setMax(5);
-        sugTextSeek.setProgress(prefs.getSuggestionTextLevel());
-        sugTextSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        sugTextSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                prefs.setSuggestionTextLevel(progress);
-                updateSugTextLabel.run();
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        sugTextCard.addView(sugTextSeek);
-        root.addView(sugTextCard);
+        LinearLayout root = createSubScreenTemplate(tr("التفضيلات", "Preferences"));
 
         root.addView(createSwitchTile(
                 tr("أحرف كبيرة تلقائياً بداية كل جملة", "Auto-capitalize sentences"),
@@ -1092,6 +981,115 @@ public class MainActivity extends Activity {
         }
         addTileGrid(enterCard, enterTiles, 3);
         root.addView(enterCard);
+
+        // أحجام الكيبورد: نقلناها من صفحة التفضيلات لأنها جزء من المظهر مثل باقي الصفحة.
+        LinearLayout keySizeCard = createGroupedWhiteCard();
+        keySizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        final TextView keySizeLabel = new TextView(this);
+        int keySizePct = Math.round(prefs.getKeyFontScale() * 100);
+        keySizeLabel.setText(tr("5. حجم الحروف داخل المربعات: ", "5. Key letter size: ") + keySizePct + "%");
+        keySizeLabel.setTextColor(Color.parseColor("#111827"));
+        keySizeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        keySizeLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        keySizeCard.addView(keySizeLabel);
+        SeekBar keySizeSeek = new SeekBar(this);
+        keySizeSeek.setMax(70);
+        keySizeSeek.setProgress(Math.max(0, Math.min(70, keySizePct - 80)));
+        keySizeSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        keySizeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int pct = 80 + progress;
+                prefs.setKeyFontScale(pct / 100f);
+                keySizeLabel.setText(tr("5. حجم الحروف داخل المربعات: ", "5. Key letter size: ") + pct + "%");
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        keySizeCard.addView(keySizeSeek);
+        root.addView(keySizeCard);
+
+        LinearLayout kbHeightCard = createGroupedWhiteCard();
+        kbHeightCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        final TextView kbHeightLabel = new TextView(this);
+        int kbHeightPct = Math.round(prefs.getKeyboardScale() * 100);
+        kbHeightLabel.setText(tr("6. ارتفاع الكيبورد العام: ", "6. Overall keyboard height: ") + kbHeightPct + "%");
+        kbHeightLabel.setTextColor(Color.parseColor("#111827"));
+        kbHeightLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        kbHeightLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        kbHeightCard.addView(kbHeightLabel);
+        SeekBar kbHeightSeek = new SeekBar(this);
+        kbHeightSeek.setMax(75);
+        kbHeightSeek.setProgress(Math.max(0, Math.min(75, kbHeightPct - 70)));
+        kbHeightSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        kbHeightSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int pct = 70 + progress;
+                prefs.setKeyboardScale(pct / 100f);
+                kbHeightLabel.setText(tr("6. ارتفاع الكيبورد العام: ", "6. Overall keyboard height: ") + pct + "%");
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        kbHeightCard.addView(kbHeightSeek);
+        root.addView(kbHeightCard);
+
+        LinearLayout sugSizeCard = createGroupedWhiteCard();
+        sugSizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        final TextView sugLabel = new TextView(this);
+        int sugPct = Math.round(prefs.getSuggestionBarScale() * 100);
+        sugLabel.setText(tr("7. ارتفاع صف الاقتراحات العلوي: ", "7. Suggestion bar height: ") + sugPct + "%");
+        sugLabel.setTextColor(Color.parseColor("#111827"));
+        sugLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        sugLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        sugSizeCard.addView(sugLabel);
+        SeekBar sugSeek = new SeekBar(this);
+        sugSeek.setMax(55);
+        sugSeek.setProgress(Math.max(0, Math.min(55, sugPct - 70)));
+        sugSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        sugSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int pct = 70 + progress;
+                prefs.setSuggestionBarScale(pct / 100f);
+                sugLabel.setText(tr("7. ارتفاع صف الاقتراحات العلوي: ", "7. Suggestion bar height: ") + pct + "%");
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        sugSizeCard.addView(sugSeek);
+        root.addView(sugSizeCard);
+
+        // حجم خط الاقتراحات: افتراضي + 5 درجات أكبر
+        LinearLayout sugTextCard = createGroupedWhiteCard();
+        sugTextCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        final TextView sugTextLabel = new TextView(this);
+        sugTextLabel.setTextColor(Color.parseColor("#111827"));
+        sugTextLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        sugTextLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        final Runnable updateSugTextLabel = () -> {
+            int lv = prefs.getSuggestionTextLevel();
+            sugTextLabel.setText(tr("8. حجم خط الاقتراحات: ", "8. Suggestion text size: ")
+                    + (lv == 0 ? tr("افتراضي", "Default") : "+" + lv));
+        };
+        updateSugTextLabel.run();
+        sugTextCard.addView(sugTextLabel);
+        SeekBar sugTextSeek = new SeekBar(this);
+        sugTextSeek.setMax(5);
+        sugTextSeek.setProgress(prefs.getSuggestionTextLevel());
+        sugTextSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        sugTextSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                prefs.setSuggestionTextLevel(progress);
+                updateSugTextLabel.run();
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        sugTextCard.addView(sugTextSeek);
+        root.addView(sugTextCard);
     }
 
     /** بطاقة معاينة صغيرة بلون مصمت وعلامة اختيار، بنفس أسلوب شبكة السمات في إعدادات أندرويد. */
