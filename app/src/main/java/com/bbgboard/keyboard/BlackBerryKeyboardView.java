@@ -1218,7 +1218,7 @@ public class BlackBerryKeyboardView extends View {
                 if (splitActive) {
                     rowEdge = edgeW;
                 } else if (isNumericFieldMode) {
-                    rowEdge = 4f * density; // هامش الحافة للوحة الأرقام فقط
+                    rowEdge = 5f * density; // هامش الحافة للوحة الأرقام فقط
                 } else {
                     rowEdge = SIDE_MARGIN_DP * density;
                 }
@@ -1751,8 +1751,8 @@ public class BlackBerryKeyboardView extends View {
         final float gx = tabletKeyGapX;
         // لوحة الأرقام فقط: نقصان بسيط بالفراغ العمودي بين الصفوف (يُطبّق على كل الأنماط بنفس
         // طريقة tabletKeyGapY، بدون ما يأثر على لوحة الحروف العادية).
-        // الهامش الأساسي 5.9dp لكل جهة، ناقص 0.4dp في لوحة الأرقام فقط عشان يصير 5.5dp.
-        final float gy = tabletKeyGapY + (isNumericFieldMode ? -0.4f * density : 0f);
+        // الهامش الأساسي 5.9dp لكل جهة، ناقص 0.9dp في لوحة الأرقام فقط عشان يصير 5.0dp.
+        final float gy = tabletKeyGapY + (isNumericFieldMode ? -0.9f * density : 0f);
 
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
