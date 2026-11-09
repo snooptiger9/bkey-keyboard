@@ -569,16 +569,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("auto_correct_enabled", enabled).apply();
     }
 
-    /** تقسيم الكيبورد لنصفين بفاصل بالمنتصف على الشاشات الكبيرة (الشاشة الداخلية للجوالات القابلة للطي
-     *  أو التابلت)، لتسهيل الكتابة بالإبهامين. 0=تلقائي حسب عرض الشاشة، 1=مفعّل دائماً، 2=معطّل دائماً. */
-    public int getSplitKeyboardMode() {
-        return prefs.getInt("split_keyboard_mode", 0);
-    }
-
-    public void setSplitKeyboardMode(int mode) {
-        prefs.edit().putInt("split_keyboard_mode", Math.max(0, Math.min(2, mode))).apply();
-    }
-
     public boolean isAutoLearnEnabled() {
         return prefs.getBoolean("auto_learn_enabled", true);
     }

@@ -366,8 +366,8 @@ public class MainActivity extends Activity {
         group2.addView(createMenuRow(
                 ModernIconView.ICON_SLIDERS_PREFS,
                 tr("التفضيلات", "Preferences"),
-                tr("صف الأرقام • وضع التخفي • اليد الواحدة • تقسيم الشاشة",
-                        "Number row • incognito • one-handed mode • split screen"),
+                tr("صف الأرقام • وضع التخفي • اليد الواحدة",
+                        "Number row • incognito • one-handed mode"),
                 false,
                 this::openPreferencesScreen
         ));
@@ -828,30 +828,6 @@ public class MainActivity extends Activity {
                 prefs.getOneHandedMode(),
                 idx -> prefs.setOneHandedMode(idx)));
         root.addView(oneHandCard);
-
-        LinearLayout splitCard = createGroupedWhiteCard();
-        splitCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        TextView splitHeader = new TextView(this);
-        splitHeader.setText(tr("تقسيم الكيبورد على الشاشات الكبيرة:", "Split keyboard on large screens:"));
-        splitHeader.setTextColor(Color.parseColor("#111827"));
-        splitHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        splitHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        splitHeader.setPadding(0, 0, 0, dp(8));
-        splitCard.addView(splitHeader);
-        TextView splitDesc = new TextView(this);
-        splitDesc.setText(tr("يقسم صفوف الحروف والأرقام لنصفين بفاصل بالمنتصف (الصف السفلي يبقى متصلاً)، لتسهيل الكتابة بالإبهامين على الشاشة الداخلية للجوالات القابلة للطي أو التابلت",
-                "Splits the letter and number rows into two halves with a gap in the middle (the bottom row stays connected), for easier two-thumb typing on a foldable's inner screen or a tablet"));
-        splitDesc.setTextColor(Color.parseColor("#6B7280"));
-        splitDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
-        splitDesc.setPadding(0, 0, 0, dp(10));
-        splitCard.addView(splitDesc);
-        splitCard.addView(createExclusiveRadioList(
-                tr(new String[]{"تلقائي حسب عرض الشاشة", "مفعّل دائماً", "معطّل دائماً"},
-                        new String[]{"Automatic based on screen width", "Always on", "Always off"}),
-                prefs.getSplitKeyboardMode(),
-                idx -> prefs.setSplitKeyboardMode(idx)));
-        root.addView(splitCard);
-
     }
 
     private void openThemeAndStyleScreen() {
@@ -1554,20 +1530,17 @@ public class MainActivity extends Activity {
         boolean darkThemeNow = prefs.getThemeMode() != KeyboardPreferences.THEME_GBOARD_WHITE;
         final String followBackHex = darkThemeNow ? "#F8FAFC" : "#1E293B";
         String[] capsuleNames = tr(
-                new String[]{"أسود", "أبيض", "زجاجي", "رمادي فاتح", "عنابي", "نفس زر الرجوع"},
-                new String[]{"Black", "White", "Glass", "Light gray", "Burgundy", "Like back button"});
-        // الزجاجي والرمادي الفاتح صاروا بتدرّج أوضح (مو قريبين من الأبيض) حتى يبقوا متميزين عن
-        // "أبيض" حتى مع شفافية عالية، بدل ما يتحولوا كلهم لنفس اللون الأبيض تقريباً.
-        String[] capsuleHex = {"#000000", "#FFFFFF", "#8EC5F7", "#9CA3AF", "#7F1D3F", followBackHex};
+                new String[]{"أسود", "أبيض", "رمادي فاتح"},
+                new String[]{"Black", "White", "Light gray"});
+        // الرمادي الفاتح بتدرّج أوضح (مو قريب من الأبيض) حتى يبقى متميز عن "أبيض" حتى مع شفافية عالية.
+        String[] capsuleHex = {"#000000", "#FFFFFF", "#9CA3AF"};
         final int FOLLOW_BACK = KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL;
         List<View> capsuleTiles = new ArrayList<>();
         final Runnable[] updatePreviewRef = new Runnable[1];
         for (int i = 0; i < capsuleNames.length; i++) {
-            final boolean isFollow = i == capsuleNames.length - 1;
-            final int color = isFollow ? FOLLOW_BACK : (Color.parseColor(capsuleHex[i]) & 0x00FFFFFF);
-            boolean selected = isFollow ? prefs.getFloatingCapsuleColor() == FOLLOW_BACK
-                    : (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color
-                      && prefs.getFloatingCapsuleColor() != FOLLOW_BACK;
+            final int color = Color.parseColor(capsuleHex[i]) & 0x00FFFFFF;
+            boolean selected = (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color
+                    && prefs.getFloatingCapsuleColor() != FOLLOW_BACK;
             capsuleTiles.add(createPreviewTile(capsuleNames[i], capsuleHex[i], selected,
                     v -> { prefs.setFloatingCapsuleColor(color); refreshEmojiScreen(root); }));
         }
@@ -1804,7 +1777,7 @@ public class MainActivity extends Activity {
         pHeader.setPadding(0, 0, 0, dp(8));
         keySoundCard.addView(pHeader);
 
-        final int[] soundOrder = {10, 0, 1, 2, 3, 4, 6, 7, 8, 9, 5};
+        final int[] soundOrder = {10, 0, 1, 2, 3, 4, 5};
         String[] keySoundOptions = new String[soundOrder.length];
         int keySel = 0;
         for (int i = 0; i < soundOrder.length; i++) {
@@ -1828,14 +1801,15 @@ public class MainActivity extends Activity {
         swHeader.setPadding(0, 0, 0, dp(8));
         swipeSoundCard.addView(swHeader);
 
-        String[] swipeSoundOptions = new String[soundOrder.length];
+        final int[] swipeSoundOrder = {10, 0, 1, 4, 7, 8, 9, 5};
+        String[] swipeSoundOptions = new String[swipeSoundOrder.length];
         int swSel = 0;
-        for (int i = 0; i < soundOrder.length; i++) {
-            swipeSoundOptions[i] = SoundController.getSwipeProfileDisplayName(soundOrder[i]);
-            if (soundOrder[i] == prefs.getSwipeSoundProfile()) swSel = i;
+        for (int i = 0; i < swipeSoundOrder.length; i++) {
+            swipeSoundOptions[i] = SoundController.getSwipeProfileDisplayName(swipeSoundOrder[i]);
+            if (swipeSoundOrder[i] == prefs.getSwipeSoundProfile()) swSel = i;
         }
         swipeSoundCard.addView(createExclusiveRadioList(swipeSoundOptions, swSel, idx -> {
-            prefs.setSwipeSoundProfile(soundOrder[idx]);
+            prefs.setSwipeSoundProfile(swipeSoundOrder[idx]);
             soundController.playSwipeUpSound();
         }));
         root.addView(swipeSoundCard);
