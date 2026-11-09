@@ -1270,11 +1270,9 @@ public class BlackBerryKeyboardView extends View {
         return isSplitKeyboardActive(widthPx) ? 0.8f * density : 0f;
     }
 
-    /** هل يجب تفعيل وضع الكيبورد المقسوم لنصفين (بفاصل بالمنتصف) عند هذا العرض الحالي؟ */
+    /** هل يجب تفعيل وضع الكيبورد المقسوم لنصفين (بفاصل بالمنتصف) عند هذا العرض الحالي؟
+     *  تلقائي دائماً حسب عرض الشاشة (بدون خيار يدوي). */
     private boolean isSplitKeyboardActive(int widthPx) {
-        int mode = prefs.getSplitKeyboardMode();
-        if (mode == 1) return true;
-        if (mode == 2) return false;
         float widthDp = widthPx / density;
         return widthDp >= 600f; // عتبة الشاشات الكبيرة القياسية (تابلت أو الشاشة الداخلية لجوال قابل للطي)
     }
