@@ -544,20 +544,15 @@ public class MainActivity extends Activity {
         topBar.setGravity(Gravity.CENTER_VERTICAL);
         topBar.setPadding(dp(4), dp(4), dp(4), dp(16));
 
-        ModernIconView backBtn = new ModernIconView(this, ModernIconView.ICON_BACK_ARROW, Color.parseColor("#1F2937"), Color.parseColor("#E2E8F0"));
-        LinearLayout.LayoutParams lpBack = new LinearLayout.LayoutParams(dp(40), dp(40));
-        lpBack.leftMargin = dp(12);
-        backBtn.setLayoutParams(lpBack);
-        backBtn.setOnClickListener(v -> goBack(onBack));
-
         TextView titleTv = new TextView(this);
         titleTv.setText(screenTitle);
         titleTv.setTextColor(Color.parseColor("#111827"));
         titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         titleTv.setTypeface(Typeface.DEFAULT_BOLD);
-        titleTv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams lpTitle = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lpTitle.leftMargin = dp(12);
+        titleTv.setLayoutParams(lpTitle);
 
-        topBar.addView(backBtn);
         topBar.addView(titleTv);
         root.addView(topBar);
 
