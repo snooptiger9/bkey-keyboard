@@ -1214,7 +1214,14 @@ public class BlackBerryKeyboardView extends View {
             } else {
                 // الصف الأخير (المسافة/الإدخال) يبقى شريط واحد متصل بدون فاصل بالمنتصف، لكن لو وضع
                 // التقسيم مفعّل يأخذ نفس فجوتي الطرفين (يمين ويسار) مثل بقية الصفوف فوقه تماماً.
-                float rowEdge = splitActive ? edgeW : SIDE_MARGIN_DP * density;
+                float rowEdge;
+                if (splitActive) {
+                    rowEdge = edgeW;
+                } else if (isNumericFieldMode) {
+                    rowEdge = 4f * density; // هامش الحافة للوحة الأرقام فقط
+                } else {
+                    rowEdge = SIDE_MARGIN_DP * density;
+                }
                 float availRowW = w - rowEdge * 2f;
                 boolean bottomRowTablet = splitActive && rIdx == rows.size() - 1;
                 float totalWeight = 0f;
@@ -1742,7 +1749,9 @@ public class BlackBerryKeyboardView extends View {
         boolean isSpecialKey = (key.type != KeyType.CHAR && key.type != KeyType.SPACE);
         boolean pillKey = (key.type == KeyType.SYMBOLS || key.type == KeyType.ENTER);
         final float gx = tabletKeyGapX;
-        final float gy = tabletKeyGapY;
+        // لوحة الأرقام فقط: نقصان بسيط بالفراغ العمودي بين الصفوف (يُطبّق على كل الأنماط بنفس
+        // طريقة tabletKeyGapY، بدون ما يأثر على لوحة الحروف العادية).
+        final float gy = tabletKeyGapY + (isNumericFieldMode ? -0.6f * density : 0f);
 
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
