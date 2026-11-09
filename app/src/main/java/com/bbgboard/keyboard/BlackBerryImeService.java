@@ -996,8 +996,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
         // الكيبورد يسار (mode==1) ⇒ الفراغ يمين ⇒ الزر يمين وسهمه لليمين، والعكس بالعكس.
+        // هامش بسيط عن حافة الشاشة حتى ما يضل لاصق فيها تماماً.
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) oneHandedSwitchBtn.getLayoutParams();
         lp.gravity = Gravity.CENTER_VERTICAL | (mode == 1 ? Gravity.RIGHT : Gravity.LEFT);
+        lp.rightMargin = mode == 1 ? dp(10) : 0;
+        lp.leftMargin = mode == 1 ? 0 : dp(10);
         oneHandedSwitchBtn.setLayoutParams(lp);
         oneHandedSwitchIcon.setIconType(mode == 1 ? ModernIconView.ICON_FORWARD_ARROW : ModernIconView.ICON_BACK_ARROW);
         oneHandedSwitchBtn.setVisibility(View.VISIBLE);
