@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -199,6 +200,22 @@ public class MainActivity extends Activity {
         fab.setOnClickListener(v -> toggleFloatingTester());
         root.addView(fab);
         floatingTestFab = fab;
+
+        // إذا المستخدم خفى الكيبورد بطريقة غير زر العوم (زر الرجوع، سحبة الإخفاء، أو تبديل الشاشة)
+        // نخفي حقل التجربة نفسه تلقائياً بدل ما يضل ظاهر على الشاشة بدون داعي.
+        root.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if (floatingTestEdit.getVisibility() != View.VISIBLE) return;
+            Rect visibleFrame = new Rect();
+            root.getWindowVisibleDisplayFrame(visibleFrame);
+            int screenHeight = root.getRootView().getHeight();
+            if (screenHeight <= 0) return;
+            int keypadHeight = screenHeight - visibleFrame.bottom;
+            boolean keyboardOpen = keypadHeight > screenHeight * 0.15f;
+            if (!keyboardOpen) {
+                floatingTestEdit.setVisibility(View.GONE);
+                floatingTestEdit.clearFocus();
+            }
+        });
     }
 
     private void toggleFloatingTester() {
