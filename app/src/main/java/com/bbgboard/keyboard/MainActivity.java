@@ -13,6 +13,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -242,6 +243,34 @@ public class MainActivity extends Activity {
         super.onBackPressed();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // لو المستخدم رجع من إعدادات النظام بعد تفعيل الكيبورد أو اختياره، نحدّث بطاقة الإعداد
+        // في الشاشة الرئيسية فوراً بدون ما نرجعه لها لو كان بشاشة إعدادات فرعية.
+        if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) == homeMenuView) {
+            showHomeGboardSettingsMenu();
+        }
+    }
+
+    /** هل الكيبورد مفعّل حالياً ضمن قائمة لوحات المفاتيح المفعّلة بالنظام؟ */
+    private boolean isOwnImeEnabled() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm == null) return false;
+        String myId = getPackageName() + "/" + BlackBerryImeService.class.getName();
+        for (InputMethodInfo info : imm.getEnabledInputMethodList()) {
+            if (myId.equals(info.getId())) return true;
+        }
+        return false;
+    }
+
+    /** هل الكيبورد هو المختار حالياً كلوحة المفاتيح الافتراضية بالنظام؟ */
+    private boolean isOwnImeSelected() {
+        String myId = getPackageName() + "/" + BlackBerryImeService.class.getName();
+        String current = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+        return myId.equals(current);
+    }
+
     private void showHomeGboardSettingsMenu() {
         mainFrame.removeAllViews();
 
@@ -277,24 +306,43 @@ public class MainActivity extends Activity {
         lpSetup.bottomMargin = dp(16);
         quickSetupCard.setLayoutParams(lpSetup);
 
-        // الخطوتان مفصولتان كل واحدة بصفها الكامل مع أيقونة حديثة، بدل زرين متلاصقين جنباً إلى جنب
-        quickSetupCard.addView(createSetupStepRow(
-                ModernIconView.ICON_BACK_KEYBOARD, "#059669",
-                tr("1. تفعيل الكيبورد", "1. Enable the keyboard"),
-                tr("يفتح إعدادات لوحات المفاتيح في النظام", "Opens the system's keyboard list"),
-                v -> startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
-        ));
-        LinearLayout.LayoutParams lpGap = (LinearLayout.LayoutParams) quickSetupCard.getChildAt(0).getLayoutParams();
-        lpGap.bottomMargin = dp(10);
-        quickSetupCard.addView(createSetupStepRow(
-                ModernIconView.ICON_SETTINGS_GEAR, "#2563EB",
-                tr("2. اختيار الكيبورد", "2. Switch to it"),
-                tr("يفتح قائمة اختيار لوحة المفاتيح الحالية", "Opens the input method picker"),
-                v -> {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) imm.showInputMethodPicker();
-                }
-        ));
+        // تُخفى خطوة "تفعيل الكيبورد" تلقائياً إذا كان مفعّلاً أصلاً (زي باقي الكيبوردات)، ويتبقى
+        // زر الاختيار فقط؛ ولو كان مختاراً حالياً كمان، تتحول الخطوة لتأكيد أخضر بدل خطوة مطلوبة.
+        boolean imeEnabled = isOwnImeEnabled();
+        boolean imeSelected = imeEnabled && isOwnImeSelected();
+
+        if (!imeEnabled) {
+            quickSetupCard.addView(createSetupStepRow(
+                    ModernIconView.ICON_BACK_KEYBOARD, "#059669",
+                    tr("1. تفعيل الكيبورد", "1. Enable the keyboard"),
+                    tr("يفتح إعدادات لوحات المفاتيح في النظام", "Opens the system's keyboard list"),
+                    v -> startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
+            ));
+            LinearLayout.LayoutParams lpGap = (LinearLayout.LayoutParams) quickSetupCard.getChildAt(0).getLayoutParams();
+            lpGap.bottomMargin = dp(10);
+        }
+
+        if (imeSelected) {
+            quickSetupCard.addView(createSetupStepRow(
+                    ModernIconView.ICON_SETTINGS_GEAR, "#16A34A",
+                    tr("✓ مفعّل ومختار حالياً", "✓ Enabled and currently selected"),
+                    tr("هذا الكيبورد هو المستخدم الآن", "This keyboard is the one in use now"),
+                    v -> {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null) imm.showInputMethodPicker();
+                    }
+            ));
+        } else {
+            quickSetupCard.addView(createSetupStepRow(
+                    ModernIconView.ICON_SETTINGS_GEAR, "#2563EB",
+                    imeEnabled ? tr("اختيار الكيبورد", "Switch to it") : tr("2. اختيار الكيبورد", "2. Switch to it"),
+                    tr("يفتح قائمة اختيار لوحة المفاتيح الحالية", "Opens the input method picker"),
+                    v -> {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null) imm.showInputMethodPicker();
+                    }
+            ));
+        }
 
         EditText quickTestEdit = new EditText(this);
         quickTestEdit.setHint(tr("اضغط هنا لتجربة الكيبورد والبوب أب وأصوات السحب...", "Tap here to try the keyboard, popups and swipe sounds..."));
@@ -712,14 +760,8 @@ public class MainActivity extends Activity {
                 prefs.getLanguageMode(),
                 idx -> prefs.setLanguageMode(idx)));
         root.addView(langModeCard);
-
-        root.addView(createSwitchTile(
-                tr("تغيير اللغة بسحب زر المسافة يميناً أو يساراً", "Swipe the space bar to switch language"),
-                tr("اسحب زر المسافة (‹ العربية ›) للتبديل الفوري بين العربية والإنجليزية بدون زر لغة منفصل",
-                        "Swipe the space bar left or right to switch instantly between Arabic and English, no separate key needed"),
-                prefs.isSpaceSwipeLangEnabled(),
-                checked -> prefs.setSpaceSwipeLangEnabled(checked)
-        ));
+        // خيار "تغيير اللغة بسحب زر المسافة" موجود بشاشة إيماءات السحب والأنميشن (نفس التفضيل
+        // prefs.isSpaceSwipeLangEnabled)، ما نكرره هنا.
     }
 
     @Override
