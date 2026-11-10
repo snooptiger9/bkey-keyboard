@@ -2653,7 +2653,7 @@ public class BlackBerryKeyboardView extends View {
                 // كبّرنا الحد الأدنى تكه كمان (62 → 78) لأن السحبة الخفيفة كانت تمسح بالغلط أثناء
                 // الكتابة العادية. المقياس مسافة السحب فقط (مو سرعته)، فسحبة أطول تلغي الخطأ بدون
                 // ما تخلي السحبة المقصودة أبطأ أو أصعب.
-                float swipeLeftThreshold = 78f * density;
+                float swipeLeftThreshold = 72f * density;
                 boolean deleteDirOk = (prefs.getSwipeDeleteDirection() == 1) ? (dx < -swipeLeftThreshold) : (dx > swipeLeftThreshold);
                 if (prefs.isSwipeDeleteWordEnabled() && deleteDirOk && Math.abs(dx) > Math.abs(dy) * 1.5f) {
                     boolean deleted = listener != null && listener.onSwipeLeftDeleteWord();
