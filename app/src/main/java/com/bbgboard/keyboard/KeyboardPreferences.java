@@ -196,9 +196,23 @@ public class KeyboardPreferences {
         while (current.size() > 16) {
             current.remove(current.size() - 1);
         }
+        saveRecentGifs(current);
+    }
+
+    /** يحذف GIF واحد من قائمة "آخر ما استخدمته" (ضغطة مطوّلة على أي وحدة بالقسم). */
+    public void removeRecentGif(String fullUrl) {
+        if (fullUrl == null || fullUrl.isEmpty()) return;
+        List<String[]> current = new ArrayList<>(getRecentGifs());
+        for (int i = current.size() - 1; i >= 0; i--) {
+            if (fullUrl.equals(current.get(i)[1])) current.remove(i);
+        }
+        saveRecentGifs(current);
+    }
+
+    private void saveRecentGifs(List<String[]> list) {
         try {
             JSONArray arr = new JSONArray();
-            for (String[] g : current) {
+            for (String[] g : list) {
                 JSONObject o = new JSONObject();
                 o.put("p", g[0]);
                 o.put("f", g[1]);

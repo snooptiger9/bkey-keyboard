@@ -2816,13 +2816,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void fillGifSections(List<GiphyClient.GifResult> recents, List<GiphyClient.GifResult> main, boolean isSearch, boolean gifArabic) {
         gifGrid.removeAllViews();
         if (!recents.isEmpty()) {
-            gifGrid.addView(gifSectionHeader(gifArabic ? "آخر ما استخدمته" : "Recently used"));
-            gifGrid.addView(buildGifRow(recents));
+            TextView recentHeader = gifSectionHeader(gifArabic ? "آخر ما استخدمته" : "Recently used");
+            recentHeader.append(gifArabic ? "  •  اضغط مطولاً على أي GIF لحذفه" : "  •  Long-press any GIF to delete it");
+            gifGrid.addView(recentHeader);
+            gifGrid.addView(buildGifRow(recents, true));
         }
         if (!main.isEmpty()) {
             String title = isSearch ? (gifArabic ? "نتائج البحث" : "Search results") : (gifArabic ? "شائع الآن" : "Trending now");
             gifGrid.addView(gifSectionHeader(title));
-            gifGrid.addView(buildGifRow(main));
+            gifGrid.addView(buildGifRow(main, false));
         }
     }
 
@@ -2836,7 +2838,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return title;
     }
 
-    private GridLayout buildGifRow(List<GiphyClient.GifResult> results) {
+    private GridLayout buildGifRow(List<GiphyClient.GifResult> results, boolean isRecent) {
         GridLayout grid = new GridLayout(this);
         grid.setColumnCount(GIF_GRID_COLUMNS);
         int cellW = Math.max(dp(64), (getResources().getDisplayMetrics().widthPixels - dp(24)) / GIF_GRID_COLUMNS);
@@ -2856,6 +2858,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 keyboardPrefs.recordUsedGif(gif.previewUrl, gif.fullUrl);
                 sendGif(gif.fullUrl);
             });
+            if (isRecent) {
+                iv.setOnLongClickListener(v -> {
+                    soundController.playKeyClick();
+                    keyboardPrefs.removeRecentGif(gif.fullUrl);
+                    loadGifResults(true, "");
+                    return true;
+                });
+            }
             grid.addView(iv);
         }
         return grid;
