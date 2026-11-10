@@ -558,7 +558,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         // شريط بحث GIF: يظهر فوق لوحة المفاتيح العادية وقت الكتابة بالبحث بدل نافذة GIF (يستبدلها
         // مؤقتاً، نفس فكرة جي بورد). بدون زر إنتر (الإنتر الحقيقي بالكيبورد يسوي نفس الشي)، بس فيه
-        // زر X يلغي المكتوب بدون بحث ويرجع لنفس نافذة GIF اللي كانت ظاهرة قبل.
+        // زر X يمسح كلمة البحث نهائياً ويرجع لصفحة الترند وآخر ما استخدمت.
         gifSearchBar = new FrameLayout(this);
         gifSearchBar.setVisibility(View.GONE);
         LinearLayout gifBarRow = new LinearLayout(this);
@@ -581,7 +581,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifCancelBtn.setPadding(dp(14), 0, dp(14), 0);
         gifCancelBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
-            closeGifSearchKeyboard(false);
+            gifQueryBuilder.setLength(0); // يمسح كلمة البحث فعلياً، مو بس يسكّر الكيبورد
+            closeGifSearchKeyboard(true); // فاضي ⇒ يرجع لصفحة الترند وآخر ما استخدمت
         });
         gifBarRow.addView(gifCancelBtn);
 
@@ -2689,8 +2690,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateOneHandedSwitchButton();
     }
 
-    /** يسكّر كيبورد البحث ويرجّع نافذة GIF؛ لو runSearch صحّ (زر إنتر) يبحث بالنص المكتوب (فاضي ⇒
-     *  يرجع لصفحة الترند وآخر ما استخدمت)، ولو غلط (زر X) يلغي ويرجع لنفس النافذة اللي كانت قبل. */
+    /** يسكّر كيبورد البحث ويرجّع نافذة GIF ويبحث بالنص المكتوب (فاضي ⇒ يرجع لصفحة الترند وآخر ما
+     *  استخدمت). زر الإنتر يستدعيها بالنص المكتوب، وزر X يمسح النص أول ثم يستدعيها فيرجع فاضي. */
     private void closeGifSearchKeyboard(boolean runSearch) {
         if (!gifSearchFocused) return;
         gifSearchFocused = false;
@@ -2769,8 +2770,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             List<GiphyClient.GifResult> main = results;
             if (showRecents) {
                 List<String[]> recentPairs = keyboardPrefs.getRecentGifs();
-                // أول صفّين بس (٢ × عدد الأعمدة) آخر GIF استخدمته، والباقي ترند عادي.
-                int recentLimit = GIF_GRID_COLUMNS * 2;
+                // أول ثلاث صفوف بس (٣ × عدد الأعمدة) آخر GIF استخدمته، والباقي ترند عادي.
+                int recentLimit = GIF_GRID_COLUMNS * 3;
                 for (int i = 0; i < recentPairs.size() && i < recentLimit; i++) {
                     String[] g = recentPairs.get(i);
                     recents.add(new GiphyClient.GifResult(g[0], g[1]));
