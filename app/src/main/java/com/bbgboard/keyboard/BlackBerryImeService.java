@@ -22,9 +22,9 @@ import android.os.SystemClock;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
@@ -85,9 +85,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private final List<View> emojiSectionHeaders = new ArrayList<>();
     private final List<TextView> emojiTabViews = new ArrayList<>();
     private int activeEmojiCategory = 0;
-    // يمنع تحديث تحديد التبويب أثناء إعادة بناء الأقسام وإرجاع السكرول للأعلى، لأن القياسات تكون
-    // غير جاهزة بعد (ارتفاعات/مواضع العناوين = صفر مؤقتاً) وتسبب تحديد فئة غلط (آخر فئة بدل الأولى).
-    private boolean suppressEmojiTabScrollSync = false;
+    // يمنع تحديث تحديد التبويب تلقائياً حسب موضع السكرول، إلا إذا كان المستخدم فعلياً يسحب بإصبعه.
+    // أي سكرول برمجي (إعادة بناء الأقسام، إرجاع للأعلى، إلخ) قد يصير بمواضع عناوين غير مقاسة بعد
+    // (قبل تمريرة تخطيط كاملة)، فيحسب فئة غلط (آخر فئة) فوق التحديد الصحيح. نبدأ بالإيقاف الافتراضي،
+    // ولا نرفعه إلا لما يلمس المستخدم القائمة فعلياً (ACTION_DOWN)، وهذا وقتها نثق بالحساب تماماً.
+    private boolean suppressEmojiTabScrollSync = true;
     private TextView clipAbcBackLabel;
     private TextView emojiAbcBackLabel;
 
@@ -1313,10 +1315,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onToggleEmoji() {
         if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
         refreshBottomBarGeometry();
-        // نوقف مزامنة التبويب مع السكرول مؤقتاً: إعادة البناء + رجوع السكرول للأعلى + ظهور الدرج
-        // كلها تسبب تغييرات قياس/تخطيط لاحقة (مو بس لحظة استدعاء الكود)، وأي حدث سكرول ناتج عنها
-        // يصير بمواضع عناوين غير مكتملة القياس بعد، فيحدد فئة غلط (آخر فئة) فوق التحديد الصحيح.
-        // نشيل الإيقاف فقط بعد ما يخلص تمريرة تخطيط (layout) كاملة، ونفرض التحديد الصحيح وقتها.
+        // نوقف مزامنة التبويب مع السكرول: إعادة البناء + رجوع السكرول للأعلى قد يسببان حدث سكرول
+        // ببيانات غير مقاسة بعد. ما نرفع الإيقاف هنا أبداً بالاعتماد على توقيت—بنتأكد أن المستخدم
+        // لمس القائمة فعلياً (انظر emojiScroll.setOnTouchListener) قبل ما نثق بحساب السكرول التلقائي.
         suppressEmojiTabScrollSync = true;
         rebuildEmojiSections();
         updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
@@ -1328,20 +1329,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         fadeIn(emojiDrawerView, 10);
         updateInlineStripVisibility();
         updateOneHandedSwitchButton();
-        if (emojiScroll != null) {
-            emojiScroll.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    if (emojiScroll != null && emojiScroll.getViewTreeObserver().isAlive()) {
-                        emojiScroll.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                    suppressEmojiTabScrollSync = false;
-                    updateEmojiTabHighlight(0); // نفرضها من جديد بعد ما يخلص التخطيط، حتى لو صار تحديث غلط بالمنتصف
-                }
-            });
-        } else {
-            suppressEmojiTabScrollSync = false;
-        }
     }
 
     @Override
@@ -2531,6 +2518,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiScroll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         emojiScroll.setVerticalScrollBarEnabled(false);
         emojiScroll.setOnScrollChangeListener((v, sx, sy, ox, oy) -> updateActiveEmojiTabFromScroll(sy));
+        // لا نثق بحساب تحديد التبويب من موضع السكرول إلا لما يلمس المستخدم القائمة بإصبعه فعلياً،
+        // عشان نتفادى أي سكرول برمجي (فتح/إعادة بناء) يصير بمواضع عناوين غير مقاسة بعد.
+        emojiScroll.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                suppressEmojiTabScrollSync = false;
+            }
+            return false;
+        });
 
         emojiSectionsHost = new LinearLayout(this);
         emojiSectionsHost.setOrientation(LinearLayout.VERTICAL);
