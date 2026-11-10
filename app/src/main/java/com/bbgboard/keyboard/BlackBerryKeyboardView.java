@@ -2626,7 +2626,8 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 // السحب للأعلى لاختيار الكلمة المقترحة: تنطلق الكلمة لأعلى الشاشة خارج الكيبورد بوضوح وسرعة متزنة
-                float swipeUpThreshold = 32f * density;
+                // كبّرنا المسافة المطلوبة (كانت 32) حتى ما تنطلق بسحبة خفيفة بالغلط — المقياس مسافة بس، مو سرعة.
+                float swipeUpThreshold = 42f * density;
                 if (dy < -swipeUpThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
                     int zone = getHorizontalSuggestionZone(startX);
                     vibrateTap(false);
@@ -2637,7 +2638,8 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 // السحب للأسفل: نسخ النص المحدد، وإذا تم النسخ يتحول السحب للأسفل إلى لصق لمدة دقيقة.
-                float swipeDownThreshold = 32f * density;
+                // نفس تكبير مسافة السحب للأعلى (32 → 42)، مسافة فقط بدون أي اعتبار للسرعة.
+                float swipeDownThreshold = 42f * density;
                 if (prefs.isSwipeDownCopyPasteEnabled() && dy > swipeDownThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
                     boolean done = listener != null && listener.onSwipeDownCopyPaste();
                     if (done) {
@@ -2648,9 +2650,10 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 // السحب لمسح كلمة كاملة (الاتجاه من الإعدادات: الافتراضي من اليسار لليمين).
-                // كبّرنا الحد الأدنى ونسبة الأفقي/العمودي عن قبل (كانت 40dp/1.25) لأن السحبة كانت
-                // حساسة زيادة وتمسح بالغلط أثناء الكتابة العادية.
-                float swipeLeftThreshold = 62f * density;
+                // كبّرنا الحد الأدنى تكه كمان (62 → 78) لأن السحبة الخفيفة كانت تمسح بالغلط أثناء
+                // الكتابة العادية. المقياس مسافة السحب فقط (مو سرعته)، فسحبة أطول تلغي الخطأ بدون
+                // ما تخلي السحبة المقصودة أبطأ أو أصعب.
+                float swipeLeftThreshold = 78f * density;
                 boolean deleteDirOk = (prefs.getSwipeDeleteDirection() == 1) ? (dx < -swipeLeftThreshold) : (dx > swipeLeftThreshold);
                 if (prefs.isSwipeDeleteWordEnabled() && deleteDirOk && Math.abs(dx) > Math.abs(dy) * 1.5f) {
                     boolean deleted = listener != null && listener.onSwipeLeftDeleteWord();
