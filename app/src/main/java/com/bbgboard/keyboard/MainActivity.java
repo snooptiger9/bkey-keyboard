@@ -1030,116 +1030,138 @@ public class MainActivity extends Activity {
         root.addView(enterCard);
 
         // أحجام الكيبورد: نقلناها من صفحة التفضيلات لأنها جزء من المظهر مثل باقي الصفحة.
-        LinearLayout keySizeCard = createGroupedWhiteCard();
-        keySizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView keySizeLabel = new TextView(this);
-        int keySizePct = Math.round(prefs.getKeyFontScale() * 100);
-        keySizeLabel.setText(tr("5. حجم الحروف داخل المربعات: ", "5. Key letter size: ") + keySizePct + "%");
-        keySizeLabel.setTextColor(Color.parseColor("#111827"));
-        keySizeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        keySizeLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        keySizeCard.addView(keySizeLabel);
-        SeekBar keySizeSeek = new SeekBar(this);
-        keySizeSeek.setMax(70);
-        keySizeSeek.setProgress(Math.max(0, Math.min(70, keySizePct - 80)));
-        keySizeSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        keySizeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int pct = 80 + progress;
-                prefs.setKeyFontScale(pct / 100f);
-                keySizeLabel.setText(tr("5. حجم الحروف داخل المربعات: ", "5. Key letter size: ") + pct + "%");
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        keySizeCard.addView(keySizeSeek);
-        root.addView(keySizeCard);
+        // كل واحد منها "افتراضي" أو "مخصص" (يفتح السلايدر)، حتى تبقى هذي القائمة مختصرة.
+        root.addView(buildSizerCard(
+                tr("5. حجم الحروف داخل المربعات", "5. Key letter size"),
+                Math.round(prefs.getKeyFontScale() * 100), 100, 80, 150,
+                pct -> prefs.setKeyFontScale(pct / 100f),
+                pct -> pct + "%"));
 
-        LinearLayout kbHeightCard = createGroupedWhiteCard();
-        kbHeightCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView kbHeightLabel = new TextView(this);
-        int kbHeightPct = Math.round(prefs.getKeyboardScale() * 100);
-        kbHeightLabel.setText(tr("6. ارتفاع الكيبورد العام: ", "6. Overall keyboard height: ") + kbHeightPct + "%");
-        kbHeightLabel.setTextColor(Color.parseColor("#111827"));
-        kbHeightLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        kbHeightLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        kbHeightCard.addView(kbHeightLabel);
-        SeekBar kbHeightSeek = new SeekBar(this);
-        kbHeightSeek.setMax(75);
-        kbHeightSeek.setProgress(Math.max(0, Math.min(75, kbHeightPct - 70)));
-        kbHeightSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        kbHeightSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int pct = 70 + progress;
-                prefs.setKeyboardScale(pct / 100f);
-                kbHeightLabel.setText(tr("6. ارتفاع الكيبورد العام: ", "6. Overall keyboard height: ") + pct + "%");
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        kbHeightCard.addView(kbHeightSeek);
-        root.addView(kbHeightCard);
+        root.addView(buildSizerCard(
+                tr("6. ارتفاع الكيبورد العام", "6. Overall keyboard height"),
+                Math.round(prefs.getKeyboardScale() * 100), 100, 70, 145,
+                pct -> prefs.setKeyboardScale(pct / 100f),
+                pct -> pct + "%"));
 
-        LinearLayout sugSizeCard = createGroupedWhiteCard();
-        sugSizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView sugLabel = new TextView(this);
-        int sugPct = Math.round(prefs.getSuggestionBarScale() * 100);
-        sugLabel.setText(tr("7. ارتفاع صف الاقتراحات العلوي: ", "7. Suggestion bar height: ") + sugPct + "%");
-        sugLabel.setTextColor(Color.parseColor("#111827"));
-        sugLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        sugLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        sugSizeCard.addView(sugLabel);
-        SeekBar sugSeek = new SeekBar(this);
-        sugSeek.setMax(55);
-        sugSeek.setProgress(Math.max(0, Math.min(55, sugPct - 70)));
-        sugSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        sugSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int pct = 70 + progress;
-                prefs.setSuggestionBarScale(pct / 100f);
-                sugLabel.setText(tr("7. ارتفاع صف الاقتراحات العلوي: ", "7. Suggestion bar height: ") + pct + "%");
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        sugSizeCard.addView(sugSeek);
-        root.addView(sugSizeCard);
+        root.addView(buildSizerCard(
+                tr("7. ارتفاع صف الاقتراحات العلوي", "7. Suggestion bar height"),
+                Math.round(prefs.getSuggestionBarScale() * 100), 100, 70, 125,
+                pct -> prefs.setSuggestionBarScale(pct / 100f),
+                pct -> pct + "%"));
 
-        // حجم خط الاقتراحات: افتراضي + 5 درجات أكبر
-        LinearLayout sugTextCard = createGroupedWhiteCard();
-        sugTextCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView sugTextLabel = new TextView(this);
-        sugTextLabel.setTextColor(Color.parseColor("#111827"));
-        sugTextLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        sugTextLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        final Runnable updateSugTextLabel = () -> {
-            int lv = prefs.getSuggestionTextLevel();
-            sugTextLabel.setText(tr("8. حجم خط الاقتراحات: ", "8. Suggestion text size: ")
-                    + (lv == 0 ? tr("افتراضي", "Default") : "+" + lv));
-        };
-        updateSugTextLabel.run();
-        sugTextCard.addView(sugTextLabel);
-        SeekBar sugTextSeek = new SeekBar(this);
-        sugTextSeek.setMax(5);
-        sugTextSeek.setProgress(prefs.getSuggestionTextLevel());
-        sugTextSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
-        sugTextSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                prefs.setSuggestionTextLevel(progress);
-                updateSugTextLabel.run();
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        sugTextCard.addView(sugTextSeek);
-        root.addView(sugTextCard);
+        // حجم خط الاقتراحات: افتراضي + 5 درجات أكبر (المستوى نفسه هو قيمة السلايدر، مو نسبة٪)
+        root.addView(buildSizerCard(
+                tr("8. حجم خط الاقتراحات", "8. Suggestion text size"),
+                prefs.getSuggestionTextLevel(), 0, 0, 5,
+                lv -> prefs.setSuggestionTextLevel(lv),
+                lv -> lv == 0 ? tr("افتراضي", "Default") : "+" + lv));
     }
 
     /** بطاقة معاينة صغيرة بلون مصمت وعلامة اختيار، بنفس أسلوب شبكة السمات في إعدادات أندرويد. */
+    private interface IntSetter { void set(int value); }
+    private interface IntLabelFormatter { String format(int value); }
+
+    /** بطاقة "افتراضي / مخصص" لإعداد رقمي (نسبة أو مستوى): تبدأ مطوية (بدون سلايدر ظاهر) إذا كانت
+     *  القيمة الحالية تساوي الافتراضي، وتبدأ مفتوحة إذا كانت مخصصة من قبل؛ هذا يخلي القائمة مختصرة. */
+    private LinearLayout buildSizerCard(String title, int currentValue, int defaultValue,
+                                         int min, int max, IntSetter setter, IntLabelFormatter formatter) {
+        LinearLayout card = createGroupedWhiteCard();
+        card.setPadding(dp(16), dp(16), dp(16), dp(16));
+
+        TextView header = new TextView(this);
+        header.setText(title);
+        header.setTextColor(Color.parseColor("#111827"));
+        header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        header.setTypeface(Typeface.DEFAULT_BOLD);
+        header.setPadding(0, 0, 0, dp(10));
+        card.addView(header);
+
+        boolean isCustom = currentValue != defaultValue;
+
+        final TextView valueLabel = new TextView(this);
+        valueLabel.setTextColor(Color.parseColor("#6B7280"));
+        valueLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        valueLabel.setPadding(dp(2), dp(8), 0, dp(2));
+        valueLabel.setText(formatter.format(currentValue));
+        valueLabel.setVisibility(isCustom ? View.VISIBLE : View.GONE);
+
+        final SeekBar seek = new SeekBar(this);
+        seek.setMax(max - min);
+        seek.setProgress(Math.max(0, Math.min(max - min, currentValue - min)));
+        seek.setPadding(dp(14), dp(2), dp(14), dp(8));
+        seek.setVisibility(isCustom ? View.VISIBLE : View.GONE);
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int value = min + progress;
+                setter.set(value);
+                valueLabel.setText(formatter.format(value));
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        final TextView[] toggleBtns = new TextView[2];
+        View.OnClickListener onDefaultClick = v -> {
+            setter.set(defaultValue);
+            seek.setProgress(Math.max(0, Math.min(max - min, defaultValue - min)));
+            valueLabel.setText(formatter.format(defaultValue));
+            valueLabel.setVisibility(View.GONE);
+            seek.setVisibility(View.GONE);
+            setSizerToggleSelected(toggleBtns, 0);
+        };
+        View.OnClickListener onCustomClick = v -> {
+            valueLabel.setVisibility(View.VISIBLE);
+            seek.setVisibility(View.VISIBLE);
+            setSizerToggleSelected(toggleBtns, 1);
+        };
+        card.addView(buildDefaultCustomToggle(isCustom, onDefaultClick, onCustomClick, toggleBtns));
+        card.addView(valueLabel);
+        card.addView(seek);
+        return card;
+    }
+
+    private LinearLayout buildDefaultCustomToggle(boolean customSelected, View.OnClickListener onDefault,
+                                                   View.OnClickListener onCustom, TextView[] outButtons) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        TextView defBtn = sizerToggleButton(tr("افتراضي", "Default"), !customSelected);
+        TextView curBtn = sizerToggleButton(tr("مخصص", "Custom"), customSelected);
+        defBtn.setOnClickListener(onDefault);
+        curBtn.setOnClickListener(onCustom);
+        LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lp1.rightMargin = dp(8);
+        defBtn.setLayoutParams(lp1);
+        LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        curBtn.setLayoutParams(lp2);
+        row.addView(defBtn);
+        row.addView(curBtn);
+        outButtons[0] = defBtn;
+        outButtons[1] = curBtn;
+        return row;
+    }
+
+    private void setSizerToggleSelected(TextView[] btns, int selectedIdx) {
+        for (int i = 0; i < btns.length; i++) {
+            boolean sel = i == selectedIdx;
+            btns[i].setTypeface(sel ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+            btns[i].setTextColor(Color.parseColor(sel ? "#FFFFFF" : "#374151"));
+            btns[i].setBackground(roundedCard(sel ? "#2563EB" : "#F3F4F6", 10));
+        }
+    }
+
+    private TextView sizerToggleButton(String text, boolean selected) {
+        TextView btn = new TextView(this);
+        btn.setText(text);
+        btn.setGravity(Gravity.CENTER);
+        btn.setPadding(dp(10), dp(8), dp(10), dp(8));
+        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        btn.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+        btn.setTextColor(Color.parseColor(selected ? "#FFFFFF" : "#374151"));
+        btn.setBackground(roundedCard(selected ? "#2563EB" : "#F3F4F6", 10));
+        return btn;
+    }
+
     private View createPreviewTile(String label, String colorHex, boolean selected, View.OnClickListener onClick) {
         LinearLayout tile = new LinearLayout(this);
         tile.setOrientation(LinearLayout.VERTICAL);
