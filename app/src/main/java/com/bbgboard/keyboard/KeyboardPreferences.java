@@ -167,6 +167,47 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
+    /** آخر صور GIF أرسلتها (أحدث وحده أول)، كل عنصر {previewUrl, fullUrl}، تُعرض بأول صفّين قبل الترند. */
+    public List<String[]> getRecentGifs() {
+        List<String[]> list = new ArrayList<>();
+        try {
+            String raw = prefs.getString("recent_gifs_v1", null);
+            if (raw != null && !raw.isEmpty()) {
+                JSONArray arr = new JSONArray(raw);
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject o = arr.optJSONObject(i);
+                    if (o == null) continue;
+                    String preview = o.optString("p", "");
+                    String full = o.optString("f", "");
+                    if (!preview.isEmpty() && !full.isEmpty()) list.add(new String[]{preview, full});
+                }
+            }
+        } catch (Exception ignored) {}
+        return list;
+    }
+
+    public void recordUsedGif(String previewUrl, String fullUrl) {
+        if (previewUrl == null || previewUrl.isEmpty() || fullUrl == null || fullUrl.isEmpty()) return;
+        List<String[]> current = new ArrayList<>(getRecentGifs());
+        for (int i = current.size() - 1; i >= 0; i--) {
+            if (fullUrl.equals(current.get(i)[1])) current.remove(i);
+        }
+        current.add(0, new String[]{previewUrl, fullUrl});
+        while (current.size() > 16) {
+            current.remove(current.size() - 1);
+        }
+        try {
+            JSONArray arr = new JSONArray();
+            for (String[] g : current) {
+                JSONObject o = new JSONObject();
+                o.put("p", g[0]);
+                o.put("f", g[1]);
+                arr.put(o);
+            }
+            prefs.edit().putString("recent_gifs_v1", arr.toString()).apply();
+        } catch (Exception ignored) {}
+    }
+
     /** مفتاح GIPHY API (مجاني من حساب المطوّر بـ developers.giphy.com)، مطلوب حتى يشتغل تبويب GIF. */
     public String getGiphyApiKey() {
         return prefs.getString("giphy_api_key", "");

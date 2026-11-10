@@ -1991,6 +1991,15 @@ public class BlackBerryKeyboardView extends View {
                 && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH;
     }
 
+    /** يرجّع الكيبورد لصفحة الحروف (عربي/إنجليزي) لو كان مفتوح على صفحة الرموز؛ تُستخدم لما نفتح
+     *  كيبورد البحث (GIF مثلاً) حتى ما يفضل عالق على صفحة الرموز من آخر استخدام. */
+    public void exitSymbolsIfActive() {
+        if (isSymbols) {
+            isSymbols = false;
+            rebuildKeys();
+        }
+    }
+
     private void toggleLanguage() {
         isSymbols = false;
         isArabic = !isArabic;
