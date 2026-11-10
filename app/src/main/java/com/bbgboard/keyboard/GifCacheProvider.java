@@ -18,7 +18,7 @@ public class GifCacheProvider extends ContentProvider {
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         String name = uri.getLastPathSegment();
         if (name == null) throw new FileNotFoundException();
-        File f = new File(TenorGifCache.dir(getContext()), name);
+        File f = new File(GifDownloadCache.dir(getContext()), name);
         if (!f.exists()) throw new FileNotFoundException();
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
     }

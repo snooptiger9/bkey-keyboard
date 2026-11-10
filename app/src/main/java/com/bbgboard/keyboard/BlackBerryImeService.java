@@ -88,7 +88,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView clipAbcBackLabel;
     private TextView emojiAbcBackLabel;
 
-    // ===== تبويب GIF داخل نافذة الإيموجي (بحث وتحميل عبر Tenor) =====
+    // ===== تبويب GIF داخل نافذة الإيموجي (بحث وتحميل عبر GIPHY) =====
     private TextView gifTabView;
     private FrameLayout gifPanel;
     private EditText gifSearchEdit;
@@ -2590,16 +2590,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         loadGifResults(false, q);
     }
 
-    /** يحمّل صور GIF (ترند أو نتائج بحث) من Tenor ويعرضها بالشبكة. */
+    /** يحمّل صور GIF (ترند أو نتائج بحث) من GIPHY ويعرضها بالشبكة. */
     private void loadGifResults(boolean trending, String query) {
         boolean gifArabic = keyboardView == null || keyboardView.isArabic();
-        String apiKey = keyboardPrefs.getTenorApiKey();
+        String apiKey = keyboardPrefs.getGiphyApiKey();
         if (apiKey == null || apiKey.isEmpty()) {
             if (gifGrid != null) gifGrid.removeAllViews();
             if (gifStatusText != null) {
                 gifStatusText.setText(gifArabic
-                        ? "لازم تضيف مفتاح Tenor API مجاني من إعدادات GIF حتى تشتغل هذي الميزة"
-                        : "Add a free Tenor API key in GIF settings to use this feature");
+                        ? "لازم تضيف مفتاح GIPHY API مجاني من إعدادات GIF حتى تشتغل هذي الميزة"
+                        : "Add a free GIPHY API key in GIF settings to use this feature");
                 gifStatusText.setVisibility(View.VISIBLE);
             }
             return;
@@ -2609,7 +2609,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifStatusText.setVisibility(View.VISIBLE);
         }
         if (gifGrid != null) gifGrid.removeAllViews();
-        TenorClient.Callback cb = (results, error) -> {
+        GiphyClient.Callback cb = (results, error) -> {
             if (gifGrid == null || gifStatusText == null) return;
             if (error != null) {
                 gifStatusText.setText((gifArabic ? "تعذّر التحميل: " : "Couldn't load: ") + error);
@@ -2625,16 +2625,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             fillGifGrid(results);
         };
         if (trending || query.isEmpty()) {
-            TenorClient.trending(apiKey, cb);
+            GiphyClient.trending(apiKey, cb);
         } else {
-            TenorClient.search(apiKey, query, cb);
+            GiphyClient.search(apiKey, query, cb);
         }
     }
 
-    private void fillGifGrid(List<TenorClient.GifResult> results) {
+    private void fillGifGrid(List<GiphyClient.GifResult> results) {
         gifGrid.removeAllViews();
         int cellW = Math.max(dp(80), (getResources().getDisplayMetrics().widthPixels - dp(24)) / 3);
-        for (final TenorClient.GifResult gif : results) {
+        for (final GiphyClient.GifResult gif : results) {
             ImageView iv = new ImageView(this);
             iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
@@ -2655,7 +2655,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void sendGif(String url) {
         soundController.playKeyClick();
         ioExecutor.execute(() -> {
-            String fileName = TenorGifCache.downloadBlocking(this, url);
+            String fileName = GifDownloadCache.downloadBlocking(this, url);
             uiHandler.post(() -> {
                 if (fileName == null) {
                     Toast.makeText(this, "Couldn't load GIF", Toast.LENGTH_SHORT).show();

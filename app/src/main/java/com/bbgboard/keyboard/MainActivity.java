@@ -1674,11 +1674,12 @@ public class MainActivity extends Activity {
         clearCard.addView(clearBtn);
         root.addView(clearCard);
 
-        // ===== تبويب GIF (بحث وإرسال صور متحركة من Tenor) يحتاج مفتاح API مجاني من المستخدم =====
+        // ===== تبويب GIF (بحث وإرسال صور متحركة من GIPHY) يحتاج مفتاح API مجاني من المستخدم =====
+        // (كنا نستخدم Tenor، لكن جوجل أوقفت خدمتها للمطورين بتاريخ 30 يونيو 2026)
         LinearLayout gifCard = createGroupedWhiteCard();
         gifCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView gifHeader = new TextView(this);
-        gifHeader.setText(tr("مفتاح Tenor API (لتبويب GIF)", "Tenor API key (for the GIF tab)"));
+        gifHeader.setText(tr("مفتاح GIPHY API (لتبويب GIF)", "GIPHY API key (for the GIF tab)"));
         gifHeader.setTextColor(Color.parseColor("#111827"));
         gifHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         gifHeader.setTypeface(Typeface.DEFAULT_BOLD);
@@ -1686,16 +1687,16 @@ public class MainActivity extends Activity {
         gifCard.addView(gifHeader);
 
         TextView gifDesc = new TextView(this);
-        gifDesc.setText(tr("تبويب GIF بنافذة الإيموجي يحتاج مفتاح مجاني من حساب مطوّر Tenor (tenor.com/developer/dashboard)، الصقه هنا",
-                "The GIF tab in the emoji window needs a free key from a Tenor developer account (tenor.com/developer/dashboard) — paste it here"));
+        gifDesc.setText(tr("تبويب GIF بنافذة الإيموجي يحتاج مفتاح مجاني: سجّل حساب بـ developers.giphy.com/dashboard، اضغط Create an App، وانسخ الـ API Key من هناك والصقه هنا",
+                "The GIF tab needs a free key: sign up at developers.giphy.com/dashboard, click \"Create an App\", copy the API Key it gives you, and paste it here"));
         gifDesc.setTextColor(Color.parseColor("#6B7280"));
         gifDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
         gifDesc.setPadding(0, 0, 0, dp(10));
         gifCard.addView(gifDesc);
 
         final EditText gifKeyEdit = new EditText(this);
-        gifKeyEdit.setText(prefs.getTenorApiKey());
-        gifKeyEdit.setHint(tr("مفتاح Tenor API", "Tenor API key"));
+        gifKeyEdit.setText(prefs.getGiphyApiKey());
+        gifKeyEdit.setHint(tr("مفتاح GIPHY API", "GIPHY API key"));
         gifKeyEdit.setSingleLine(true);
         gifKeyEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
         gifCard.addView(gifKeyEdit);
@@ -1708,7 +1709,7 @@ public class MainActivity extends Activity {
         gifSaveBtn.setGravity(Gravity.CENTER);
         gifSaveBtn.setPadding(0, dp(12), 0, dp(4));
         gifSaveBtn.setOnClickListener(v -> {
-            prefs.setTenorApiKey(gifKeyEdit.getText().toString());
+            prefs.setGiphyApiKey(gifKeyEdit.getText().toString());
             android.widget.Toast.makeText(this, tr("تم حفظ المفتاح", "Key saved"), android.widget.Toast.LENGTH_SHORT).show();
         });
         gifCard.addView(gifSaveBtn);

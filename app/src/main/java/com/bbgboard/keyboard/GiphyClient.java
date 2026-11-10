@@ -16,15 +16,16 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** عميل بسيط لـ Tenor API v2 (بحث وترند صور GIF). كل الطلبات على خيط خلفي والنتيجة ترجع بخيط الواجهة. */
-final class TenorClient {
+/** عميل بسيط لـ GIPHY API (بحث وترند صور GIF). كل الطلبات على خيط خلفي والنتيجة ترجع بخيط الواجهة.
+ *  (استبدلنا Tenor بعد ما جوجل أوقفت خدمته للمطورين بتاريخ 30 يونيو 2026). */
+final class GiphyClient {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    private static final String BASE = "https://tenor.googleapis.com/v2/";
+    private static final String BASE = "https://api.giphy.com/v1/gifs/";
 
     static final class GifResult {
-        final String previewUrl; // نسخة صغيرة لعرضها بالشبكة (tinygif)
-        final String fullUrl;    // النسخة الكاملة اللي ترسل بالمحادثة
+        final String previewUrl; // نسخة صغيرة لعرضها بالشبكة (fixed_width)
+        final String fullUrl;    // النسخة الكاملة اللي ترسل بالمحادثة (original)
         GifResult(String previewUrl, String fullUrl) {
             this.previewUrl = previewUrl;
             this.fullUrl = fullUrl;
@@ -36,11 +37,11 @@ final class TenorClient {
     }
 
     static void trending(String apiKey, Callback cb) {
-        fetch(BASE + "featured?key=" + enc(apiKey) + "&limit=24&media_filter=tinygif,gif", cb);
+        fetch(BASE + "trending?api_key=" + enc(apiKey) + "&limit=24&rating=pg-13", cb);
     }
 
     static void search(String apiKey, String query, Callback cb) {
-        fetch(BASE + "search?key=" + enc(apiKey) + "&q=" + enc(query) + "&limit=24&media_filter=tinygif,gif", cb);
+        fetch(BASE + "search?api_key=" + enc(apiKey) + "&q=" + enc(query) + "&limit=24&rating=pg-13", cb);
     }
 
     private static String enc(String s) {
@@ -87,17 +88,17 @@ final class TenorClient {
         List<GifResult> list = new ArrayList<>();
         try {
             JSONObject root = new JSONObject(json);
-            JSONArray results = root.optJSONArray("results");
-            if (results == null) return list;
-            for (int i = 0; i < results.length(); i++) {
-                JSONObject item = results.optJSONObject(i);
+            JSONArray data = root.optJSONArray("data");
+            if (data == null) return list;
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject item = data.optJSONObject(i);
                 if (item == null) continue;
-                JSONObject formats = item.optJSONObject("media_formats");
-                if (formats == null) continue;
-                JSONObject tiny = formats.optJSONObject("tinygif");
-                JSONObject full = formats.optJSONObject("gif");
-                String previewUrl = tiny != null ? tiny.optString("url", null) : null;
-                String fullUrl = full != null ? full.optString("url", null) : previewUrl;
+                JSONObject images = item.optJSONObject("images");
+                if (images == null) continue;
+                JSONObject fixedWidth = images.optJSONObject("fixed_width");
+                JSONObject original = images.optJSONObject("original");
+                String previewUrl = fixedWidth != null ? fixedWidth.optString("url", null) : null;
+                String fullUrl = original != null ? original.optString("url", null) : previewUrl;
                 if (previewUrl != null && fullUrl != null) {
                     list.add(new GifResult(previewUrl, fullUrl));
                 }

@@ -8,8 +8,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /** يحمّل ملف GIF كامل (مو المصغّرة) لمجلد كاش مؤقت حتى يُرسل للمحادثة عبر commitContent. */
-final class TenorGifCache {
-    private TenorGifCache() {}
+final class GifDownloadCache {
+    private GifDownloadCache() {}
 
     static File dir(Context c) {
         File d = new File(c.getCacheDir(), "gif_send");
