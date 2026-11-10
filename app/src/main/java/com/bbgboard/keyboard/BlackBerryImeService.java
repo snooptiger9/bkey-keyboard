@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
@@ -1312,13 +1313,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onToggleEmoji() {
         if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
         refreshBottomBarGeometry();
-        // نوقف مزامنة التبويب مع السكرول مؤقتاً: إعادة البناء + رجوع السكرول للأعلى يصير قبل ما
-        // تنقاس مواضع العناوين الجديدة، فلو تركناها تشتغل تحدد فئة غلط (آخر فئة) فوق التحديد الصحيح.
+        // نوقف مزامنة التبويب مع السكرول مؤقتاً: إعادة البناء + رجوع السكرول للأعلى + ظهور الدرج
+        // كلها تسبب تغييرات قياس/تخطيط لاحقة (مو بس لحظة استدعاء الكود)، وأي حدث سكرول ناتج عنها
+        // يصير بمواضع عناوين غير مكتملة القياس بعد، فيحدد فئة غلط (آخر فئة) فوق التحديد الصحيح.
+        // نشيل الإيقاف فقط بعد ما يخلص تمريرة تخطيط (layout) كاملة، ونفرض التحديد الصحيح وقتها.
         suppressEmojiTabScrollSync = true;
         rebuildEmojiSections();
         updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
         if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
-        suppressEmojiTabScrollSync = false;
         matchDrawerHeightToKeyboard(emojiDrawerView);
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
@@ -1326,6 +1328,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         fadeIn(emojiDrawerView, 10);
         updateInlineStripVisibility();
         updateOneHandedSwitchButton();
+        if (emojiScroll != null) {
+            emojiScroll.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (emojiScroll != null && emojiScroll.getViewTreeObserver().isAlive()) {
+                        emojiScroll.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                    suppressEmojiTabScrollSync = false;
+                    updateEmojiTabHighlight(0); // نفرضها من جديد بعد ما يخلص التخطيط، حتى لو صار تحديث غلط بالمنتصف
+                }
+            });
+        } else {
+            suppressEmojiTabScrollSync = false;
+        }
     }
 
     @Override
