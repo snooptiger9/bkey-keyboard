@@ -1,6 +1,6 @@
 Downloading https://services.gradle.org/distributions/gradle-8.4-bin.zip
 
-Exception in thread "main" java.io.IOException: Server returned HTTP response code: 504 for URL: https://github.com/gradle/gradle-distributions/releases/download/v8.4.0/gradle-8.4-bin.zip
+Exception in thread "main" java.io.IOException: Server returned HTTP response code: 500 for URL: https://github.com/gradle/gradle-distributions/releases/download/v8.4.0/gradle-8.4-bin.zip
 	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:2059)
 	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1644)
 	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getInputStream(HttpsURLConnectionImpl.java:224)
