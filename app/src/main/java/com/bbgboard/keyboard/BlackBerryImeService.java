@@ -976,12 +976,31 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     /** يرجّع درج الرموز التعبيرية وGIF لحالتهما الافتراضية (أول تصنيف/أعلى سكرول)، تُستدعى كل ما
-     *  يُغلق الكيبورد حتى ما تبقى حالة قديمة (سكرول أو بحث GIF) معلّقة للجلسة الجاية. */
+     *  يُغلق الكيبورد حتى ما تبقى حالة قديمة (سكرول أو بحث GIF) معلّقة للجلسة الجاية.
+     *  ملاحظة مهمة: ما نستدعي hideGifPanel()/closeGifSearchKeyboard() هنا، لأنهما يسوّون
+     *  keyboardView.setVisibility(GONE) وقت الكتابة ببحث GIF — لو كان المستخدم بهذا الوضع واقفل
+     *  الكيبورد، هذا كان يخلي الكيبورد نفسه يختفي (يطلع أسود) بدل ما يختفي درج الإيموجي/GIF بس. */
     private void resetEmojiAndGifToFirstTab() {
         activeEmojiCategory = 0;
-        if (gifPanelShown) hideGifPanel();
+        gifPanelShown = false;
+        gifSearchFocused = false;
+        gifQueryBuilder.setLength(0);
         gifLastQuery = null; // يخلي فتح GIF الجاي يبدأ على "الشائع الآن" + "آخر ما استخدمت" من جديد
         suppressEmojiTabScrollSync = true;
+        if (gifPanel != null) gifPanel.setVisibility(View.GONE);
+        if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.VISIBLE);
+        if (gifTabView != null) {
+            gifTabView.setAlpha(0.60f);
+            gifTabView.setBackgroundColor(Color.TRANSPARENT);
+        }
+        if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
+        if (keyboardView != null) {
+            ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
+            if (lp instanceof FrameLayout.LayoutParams) {
+                ((FrameLayout.LayoutParams) lp).topMargin = 0;
+                keyboardView.setLayoutParams(lp);
+            }
+        }
         if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
         if (gifScroll != null) gifScroll.scrollTo(0, 0);
         if (!emojiTabViews.isEmpty()) updateEmojiTabHighlight(0);
