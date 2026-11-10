@@ -167,6 +167,15 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
+    /** مفتاح Tenor API (مجاني من حساب المطوّر بتينور)، مطلوب حتى يشتغل تبويب GIF. */
+    public String getTenorApiKey() {
+        return prefs.getString("tenor_api_key", "");
+    }
+
+    public void setTenorApiKey(String key) {
+        prefs.edit().putString("tenor_api_key", key == null ? "" : key.trim()).apply();
+    }
+
     /** حجم خط الاقتراحات: 0 = افتراضي، 1..5 = أكبر بـ 8% لكل درجة (حتى 140%). */
     public int getSuggestionTextLevel() {
         return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 0)));

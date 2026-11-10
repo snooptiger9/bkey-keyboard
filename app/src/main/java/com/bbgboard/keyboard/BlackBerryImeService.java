@@ -30,6 +30,7 @@ import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputConnectionWrapper;
 import android.view.inputmethod.InputContentInfo;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.GridLayout;
@@ -38,6 +39,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -76,6 +78,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int emojiGridCols = 8;
     private int emojiGridCellW = 0;
     private LinearLayout emojiDrawerView;
+    private FrameLayout emojiContentFrameView;
     private ScrollView emojiScroll;
     private LinearLayout emojiSectionsHost;
     private GridLayout emojiRecentGrid;
@@ -84,6 +87,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int activeEmojiCategory = 0;
     private TextView clipAbcBackLabel;
     private TextView emojiAbcBackLabel;
+
+    // ===== تبويب GIF داخل نافذة الإيموجي (بحث وتحميل عبر Tenor) =====
+    private TextView gifTabView;
+    private FrameLayout gifPanel;
+    private EditText gifSearchEdit;
+    private GridLayout gifGrid;
+    private ScrollView gifScroll;
+    private TextView gifStatusText;
+    private boolean gifPanelShown = false;
+    private String gifLastQuery = null; // null = لسه ما حمّلنا شي (نحمّل الترند أول مرة بس)
+    private final Runnable gifSearchDebounce = this::runGifSearch;
     private long lastSpaceTapTime = 0L;
     private boolean numericFieldActive = false;
     private boolean passwordFieldActive = false;
@@ -2358,6 +2372,25 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             tabsRow.addView(tab);
         }
 
+        // تبويب GIF: مو ضمن تبويبات أقسام الإيموجي لأنه يبدّل الشاشة كاملة بدل ما يسكرول لقسم.
+        TextView gifTab = new TextView(this);
+        gifTab.setText("GIF");
+        gifTab.setGravity(Gravity.CENTER);
+        gifTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+        gifTab.setTypeface(Typeface.DEFAULT_BOLD);
+        gifTab.setPadding(dp(2), dp(5), dp(2), dp(5));
+        LinearLayout.LayoutParams lpGifTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
+        lpGifTab.leftMargin = dp(2);
+        lpGifTab.rightMargin = dp(2);
+        gifTab.setLayoutParams(lpGifTab);
+        gifTab.setAlpha(0.60f);
+        gifTabView = gifTab;
+        gifTab.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            showGifPanel();
+        });
+        tabsRow.addView(gifTab);
+
         // زر الرجوع للكيبورد: سهم متجه لليمين فوق كبسولة مضلّلة بيضاوية، بنفس أسلوب مفتاح "123" في سمة Gboard.
         ModernIconView backIconBtn = new ModernIconView(
                 this,
@@ -2384,6 +2417,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // السفلي المنفصلة ويبين الإيموجي خلف الزرين العائمين، بدل أخذهما صف كامل مستقل.
         FrameLayout emojiContentFrame = new FrameLayout(this);
         emojiContentFrame.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        emojiContentFrameView = emojiContentFrame;
 
         emojiScroll = new ScrollView(this);
         emojiScroll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -2405,6 +2439,56 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiAbcBackLabel = emojiBottomBarRefs.abcLabel;
 
         container.addView(emojiContentFrame);
+
+        // ===== تبويب GIF: شريط بحث فوق وشبكة صور تحته، يبدّل مكان محتوى الإيموجي وقت ما يكون مفتوح =====
+        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
+        gifPanel = new FrameLayout(this);
+        gifPanel.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        gifPanel.setVisibility(View.GONE);
+
+        LinearLayout gifCol = new LinearLayout(this);
+        gifCol.setOrientation(LinearLayout.VERTICAL);
+        gifCol.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        gifSearchEdit = new EditText(this);
+        gifSearchEdit.setHint(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+        gifSearchEdit.setSingleLine(true);
+        gifSearchEdit.setTextColor(labelC());
+        gifSearchEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        gifSearchEdit.setPadding(dp(12), dp(6), dp(12), dp(6));
+        gifSearchEdit.setBackground(roundedBg(sugBarC(), 18));
+        LinearLayout.LayoutParams lpSearch = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
+        lpSearch.setMargins(dp(8), dp(6), dp(8), dp(6));
+        gifSearchEdit.setLayoutParams(lpSearch);
+        gifSearchEdit.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+            @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                uiHandler.removeCallbacks(gifSearchDebounce);
+                uiHandler.postDelayed(gifSearchDebounce, 450L);
+            }
+        });
+        gifCol.addView(gifSearchEdit);
+
+        gifStatusText = new TextView(this);
+        gifStatusText.setGravity(Gravity.CENTER);
+        gifStatusText.setTextColor(subC());
+        gifStatusText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        gifStatusText.setPadding(dp(16), dp(24), dp(16), dp(16));
+        gifStatusText.setVisibility(View.GONE);
+        gifCol.addView(gifStatusText);
+
+        gifScroll = new ScrollView(this);
+        gifScroll.setVerticalScrollBarEnabled(false);
+        gifScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        gifGrid = new GridLayout(this);
+        gifGrid.setColumnCount(3);
+        gifGrid.setPadding(dp(4), dp(2), dp(4), dp(56));
+        gifScroll.addView(gifGrid);
+        gifCol.addView(gifScroll);
+
+        gifPanel.addView(gifCol);
+        container.addView(gifPanel);
 
         rebuildEmojiSections();
         return container;
@@ -2469,9 +2553,140 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     private void scrollToEmojiSection(int index) {
+        if (gifPanelShown) hideGifPanel();
         if (emojiScroll == null || index < 0 || index >= emojiSectionHeaders.size()) return;
         updateEmojiTabHighlight(index);
         emojiScroll.smoothScrollTo(0, emojiSectionHeaders.get(index).getTop());
+    }
+
+    /** يفتح تبويب GIF مكان محتوى الإيموجي، ويحمّل الترند أول مرة فقط. */
+    private void showGifPanel() {
+        if (gifPanel == null) return;
+        gifPanelShown = true;
+        if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.GONE);
+        gifPanel.setVisibility(View.VISIBLE);
+        if (gifTabView != null) gifTabView.setAlpha(1.0f);
+        for (TextView t : emojiTabViews) t.setAlpha(0.60f);
+        for (TextView t : emojiTabViews) t.setBackgroundColor(Color.TRANSPARENT);
+        if (gifLastQuery == null) {
+            gifLastQuery = "";
+            loadGifResults(true, "");
+        }
+    }
+
+    private void hideGifPanel() {
+        if (!gifPanelShown) return;
+        gifPanelShown = false;
+        if (gifPanel != null) gifPanel.setVisibility(View.GONE);
+        if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.VISIBLE);
+        if (gifTabView != null) gifTabView.setAlpha(0.60f);
+    }
+
+    private void runGifSearch() {
+        if (gifSearchEdit == null) return;
+        String q = gifSearchEdit.getText() == null ? "" : gifSearchEdit.getText().toString().trim();
+        if (q.equals(gifLastQuery)) return;
+        gifLastQuery = q;
+        loadGifResults(false, q);
+    }
+
+    /** يحمّل صور GIF (ترند أو نتائج بحث) من Tenor ويعرضها بالشبكة. */
+    private void loadGifResults(boolean trending, String query) {
+        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
+        String apiKey = keyboardPrefs.getTenorApiKey();
+        if (apiKey == null || apiKey.isEmpty()) {
+            if (gifGrid != null) gifGrid.removeAllViews();
+            if (gifStatusText != null) {
+                gifStatusText.setText(gifArabic
+                        ? "لازم تضيف مفتاح Tenor API مجاني من إعدادات GIF حتى تشتغل هذي الميزة"
+                        : "Add a free Tenor API key in GIF settings to use this feature");
+                gifStatusText.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
+        if (gifStatusText != null) {
+            gifStatusText.setText(gifArabic ? "جاري التحميل..." : "Loading...");
+            gifStatusText.setVisibility(View.VISIBLE);
+        }
+        if (gifGrid != null) gifGrid.removeAllViews();
+        TenorClient.Callback cb = (results, error) -> {
+            if (gifGrid == null || gifStatusText == null) return;
+            if (error != null) {
+                gifStatusText.setText((gifArabic ? "تعذّر التحميل: " : "Couldn't load: ") + error);
+                gifStatusText.setVisibility(View.VISIBLE);
+                return;
+            }
+            if (results.isEmpty()) {
+                gifStatusText.setText(gifArabic ? "ما فيه نتائج" : "No results");
+                gifStatusText.setVisibility(View.VISIBLE);
+                return;
+            }
+            gifStatusText.setVisibility(View.GONE);
+            fillGifGrid(results);
+        };
+        if (trending || query.isEmpty()) {
+            TenorClient.trending(apiKey, cb);
+        } else {
+            TenorClient.search(apiKey, query, cb);
+        }
+    }
+
+    private void fillGifGrid(List<TenorClient.GifResult> results) {
+        gifGrid.removeAllViews();
+        int cellW = Math.max(dp(80), (getResources().getDisplayMetrics().widthPixels - dp(24)) / 3);
+        for (final TenorClient.GifResult gif : results) {
+            ImageView iv = new ImageView(this);
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
+            lp.width = cellW - dp(6);
+            lp.height = dp(90);
+            lp.setMargins(dp(3), dp(3), dp(3), dp(3));
+            iv.setLayoutParams(lp);
+            iv.setBackgroundColor(sugBarC());
+            try {
+                Glide.with(this).load(gif.previewUrl).into(iv);
+            } catch (Exception ignored) {}
+            iv.setOnClickListener(v -> sendGif(gif.fullUrl));
+            gifGrid.addView(iv);
+        }
+    }
+
+    /** يحمّل ملف الـGIF كامل بخيط خلفي، وبعدها يرسله للمحادثة (أو ينسخه لو التطبيق ما يدعم الإرسال المباشر). */
+    private void sendGif(String url) {
+        soundController.playKeyClick();
+        ioExecutor.execute(() -> {
+            String fileName = TenorGifCache.downloadBlocking(this, url);
+            uiHandler.post(() -> {
+                if (fileName == null) {
+                    Toast.makeText(this, "Couldn't load GIF", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Uri uri = Uri.parse("content://" + GifCacheProvider.AUTHORITY + "/" + fileName);
+                boolean committedInline = false;
+                EditorInfo info = getCurrentInputEditorInfo();
+                InputConnection ic = getCurrentInputConnection();
+                if (ic != null && info != null && info.contentMimeTypes != null && Build.VERSION.SDK_INT >= 25) {
+                    for (String mime : info.contentMimeTypes) {
+                        if (mime != null && (mime.equalsIgnoreCase("image/gif") || mime.equalsIgnoreCase("image/*"))) {
+                            try {
+                                grantUriPermission(info.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                InputContentInfo ici = new InputContentInfo(uri,
+                                        new ClipDescription("GIF", new String[]{"image/gif"}), null);
+                                committedInline = ic.commitContent(ici, InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION, null);
+                            } catch (Exception ignored) {}
+                            break;
+                        }
+                    }
+                }
+                if (!committedInline) {
+                    try {
+                        ClipData cd = ClipData.newUri(getContentResolver(), "GIF", uri);
+                        if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
+                        Toast.makeText(this, "GIF copied — paste it here", Toast.LENGTH_SHORT).show();
+                    } catch (Exception ignored) {}
+                }
+            });
+        });
     }
 
     private void updateActiveEmojiTabFromScroll(int scrollY) {

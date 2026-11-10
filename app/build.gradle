@@ -45,4 +45,6 @@ android {
 dependencies {
     // لبناء ستايل اقتراحات الملء التلقائي (حساب/باسورد) داخل شريط الكيبورد بدل نافذة منبثقة
     implementation 'androidx.autofill:autofill:1.1.0'
+    // لعرض وتشغيل صور GIF المتحركة بتبويب GIF
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
 }
