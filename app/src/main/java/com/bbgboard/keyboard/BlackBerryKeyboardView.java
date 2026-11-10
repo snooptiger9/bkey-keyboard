@@ -2618,7 +2618,7 @@ public class BlackBerryKeyboardView extends View {
 
                 if (key != null && key.type == KeyType.SPACE && prefs.isSpaceSwipeLangEnabled()
                         && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH) {
-                    float spaceSwipeThreshold = 22f * density; // كانت 28: أكثر حساسية بقليل
+                    float spaceSwipeThreshold = 25f * density;
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
                         toggleLanguage();
                         return true;
