@@ -748,27 +748,66 @@ public class MainActivity extends Activity {
         return listLayout;
     }
 
+    /** يحفظ حالة تفعيل اللغتين دفعة وحدة، ويمنع إطفاء آخر لغة مفعّلة (لازم توصل وحدة على الأقل). */
+    private void setLanguagesEnabled(boolean arabicOn, boolean englishOn) {
+        if (!arabicOn && !englishOn) return; // ما نسمح نطفي اللغتين سوا
+        int mode = arabicOn && englishOn ? KeyboardPreferences.LANGUAGE_MODE_BOTH
+                : arabicOn ? KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY
+                : KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
+        prefs.setLanguageMode(mode);
+    }
+
     private void openLanguagesScreen() {
         LinearLayout root = createSubScreenTemplate(tr("اللغة", "Language"));
+        fillLanguagesScreen(root);
+    }
 
-        // اللغات المفعّلة: الاثنتان (تبديل بالسحب) أو لغة واحدة فقط بدون تبديل
-        LinearLayout langModeCard = createGroupedWhiteCard();
-        langModeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+    private void refreshLanguagesScreen(LinearLayout root) {
+        root.removeViews(1, root.getChildCount() - 1);
+        fillLanguagesScreen(root);
+    }
+
+    private void fillLanguagesScreen(final LinearLayout root) {
+        // كل لغة لها خيار تفعيل مستقل (زي جي بورد)، تقدر تفعّل الاثنتين سوا أو وحدة بس، وبهذا
+        // الأسلوب لو ضفنا لغات بالمستقبل يصير كل وحدة منها مجرد خيار إضافي بنفس القائمة.
         TextView langModeHeader = new TextView(this);
         langModeHeader.setText(tr("اللغات المفعّلة:", "Enabled languages:"));
         langModeHeader.setTextColor(Color.parseColor("#111827"));
         langModeHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         langModeHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        langModeHeader.setPadding(0, 0, 0, dp(8));
-        langModeCard.addView(langModeHeader);
-        langModeCard.addView(createExclusiveRadioList(
-                tr(new String[]{"العربية والإنجليزية (تبديل بسحب المسافة)", "العربية فقط (بدون تبديل)", "الإنجليزية فقط (بدون تبديل)"},
-                   new String[]{"Arabic & English (swipe the space bar to switch)", "Arabic only (no switching)", "English only (no switching)"}),
-                prefs.getLanguageMode(),
-                idx -> prefs.setLanguageMode(idx)));
-        root.addView(langModeCard);
-        // خيار "تغيير اللغة بسحب زر المسافة" موجود بشاشة إيماءات السحب والأنميشن (نفس التفضيل
-        // prefs.isSpaceSwipeLangEnabled)، ما نكرره هنا.
+        langModeHeader.setPadding(dp(4), 0, dp(4), dp(8));
+        root.addView(langModeHeader);
+
+        boolean arabicOn = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
+        boolean englishOn = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY;
+
+        root.addView(createSwitchTile(
+                tr("العربية", "Arabic"),
+                tr("", ""),
+                arabicOn,
+                checked -> {
+                    setLanguagesEnabled(checked, prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY);
+                    refreshLanguagesScreen(root);
+                }));
+
+        root.addView(createSwitchTile(
+                tr("الإنجليزية", "English"),
+                tr("", ""),
+                englishOn,
+                checked -> {
+                    setLanguagesEnabled(prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY, checked);
+                    refreshLanguagesScreen(root);
+                }));
+
+        // لو اللغتين مفعّلتين، هذا الخيار يتحكم بطريقة التبديل بينهم: سحب زر المسافة، أو لو مطفي
+        // يظهر زر 🌐 مخصص للتبديل بدلاً منه (مكان زر الإيموجي، والإيموجي ينتقل للضغط المطوّل عليه).
+        root.addView(createSwitchTile(
+                tr("التبديل بسحب زر المسافة", "Switch by swiping the space bar"),
+                tr("فعّاله: اسحب زر المسافة يميناً أو يساراً للتبديل. مطفيه: يظهر زر 🌐 مخصص للتبديل بدل ذلك",
+                        "On: swipe the space bar left or right to switch. Off: a dedicated 🌐 button appears instead"),
+                prefs.isSpaceSwipeLangEnabled(),
+                checked -> prefs.setSpaceSwipeLangEnabled(checked)
+        ));
     }
 
     @Override
@@ -1701,12 +1740,7 @@ public class MainActivity extends Activity {
         dirCard.addView(dirNote);
         root.addView(dirCard);
 
-        root.addView(createSwitchTile(
-                tr("سحب زر المسافة يميناً أو يساراً لتغيير اللغة", "Swipe the space bar left or right to change language"),
-                tr("التبديل السريع بين العربية والإنجليزية عبر تمرير الإصبع على المسافة", "Quickly switch between Arabic and English by swiping the space bar"),
-                prefs.isSpaceSwipeLangEnabled(),
-                checked -> prefs.setSpaceSwipeLangEnabled(checked)
-        ));
+        // خيار "التبديل بسحب زر المسافة" انتقل لصفحة اللغة (بجانب اختيار اللغات المفعّلة).
 
         root.addView(createSwitchTile(
                 tr("تحريك المؤشر بالضغط المستمر على زر المسافة", "Move the cursor by holding and dragging the space bar"),
