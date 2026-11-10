@@ -231,9 +231,9 @@ public class KeyboardPreferences {
         prefs.edit().putString("giphy_api_key", key == null ? "" : key.trim()).apply();
     }
 
-    /** حجم خط الاقتراحات: 0 = افتراضي، 1..5 = أكبر بـ 8% لكل درجة (حتى 140%). */
+    /** حجم خط الاقتراحات: 0 = بدون تكبير، 1..5 = أكبر بـ 8% لكل درجة (حتى 140%). الافتراضي +3. */
     public int getSuggestionTextLevel() {
-        return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 0)));
+        return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 3)));
     }
 
     public void setSuggestionTextLevel(int level) {
@@ -241,7 +241,7 @@ public class KeyboardPreferences {
     }
 
     public float getKeyFontScale() {
-        return prefs.getFloat("key_font_scale", 1.12f);
+        return prefs.getFloat("key_font_scale", 1.18f);
     }
 
     public void setKeyFontScale(float scale) {
@@ -250,7 +250,7 @@ public class KeyboardPreferences {
     }
 
     public float getKeyboardScale() {
-        return prefs.getFloat("keyboard_scale", 1.0f);
+        return prefs.getFloat("keyboard_scale", 1.05f);
     }
 
     public void setKeyboardScale(float scale) {
@@ -259,7 +259,7 @@ public class KeyboardPreferences {
     }
 
     public float getSuggestionBarScale() {
-        return prefs.getFloat("suggestion_bar_scale", 0.85f);
+        return prefs.getFloat("suggestion_bar_scale", 1.15f);
     }
 
     public void setSuggestionBarScale(float scale) {
