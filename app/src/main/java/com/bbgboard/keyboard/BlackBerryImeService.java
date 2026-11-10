@@ -91,20 +91,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView gifTabView;
     private FrameLayout gifPanel;
     private TextView gifSearchBox; // صف البحث (مجرد عرض نص، مو EditText حقيقي، لأنه ما يقدر يطلع كيبورد نظام داخل IME نفسه)
-    private GridLayout gifGrid;
+    private LinearLayout gifGrid; // يحمل قسم "آخر ما استخدمت" (لو فيه) + قسم الترند/نتائج البحث، كل وحد بعنوانه
     private ScrollView gifScroll;
     private TextView gifStatusText;
     private boolean gifPanelShown = false;
     private String gifLastQuery = null; // null = لسه ما حمّلنا شي (نحمّل الترند أول مرة بس)
 
-    // الكتابة بالبحث تستخدم نفس لوحة مفاتيحنا (زي جي بورد بالضبط: يفتح الكيبورد العادي تحت نافذة
-    // GIF بدل ما يحاول يطلع كيبورد نظام ثاني، لأن هذا مستحيل من داخل تطبيق هو نفسه الكيبورد).
-    // مربع البحث نفسه هو الوحيد: الضغطة الأولى تفتح الكتابة فيه والضغطة الثانية تسكّرها (بدون أي
-    // أيقونات X أو إنتر)، والبحث يشتغل حي وانت تكتب، ومسح كل الحروف يرجّعك تلقائياً لصفحة GIF
-    // الرئيسية (ترند + آخر ما استخدمت).
+    // الكتابة بالبحث تستخدم نفس لوحة مفاتيحنا (زي جي بورد بالضبط: يفتح الكيبورد العادي فوقه شريط
+    // البحث بدل ما يحاول يطلع كيبورد نظام ثاني، لأن هذا مستحيل من داخل تطبيق هو نفسه الكيبورد).
+    // بدون أي أيقونات X أو إنتر: الكتابة تستجيب لحروف لوحتنا وزر الحذف فقط، والبحث الفعلي ما يصير
+    // إلا لما تضغط إنتر (فاضي = يرجع لصفحة الترند وآخر ما استخدمت).
     private boolean gifSearchFocused = false;
     private final StringBuilder gifQueryBuilder = new StringBuilder();
-    private final Runnable gifLiveSearchRunnable = this::runGifLiveSearch;
+    private FrameLayout gifSearchBar;
+    private TextView gifQueryDisplay;
     private long lastSpaceTapTime = 0L;
     private boolean numericFieldActive = false;
     private boolean passwordFieldActive = false;
@@ -556,6 +556,29 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         FrameLayout.LayoutParams lpOneHandedBtn = new FrameLayout.LayoutParams(dp(40), dp(40));
         rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
 
+        // شريط بحث GIF: يظهر فوق لوحة المفاتيح العادية وقت الكتابة بالبحث بدل نافذة GIF (يستبدلها
+        // مؤقتاً، نفس فكرة جي بورد)، بدون أي أيقونة X أو إنتر — مجرد عرض للنص المكتوب.
+        gifSearchBar = new FrameLayout(this);
+        gifSearchBar.setVisibility(View.GONE);
+        LinearLayout gifBarRow = new LinearLayout(this);
+        gifBarRow.setOrientation(LinearLayout.HORIZONTAL);
+        gifBarRow.setGravity(Gravity.CENTER_VERTICAL);
+        gifBarRow.setBackground(roundedBg(sugBarC(), 18));
+
+        gifQueryDisplay = new TextView(this);
+        gifQueryDisplay.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        gifQueryDisplay.setSingleLine(true);
+        gifQueryDisplay.setPadding(dp(14), 0, dp(14), 0);
+        gifQueryDisplay.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        gifBarRow.addView(gifQueryDisplay);
+
+        FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
+        lpBarRow.setMargins(dp(8), dp(6), dp(8), dp(6));
+        gifSearchBar.addView(gifBarRow, lpBarRow);
+        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56));
+        lpGifBar.gravity = Gravity.TOP;
+        rootContainer.addView(gifSearchBar, lpGifBar);
+
         showKeyboardMain();
         refreshPredictions();
         applyNavigationBarColor();
@@ -584,10 +607,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // لو كان مفتوح كيبورد بحث GIF من جلسة سابقة (مثلاً تبديل حقل الكتابة بينما كان مفتوحاً)، نسكّره
         // بدون تشغيل بحث حتى ما يعلق الكيبورد بحالة غريبة.
         if (gifSearchFocused) {
-            uiHandler.removeCallbacks(gifLiveSearchRunnable);
             gifSearchFocused = false;
+            if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
             if (keyboardView != null) {
-                keyboardView.setVisibility(View.GONE);
                 ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
                 if (lp instanceof FrameLayout.LayoutParams) {
                     ((FrameLayout.LayoutParams) lp).topMargin = 0;
@@ -1066,6 +1088,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void showKeyboardMain() {
         if (keyboardView == null) return;
         if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
+        if (gifPanelShown) hideGifPanel(); // حتى لو رجعت تفتح نافذة الإيموجي، تفتح على آخر تصنيف رموز مو GIF
         boolean wasDrawer = clipboardDrawerView.getVisibility() == View.VISIBLE || emojiDrawerView.getVisibility() == View.VISIBLE;
         keyboardView.setVisibility(View.VISIBLE);
         clipboardDrawerView.setVisibility(View.GONE);
@@ -1087,6 +1110,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onToggleClipboardMenu() {
         if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
+        if (gifPanelShown) hideGifPanel(); // حتى لو رجعت تفتح نافذة الإيموجي، تفتح على آخر تصنيف رموز مو GIF
         // اتجاه رأس قائمة الحافظة ثابت دائماً (LTR) بغض النظر عن لغة الكيبورد الحالية، حتى يبقى
         // ترتيب أيقونات الإعدادات/التكبير/الرجوع وموضع نص العدّاد ("No items") ثابتاً بدون ما
         // ينقلب مكانها كل ما بدّلت بين العربي والإنجليزي.
@@ -1505,8 +1529,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onCharacterTyped(String text) {
         if (gifSearchFocused) {
             gifQueryBuilder.append(text);
-            updateGifSearchBoxDisplay(gifQueryBuilder.toString());
-            scheduleGifLiveSearch();
+            updateGifQueryDisplay();
             return;
         }
         InputConnection ic = getCurrentInputConnection();
@@ -1587,15 +1610,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifSearchFocused) {
             int len = gifQueryBuilder.length();
             if (len > 0) gifQueryBuilder.deleteCharAt(len - 1);
-            if (gifQueryBuilder.length() == 0) {
-                // مسح كل الحروف ⇒ رجوع تلقائي لصفحة GIF الرئيسية (ترند + آخر ما استخدمت)، بدون
-                // حاجة لأي زر إلغاء.
-                uiHandler.removeCallbacks(gifLiveSearchRunnable);
-                closeGifSearchKeyboard(true);
-            } else {
-                updateGifSearchBoxDisplay(gifQueryBuilder.toString());
-                scheduleGifLiveSearch();
-            }
+            updateGifQueryDisplay(); // يمسح النص المعروض فوراً، حتى لو صار فاضي (ما تبقى كلمة معلّقة)
             return;
         }
         InputConnection ic = getCurrentInputConnection();
@@ -2528,8 +2543,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifScroll = new ScrollView(this);
         gifScroll.setVerticalScrollBarEnabled(false);
         gifScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        gifGrid = new GridLayout(this);
-        gifGrid.setColumnCount(GIF_GRID_COLUMNS);
+        gifGrid = new LinearLayout(this);
+        gifGrid.setOrientation(LinearLayout.VERTICAL);
         gifGrid.setPadding(dp(4), dp(2), dp(4), dp(56));
         gifScroll.addView(gifGrid);
         gifCol.addView(gifScroll);
@@ -2612,9 +2627,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifPanelShown = true;
         if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.GONE);
         gifPanel.setVisibility(View.VISIBLE);
-        if (gifTabView != null) gifTabView.setAlpha(1.0f);
-        for (TextView t : emojiTabViews) t.setAlpha(0.60f);
-        for (TextView t : emojiTabViews) t.setBackgroundColor(Color.TRANSPARENT);
+        // تحديد تبويب GIF بنفس طريقة تحديد باقي تصنيفات الرموز (خلفية بيضاوية + شفافية كاملة).
+        if (gifTabView != null) {
+            gifTabView.setAlpha(1.0f);
+            gifTabView.setBackground(roundedBg(pressedC(), 8));
+        }
+        for (TextView t : emojiTabViews) {
+            t.setAlpha(0.60f);
+            t.setBackgroundColor(Color.TRANSPARENT);
+        }
         if (gifLastQuery == null) {
             gifLastQuery = "";
             loadGifResults(true, "");
@@ -2627,50 +2648,50 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifPanelShown = false;
         if (gifPanel != null) gifPanel.setVisibility(View.GONE);
         if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.VISIBLE);
-        if (gifTabView != null) gifTabView.setAlpha(0.60f);
+        if (gifTabView != null) {
+            gifTabView.setAlpha(0.60f);
+            gifTabView.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
-    /** يفتح الكتابة بمربع البحث: يبقي شبكة GIF ظاهرة ويحط كيبوردنا العادي تحتها للكتابة
-     *  (نفس فكرة جي بورد: يستخدم كيبورده هو لأنه ما يقدر يطلع له كيبورد نظام ثاني). ضغطة ثانية
-     *  على المربع وهو مفتوح تسكّره (بدون أي زر X أو إنتر). */
+    /** يفتح الكتابة بمربع البحث: يحط كيبوردنا العادي فوقه شريط بحث مؤقت بدل نافذة GIF (نفس فكرة
+     *  جي بورد: يستخدم كيبورده هو لأنه ما يقدر يطلع له كيبورد نظام ثاني). بدون أي زر X أو إنتر؛
+     *  الكتابة تستجيب لحروف الكيبورد وزر الحذف فقط، والبحث ما يصير إلا بالضغط على إنتر. */
     private void openGifSearchKeyboard() {
-        if (gifSearchFocused) {
-            closeGifSearchKeyboard(true);
-            return;
-        }
-        if (keyboardView == null || gifPanel == null) return;
+        if (keyboardView == null || gifSearchBar == null) return;
         gifSearchFocused = true;
         gifQueryBuilder.setLength(0);
         if (gifLastQuery != null) gifQueryBuilder.append(gifLastQuery);
-        updateGifSearchBoxDisplay(gifQueryBuilder.toString());
+        updateGifQueryDisplay();
         // لازم يفتح على صفحة الحروف (عربي/إنجليزي)، مو صفحة الرموز لو كانت مفتوحة من قبل.
         keyboardView.exitSymbolsIfActive();
+        if (emojiDrawerView != null) emojiDrawerView.setVisibility(View.GONE);
         keyboardView.setVisibility(View.VISIBLE);
-        int drawerH = emojiDrawerView != null ? emojiDrawerView.getHeight() : 0;
-        if (drawerH <= 0 && emojiDrawerView != null) drawerH = emojiDrawerView.getMeasuredHeight();
         ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
         if (lp instanceof FrameLayout.LayoutParams) {
-            ((FrameLayout.LayoutParams) lp).topMargin = drawerH;
+            ((FrameLayout.LayoutParams) lp).topMargin = dp(56);
             keyboardView.setLayoutParams(lp);
         }
+        gifSearchBar.setVisibility(View.VISIBLE);
         updateOneHandedSwitchButton();
     }
 
-    /** يسكّر كيبورد البحث ويرجع كيبورد الحروف لحجمه العادي؛ لو runSearch صحّ يبحث بالنص المكتوب
-     *  (فاضي ⇒ يرجع لصفحة الترند وآخر ما استخدمت). */
+    /** يسكّر كيبورد البحث ويرجّع نافذة GIF؛ لو runSearch صحّ يبحث بالنص المكتوب (فاضي ⇒ يرجع
+     *  لصفحة الترند وآخر ما استخدمت). يُستدعى من زر إنتر فقط (ما فيه زر إلغاء منفصل). */
     private void closeGifSearchKeyboard(boolean runSearch) {
         if (!gifSearchFocused) return;
         gifSearchFocused = false;
-        uiHandler.removeCallbacks(gifLiveSearchRunnable);
         String typed = gifQueryBuilder.toString().trim();
+        if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
         if (keyboardView != null) {
-            keyboardView.setVisibility(View.GONE);
             ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
             if (lp instanceof FrameLayout.LayoutParams) {
                 ((FrameLayout.LayoutParams) lp).topMargin = 0;
                 keyboardView.setLayoutParams(lp);
             }
+            keyboardView.setVisibility(View.GONE);
         }
+        if (emojiDrawerView != null) emojiDrawerView.setVisibility(View.VISIBLE);
         if (runSearch) {
             gifLastQuery = typed;
             loadGifResults(typed.isEmpty(), typed);
@@ -2679,16 +2700,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateOneHandedSwitchButton();
     }
 
-    private void scheduleGifLiveSearch() {
-        uiHandler.removeCallbacks(gifLiveSearchRunnable);
-        uiHandler.postDelayed(gifLiveSearchRunnable, 450L);
-    }
-
-    /** يبحث حي وانت تكتب (بدون غلق الكيبورد ولا حفظ الاستعلام)، فقط يحدّث الشبكة الظاهرة تحت المربع. */
-    private void runGifLiveSearch() {
-        if (!gifSearchFocused) return;
-        String q = gifQueryBuilder.toString().trim();
-        loadGifResults(q.isEmpty(), q);
+    private void updateGifQueryDisplay() {
+        if (gifQueryDisplay == null) return;
+        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
+        String q = gifQueryBuilder.toString();
+        if (q.isEmpty()) {
+            gifQueryDisplay.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+            gifQueryDisplay.setTextColor(subC());
+        } else {
+            gifQueryDisplay.setText(q);
+            gifQueryDisplay.setTextColor(labelC());
+        }
     }
 
     private void updateGifSearchBoxDisplay(String query) {
@@ -2730,33 +2752,34 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 gifStatusText.setVisibility(View.VISIBLE);
                 return;
             }
-            List<GiphyClient.GifResult> combined = results;
+            List<GiphyClient.GifResult> recents = new ArrayList<>();
+            List<GiphyClient.GifResult> main = results;
             if (showRecents) {
-                List<String[]> recents = keyboardPrefs.getRecentGifs();
+                List<String[]> recentPairs = keyboardPrefs.getRecentGifs();
+                // أول صفّين بس (٢ × عدد الأعمدة) آخر GIF استخدمته، والباقي ترند عادي.
+                int recentLimit = GIF_GRID_COLUMNS * 2;
+                for (int i = 0; i < recentPairs.size() && i < recentLimit; i++) {
+                    String[] g = recentPairs.get(i);
+                    recents.add(new GiphyClient.GifResult(g[0], g[1]));
+                }
                 if (!recents.isEmpty()) {
-                    combined = new ArrayList<>();
-                    // أول صفّين بس (٢ × عدد الأعمدة) آخر GIF استخدمته، والباقي ترند عادي.
-                    int recentLimit = GIF_GRID_COLUMNS * 2;
-                    for (int i = 0; i < recents.size() && i < recentLimit; i++) {
-                        String[] g = recents.get(i);
-                        combined.add(new GiphyClient.GifResult(g[0], g[1]));
-                    }
+                    main = new ArrayList<>();
                     for (GiphyClient.GifResult g : results) {
                         boolean dup = false;
-                        for (GiphyClient.GifResult r : combined) {
+                        for (GiphyClient.GifResult r : recents) {
                             if (r.fullUrl.equals(g.fullUrl)) { dup = true; break; }
                         }
-                        if (!dup) combined.add(g);
+                        if (!dup) main.add(g);
                     }
                 }
             }
-            if (combined.isEmpty()) {
+            if (recents.isEmpty() && main.isEmpty()) {
                 gifStatusText.setText(gifArabic ? "ما فيه نتائج" : "No results");
                 gifStatusText.setVisibility(View.VISIBLE);
                 return;
             }
             gifStatusText.setVisibility(View.GONE);
-            fillGifGrid(combined);
+            fillGifSections(recents, main, !showRecents, gifArabic);
         };
         if (showRecents) {
             GiphyClient.trending(apiKey, cb);
@@ -2767,8 +2790,34 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private static final int GIF_GRID_COLUMNS = 4;
 
-    private void fillGifGrid(List<GiphyClient.GifResult> results) {
+    /** يبني قسم "آخر ما استخدمت" (لو فيه) وبعده قسم الترند/نتائج البحث، كل وحد بعنوان فوقه
+     *  يفصلهم عن بعض (زي عناوين تصنيفات الإيموجي بالضبط). */
+    private void fillGifSections(List<GiphyClient.GifResult> recents, List<GiphyClient.GifResult> main, boolean isSearch, boolean gifArabic) {
         gifGrid.removeAllViews();
+        if (!recents.isEmpty()) {
+            gifGrid.addView(gifSectionHeader(gifArabic ? "آخر ما استخدمته" : "Recently used"));
+            gifGrid.addView(buildGifRow(recents));
+        }
+        if (!main.isEmpty()) {
+            String title = isSearch ? (gifArabic ? "نتائج البحث" : "Search results") : (gifArabic ? "شائع الآن" : "Trending now");
+            gifGrid.addView(gifSectionHeader(title));
+            gifGrid.addView(buildGifRow(main));
+        }
+    }
+
+    private TextView gifSectionHeader(String text) {
+        TextView title = new TextView(this);
+        title.setText(text);
+        title.setTextColor(subC());
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        title.setPadding(dp(8), dp(10), dp(8), dp(4));
+        return title;
+    }
+
+    private GridLayout buildGifRow(List<GiphyClient.GifResult> results) {
+        GridLayout grid = new GridLayout(this);
+        grid.setColumnCount(GIF_GRID_COLUMNS);
         int cellW = Math.max(dp(64), (getResources().getDisplayMetrics().widthPixels - dp(24)) / GIF_GRID_COLUMNS);
         for (final GiphyClient.GifResult gif : results) {
             ImageView iv = new ImageView(this);
@@ -2786,8 +2835,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 keyboardPrefs.recordUsedGif(gif.previewUrl, gif.fullUrl);
                 sendGif(gif.fullUrl);
             });
-            gifGrid.addView(iv);
+            grid.addView(iv);
         }
+        return grid;
     }
 
     /** يحمّل ملف الـGIF كامل بخيط خلفي، وبعدها يرسله للمحادثة (أو ينسخه لو التطبيق ما يدعم الإرسال المباشر). */
