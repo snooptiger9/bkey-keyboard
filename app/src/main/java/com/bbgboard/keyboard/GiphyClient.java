@@ -37,11 +37,11 @@ final class GiphyClient {
     }
 
     static void trending(String apiKey, Callback cb) {
-        fetch(BASE + "trending?api_key=" + enc(apiKey) + "&limit=24&rating=pg-13", cb);
+        fetch(BASE + "trending?api_key=" + enc(apiKey) + "&limit=60&rating=pg-13", cb);
     }
 
     static void search(String apiKey, String query, Callback cb) {
-        fetch(BASE + "search?api_key=" + enc(apiKey) + "&q=" + enc(query) + "&limit=24&rating=pg-13", cb);
+        fetch(BASE + "search?api_key=" + enc(apiKey) + "&q=" + enc(query) + "&limit=60&rating=pg-13", cb);
     }
 
     private static String enc(String s) {
