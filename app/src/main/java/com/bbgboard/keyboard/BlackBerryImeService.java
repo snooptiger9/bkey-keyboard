@@ -2955,5 +2955,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 tab.setAlpha(0.60f);
             }
         }
+        // تحديد فئة رموز عادية هنا يعني تبويب GIF مو مفتوح، فنتأكد دايماً إنه مو محدد بصرياً حتى لو
+        // صار خلل بمكان ثاني وبقي محدد من قبل (هذا هو المكان الوحيد اللي يحدد فيه أي تبويب فعلياً).
+        if (gifTabView != null) {
+            gifTabView.setBackgroundColor(Color.TRANSPARENT);
+            gifTabView.setAlpha(0.60f);
+        }
     }
 }
