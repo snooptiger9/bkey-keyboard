@@ -1328,6 +1328,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             rebuildEmojiSections();
         }
         updateAbcBackLabels(isArabic);
+        // نفس الشي لنصوص تبويب GIF (مربع البحث وشريط الكتابة وعناوين "آخر ما استخدمت"/"شائع الآن").
+        updateGifSearchBoxDisplay(gifLastQuery);
+        if (gifSearchFocused) {
+            updateGifQueryDisplay();
+        } else if (gifPanelShown && gifLastQuery != null) {
+            loadGifResults(gifLastQuery.isEmpty(), gifLastQuery);
+        }
     }
 
     /** يحدّث نص زر "ABC / ا ب ت" أسفل قائمتي الحافظة والإيموجي ليطابق لغة الكيبورد الحالية. */
