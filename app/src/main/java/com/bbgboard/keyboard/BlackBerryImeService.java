@@ -561,6 +561,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         LinearLayout gifBarRow = new LinearLayout(this);
         gifBarRow.setOrientation(LinearLayout.HORIZONTAL);
         gifBarRow.setGravity(Gravity.CENTER_VERTICAL);
+        // خلفية بيضاوية بهامش حولها بدل شريط مسطّح لاصق بالحافة (كان يبين "غاطس" بدون أي تمييز).
+        gifBarRow.setBackground(roundedBg(sugBarC(), 18));
 
         gifQueryDisplay = new TextView(this);
         gifQueryDisplay.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
@@ -571,7 +573,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         TextView gifCancelBtn = new TextView(this);
         gifCancelBtn.setText("✕");
-        gifCancelBtn.setTextColor(Color.WHITE);
+        gifCancelBtn.setTextColor(labelC());
         gifCancelBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         gifCancelBtn.setGravity(Gravity.CENTER);
         gifCancelBtn.setPadding(dp(14), 0, dp(14), 0);
@@ -583,7 +585,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         TextView gifSubmitBtn = new TextView(this);
         gifSubmitBtn.setText("↵");
-        gifSubmitBtn.setTextColor(Color.WHITE);
+        gifSubmitBtn.setTextColor(labelC());
         gifSubmitBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
         gifSubmitBtn.setGravity(Gravity.CENTER);
         gifSubmitBtn.setPadding(dp(14), 0, dp(14), 0);
@@ -593,8 +595,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         gifBarRow.addView(gifSubmitBtn);
 
-        gifSearchBar.addView(gifBarRow, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)));
-        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
+        FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
+        lpBarRow.setMargins(dp(8), dp(6), dp(8), dp(6));
+        gifSearchBar.addView(gifBarRow, lpBarRow);
+        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56));
         lpGifBar.gravity = Gravity.TOP;
         rootContainer.addView(gifSearchBar, lpGifBar);
 
@@ -2558,7 +2562,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifScroll.setVerticalScrollBarEnabled(false);
         gifScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         gifGrid = new GridLayout(this);
-        gifGrid.setColumnCount(3);
+        gifGrid.setColumnCount(GIF_GRID_COLUMNS);
         gifGrid.setPadding(dp(4), dp(2), dp(4), dp(56));
         gifScroll.addView(gifGrid);
         gifCol.addView(gifScroll);
@@ -2665,14 +2669,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifSearchFocused = true;
         gifQueryBuilder.setLength(0);
         if (gifLastQuery != null) gifQueryBuilder.append(gifLastQuery);
-        gifSearchBar.setBackgroundColor(sugBarC());
-        if (gifQueryDisplay != null) gifQueryDisplay.setTextColor(labelC());
         updateGifQueryDisplay();
+        // لازم يفتح على صفحة الحروف (عربي/إنجليزي)، مو صفحة الرموز لو كانت مفتوحة من قبل.
+        keyboardView.exitSymbolsIfActive();
         if (emojiDrawerView != null) emojiDrawerView.setVisibility(View.GONE);
         keyboardView.setVisibility(View.VISIBLE);
         ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
         if (lp instanceof FrameLayout.LayoutParams) {
-            ((FrameLayout.LayoutParams) lp).topMargin = dp(44);
+            ((FrameLayout.LayoutParams) lp).topMargin = dp(56);
             keyboardView.setLayoutParams(lp);
         }
         gifSearchBar.setVisibility(View.VISIBLE);
@@ -2746,6 +2750,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifStatusText.setVisibility(View.VISIBLE);
         }
         if (gifGrid != null) gifGrid.removeAllViews();
+        boolean showRecents = trending || query.isEmpty();
         GiphyClient.Callback cb = (results, error) -> {
             if (gifGrid == null || gifStatusText == null) return;
             if (error != null) {
@@ -2753,37 +2758,62 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 gifStatusText.setVisibility(View.VISIBLE);
                 return;
             }
-            if (results.isEmpty()) {
+            List<GiphyClient.GifResult> combined = results;
+            if (showRecents) {
+                List<String[]> recents = keyboardPrefs.getRecentGifs();
+                if (!recents.isEmpty()) {
+                    combined = new ArrayList<>();
+                    // أول صفّين بس (٢ × عدد الأعمدة) آخر GIF استخدمته، والباقي ترند عادي.
+                    int recentLimit = GIF_GRID_COLUMNS * 2;
+                    for (int i = 0; i < recents.size() && i < recentLimit; i++) {
+                        String[] g = recents.get(i);
+                        combined.add(new GiphyClient.GifResult(g[0], g[1]));
+                    }
+                    for (GiphyClient.GifResult g : results) {
+                        boolean dup = false;
+                        for (GiphyClient.GifResult r : combined) {
+                            if (r.fullUrl.equals(g.fullUrl)) { dup = true; break; }
+                        }
+                        if (!dup) combined.add(g);
+                    }
+                }
+            }
+            if (combined.isEmpty()) {
                 gifStatusText.setText(gifArabic ? "ما فيه نتائج" : "No results");
                 gifStatusText.setVisibility(View.VISIBLE);
                 return;
             }
             gifStatusText.setVisibility(View.GONE);
-            fillGifGrid(results);
+            fillGifGrid(combined);
         };
-        if (trending || query.isEmpty()) {
+        if (showRecents) {
             GiphyClient.trending(apiKey, cb);
         } else {
             GiphyClient.search(apiKey, query, cb);
         }
     }
 
+    private static final int GIF_GRID_COLUMNS = 4;
+
     private void fillGifGrid(List<GiphyClient.GifResult> results) {
         gifGrid.removeAllViews();
-        int cellW = Math.max(dp(80), (getResources().getDisplayMetrics().widthPixels - dp(24)) / 3);
+        int cellW = Math.max(dp(64), (getResources().getDisplayMetrics().widthPixels - dp(24)) / GIF_GRID_COLUMNS);
         for (final GiphyClient.GifResult gif : results) {
             ImageView iv = new ImageView(this);
             iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
             lp.width = cellW - dp(6);
-            lp.height = dp(90);
+            lp.height = dp(78);
             lp.setMargins(dp(3), dp(3), dp(3), dp(3));
             iv.setLayoutParams(lp);
             iv.setBackgroundColor(sugBarC());
             try {
                 Glide.with(this).load(gif.previewUrl).into(iv);
             } catch (Exception ignored) {}
-            iv.setOnClickListener(v -> sendGif(gif.fullUrl));
+            iv.setOnClickListener(v -> {
+                keyboardPrefs.recordUsedGif(gif.previewUrl, gif.fullUrl);
+                sendGif(gif.fullUrl);
+            });
             gifGrid.addView(iv);
         }
     }
