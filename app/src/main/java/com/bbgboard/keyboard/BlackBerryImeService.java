@@ -2936,6 +2936,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     private void updateActiveEmojiTabFromScroll(int scrollY) {
+        // لو القائمة لسه ما انقاست (أول رسمة بعد إعادة البناء)، كل العناوين تكون top=0 مؤقتاً، وهذا
+        // يخلي الحساب يحدد آخر فئة (مثلاً أعلام الدول) غلط بدل الفئة الصحيحة. نتجاهل الحدث وقتها.
+        if (emojiSectionsHost == null || emojiSectionsHost.getHeight() == 0) return;
         int active = 0;
         for (int i = 0; i < emojiSectionHeaders.size(); i++) {
             if (emojiSectionHeaders.get(i).getTop() <= scrollY + dp(24)) active = i;
