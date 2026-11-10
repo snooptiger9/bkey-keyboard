@@ -30,7 +30,6 @@ import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputConnectionWrapper;
 import android.view.inputmethod.InputContentInfo;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.GridLayout;
@@ -91,13 +90,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // ===== تبويب GIF داخل نافذة الإيموجي (بحث وتحميل عبر GIPHY) =====
     private TextView gifTabView;
     private FrameLayout gifPanel;
-    private EditText gifSearchEdit;
+    private TextView gifSearchBox; // صف البحث (مجرد عرض نص، مو EditText حقيقي، لأنه ما يقدر يطلع كيبورد نظام داخل IME نفسه)
     private GridLayout gifGrid;
     private ScrollView gifScroll;
     private TextView gifStatusText;
     private boolean gifPanelShown = false;
     private String gifLastQuery = null; // null = لسه ما حمّلنا شي (نحمّل الترند أول مرة بس)
-    private final Runnable gifSearchDebounce = this::runGifSearch;
+
+    // الكتابة بالبحث تستخدم نفس لوحة مفاتيحنا (زي جي بورد بالضبط: يفتح الكيبورد العادي فوقه شريط
+    // البحث بدل ما يحاول يطلع كيبورد نظام ثاني، لأن هذا مستحيل من داخل تطبيق هو نفسه الكيبورد).
+    private boolean gifSearchFocused = false;
+    private final StringBuilder gifQueryBuilder = new StringBuilder();
+    private FrameLayout gifSearchBar;
+    private TextView gifQueryDisplay;
     private long lastSpaceTapTime = 0L;
     private boolean numericFieldActive = false;
     private boolean passwordFieldActive = false;
@@ -549,6 +554,50 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         FrameLayout.LayoutParams lpOneHandedBtn = new FrameLayout.LayoutParams(dp(40), dp(40));
         rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
 
+        // شريط بحث GIF: يظهر فوق لوحة المفاتيح العادية وقت الكتابة بالبحث، لأن ما نقدر نطلع كيبورد
+        // نظام ثاني من داخل تطبيق هو نفسه الكيبورد الحالي (نفس حل جي بورد: يستخدم كيبورده هو).
+        gifSearchBar = new FrameLayout(this);
+        gifSearchBar.setVisibility(View.GONE);
+        LinearLayout gifBarRow = new LinearLayout(this);
+        gifBarRow.setOrientation(LinearLayout.HORIZONTAL);
+        gifBarRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        gifQueryDisplay = new TextView(this);
+        gifQueryDisplay.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        gifQueryDisplay.setSingleLine(true);
+        gifQueryDisplay.setPadding(dp(14), 0, dp(14), 0);
+        gifQueryDisplay.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+        gifBarRow.addView(gifQueryDisplay);
+
+        TextView gifCancelBtn = new TextView(this);
+        gifCancelBtn.setText("✕");
+        gifCancelBtn.setTextColor(Color.WHITE);
+        gifCancelBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        gifCancelBtn.setGravity(Gravity.CENTER);
+        gifCancelBtn.setPadding(dp(14), 0, dp(14), 0);
+        gifCancelBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            closeGifSearchKeyboard(false);
+        });
+        gifBarRow.addView(gifCancelBtn);
+
+        TextView gifSubmitBtn = new TextView(this);
+        gifSubmitBtn.setText("↵");
+        gifSubmitBtn.setTextColor(Color.WHITE);
+        gifSubmitBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
+        gifSubmitBtn.setGravity(Gravity.CENTER);
+        gifSubmitBtn.setPadding(dp(14), 0, dp(14), 0);
+        gifSubmitBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            closeGifSearchKeyboard(true);
+        });
+        gifBarRow.addView(gifSubmitBtn);
+
+        gifSearchBar.addView(gifBarRow, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)));
+        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
+        lpGifBar.gravity = Gravity.TOP;
+        rootContainer.addView(gifSearchBar, lpGifBar);
+
         showKeyboardMain();
         refreshPredictions();
         applyNavigationBarColor();
@@ -574,6 +623,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
+        // لو كان مفتوح كيبورد بحث GIF من جلسة سابقة (مثلاً تبديل حقل الكتابة بينما كان مفتوحاً)، نسكّره
+        // بدون تشغيل بحث حتى ما يعلق الكيبورد بحالة غريبة.
+        if (gifSearchFocused) {
+            gifSearchFocused = false;
+            if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
+            if (keyboardView != null) {
+                ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
+                if (lp instanceof FrameLayout.LayoutParams) {
+                    ((FrameLayout.LayoutParams) lp).topMargin = 0;
+                    keyboardView.setLayoutParams(lp);
+                }
+            }
+        }
         invalidateTextCache();
         if (info != null) {
             curSelStart = info.initialSelStart;
@@ -1479,6 +1541,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onCharacterTyped(String text) {
+        if (gifSearchFocused) {
+            gifQueryBuilder.append(text);
+            updateGifQueryDisplay();
+            return;
+        }
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         String[] ctx = getTypingContext();
@@ -1554,6 +1621,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onBackspaceSingle() {
+        if (gifSearchFocused) {
+            int len = gifQueryBuilder.length();
+            if (len > 0) gifQueryBuilder.deleteCharAt(len - 1);
+            updateGifQueryDisplay();
+            return;
+        }
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         CharSequence selected = ic.getSelectedText(0);
@@ -1779,6 +1852,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onEnterKey() {
+        if (gifSearchFocused) {
+            closeGifSearchKeyboard(true);
+            return;
+        }
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         String[] ctx = getTypingContext();
@@ -2450,25 +2527,24 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifCol.setOrientation(LinearLayout.VERTICAL);
         gifCol.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        gifSearchEdit = new EditText(this);
-        gifSearchEdit.setHint(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
-        gifSearchEdit.setSingleLine(true);
-        gifSearchEdit.setTextColor(labelC());
-        gifSearchEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-        gifSearchEdit.setPadding(dp(12), dp(6), dp(12), dp(6));
-        gifSearchEdit.setBackground(roundedBg(sugBarC(), 18));
+        gifSearchBox = new TextView(this);
+        gifSearchBox.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+        gifSearchBox.setSingleLine(true);
+        gifSearchBox.setTextColor(subC());
+        gifSearchBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        gifSearchBox.setGravity(Gravity.CENTER_VERTICAL | (gifArabic ? Gravity.RIGHT : Gravity.LEFT));
+        gifSearchBox.setPadding(dp(12), dp(6), dp(12), dp(6));
+        gifSearchBox.setBackground(roundedBg(sugBarC(), 18));
         LinearLayout.LayoutParams lpSearch = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
         lpSearch.setMargins(dp(8), dp(6), dp(8), dp(6));
-        gifSearchEdit.setLayoutParams(lpSearch);
-        gifSearchEdit.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
-            @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
-            @Override public void afterTextChanged(android.text.Editable s) {
-                uiHandler.removeCallbacks(gifSearchDebounce);
-                uiHandler.postDelayed(gifSearchDebounce, 450L);
-            }
+        gifSearchBox.setLayoutParams(lpSearch);
+        // ما نقدر نستخدم EditText حقيقي هنا: التطبيق نفسه هو الكيبورد النشط حالياً فما يطلع له أي
+        // كيبورد نظام. نفس حل جي بورد: نضغط على الصف فيفتح كيبوردنا العادي فوق شريط بحث مؤقت.
+        gifSearchBox.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            openGifSearchKeyboard();
         });
-        gifCol.addView(gifSearchEdit);
+        gifCol.addView(gifSearchBox);
 
         gifStatusText = new TextView(this);
         gifStatusText.setGravity(Gravity.CENTER);
@@ -2575,6 +2651,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     private void hideGifPanel() {
+        if (gifSearchFocused) closeGifSearchKeyboard(false);
         if (!gifPanelShown) return;
         gifPanelShown = false;
         if (gifPanel != null) gifPanel.setVisibility(View.GONE);
@@ -2582,12 +2659,72 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifTabView != null) gifTabView.setAlpha(0.60f);
     }
 
-    private void runGifSearch() {
-        if (gifSearchEdit == null) return;
-        String q = gifSearchEdit.getText() == null ? "" : gifSearchEdit.getText().toString().trim();
-        if (q.equals(gifLastQuery)) return;
-        gifLastQuery = q;
-        loadGifResults(false, q);
+    /** يفتح كيبوردنا العادي فوق شريط بحث مؤقت حتى نقدر نكتب استعلام البحث (نفس أسلوب جي بورد). */
+    private void openGifSearchKeyboard() {
+        if (keyboardView == null || gifSearchBar == null) return;
+        gifSearchFocused = true;
+        gifQueryBuilder.setLength(0);
+        if (gifLastQuery != null) gifQueryBuilder.append(gifLastQuery);
+        gifSearchBar.setBackgroundColor(sugBarC());
+        if (gifQueryDisplay != null) gifQueryDisplay.setTextColor(labelC());
+        updateGifQueryDisplay();
+        if (emojiDrawerView != null) emojiDrawerView.setVisibility(View.GONE);
+        keyboardView.setVisibility(View.VISIBLE);
+        ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
+        if (lp instanceof FrameLayout.LayoutParams) {
+            ((FrameLayout.LayoutParams) lp).topMargin = dp(44);
+            keyboardView.setLayoutParams(lp);
+        }
+        gifSearchBar.setVisibility(View.VISIBLE);
+        updateOneHandedSwitchButton();
+    }
+
+    /** يسكّر كيبورد البحث ويرجّع نافذة الإيموجي/GIF؛ لو runSearch صحّ يبحث بالنص المكتوب. */
+    private void closeGifSearchKeyboard(boolean runSearch) {
+        if (!gifSearchFocused) return;
+        gifSearchFocused = false;
+        String typed = gifQueryBuilder.toString().trim();
+        if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
+        if (keyboardView != null) {
+            ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
+            if (lp instanceof FrameLayout.LayoutParams) {
+                ((FrameLayout.LayoutParams) lp).topMargin = 0;
+                keyboardView.setLayoutParams(lp);
+            }
+            keyboardView.setVisibility(View.GONE);
+        }
+        if (emojiDrawerView != null) emojiDrawerView.setVisibility(View.VISIBLE);
+        if (runSearch) {
+            gifLastQuery = typed;
+            loadGifResults(typed.isEmpty(), typed);
+        }
+        updateGifSearchBoxDisplay(gifLastQuery);
+        updateOneHandedSwitchButton();
+    }
+
+    private void updateGifQueryDisplay() {
+        if (gifQueryDisplay == null) return;
+        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
+        String q = gifQueryBuilder.toString();
+        if (q.isEmpty()) {
+            gifQueryDisplay.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+            gifQueryDisplay.setTextColor(subC());
+        } else {
+            gifQueryDisplay.setText(q);
+            gifQueryDisplay.setTextColor(labelC());
+        }
+    }
+
+    private void updateGifSearchBoxDisplay(String query) {
+        if (gifSearchBox == null) return;
+        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
+        if (query != null && !query.isEmpty()) {
+            gifSearchBox.setText(query);
+            gifSearchBox.setTextColor(labelC());
+        } else {
+            gifSearchBox.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+            gifSearchBox.setTextColor(subC());
+        }
     }
 
     /** يحمّل صور GIF (ترند أو نتائج بحث) من GIPHY ويعرضها بالشبكة. */
