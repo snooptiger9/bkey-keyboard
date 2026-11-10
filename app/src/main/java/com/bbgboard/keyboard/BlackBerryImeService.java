@@ -969,7 +969,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (predictionEngine != null) {
             predictionEngine.flushPendingSave(); // غير متزامن: لا يوقف الخيط الرئيسي
         }
+        // إغلاق الكيبورد: نرجّع قائمتي الرموز وGIF لأول تبويب (مو آخر سكرول/تصنيف/بحث)، حتى لو
+        // فتحهما المستخدم بالجلسة الجاية بدون ما يمر على onToggleEmoji() أول شي.
+        resetEmojiAndGifToFirstTab();
         super.onFinishInputView(finishingInput);
+    }
+
+    /** يرجّع درج الرموز التعبيرية وGIF لحالتهما الافتراضية (أول تصنيف/أعلى سكرول)، تُستدعى كل ما
+     *  يُغلق الكيبورد حتى ما تبقى حالة قديمة (سكرول أو بحث GIF) معلّقة للجلسة الجاية. */
+    private void resetEmojiAndGifToFirstTab() {
+        activeEmojiCategory = 0;
+        if (gifPanelShown) hideGifPanel();
+        gifLastQuery = null; // يخلي فتح GIF الجاي يبدأ على "الشائع الآن" + "آخر ما استخدمت" من جديد
+        suppressEmojiTabScrollSync = true;
+        if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
+        if (gifScroll != null) gifScroll.scrollTo(0, 0);
+        if (!emojiTabViews.isEmpty()) updateEmojiTabHighlight(0);
     }
 
     @Override
