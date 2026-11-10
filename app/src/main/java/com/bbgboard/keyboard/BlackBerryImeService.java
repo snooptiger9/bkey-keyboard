@@ -557,7 +557,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
 
         // شريط بحث GIF: يظهر فوق لوحة المفاتيح العادية وقت الكتابة بالبحث بدل نافذة GIF (يستبدلها
-        // مؤقتاً، نفس فكرة جي بورد)، بدون أي أيقونة X أو إنتر — مجرد عرض للنص المكتوب.
+        // مؤقتاً، نفس فكرة جي بورد). بدون زر إنتر (الإنتر الحقيقي بالكيبورد يسوي نفس الشي)، بس فيه
+        // زر X يلغي المكتوب بدون بحث ويرجع لنفس نافذة GIF اللي كانت ظاهرة قبل.
         gifSearchBar = new FrameLayout(this);
         gifSearchBar.setVisibility(View.GONE);
         LinearLayout gifBarRow = new LinearLayout(this);
@@ -571,6 +572,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifQueryDisplay.setPadding(dp(14), 0, dp(14), 0);
         gifQueryDisplay.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         gifBarRow.addView(gifQueryDisplay);
+
+        TextView gifCancelBtn = new TextView(this);
+        gifCancelBtn.setText("✕");
+        gifCancelBtn.setTextColor(labelC());
+        gifCancelBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        gifCancelBtn.setGravity(Gravity.CENTER);
+        gifCancelBtn.setPadding(dp(14), 0, dp(14), 0);
+        gifCancelBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            closeGifSearchKeyboard(false);
+        });
+        gifBarRow.addView(gifCancelBtn);
 
         FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
         lpBarRow.setMargins(dp(8), dp(6), dp(8), dp(6));
@@ -2655,8 +2668,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     /** يفتح الكتابة بمربع البحث: يحط كيبوردنا العادي فوقه شريط بحث مؤقت بدل نافذة GIF (نفس فكرة
-     *  جي بورد: يستخدم كيبورده هو لأنه ما يقدر يطلع له كيبورد نظام ثاني). بدون أي زر X أو إنتر؛
-     *  الكتابة تستجيب لحروف الكيبورد وزر الحذف فقط، والبحث ما يصير إلا بالضغط على إنتر. */
+     *  جي بورد: يستخدم كيبورده هو لأنه ما يقدر يطلع له كيبورد نظام ثاني). الكتابة تستجيب لحروف
+     *  الكيبورد وزر الحذف، والبحث ما يصير إلا بالضغط على إنتر؛ زر X يلغي بدون بحث. */
     private void openGifSearchKeyboard() {
         if (keyboardView == null || gifSearchBar == null) return;
         gifSearchFocused = true;
@@ -2676,8 +2689,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateOneHandedSwitchButton();
     }
 
-    /** يسكّر كيبورد البحث ويرجّع نافذة GIF؛ لو runSearch صحّ يبحث بالنص المكتوب (فاضي ⇒ يرجع
-     *  لصفحة الترند وآخر ما استخدمت). يُستدعى من زر إنتر فقط (ما فيه زر إلغاء منفصل). */
+    /** يسكّر كيبورد البحث ويرجّع نافذة GIF؛ لو runSearch صحّ (زر إنتر) يبحث بالنص المكتوب (فاضي ⇒
+     *  يرجع لصفحة الترند وآخر ما استخدمت)، ولو غلط (زر X) يلغي ويرجع لنفس النافذة اللي كانت قبل. */
     private void closeGifSearchKeyboard(boolean runSearch) {
         if (!gifSearchFocused) return;
         gifSearchFocused = false;
