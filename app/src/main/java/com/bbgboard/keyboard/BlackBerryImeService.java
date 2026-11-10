@@ -91,6 +91,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView gifTabView;
     private FrameLayout gifPanel;
     private TextView gifSearchBox; // صف البحث (مجرد عرض نص، مو EditText حقيقي، لأنه ما يقدر يطلع كيبورد نظام داخل IME نفسه)
+    private TextView gifSearchClearBtn; // زر X يظهر بس لما فيه كلمة بحث فعّالة، يمسحها ويرجع لصفحة GIF الرئيسية
     private LinearLayout gifGrid; // يحمل قسم "آخر ما استخدمت" (لو فيه) + قسم الترند/نتائج البحث، كل وحد بعنوانه
     private ScrollView gifScroll;
     private TextView gifStatusText;
@@ -2534,6 +2535,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifCol.setOrientation(LinearLayout.VERTICAL);
         gifCol.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
+        LinearLayout gifSearchRow = new LinearLayout(this);
+        gifSearchRow.setOrientation(LinearLayout.HORIZONTAL);
+        gifSearchRow.setGravity(Gravity.CENTER_VERTICAL);
+        gifSearchRow.setBackground(roundedBg(sugBarC(), 18));
+        LinearLayout.LayoutParams lpSearchRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
+        lpSearchRow.setMargins(dp(8), dp(6), dp(8), dp(6));
+        gifSearchRow.setLayoutParams(lpSearchRow);
+
         gifSearchBox = new TextView(this);
         gifSearchBox.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
         gifSearchBox.setSingleLine(true);
@@ -2541,17 +2550,32 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifSearchBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
         gifSearchBox.setGravity(Gravity.CENTER_VERTICAL | (gifArabic ? Gravity.RIGHT : Gravity.LEFT));
         gifSearchBox.setPadding(dp(12), dp(6), dp(12), dp(6));
-        gifSearchBox.setBackground(roundedBg(sugBarC(), 18));
-        LinearLayout.LayoutParams lpSearch = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
-        lpSearch.setMargins(dp(8), dp(6), dp(8), dp(6));
-        gifSearchBox.setLayoutParams(lpSearch);
+        gifSearchBox.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         // ما نقدر نستخدم EditText حقيقي هنا: التطبيق نفسه هو الكيبورد النشط حالياً فما يطلع له أي
         // كيبورد نظام. نفس حل جي بورد: نضغط على الصف فيفتح كيبوردنا العادي فوق شريط بحث مؤقت.
         gifSearchBox.setOnClickListener(v -> {
             soundController.playKeyClick();
             openGifSearchKeyboard();
         });
-        gifCol.addView(gifSearchBox);
+        gifSearchRow.addView(gifSearchBox);
+
+        gifSearchClearBtn = new TextView(this);
+        gifSearchClearBtn.setText("✕");
+        gifSearchClearBtn.setTextColor(labelC());
+        gifSearchClearBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        gifSearchClearBtn.setGravity(Gravity.CENTER);
+        gifSearchClearBtn.setPadding(dp(12), 0, dp(12), 0);
+        gifSearchClearBtn.setVisibility(View.GONE);
+        // يمسح كلمة البحث الحالية ويرجع مباشرة لصفحة GIF الرئيسية (ترند + آخر ما استخدمت).
+        gifSearchClearBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            gifLastQuery = "";
+            updateGifSearchBoxDisplay("");
+            loadGifResults(true, "");
+        });
+        gifSearchRow.addView(gifSearchClearBtn);
+
+        gifCol.addView(gifSearchRow);
 
         gifStatusText = new TextView(this);
         gifStatusText.setGravity(Gravity.CENTER);
@@ -2737,13 +2761,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void updateGifSearchBoxDisplay(String query) {
         if (gifSearchBox == null) return;
         boolean gifArabic = keyboardView == null || keyboardView.isArabic();
-        if (query != null && !query.isEmpty()) {
+        boolean hasQuery = query != null && !query.isEmpty();
+        if (hasQuery) {
             gifSearchBox.setText(query);
             gifSearchBox.setTextColor(labelC());
         } else {
             gifSearchBox.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
             gifSearchBox.setTextColor(subC());
         }
+        if (gifSearchClearBtn != null) gifSearchClearBtn.setVisibility(hasQuery ? View.VISIBLE : View.GONE);
     }
 
     /** يحمّل صور GIF (ترند أو نتائج بحث) من GIPHY ويعرضها بالشبكة. */
