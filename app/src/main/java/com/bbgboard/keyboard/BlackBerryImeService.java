@@ -84,6 +84,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private final List<View> emojiSectionHeaders = new ArrayList<>();
     private final List<TextView> emojiTabViews = new ArrayList<>();
     private int activeEmojiCategory = 0;
+    // يمنع تحديث تحديد التبويب أثناء إعادة بناء الأقسام وإرجاع السكرول للأعلى، لأن القياسات تكون
+    // غير جاهزة بعد (ارتفاعات/مواضع العناوين = صفر مؤقتاً) وتسبب تحديد فئة غلط (آخر فئة بدل الأولى).
+    private boolean suppressEmojiTabScrollSync = false;
     private TextView clipAbcBackLabel;
     private TextView emojiAbcBackLabel;
 
@@ -1309,9 +1312,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onToggleEmoji() {
         if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
         refreshBottomBarGeometry();
+        // نوقف مزامنة التبويب مع السكرول مؤقتاً: إعادة البناء + رجوع السكرول للأعلى يصير قبل ما
+        // تنقاس مواضع العناوين الجديدة، فلو تركناها تشتغل تحدد فئة غلط (آخر فئة) فوق التحديد الصحيح.
+        suppressEmojiTabScrollSync = true;
         rebuildEmojiSections();
         updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
         if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
+        suppressEmojiTabScrollSync = false;
         matchDrawerHeightToKeyboard(emojiDrawerView);
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
@@ -2936,9 +2943,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     private void updateActiveEmojiTabFromScroll(int scrollY) {
-        // لو القائمة لسه ما انقاست (أول رسمة بعد إعادة البناء)، كل العناوين تكون top=0 مؤقتاً، وهذا
-        // يخلي الحساب يحدد آخر فئة (مثلاً أعلام الدول) غلط بدل الفئة الصحيحة. نتجاهل الحدث وقتها.
-        if (emojiSectionsHost == null || emojiSectionsHost.getHeight() == 0) return;
+        if (suppressEmojiTabScrollSync) return;
         int active = 0;
         for (int i = 0; i < emojiSectionHeaders.size(); i++) {
             if (emojiSectionHeaders.get(i).getTop() <= scrollY + dp(24)) active = i;
