@@ -167,13 +167,13 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
-    /** مفتاح Tenor API (مجاني من حساب المطوّر بتينور)، مطلوب حتى يشتغل تبويب GIF. */
-    public String getTenorApiKey() {
-        return prefs.getString("tenor_api_key", "");
+    /** مفتاح GIPHY API (مجاني من حساب المطوّر بـ developers.giphy.com)، مطلوب حتى يشتغل تبويب GIF. */
+    public String getGiphyApiKey() {
+        return prefs.getString("giphy_api_key", "");
     }
 
-    public void setTenorApiKey(String key) {
-        prefs.edit().putString("tenor_api_key", key == null ? "" : key.trim()).apply();
+    public void setGiphyApiKey(String key) {
+        prefs.edit().putString("giphy_api_key", key == null ? "" : key.trim()).apply();
     }
 
     /** حجم خط الاقتراحات: 0 = افتراضي، 1..5 = أكبر بـ 8% لكل درجة (حتى 140%). */
