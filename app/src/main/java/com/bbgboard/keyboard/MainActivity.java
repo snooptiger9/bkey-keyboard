@@ -1031,30 +1031,32 @@ public class MainActivity extends Activity {
 
         // أحجام الكيبورد: نقلناها من صفحة التفضيلات لأنها جزء من المظهر مثل باقي الصفحة.
         // كل واحد منها "افتراضي" أو "مخصص" (يفتح السلايدر)، حتى تبقى هذي القائمة مختصرة.
+        // "افتراضي" هنا = القيم اللي اختارها المستخدم كأفضل إعداد (118% / 105% / 115% / +3)،
+        // مو القيم المحايدة (100%/0) — هذي صارت قيم المصنع الفعلية بالتطبيق.
         root.addView(buildSizerCard(
                 tr("5. حجم الحروف داخل المربعات", "5. Key letter size"),
-                Math.round(prefs.getKeyFontScale() * 100), 100, 80, 150,
+                Math.round(prefs.getKeyFontScale() * 100), 118, 80, 150,
                 pct -> prefs.setKeyFontScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("6. ارتفاع الكيبورد العام", "6. Overall keyboard height"),
-                Math.round(prefs.getKeyboardScale() * 100), 100, 70, 145,
+                Math.round(prefs.getKeyboardScale() * 100), 105, 70, 145,
                 pct -> prefs.setKeyboardScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("7. ارتفاع صف الاقتراحات العلوي", "7. Suggestion bar height"),
-                Math.round(prefs.getSuggestionBarScale() * 100), 100, 70, 125,
+                Math.round(prefs.getSuggestionBarScale() * 100), 115, 70, 125,
                 pct -> prefs.setSuggestionBarScale(pct / 100f),
                 pct -> pct + "%"));
 
-        // حجم خط الاقتراحات: افتراضي + 5 درجات أكبر (المستوى نفسه هو قيمة السلايدر، مو نسبة٪)
+        // حجم خط الاقتراحات: المستوى نفسه هو قيمة السلايدر (مو نسبة٪)، الافتراضي +3
         root.addView(buildSizerCard(
                 tr("8. حجم خط الاقتراحات", "8. Suggestion text size"),
-                prefs.getSuggestionTextLevel(), 0, 0, 5,
+                prefs.getSuggestionTextLevel(), 3, 0, 5,
                 lv -> prefs.setSuggestionTextLevel(lv),
-                lv -> lv == 0 ? tr("افتراضي", "Default") : "+" + lv));
+                lv -> lv == 0 ? tr("بدون تكبير", "No enlargement") : "+" + lv));
     }
 
     /** بطاقة معاينة صغيرة بلون مصمت وعلامة اختيار، بنفس أسلوب شبكة السمات في إعدادات أندرويد. */
