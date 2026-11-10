@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- للبحث عن صور GIF وتحميلها من Tenor بتبويب GIF -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <!-- لاقتراح رمز التحقق (OTP) تلقائياً من الرسائل الجديدة الواردة فقط (بدون قراءة صندوق الرسائل القديم) -->
@@ -46,6 +48,12 @@
         <provider
             android:name=".ScreenshotProvider"
             android:authorities="com.bbgboard.keyboard.screenshots"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
+        <provider
+            android:name=".GifCacheProvider"
+            android:authorities="com.bbgboard.keyboard.gifcache"
             android:exported="false"
             android:grantUriPermissions="true" />
 
