@@ -608,7 +608,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return rootContainer;
     }
 
-    /** نافذتا الحافظة والإيموجي تُبنيان بألوان السمة وقت إنشائهما، فنعيد بناءهما لما تتغير السمة. */
+    /** نافذتا الحافظة والإيموجي تُبنيان بألوان السمة وقت إنشائهما، فنعيد بناءهما لما تتغير السمة.
+     *  (فرق متعمد عن keyboardView.reloadAppearanceFromPrefs(): هذا الأخير خفيف ويعاد كل مرة بدون تحقق،
+     *  بعكس إعادة بناء الدرج كامل هنا اللي أثقل، فلازم نتحقق أولاً إن الثيم تغيّر فعلاً قبل نعيد البناء). */
     private int drawersTheme = -1;
 
     private void rebuildDrawersIfThemeChanged() {

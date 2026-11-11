@@ -481,6 +481,9 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
+    /** تُستدعى كل مرة يفتح حقل كتابة (onStartInputView)، بدون أي تحقق "تغيّر الثيم أو لا" — عملية خفيفة
+     *  (ألوان وخطوط وإعادة رسم) فمافيه مانع تتكرر. (قارن مع BlackBerryImeService.rebuildDrawersIfThemeChanged()
+     *  اللي يتحقق قبل يعيد البناء، لأن إعادة بناء درج الحافظة/الإيموجي كامل أثقل بكثير). */
     public void reloadAppearanceFromPrefs() {
         this.keyboardScale = prefs.getKeyboardScale();
         this.keyFontScale = prefs.getKeyFontScale();
