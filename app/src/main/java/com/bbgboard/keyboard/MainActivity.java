@@ -534,10 +534,11 @@ public class MainActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(18), dp(16), dp(18), dp(16));
 
+        // رجّعنا الأيقونة لليسار (كانت leftMargin=14 تدخلها لجنب النص بزيادة) وكبّرناها شوي (28→32).
         ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor("#5F6368"), Color.TRANSPARENT);
-        LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(28), dp(28));
-        lpIcon.leftMargin = dp(14);
-        lpIcon.rightMargin = dp(6);
+        LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(32), dp(32));
+        lpIcon.leftMargin = 0;
+        lpIcon.rightMargin = dp(10);
         icon.setLayoutParams(lpIcon);
 
         LinearLayout textCol = new LinearLayout(this);
