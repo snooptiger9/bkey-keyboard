@@ -1088,7 +1088,13 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private List<List<KeyDef>> buildSymbolsRows() {
-        List<KeyDef> row1 = Arrays.asList(
+        // الرمز الصغير (الرقم العربي) فوق كل رقم إنجليزي يختفي إذا كانت العربية معطّلة بالكامل من
+        // إعدادات اللغة، نفس منطق صف الأرقام العادي — الرقم الكبير يبقى إنجليزي بدون أي تغيير.
+        boolean arabicOff = prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
+        List<KeyDef> row1 = arabicOff ? Arrays.asList(
+            new KeyDef("1"), new KeyDef("2"), new KeyDef("3"), new KeyDef("4"), new KeyDef("5"),
+            new KeyDef("6"), new KeyDef("7"), new KeyDef("8"), new KeyDef("9"), new KeyDef("0")
+        ) : Arrays.asList(
             new KeyDef("1", "١", Collections.singletonList("١")),
             new KeyDef("2", "٢", Collections.singletonList("٢")),
             new KeyDef("3", "٣", Collections.singletonList("٣")),
