@@ -103,6 +103,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView gifStatusText;
     private boolean gifPanelShown = false;
     private String gifLastQuery = null; // null = لسه ما حمّلنا شي (نحمّل الترند أول مرة بس)
+    private boolean gifLastLoadedArabic; // اللغة اللي بنيت فيها عناوين/محتوى GIF آخر مرة
 
     // الكتابة بالبحث تستخدم نفس لوحة مفاتيحنا (زي جي بورد بالضبط: يفتح الكيبورد العادي فوقه شريط
     // البحث بدل ما يحاول يطلع كيبورد نظام ثاني، لأن هذا مستحيل من داخل تطبيق هو نفسه الكيبورد).
@@ -2733,9 +2734,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             t.setAlpha(0.60f);
             t.setBackgroundColor(Color.TRANSPARENT);
         }
+        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
         if (gifLastQuery == null) {
             gifLastQuery = "";
             loadGifResults(true, "");
+        } else if (gifLastLoadedArabic != gifArabic) {
+            // اللغة تغيّرت وقت ما كان تبويب GIF مقفول؛ لازم نعيد البناء حتى تترجم العناوين والمحتوى.
+            loadGifResults(gifLastQuery.isEmpty(), gifLastQuery);
         }
     }
 
@@ -2827,6 +2832,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     /** يحمّل صور GIF (ترند أو نتائج بحث) من GIPHY ويعرضها بالشبكة. */
     private void loadGifResults(boolean trending, String query) {
         boolean gifArabic = keyboardView == null || keyboardView.isArabic();
+        gifLastLoadedArabic = gifArabic;
         String apiKey = keyboardPrefs.getGiphyApiKey();
         if (apiKey == null || apiKey.isEmpty()) {
             if (gifGrid != null) gifGrid.removeAllViews();
