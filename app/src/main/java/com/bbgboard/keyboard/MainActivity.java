@@ -625,9 +625,9 @@ public class MainActivity extends Activity {
     /** صف تبديل بأسلوب قوائم Gboard: العنوان والوصف على جهة، ومفتاح التبديل في الطرف الآخر، داخل بطاقة بيضاء مستقلة. */
     /** بطاقة اختيار مدة الحذف التلقائي لنصوص الحافظة القديمة (المثبّت مستثنى). */
     private View createClipRetentionTile() {
-        final int[] values = {4, 24, 72, 168, 336, 720, 0}; // بالساعات
+        final int[] values = {1, 4, 24, 72, 168, 336, 720, 0}; // بالساعات
         final String[] labels = {
-                tr("4 ساعات", "4 hours"), tr("يوم واحد", "1 day"), tr("3 أيام", "3 days"), tr("أسبوع", "1 week"),
+                tr("ساعة واحدة", "1 hour"), tr("4 ساعات", "4 hours"), tr("يوم واحد", "1 day"), tr("3 أيام", "3 days"), tr("أسبوع", "1 week"),
                 tr("أسبوعين", "2 weeks"), tr("30 يوماً", "30 days"), tr("بدون حذف تلقائي", "Never")};
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
@@ -650,7 +650,7 @@ public class MainActivity extends Activity {
         card.addView(value);
         final Runnable refresh = () -> {
             int cur = prefs.getClipRetentionHours();
-            String label = labels[3];
+            String label = labels[4]; // الافتراضي (168 ساعة = أسبوع) بعد ما ضفنا "ساعة واحدة" بالأول
             for (int i = 0; i < values.length; i++) if (values[i] == cur) label = labels[i];
             value.setText(tr("المدة: ", "Keep for: ") + label
                     + tr("  (المثبّت لا يُحذف)", "  (pinned items are kept)"));
@@ -659,7 +659,7 @@ public class MainActivity extends Activity {
 
         card.setOnClickListener(v -> {
             int cur = prefs.getClipRetentionHours();
-            int sel = 3;
+            int sel = 4;
             for (int i = 0; i < values.length; i++) if (values[i] == cur) sel = i;
             new android.app.AlertDialog.Builder(this)
                     .setTitle(tr("حذف النصوص ولقطة الشاشة القديمة", "Auto-delete old items & screenshot"))
