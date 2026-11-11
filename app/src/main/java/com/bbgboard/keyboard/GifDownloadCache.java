@@ -11,6 +11,10 @@ import java.net.URL;
 final class GifDownloadCache {
     private GifDownloadCache() {}
 
+    // حد أقصى لمجلد الكاش: 60 ملف أو 40 ميجا، أيهما يوصل أول حد يحذف الأقدم.
+    private static final int MAX_FILES = 60;
+    private static final long MAX_BYTES = 40L * 1024 * 1024;
+
     static File dir(Context c) {
         File d = new File(c.getCacheDir(), "gif_send");
         if (!d.exists()) d.mkdirs();
@@ -34,11 +38,30 @@ final class GifDownloadCache {
             while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
             out.close();
             in.close();
+            pruneIfNeeded(dir(c));
             return name;
         } catch (Exception e) {
             return null;
         } finally {
             if (conn != null) conn.disconnect();
         }
+    }
+
+    /** يحذف أقدم ملفات مجلد الكاش حتى يرجع تحت حد عدد الملفات/الحجم المسموح. */
+    private static void pruneIfNeeded(File dir) {
+        try {
+            File[] files = dir.listFiles();
+            if (files == null) return;
+            long total = 0;
+            for (File f : files) total += f.length();
+            if (files.length <= MAX_FILES && total <= MAX_BYTES) return;
+            java.util.Arrays.sort(files, (a, b) -> Long.compare(a.lastModified(), b.lastModified()));
+            int i = 0;
+            while (i < files.length && (files.length - i > MAX_FILES || total > MAX_BYTES)) {
+                total -= files[i].length();
+                files[i].delete();
+                i++;
+            }
+        } catch (Exception ignored) {}
     }
 }
