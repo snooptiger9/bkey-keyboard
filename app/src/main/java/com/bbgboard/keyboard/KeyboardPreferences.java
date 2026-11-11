@@ -19,6 +19,10 @@ import java.util.Map;
  */
 public class KeyboardPreferences {
 
+    /** مدة صلاحية رمز OTP المكتشف (SMS أو إشعار واتساب) قبل يختفي تلقائياً — مصدر واحد مشترك
+     *  حتى لا نكتب "5 دقائق" رقماً منفصلاً بكل مكان ونخاطر نغيّر واحد وننسى الثاني. */
+    public static final long OTP_VALIDITY_MS = 5 * 60 * 1000L;
+
     public static final int THEME_BLACKBERRY_DARK = 0;
     public static final int THEME_GBOARD_WHITE = 1;
     public static final int THEME_MIDNIGHT_SLATE = 2;
@@ -123,7 +127,7 @@ public class KeyboardPreferences {
         String code = prefs.getString("pending_wa_otp_code", null);
         if (code == null) return null;
         long time = prefs.getLong("pending_wa_otp_time", 0L);
-        if (System.currentTimeMillis() - time > 5 * 60 * 1000L) return null;
+        if (System.currentTimeMillis() - time > OTP_VALIDITY_MS) return null;
         return code;
     }
 

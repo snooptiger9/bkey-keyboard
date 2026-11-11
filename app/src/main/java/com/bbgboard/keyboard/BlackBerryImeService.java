@@ -177,7 +177,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private String rejectedAutoCorrectWord = null;
 
     // اقتراح رمز التحقق (OTP) تلقائياً من رسائل SMS الجديدة فقط أثناء فتح الكيبورد
-    private static final long OTP_VALIDITY_MS = 5 * 60 * 1000L; // يختفي الرمز تلقائياً بعد 5 دقائق
+    // (مدة الصلاحية الآن بمصدر واحد مشترك: KeyboardPreferences.OTP_VALIDITY_MS)
     private String pendingOtpCode = null;
     private long pendingOtpTimestamp = 0L;
     private boolean otpReceiverRegistered = false;
@@ -209,7 +209,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     /** الرمز الفعلي اللي يُعرض الآن — SMS أولاً لو صالح، وإلا رمز واتساب المحفوظ بالإعدادات. */
     private String currentOtpCode() {
-        if (pendingOtpCode != null && (SystemClock.elapsedRealtime() - pendingOtpTimestamp) < OTP_VALIDITY_MS) {
+        if (pendingOtpCode != null && (SystemClock.elapsedRealtime() - pendingOtpTimestamp) < KeyboardPreferences.OTP_VALIDITY_MS) {
             return pendingOtpCode;
         }
         return keyboardPrefs != null ? keyboardPrefs.getPendingWhatsAppOtp() : null;
