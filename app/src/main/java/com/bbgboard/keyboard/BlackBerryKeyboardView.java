@@ -83,7 +83,6 @@ public class BlackBerryKeyboardView extends View {
         void onVoiceInputRequested();
         void onToggleEmoji();
         void onLanguageChanged(boolean isArabic);
-        void onKeyboardScaleChanged(float newScale);
         void onSuggestionLongPress(int slotIndex, String word);
         /** خطوة واحدة لتحريك المؤشر من سحب زر المسافة (true = يمين بصرياً، false = يسار بصرياً). */
         void onCursorStep(boolean moveRight);
@@ -2476,7 +2475,6 @@ public class BlackBerryKeyboardView extends View {
                         requestLayout();
                         computeKeyBounds(getWidth());
                         invalidate();
-                        if (listener != null) listener.onKeyboardScaleChanged(keyboardScale);
                     }
                     return true;
                 }

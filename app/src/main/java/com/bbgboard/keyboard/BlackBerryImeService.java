@@ -1391,10 +1391,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     @Override
-    public void onKeyboardScaleChanged(float newScale) {
-    }
-
-    @Override
     public void onCursorStep(boolean moveRight) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
