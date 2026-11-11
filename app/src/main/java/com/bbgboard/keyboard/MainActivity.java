@@ -930,18 +930,17 @@ public class MainActivity extends Activity {
         fHeader.setPadding(0, 0, 0, dp(10));
         fontCard.addView(fHeader);
 
-        // كل خط (افتراضي/Tajawal/Almarai) بنسختين: عادي (Regular) وبولد، يختار المستخدم بينهم بنفسه.
+        // كل خط (افتراضي/Tajawal) بنسختين: عادي (Regular) وبولد، يختار المستخدم بينهم بنفسه.
+        // (حذفنا Almarai عادي وبولد بناءً على طلب المستخدم.)
         int[] fontIds = {
                 KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD,
-                KeyboardPreferences.FONT_TAJAWAL_REGULAR, KeyboardPreferences.FONT_TAJAWAL,
-                KeyboardPreferences.FONT_ALMARAI_REGULAR, KeyboardPreferences.FONT_ALMARAI};
+                KeyboardPreferences.FONT_TAJAWAL_REGULAR, KeyboardPreferences.FONT_TAJAWAL};
         String[] fontNames = tr(
-                new String[]{"افتراضي", "افتراضي بولد", "Tajawal", "Tajawal بولد", "Almarai", "Almarai بولد"},
-                new String[]{"Default", "Default Bold", "Tajawal", "Tajawal Bold", "Almarai", "Almarai Bold"});
+                new String[]{"افتراضي", "افتراضي بولد", "Tajawal", "Tajawal بولد"},
+                new String[]{"Default", "Default Bold", "Tajawal", "Tajawal Bold"});
         String[] fontAssets = {
                 null, null,
-                "fonts/tajawal_regular.ttf", "fonts/tajawal_bold.ttf",
-                "fonts/almarai_regular.ttf", "fonts/almarai_bold.ttf"};
+                "fonts/tajawal_regular.ttf", "fonts/tajawal_bold.ttf"};
         List<View> fontTiles = new ArrayList<>();
         for (int i = 0; i < fontIds.length; i++) {
             final int id = fontIds[i];
@@ -954,7 +953,7 @@ public class MainActivity extends Activity {
             fontTiles.add(createFontPreviewTile(fontNames[i], tf, prefs.getKeyFont() == id,
                     v -> { prefs.setKeyFont(id); refreshThemeScreen(root); }));
         }
-        addTileGrid(fontCard, fontTiles, 3);
+        addTileGrid(fontCard, fontTiles, 4);
         root.addView(fontCard);
 
         LinearLayout themeCard = createGroupedWhiteCard();
@@ -1209,15 +1208,16 @@ public class MainActivity extends Activity {
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
         tile.setOnClickListener(onClick);
 
+        // أصغر شوي من بقية البطاقات (كانت 92×76) حتى تضل الأربع بطاقات بصف واحد فقط.
         FrameLayout holder = new FrameLayout(this);
-        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(76), dp(66)));
         holder.setBackground(roundedCard("#F3F4F6", 14));
 
         TextView sample = new TextView(this);
         sample.setText("أب Ab");
         sample.setTypeface(typeface);
         sample.setTextColor(Color.parseColor("#111827"));
-        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         sample.setGravity(Gravity.CENTER);
         holder.addView(sample, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
