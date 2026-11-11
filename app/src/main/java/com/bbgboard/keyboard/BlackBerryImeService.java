@@ -1275,7 +1275,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             try {
                 ClipData cd = ClipData.newUri(getContentResolver(), "Screenshot", uri);
                 if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
-                Toast.makeText(this, "Screenshot copied — paste it here", Toast.LENGTH_SHORT).show();
+                boolean arabicToast = keyboardView == null || keyboardView.isArabic();
+                Toast.makeText(this, arabicToast ? "تم نسخ لقطة الشاشة — اضغط لصق هنا" : "Screenshot copied — paste it here", Toast.LENGTH_SHORT).show();
             } catch (Exception ignored) {}
         }
         soundController.playKeyClick();
@@ -2957,8 +2958,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ioExecutor.execute(() -> {
             String fileName = GifDownloadCache.downloadBlocking(this, url);
             uiHandler.post(() -> {
+                boolean arabicToast = keyboardView == null || keyboardView.isArabic();
                 if (fileName == null) {
-                    Toast.makeText(this, "Couldn't load GIF", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, arabicToast ? "تعذّر تحميل الصورة المتحركة" : "Couldn't load GIF", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Uri uri = Uri.parse("content://" + GifCacheProvider.AUTHORITY + "/" + fileName);
@@ -2982,7 +2984,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     try {
                         ClipData cd = ClipData.newUri(getContentResolver(), "GIF", uri);
                         if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
-                        Toast.makeText(this, "GIF copied — paste it here", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, arabicToast ? "تم نسخ الصورة المتحركة — اضغط لصق هنا" : "GIF copied — paste it here", Toast.LENGTH_SHORT).show();
                     } catch (Exception ignored) {}
                 }
             });
