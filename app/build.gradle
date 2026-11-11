@@ -2,6 +2,15 @@ plugins {
     id 'com.android.application'
 }
 
+// كلمات سر التوقيع صارت بملف keystore.properties المنفصل (مو مكتوبة هنا بالكود صراحة)، حتى لا
+// تكون ظاهرة داخل سكربت البناء نفسه. الملف لسه داخل المشروع (لازم لـ CI يقدر يوقّع تلقائياً)،
+// فهذا تنظيم أفضل للسر مو حماية كاملة — لو تبي حماية حقيقية ينقل لـ GitHub Secrets بدل كذا.
+def keystorePropsFile = file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+}
+
 android {
     namespace 'com.bbgboard.keyboard'
     compileSdk 34
@@ -19,9 +28,9 @@ android {
         // ترسل لك تحدّث النسخة المثبتة فوق بعضها طبيعي بدون حذف ولا فقدان الكلمات المحفوظة والحافظة.
         bkeyStable {
             storeFile file('bkey_release.keystore')
-            storePassword 'bkey2026pass'
-            keyAlias 'bkeyalias'
-            keyPassword 'bkey2026pass'
+            storePassword keystoreProps.getProperty('storePassword')
+            keyAlias keystoreProps.getProperty('keyAlias')
+            keyPassword keystoreProps.getProperty('keyPassword')
         }
     }
 
