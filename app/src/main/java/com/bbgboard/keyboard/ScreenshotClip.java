@@ -132,20 +132,21 @@ public final class ScreenshotClip {
         try {
             BitmapFactory.Options bounds = new BitmapFactory.Options();
             bounds.inJustDecodeBounds = true;
-            InputStream in = c.getContentResolver().openInputStream(uri);
-            if (in == null) return false;
-            BitmapFactory.decodeStream(in, null, bounds);
-            in.close();
+            try (InputStream in = c.getContentResolver().openInputStream(uri)) {
+                if (in == null) return false;
+                BitmapFactory.decodeStream(in, null, bounds);
+            }
             if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return false;
             int sample = 1;
             int big = Math.max(bounds.outWidth, bounds.outHeight);
             while (big / (sample * 2) >= MAX_SIDE) sample *= 2;
             BitmapFactory.Options opts = new BitmapFactory.Options();
             opts.inSampleSize = sample;
-            in = c.getContentResolver().openInputStream(uri);
-            if (in == null) return false;
-            Bitmap bmp = BitmapFactory.decodeStream(in, null, opts);
-            in.close();
+            Bitmap bmp;
+            try (InputStream in = c.getContentResolver().openInputStream(uri)) {
+                if (in == null) return false;
+                bmp = BitmapFactory.decodeStream(in, null, opts);
+            }
             if (bmp == null) return false;
             int bigger = Math.max(bmp.getWidth(), bmp.getHeight());
             if (bigger > MAX_SIDE) {
@@ -155,9 +156,9 @@ public final class ScreenshotClip {
                 bmp = scaled;
             }
             File tmp = new File(c.getFilesDir(), "screenshot_clip.tmp");
-            FileOutputStream out = new FileOutputStream(tmp);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 85, out);
-            out.close();
+            try (FileOutputStream out = new FileOutputStream(tmp)) {
+                bmp.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            }
             bmp.recycle();
             File dest = file(c);
             if (dest.exists()) dest.delete();
