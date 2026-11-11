@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -55,6 +56,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private KeyboardPreferences keyboardPrefs;
     private SoundController soundController;
+    // يحدّث مظهر الكيبورد (ثيم/خط/لون/حجم) لحظياً وهو مفتوح لما تتغيّر الإعدادات، بدون الحاجة لقفله وإعادة فتحه.
+    private static final java.util.Set<String> APPEARANCE_PREF_KEYS = new java.util.HashSet<>(java.util.Arrays.asList(
+            "theme_mode", "keyboard_style", "key_font", "enter_color",
+            "key_font_scale", "keyboard_scale", "suggestion_bar_scale", "suggestion_text_level"));
+    private final SharedPreferences.OnSharedPreferenceChangeListener appearanceChangeListener = (sp, key) -> {
+        if (key == null || !APPEARANCE_PREF_KEYS.contains(key)) return;
+        if (keyboardView != null) {
+            keyboardView.reloadAppearanceFromPrefs();
+            keyboardView.invalidate();
+        }
+        rebuildDrawersIfThemeChanged();
+    };
     private PredictionEngine predictionEngine;
     private ClipboardRepository clipboardRepo;
     private ClipboardManager clipboardManager;
@@ -480,6 +493,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         super.onCreate();
         activeInstance = this;
         keyboardPrefs = new KeyboardPreferences(this);
+        keyboardPrefs.registerChangeListener(appearanceChangeListener);
         soundController = new SoundController(this, keyboardPrefs);
         // التحميل على خيط خلفي حتى لا يتأخر ظهور الكيبورد؛ أول ما يجهز نحدّث الاقتراحات
         predictionEngine = new PredictionEngine(this, keyboardPrefs, true);
@@ -508,6 +522,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             clipboardManager.removePrimaryClipChangedListener(clipListener);
         }
         unregisterOtpReceiverIfNeeded();
+        if (keyboardPrefs != null) keyboardPrefs.unregisterChangeListener(appearanceChangeListener);
         if (activeInstance == this) activeInstance = null;
         super.onDestroy();
     }
