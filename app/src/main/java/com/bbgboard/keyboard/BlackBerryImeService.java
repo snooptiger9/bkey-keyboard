@@ -56,6 +56,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private KeyboardPreferences keyboardPrefs;
     private SoundController soundController;
+    private PredictionEngine predictionEngine;
+    private ClipboardRepository clipboardRepo;
+    private ClipboardManager clipboardManager;
+
+    private FrameLayout rootContainer;
+    private BlackBerryKeyboardView keyboardView;
     // يحدّث مظهر الكيبورد (ثيم/خط/لون/حجم) لحظياً وهو مفتوح لما تتغيّر الإعدادات، بدون الحاجة لقفله وإعادة فتحه.
     private static final java.util.Set<String> APPEARANCE_PREF_KEYS = new java.util.HashSet<>(java.util.Arrays.asList(
             "theme_mode", "keyboard_style", "key_font", "enter_color",
@@ -68,12 +74,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         rebuildDrawersIfThemeChanged();
     };
-    private PredictionEngine predictionEngine;
-    private ClipboardRepository clipboardRepo;
-    private ClipboardManager clipboardManager;
-
-    private FrameLayout rootContainer;
-    private BlackBerryKeyboardView keyboardView;
     // زر صغير بالمساحة الفاضية لوضع اليد الواحدة، يبدّل جهة الكيبورد (يمين/يسار) بضغطة وحدة
     private FrameLayout oneHandedSwitchBtn;
     private ModernIconView oneHandedSwitchIcon;
