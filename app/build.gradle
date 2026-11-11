@@ -19,8 +19,10 @@ android {
         applicationId "com.bbgboard.keyboard"
         minSdk 24
         targetSdk 34
-        versionCode 46
-        versionName "46.0.0"
+        // versionCode/versionName يتبعان نفس ترقيم vNNN اللي يُسلَّم بيه كل بناء (ظاهر بإعدادات أندرويد
+        // > التطبيقات، حتى يطابق الرقم اللي يشوفه المستخدم عند كل نسخة جديدة بدون لخبطة بين الترقيمين).
+        versionCode 178
+        versionName "178.0"
     }
 
     signingConfigs {
