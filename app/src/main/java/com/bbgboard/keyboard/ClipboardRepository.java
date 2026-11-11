@@ -47,6 +47,10 @@ public class ClipboardRepository {
     private final KeyboardPreferences keyboardPrefs;
     private final List<ClipEntry> items = new ArrayList<>();
 
+    // مفتاح AES من Android Keystore يُخزَّن مؤقتاً هنا (لنفس العملية) حتى لا نكرر نداء Keystore
+    // (IPC فعلي مع خدمة النظام) في كل عملية قراءة/كتابة — وهو الجزء المكلف فعلاً، وليس فك تشفير JSON.
+    private static volatile SecretKey cachedKey;
+
     public ClipboardRepository(Context context) {
         this.prefs = context.getSharedPreferences("bb_keyboard_clipboard_prefs", Context.MODE_PRIVATE);
         this.keyboardPrefs = new KeyboardPreferences(context);
@@ -198,19 +202,26 @@ public class ClipboardRepository {
     // ===== التشفير =====
 
     private static SecretKey getKey() throws Exception {
-        KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
-        ks.load(null);
-        if (!ks.containsAlias(KS_ALIAS)) {
-            KeyGenerator kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-            kg.init(new KeyGenParameterSpec.Builder(KS_ALIAS,
-                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setKeySize(256)
-                    .build());
-            return kg.generateKey();
+        SecretKey k = cachedKey;
+        if (k != null) return k;
+        synchronized (ClipboardRepository.class) {
+            if (cachedKey != null) return cachedKey;
+            KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
+            ks.load(null);
+            if (!ks.containsAlias(KS_ALIAS)) {
+                KeyGenerator kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+                kg.init(new KeyGenParameterSpec.Builder(KS_ALIAS,
+                        KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                        .setKeySize(256)
+                        .build());
+                cachedKey = kg.generateKey();
+            } else {
+                cachedKey = (SecretKey) ks.getKey(KS_ALIAS, null);
+            }
+            return cachedKey;
         }
-        return (SecretKey) ks.getKey(KS_ALIAS, null);
     }
 
     private static String encrypt(String plain) {
