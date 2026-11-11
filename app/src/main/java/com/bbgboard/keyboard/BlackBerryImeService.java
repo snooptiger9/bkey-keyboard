@@ -527,6 +527,30 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         super.onDestroy();
     }
 
+    /** وقت ضغط ذاكرة حقيقي بالنظام (الكيبورد غالباً مخفي وقت هذا)، نفرّغ أكبر الكاشات القابلة لإعادة
+     *  البناء بسهولة — صور GIF المحمّلة بـGlide وأصوات الكيبورد — بدل ما نترك عملية الكيبورد هدف
+     *  سهل لقاتل الذاكرة. ما نلمس قاموس التنبؤ لأنه ضروري لسرعة الاقتراحات فور رجوع الكتابة. */
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= TRIM_MEMORY_BACKGROUND) {
+            releaseReclaimableCaches();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        releaseReclaimableCaches();
+    }
+
+    private void releaseReclaimableCaches() {
+        try {
+            Glide.get(this).clearMemory();
+        } catch (Exception ignored) {}
+        if (soundController != null) soundController.releaseSounds();
+    }
+
     /** مرجع ثابت للنسخة الحالية (نفس العملية)، يسمح لـ WhatsAppOtpListenerService يحدّث الاقتراح
      *  فوراً لما يلقط رمز، بدون انتظار أول ضغطة زر. آمن: يُستخدم فقط من نفس عملية التطبيق. */
     private static BlackBerryImeService activeInstance;
@@ -668,6 +692,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             boolean noEnterAction = info != null && (info.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0;
             keyboardView.setEnterActionIcon(noEnterAction ? EditorInfo.IME_ACTION_NONE : actionId);
         }
+        // لو الأصوات كانت متفرّغة من الذاكرة (تفريغ ضغط ذاكرة أو كانت مقفلة بالأساس وصارت مفعّلة)، نعيد تحميلها هنا.
+        if (soundController != null) soundController.ensureLoaded();
         rebuildDrawersIfThemeChanged();
         applyNavigationBarColor();
         applyOneHandedMode();
@@ -979,6 +1005,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             // إخفاء الكيبورد يلغي تثبيت الكابتال حتى ما يرجع معلّق بالجلسة الجاية
             keyboardView.resetShiftState();
+            // الصورة المصغّرة للقطة الشاشة ما لها فايدة بعد انتهاء صلاحية الشريحة؛ نفرّغها من الذاكرة
+            // (لو الشريحة لسه صالحة، نتركها عشان تظهر فوراً لو رجع فتح الكيبورد بسرعة).
+            if (!hasValidShotChip()) keyboardView.setScreenshotThumb(null);
         }
         clearInlineSuggestions();
         unregisterShotObserver();
@@ -990,6 +1019,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // إغلاق الكيبورد: نرجّع قائمتي الرموز وGIF لأول تبويب (مو آخر سكرول/تصنيف/بحث)، حتى لو
         // فتحهما المستخدم بالجلسة الجاية بدون ما يمر على onToggleEmoji() أول شي.
         resetEmojiAndGifToFirstTab();
+        // صور GIF المعاينة (Glide) تفضل محمّلة بالذاكرة إلى الأبد لو ما فرّغناها هنا — الدرج نفسه
+        // ما يُعاد بناؤه إلا عند تغيير الثيم، فهذي أول فرصة نفرّغ فيها كاش الصور وقت إخفاء الكيبورد.
+        try {
+            Glide.get(this).clearMemory();
+        } catch (Exception ignored) {}
         super.onFinishInputView(finishingInput);
     }
 

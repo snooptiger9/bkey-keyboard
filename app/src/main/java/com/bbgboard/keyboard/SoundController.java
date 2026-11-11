@@ -31,6 +31,17 @@ public class SoundController {
         this.context = context.getApplicationContext();
         this.prefs = prefs;
         this.audioManager = (AudioManager) this.context.getSystemService(Context.AUDIO_SERVICE);
+        ensureLoaded();
+    }
+
+    /** يحمّل أصوات الكيبورد فقط لو فعلاً محتاجينها (صوت الكتابة أو السحب مفعّل وعلى نغمة مخصّصة، مو
+     *  صوت النظام أو صامت) — لو الصوت كله مقفل ما نحمّل شي ونوفر الذاكرة. آمنة تتكرر: لا تسوي شي
+     *  لو محمّلة أصلاً. تُستخدم أيضاً لإعادة التحميل بعد تفريغ الذاكرة (releaseSounds) لو احتجناها لاحقاً. */
+    public synchronized void ensureLoaded() {
+        if (soundPool != null) return;
+        boolean needed = (prefs.isSoundEnabled() && prefs.getSoundProfile() != KeyboardPreferences.SOUND_PROFILE_SYSTEM)
+                || (prefs.isSwipeSoundEnabled() && prefs.getSwipeSoundProfile() != KeyboardPreferences.SWIPE_SOUND_SILENT);
+        if (!needed) return;
         initSoundPool();
     }
 
@@ -52,12 +63,21 @@ public class SoundController {
         new Thread(this::loadOrBuildSounds, "SoundController-load").start();
     }
 
-    /** يحرر SoundPool عند إغلاق خدمة الكيبورد. */
+    /** يحرر SoundPool نهائياً عند إغلاق خدمة الكيبورد. */
     public void release() {
+        releaseSounds();
+    }
+
+    /** يحرر الأصوات المحمّلة من الذاكرة (وقت ضغط ذاكرة النظام مثلاً)، بدون تدمير الكائن نفسه —
+     *  تقدر ترجع تحمّلها بعدين بنداء ensureLoaded() لو احتجناها من جديد. */
+    public synchronized void releaseSounds() {
         try {
             if (soundPool != null) soundPool.release();
         } catch (Exception ignored) {}
         soundPool = null;
+        java.util.Arrays.fill(tapSoundIds, 0);
+        java.util.Arrays.fill(swipeSoundIds, 0);
+        backspaceSoundId = 0;
     }
 
     private void loadOrBuildSounds() {
