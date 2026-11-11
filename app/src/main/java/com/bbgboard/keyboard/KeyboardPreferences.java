@@ -279,6 +279,16 @@ public class KeyboardPreferences {
         prefs.edit().putInt("theme_mode", mode).apply();
     }
 
+    /** يسجّل مستمعاً يُنادى فوراً (نداء داخلي بالذاكرة، بدون أي IPC) لما يتغيّر أي إعداد — يُستخدم
+     *  لتحديث مظهر الكيبورد لحظياً وهو مفتوح، بدل الانتظار لحد يُقفل ويُفتح من جديد. */
+    public void registerChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        prefs.registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public void unregisterChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        prefs.unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
     public int getKeyboardStyle() {
         int style = prefs.getInt("keyboard_style", STYLE_BLACKBERRY_FRETS);
         return style == STYLE_GBOARD_SOFT_ROUND ? STYLE_MODERN_PILL : style;
