@@ -674,6 +674,12 @@ public class MainActivity extends Activity {
     }
 
     private View createSwitchTile(String title, String subtitle, boolean checked, final SwitchListener listener) {
+        return createSwitchTile(title, subtitle, checked, true, listener);
+    }
+
+    /** نفس البطاقة، بس مع إمكانية تعطيلها (رمادية وما تنلمس) لو enabled=false — نستخدمها لما يكون
+     *  الخيار موجود لكن بدون فايدة بالوضع الحالي (مثل خيار سحب المسافة لو لغة وحدة بس مفعّلة). */
+    private View createSwitchTile(String title, String subtitle, boolean checked, boolean enabled, final SwitchListener listener) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
@@ -707,6 +713,7 @@ public class MainActivity extends Activity {
 
         Switch sw = new Switch(this);
         sw.setChecked(checked);
+        sw.setEnabled(enabled);
         sw.setOnCheckedChangeListener((buttonView, isChecked) -> listener.onToggle(isChecked));
         LinearLayout.LayoutParams lpSw = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lpSw.leftMargin = dp(10);
@@ -714,6 +721,7 @@ public class MainActivity extends Activity {
 
         card.addView(textCol);
         card.addView(sw);
+        if (!enabled) card.setAlpha(0.5f);
         return card;
     }
 
@@ -779,6 +787,18 @@ public class MainActivity extends Activity {
         langModeHeader.setPadding(dp(4), 0, dp(4), dp(8));
         root.addView(langModeHeader);
 
+        // توضيح للعلاقة بين تفعيل لغة/لغتين وظهور خيار السحب وزر التبديل 🌐، حتى ما يلخبط المستخدم.
+        TextView langModeNote = new TextView(this);
+        langModeNote.setText(tr(
+                "لو فعّلت اللغتين سوا، تقدر تختار طريقة التبديل بينهم (سحب المسافة أو زر 🌐). "
+                        + "لو فعّلت لغة وحدة بس، ما يحتاج تبديل أصلاً فيختفي زر 🌐 ويتعطّل خيار السحب تلقائياً.",
+                "Enable both languages together to choose how you switch between them (space-bar swipe or the 🌐 button). "
+                        + "Enable just one language and there's nothing to switch, so the 🌐 button disappears and the swipe option turns off automatically."));
+        langModeNote.setTextColor(Color.parseColor("#6B7280"));
+        langModeNote.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        langModeNote.setPadding(dp(4), 0, dp(4), dp(12));
+        root.addView(langModeNote);
+
         boolean arabicOn = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
         boolean englishOn = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY;
 
@@ -802,11 +822,16 @@ public class MainActivity extends Activity {
 
         // لو اللغتين مفعّلتين، هذا الخيار يتحكم بطريقة التبديل بينهم: سحب زر المسافة، أو لو مطفي
         // يظهر زر 🌐 مخصص للتبديل بدلاً منه (مكان زر الإيموجي، والإيموجي ينتقل للضغط المطوّل عليه).
+        // لو لغة وحدة بس مفعّلة، نخليه ظاهر لكن معطّل (رمادي) حتى يفهم المستخدم ليش ماله فايدة الحين.
+        boolean bothLangsOn = arabicOn && englishOn;
         root.addView(createSwitchTile(
                 tr("التبديل بسحب زر المسافة", "Switch by swiping the space bar"),
-                tr("فعّاله: اسحب زر المسافة يميناً أو يساراً للتبديل. مطفيه: يظهر زر 🌐 مخصص للتبديل بدل ذلك",
-                        "On: swipe the space bar left or right to switch. Off: a dedicated 🌐 button appears instead"),
+                bothLangsOn
+                        ? tr("فعّاله: اسحب زر المسافة يميناً أو يساراً للتبديل. مطفيه: يظهر زر 🌐 مخصص للتبديل بدل ذلك",
+                                "On: swipe the space bar left or right to switch. Off: a dedicated 🌐 button appears instead")
+                        : tr("يحتاج تفعيل اللغتين (عربي + إنجليزي) حتى يشتغل", "Needs both languages enabled (Arabic + English) to work"),
                 prefs.isSpaceSwipeLangEnabled(),
+                bothLangsOn,
                 checked -> prefs.setSpaceSwipeLangEnabled(checked)
         ));
     }
