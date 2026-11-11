@@ -34,14 +34,8 @@ public class SoundController {
         initSoundPool();
     }
 
-    /** يحرر SoundPool عند إغلاق خدمة الكيبورد. */
-    public void release() {
-        try {
-            if (soundPool != null) soundPool.release();
-        } catch (Exception ignored) {}
-        soundPool = null;
-    }
-
+    /** يبني SoundPool نفسه فوراً (رخيص)، ويدفع تحميل/توليد ملفات الصوت لخيط خلفي حتى لا يجمّد
+     *  ظهور الكيبورد عند أول تشغيل بعد التركيب أو تفريغ الكاش (توليد 20 ملف صوتي عملية معالج فعلية). */
     private void initSoundPool() {
         try {
             AudioAttributes attrs = new AudioAttributes.Builder()
@@ -53,7 +47,21 @@ public class SoundController {
                     .setMaxStreams(12)
                     .setAudioAttributes(attrs)
                     .build();
+        } catch (Exception ignored) {}
 
+        new Thread(this::loadOrBuildSounds, "SoundController-load").start();
+    }
+
+    /** يحرر SoundPool عند إغلاق خدمة الكيبورد. */
+    public void release() {
+        try {
+            if (soundPool != null) soundPool.release();
+        } catch (Exception ignored) {}
+        soundPool = null;
+    }
+
+    private void loadOrBuildSounds() {
+        try {
             File cacheDir = new File(context.getCacheDir(), "bb_sounds_v10");
             if (!cacheDir.exists()) {
                 cacheDir.mkdirs();
