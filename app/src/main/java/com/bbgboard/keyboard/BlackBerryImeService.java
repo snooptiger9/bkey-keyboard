@@ -2280,10 +2280,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         titleRow.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
 
         // أيقونة الحافظة انتقلت لداخل ترويسة الدرج نفسه، بدل ما تكون أيقونة منفصلة على زر الفتح.
+        // بنفس شكل وحجم أيقونة الحافظة الأصلية (بدون setStyle مخصص، زي أيقونة حالة "فاضية" أسفل الدرج).
         ModernIconView clipTitleIcon = new ModernIconView(this, ModernIconView.ICON_CLIPBOARD_PAD,
                 labelC(), Color.TRANSPARENT);
-        clipTitleIcon.setStyle(0.95f, 2.0f);
-        LinearLayout.LayoutParams lpClipIcon = new LinearLayout.LayoutParams(dp(20), dp(20));
+        LinearLayout.LayoutParams lpClipIcon = new LinearLayout.LayoutParams(dp(28), dp(28));
         lpClipIcon.rightMargin = dp(6);
         clipTitleIcon.setLayoutParams(lpClipIcon);
         titleRow.addView(clipTitleIcon);
