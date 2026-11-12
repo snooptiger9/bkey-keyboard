@@ -22,7 +22,7 @@ public class WhatsAppOtpListenerService extends NotificationListenerService {
         if (!isWhatsApp) return;
 
         KeyboardPreferences prefs = new KeyboardPreferences(this);
-        if (!prefs.isWhatsAppOtpSuggestEnabled()) return;
+        if (!prefs.isWhatsAppOtpSuggestEnabled() || prefs.isIncognitoMode()) return;
 
         try {
             Notification n = sbn.getNotification();
