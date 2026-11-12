@@ -2274,13 +2274,28 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         titleBox.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         titleBox.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
 
+        LinearLayout titleRow = new LinearLayout(this);
+        titleRow.setOrientation(LinearLayout.HORIZONTAL);
+        titleRow.setGravity(Gravity.CENTER_VERTICAL);
+        titleRow.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+
+        // أيقونة الحافظة انتقلت لداخل ترويسة الدرج نفسه، بدل ما تكون أيقونة منفصلة على زر الفتح.
+        ModernIconView clipTitleIcon = new ModernIconView(this, ModernIconView.ICON_CLIPBOARD_PAD,
+                labelC(), Color.TRANSPARENT);
+        clipTitleIcon.setStyle(0.95f, 2.0f);
+        LinearLayout.LayoutParams lpClipIcon = new LinearLayout.LayoutParams(dp(20), dp(20));
+        lpClipIcon.rightMargin = dp(6);
+        clipTitleIcon.setLayoutParams(lpClipIcon);
+        titleRow.addView(clipTitleIcon);
+
         clipCountTv = new TextView(this);
         clipCountTv.setTextColor(labelC());
         clipCountTv.setTypeface(Typeface.DEFAULT_BOLD);
         clipCountTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
         clipCountTv.setGravity(Gravity.LEFT);
+        titleRow.addView(clipCountTv);
 
-        titleBox.addView(clipCountTv);
+        titleBox.addView(titleRow);
 
         ModernIconView settingsIconBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR,
                 labelC(), Color.TRANSPARENT);

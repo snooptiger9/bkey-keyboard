@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
             float from = (isDeviceArabic() ? -1 : 1) * dir * dp(36);
             scroll.setAlpha(0f);
             scroll.setTranslationX(from);
-            scroll.animate().alpha(1f).translationX(0f).setDuration(220)
+            scroll.animate().alpha(1f).translationX(0f).setDuration(320)
                     .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
         }
         if (y > 0) {
@@ -1199,10 +1199,11 @@ public class MainActivity extends Activity {
 
         FrameLayout swatchHolder = new FrameLayout(this);
         swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
-        GradientDrawable swatch = roundedCard(colorHex, 14);
+        GradientDrawable swatch = roundedCard(colorHex, 16);
         if (selected) swatch.setStroke(dp(3), Color.parseColor("#2563EB"));
-        else swatch.setStroke(dp(1), Color.parseColor("#E2E8F0"));
+        else swatch.setStroke(dp(1), Color.parseColor("#E5E7EB"));
         swatchHolder.setBackground(swatch);
+        swatchHolder.setElevation(selected ? dp(4) : dp(1));
 
         if (selected) {
             TextView check = new TextView(this);
@@ -1218,10 +1219,11 @@ public class MainActivity extends Activity {
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
-        labelTv.setTextColor(Color.parseColor("#374151"));
+        labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
+        labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
         labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
         labelTv.setGravity(Gravity.CENTER);
-        labelTv.setPadding(0, dp(5), 0, 0);
+        labelTv.setPadding(0, dp(6), 0, 0);
         labelTv.setMaxLines(2);
 
         tile.addView(swatchHolder);
@@ -1239,7 +1241,8 @@ public class MainActivity extends Activity {
         // أصغر شوي من بقية البطاقات (كانت 92×76) حتى تضل الأربع بطاقات بصف واحد فقط.
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(76), dp(66)));
-        holder.setBackground(roundedCard("#F3F4F6", 14));
+        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 16));
+        holder.setElevation(selected ? dp(4) : dp(1));
 
         TextView sample = new TextView(this);
         sample.setText("أب Ab");
@@ -1250,9 +1253,9 @@ public class MainActivity extends Activity {
         holder.addView(sample, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         GradientDrawable frame = new GradientDrawable();
-        frame.setCornerRadius(dp(14));
+        frame.setCornerRadius(dp(16));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E2E8F0"));
+        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
         holder.setForeground(frame);
         if (selected) {
             TextView badge = new TextView(this);
@@ -1271,10 +1274,11 @@ public class MainActivity extends Activity {
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
-        labelTv.setTextColor(Color.parseColor("#374151"));
+        labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
+        labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
         labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
         labelTv.setGravity(Gravity.CENTER);
-        labelTv.setPadding(0, dp(5), 0, 0);
+        labelTv.setPadding(0, dp(6), 0, 0);
         labelTv.setMaxLines(2);
 
         tile.addView(holder);
@@ -1291,13 +1295,15 @@ public class MainActivity extends Activity {
 
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
+        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 16));
+        holder.setElevation(selected ? dp(4) : dp(1));
         holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         // إطار الاختيار فوق المعاينة + شارة ✓ زرقاء
         GradientDrawable frame = new GradientDrawable();
-        frame.setCornerRadius(dp(14));
+        frame.setCornerRadius(dp(16));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E2E8F0"));
+        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
         holder.setForeground(frame);
         if (selected) {
             TextView badge = new TextView(this);
@@ -1316,10 +1322,11 @@ public class MainActivity extends Activity {
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
-        labelTv.setTextColor(Color.parseColor("#374151"));
+        labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
+        labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
         labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
         labelTv.setGravity(Gravity.CENTER);
-        labelTv.setPadding(0, dp(5), 0, 0);
+        labelTv.setPadding(0, dp(6), 0, 0);
         labelTv.setMaxLines(2);
 
         tile.addView(holder);
@@ -1327,16 +1334,21 @@ public class MainActivity extends Activity {
         return tile;
     }
 
-    /** يرتب قائمة بطاقات في شبكة صفوف متساوية العرض، بعدد أعمدة محدد، داخل الحاوية المعطاة. */
+    /** يرتب قائمة بطاقات في شبكة صفوف متساوية العرض، بعدد أعمدة محدد، داخل الحاوية المعطاة.
+     *  فيه تباعد أفقي بسيط بين البطاقات نفسها (مو بس بين الصفوف) حتى تبين كل بطاقة منفصلة ومودرن أكثر. */
     private void addTileGrid(LinearLayout container, List<View> tiles, int perRow) {
         for (int i = 0; i < tiles.size(); i += perRow) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lpRow.topMargin = dp(10);
+            lpRow.topMargin = dp(13);
             row.setLayoutParams(lpRow);
+            int rowCount = Math.min(i + perRow, tiles.size()) - i;
             for (int j = i; j < Math.min(i + perRow, tiles.size()); j++) {
                 LinearLayout.LayoutParams lpTile = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                int posInRow = j - i;
+                lpTile.leftMargin = posInRow > 0 ? dp(5) : 0;
+                lpTile.rightMargin = posInRow < rowCount - 1 ? dp(5) : 0;
                 tiles.get(j).setLayoutParams(lpTile);
                 row.addView(tiles.get(j));
             }
