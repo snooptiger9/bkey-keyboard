@@ -1061,7 +1061,10 @@ public class BlackBerryKeyboardView extends View {
                 ? new KeyDef("🌐", "", Collections.singletonList("😀"), KeyType.LANGUAGE, 1.0f)
                 : new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f),
             new KeyDef(spaceLabel, "", Collections.<String>emptyList(), KeyType.SPACE, 4.7f),
-            new KeyDef(".", "؟", Arrays.asList("؟", "،", "!", "؛", ":", "…"), KeyType.PERIOD, 1.0f),
+            new KeyDef(".", isArabic ? "؟" : "?",
+                    isArabic ? Arrays.asList("؟", "،", "!", "؛", ":", "…")
+                            : Arrays.asList("?", ",", "!", ";", ":", "…"),
+                    KeyType.PERIOD, 1.0f),
             new KeyDef("↵", "", Collections.<String>emptyList(), KeyType.ENTER, 1.35f)
         );
     }
