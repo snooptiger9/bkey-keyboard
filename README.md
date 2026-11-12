@@ -100,19 +100,17 @@
 >
 > تفعيل هذي الميزة يحتاج تحديثاً يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات. بسبب هاتين الصلاحيتين بالذات، نظام حماية جوجل يوقف تثبيت التحديث تلقائياً برسالة تحذيرية. هذا سلوك قياسي من جوجل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات، وليس عيباً ولا فيروساً بالتطبيق.
 >
-> إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم حمّل التحديث بهذي الخطوات:
+> إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم حمّل التحديث من داخل التطبيق نفسه (الإعدادات ← اقتراح رمز التحقق (OTP) ← زر التحديث):
 >
 > 1. افتح تطبيق **متجر Google Play**.
 > 2. اضغط صورة حسابك بأعلى يمين الشاشة.
 > 3. اختر **Play Protect**.
 > 4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.
 > 5. أوقف خيار **Scan apps with Play Protect**.
-> 6. حمّل وثبّت التحديث (من نفس شاشة إعدادات OTP داخل التطبيق، أو من الرابط بالأسفل).
+> 6. رجع لشاشة OTP داخل التطبيق واضغط زر تحميل التحديث، وثبّته.
 > 7. رجّع تشغيل الخيار بعدها من نفس الشاشة (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
 >
-> **[⬇️ تحميل التحديث (مع ميزة رمز التحقق)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk)**
->
-> لأنه تحديث لنفس التطبيق (نفس هوية التطبيق)، يثبّت فوق النسخة الأساسية مباشرة ويحتفظ بكل إعداداتك — ما يصير تطبيق ثاني منفصل.
+> التحديث متوفر فقط من داخل التطبيق، وبما إنه تحديث لنفس التطبيق (نفس هوية التطبيق)، يثبّت فوق النسخة الأساسية مباشرة ويحتفظ بكل إعداداتك — ما يصير تطبيق ثاني منفصل.
 
 ### 📩 الدعم
 
@@ -220,19 +218,17 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 >
 > Turning this on needs an update that adds SMS-read and WhatsApp-notification access. Because of those two specific permissions, Google Play Protect blocks installing that update automatically with a warning screen. This is standard Google behavior for any app installed outside the Play Store that requests these permissions — not a bug or malware flag.
 >
-> If you want the feature, turn off Play Protect scanning, then install the update:
+> If you want the feature, turn off Play Protect scanning, then download the update from inside the app itself (Settings → Verification code (OTP) suggestions → the download button):
 >
 > 1. Open the **Google Play Store** app.
 > 2. Tap your profile picture, top right.
 > 3. Tap **Play Protect**.
 > 4. Tap the ⚙️ settings icon, top right.
 > 5. Turn off **Scan apps with Play Protect**.
-> 6. Download and install the update (from that same OTP screen in the app, or the link below).
+> 6. Go back to the OTP screen in the app, tap the download button, and install it.
 > 7. Turn the setting back on afterward (recommended to keep it on for your other apps).
 >
-> **[⬇️ Download the update (adds the OTP feature)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk)**
->
-> Since it's an update to the same app (same app identity), it installs right over the base version and keeps all your settings — it never becomes a second, separate app.
+> The update is only available from inside the app, and since it's an update to the same app (same app identity), it installs right over the base version and keeps all your settings — it never becomes a second, separate app.
 
 ### 📩 Support
 
