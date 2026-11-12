@@ -175,7 +175,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private final BroadcastReceiver smsOtpReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (keyboardPrefs == null || !keyboardPrefs.isOtpSuggestEnabled()) return;
+            if (keyboardPrefs == null || !keyboardPrefs.isOtpSuggestEnabled() || keyboardPrefs.isIncognitoMode()) return;
             try {
                 android.telephony.SmsMessage[] parts = android.provider.Telephony.Sms.Intents.getMessagesFromIntent(intent);
                 if (parts == null || parts.length == 0) return;
@@ -198,6 +198,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     private String currentOtpCode() {
+        if (keyboardPrefs != null && keyboardPrefs.isIncognitoMode()) return null;
         if (pendingOtpCode != null && (SystemClock.elapsedRealtime() - pendingOtpTimestamp) < KeyboardPreferences.OTP_VALIDITY_MS) {
             return pendingOtpCode;
         }
