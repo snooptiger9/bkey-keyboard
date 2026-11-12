@@ -3,8 +3,8 @@
 **كيبورد أندرويد بطابع BlackBerry الكلاسيكي — سحب للأعلى لاختيار الاقتراح، وسحب لليسار للحذف.**
 **A BlackBerry-style Android keyboard — swipe up to pick a suggestion, swipe left to delete.**
 
-![Build](https://github.com/jsbskzbakwu6568/bkey-keyboard/actions/workflows/build.yml/badge.svg)
-![Release](https://img.shields.io/github/v/release/jsbskzbakwu6568/bkey-keyboard)
+![Build](https://github.com/snooptiger9/bkey-keyboard/actions/workflows/build.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
 ![Languages](https://img.shields.io/badge/العربية%20%7C%20English-bilingual-blue)
 
