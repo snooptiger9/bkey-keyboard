@@ -39,6 +39,16 @@ jobs:
           keyPassword=$BKEY_KEYSTORE_PASSWORD
           EOF
 
+      - name: Write signing keystore from secret
+        env:
+          BKEY_KEYSTORE_B64: ${{ secrets.BKEY_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$BKEY_KEYSTORE_B64" ]; then
+            echo "::error::Secret BKEY_KEYSTORE_B64 غير موجود — أضفه من Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          echo "$BKEY_KEYSTORE_B64" | base64 -d > app/bkey_release.keystore
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
