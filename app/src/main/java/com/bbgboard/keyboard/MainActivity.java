@@ -460,12 +460,12 @@ public class MainActivity extends Activity {
     private String getThemeAndStyleSummary() {
         String th = prefs.getThemeMode() == KeyboardPreferences.THEME_GBOARD_WHITE ? tr("السمة البيضاء", "White theme")
                 : prefs.getThemeMode() == KeyboardPreferences.THEME_MIDNIGHT_SLATE ? tr("السمة الكحلية", "Midnight theme")
-                : tr("سمة بلاك بيري السوداء", "BlackBerry black theme");
-        String[] styleSummariesAr = {"شكل بلاك بيري الكلاسيكي", "شكل Gboard الحديث", "شكل كبسولات عصرية",
-                "شكل Gboard ماتيريال", "شكل Gboard بدون إطار", "شكل كبسولات عصرية", "شكل بإطار خفيف", "شكل أزرار ثلاثية الأبعاد",
+                : tr("سمة bkey السوداء", "bkey black theme");
+        String[] styleSummariesAr = {"شكل bkey الكلاسيكي", "شكل bkey الحديث", "شكل كبسولات عصرية",
+                "شكل bkey ماتيريال", "شكل bkey بدون إطار", "شكل كبسولات عصرية", "شكل بإطار خفيف", "شكل أزرار ثلاثية الأبعاد",
                 "شكل بارز ناعم", "شكل دوائر", "شكل زجاجي"};
-        String[] styleSummariesEn = {"Classic BlackBerry", "Gboard modern", "Modern pill",
-                "Gboard material", "Gboard borderless", "Modern pill", "Light outline", "3D keycaps",
+        String[] styleSummariesEn = {"Classic bkey", "bkey modern", "Modern pill",
+                "bkey material", "bkey borderless", "Modern pill", "Light outline", "3D keycaps",
                 "Soft raised", "Circles", "Glass"};
         String[] styleSummaries = isDeviceArabic() ? styleSummariesAr : styleSummariesEn;
         int styleIdx = prefs.getKeyboardStyle();
@@ -923,7 +923,7 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("عرض الحروف الإنجليزية كابيتال دائماً", "Always show uppercase English keycaps"),
-                tr("يجعل شكل الحروف على الكيبورد الإنجليزي (Q W E R T Y) واضحاً وكبيراً كما في صورة بلاك بيري", "Shows the English keys (Q W E R T Y) in bold capitals, BlackBerry-style"),
+                tr("يجعل شكل الحروف على الكيبورد الإنجليزي (Q W E R T Y) واضحاً وكبيراً كما في صورة bkey", "Shows the English keys (Q W E R T Y) in bold capitals, bkey-style"),
                 prefs.isAlwaysShowUppercaseKeycapsEn(),
                 checked -> prefs.setAlwaysShowUppercaseKeycapsEn(checked)
         ));
@@ -1070,8 +1070,8 @@ public class MainActivity extends Activity {
         styleCard.addView(sHeader);
 
         String[] styleNames = tr(
-                new String[]{"بلاك بيري", "Gboard حديث", "كبسولات", "Gboard ماتيريال", "بدون إطار", "إطار خفيف", "بارز ناعم", "دوائر", "زجاجي"},
-                new String[]{"BlackBerry", "Gboard modern", "Pill", "Gboard material", "Borderless", "Outline", "Soft raised", "Circles", "Glass"});
+                new String[]{"bkey", "bkey حديث", "كبسولات", "bkey ماتيريال", "بدون إطار", "إطار خفيف", "بارز ناعم", "دوائر", "زجاجي"},
+                new String[]{"bkey", "bkey modern", "Pill", "bkey material", "Borderless", "Outline", "Soft raised", "Circles", "Glass"});
         int[] styleIds = {0, 1, 2, 3, 4, 6, 8, 9, 10};
         int[] styleRadii = {2, 10, 20, 14, 8, 10, 12, 24, 10};
         List<View> styleTiles = new ArrayList<>();
