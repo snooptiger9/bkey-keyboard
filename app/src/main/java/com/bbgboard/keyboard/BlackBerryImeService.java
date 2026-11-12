@@ -1630,7 +1630,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             lastAutoCorrectResult = null;
         }
 
-        if (" ".equals(text) || ".".equals(text) || "؟".equals(text) || "،".equals(text) || "!".equals(text)) {
+        if (" ".equals(text) || ".".equals(text) || "؟".equals(text) || "?".equals(text)
+                || "،".equals(text) || ",".equals(text) || "!".equals(text)) {
             boolean midEmail = ".".equals(text) && currentPrefix.indexOf('@') > 0;
             if (!currentPrefix.isEmpty() && !midEmail) {
                 predictionEngine.learnWordAndTransition(currentPrefix, prevWord, prevWord2, keyboardView.isArabic());
