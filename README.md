@@ -71,18 +71,6 @@
 آخر نسخة APK موقّعة جاهزة دائماً من صفحة **[Releases](../../releases)** في هذا المستودع.
 كل إصدار جديد يُبنى ويُوقّع تلقائياً عبر GitHub Actions فور كل تحديث في الكود.
 
-### 🛠️ البناء من المصدر
-
-```bash
-git clone <repo-url>
-cd bkey-keyboard
-# أنشئ app/keystore.properties محلياً بنفس صيغة مفاتيح storePassword/keyAlias/keyPassword
-./gradlew assembleRelease
-```
-
-> ملاحظة: كلمة سر التوقيع ليست داخل المستودع — تُحقن وقت البناء من GitHub Secrets
-> (`BKEY_KEYSTORE_PASSWORD`). للبناء محلياً تحتاج تسوي ملف `keystore.properties` بنفسك.
-
 ### 🔒 الخصوصية والأمان
 
 - لا يوجد اتصال بالإنترنت إلا لميزتي GIF (GIPHY) والكتابة بالصوت — بقية الكيبورد يعمل بالكامل محلياً.
@@ -157,19 +145,6 @@ with a carefully tailored experience for each.
 
 The latest signed APK is always available from the **[Releases](../../releases)** page of this
 repository. Every new release is built and signed automatically by GitHub Actions on each update.
-
-### 🛠️ Build from source
-
-```bash
-git clone <repo-url>
-cd bkey-keyboard
-# create app/keystore.properties locally with storePassword/keyAlias/keyPassword keys
-./gradlew assembleRelease
-```
-
-> Note: the signing password is not stored in this repository — it's injected at build time from
-> GitHub Secrets (`BKEY_KEYSTORE_PASSWORD`). To build locally you'll need to create your own
-> `keystore.properties` file.
 
 ### 🔒 Privacy & security
 
