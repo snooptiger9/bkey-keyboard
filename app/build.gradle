@@ -13,12 +13,12 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.bbgboard.keyboard"
+        applicationId "com.snooptiger9.bkey"
         minSdk 24
         targetSdk 34
 
-        versionCode 193
-        versionName "193.0"
+        versionCode 194
+        versionName "194.0"
     }
 
     signingConfigs {
