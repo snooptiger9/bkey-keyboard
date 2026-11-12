@@ -109,8 +109,6 @@
 > 5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?»، اختر **Pause**.
 > 6. رجع لشاشة OTP داخل التطبيق واضغط زر تحميل التحديث، وثبّته.
 > 7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التحديث (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
->
-> التحديث متوفر فقط من داخل التطبيق، وبما إنه تحديث لنفس التطبيق (نفس هوية التطبيق)، يثبّت فوق النسخة الأساسية مباشرة ويحتفظ بكل إعداداتك — ما يصير تطبيق ثاني منفصل.
 
 ### 📩 الدعم
 
@@ -227,8 +225,6 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 > 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
 > 6. Go back to the OTP screen in the app, tap the download button, and install it.
 > 7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after the update (recommended to keep it on for your other apps).
->
-> The update is only available from inside the app, and since it's an update to the same app (same app identity), it installs right over the base version and keeps all your settings — it never becomes a second, separate app.
 
 ### 📩 Support
 
