@@ -72,7 +72,7 @@
   تقدر ما تستخدمهما إطلاقاً، ويبقى الكيبورد شغّال بدون أي اتصال بالإنترنت نهائياً.
 - اقتراح أكواد التحقق (OTP) **ميزة اختيارية** لازم تفعّلها بنفسك وتمنح إذن الرسائل/الإشعارات؛
   إذا ما فعّلتها، الكيبورد ما يقرأ أي رسالة إطلاقاً. وحتى لو فعّلتها، كل المعالجة على الجهاز فقط ولا تُرسل لأي سيرفر خارجي.
-- مفتاح توقيع التطبيق محمي عبر GitHub Secrets،
+  
 
 ### 📥 التحميل
 
@@ -151,7 +151,7 @@ with a carefully tailored experience for each.
 - Verification-code (OTP) suggestions are an **opt-in feature**: you have to turn it on yourself
   and grant SMS/notification permission. If you never enable it, the keyboard never reads any
   message. Even when enabled, everything is processed on-device only, never sent to any server.
-- The app's signing key is protected via GitHub Secrets, 
+
 
 ### 📥 Download
 
