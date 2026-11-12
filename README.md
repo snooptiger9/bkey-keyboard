@@ -22,9 +22,17 @@
 
 **✋ الإيماءات (Gestures)**
 - سحب للأعلى من أي اقتراح: قبوله فوراً.
+
+  ![سحب للأعلى لقبول الاقتراح](docs/gifs/swipe_up_suggestion.gif)
 - سحب أفقي فوق الحروف: حذف آخر كلمة كاملة دفعة واحدة.
+
+  ![سحب جانبي لحذف آخر كلمة](docs/gifs/swipe_delete_word.gif)
 - سحب بالاتجاه المعاكس تماماً: تحديد كل النص المكتوب دفعة واحدة.
+
+  ![سحب بالاتجاه المعاكس لتحديد كل النص](docs/gifs/swipe_select_all.gif)
 - سحب للأسفل فوق الحروف: نسخ النص المحدد، وتتحول نفس السحبة تلقائياً للصق لمدة دقيقة بعد النسخ.
+
+  ![سحب للأسفل للنسخ](docs/gifs/swipe_copy.gif)
 - ضغط مطوّل + سحب على زر المسافة: تحريك المؤشر حرفاً حرفاً.
 - سحب زر المسافة يميناً/يساراً: تبديل اللغة (عربي/إنجليزي) بدون زر 🌐 منفصل.
 - ضغط مطوّل على أي حرف: بوب أب الحروف البديلة (حركات، حروف أجنبية...).
@@ -33,6 +41,8 @@
 - تصحيح تلقائي صامت عند المسافة، وتوقع الكلمة التالية (حتى 3 كلمات).
 - تعلّم الكلمات الجديدة أثناء الكتابة تلقائياً + مدرّب يدوي يحفظ جملة كاملة فوراً.
 - **اقتراح إيموجي تلقائي** حسب الكلمة أو سياق الجملة المكتوبة.
+
+  ![اقتراح إيموجي تلقائي](docs/gifs/emoji_suggest.gif)
 - اختصارات نصية: اكتب اختصار (مثل "سع") ويتحول تلقائياً لعبارة كاملة عند المسافة.
 - نقطة ومسافة تلقائية بضغطتين متتاليتين على زر المسافة.
 - أحرف كبيرة تلقائياً في بداية كل جملة (بالإنجليزي).
@@ -42,6 +52,8 @@
 - درج حافظة كامل: تثبيت، حذف، وحذف تلقائي للعناصر القديمة بعد مدة تختارها (من ساعة إلى 30 يوماً، أو بدون حذف).
 - حفظ آخر لقطة شاشة تلقائياً (مصغّرة واحدة تحل محل القديمة).
 - آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة.
+
+  ![الضغط على نص الحافظة بالاقتراحات للصقه](docs/gifs/paste_chip.gif)
 
 **😀 إيموجي و GIF**
 - لوحة إيموجي ورموز كاملة، مع قسم "مستخدم حديثاً" (قابل للحذف أو حذف عنصر واحد بالضغط المطول).
@@ -100,10 +112,18 @@ with a carefully tailored experience for each.
 
 **✋ Gestures**
 - Swipe up on any suggestion: accept it instantly.
+
+  ![Swipe up to accept a suggestion](docs/gifs/swipe_up_suggestion.gif)
 - Swipe sideways over the keys: delete the last whole word at once.
+
+  ![Swipe sideways to delete the last word](docs/gifs/swipe_delete_word.gif)
 - Swipe in the exact opposite direction: select all typed text at once.
+
+  ![Swipe the opposite direction to select all](docs/gifs/swipe_select_all.gif)
 - Swipe down over the keys: copy selected text — the same gesture turns into paste for one minute
   afterward.
+
+  ![Swipe down to copy](docs/gifs/swipe_copy.gif)
 - Press-and-hold + drag the space bar: move the cursor character by character.
 - Swipe the space bar left/right: switch language (Arabic/English) without a separate 🌐 button.
 - Long-press any key: popup with alternate characters (diacritics, accented letters...).
@@ -112,6 +132,8 @@ with a carefully tailored experience for each.
 - Silent auto-correct on space, and next-word prediction (up to 3 words).
 - On-the-fly word learning as you type, plus a manual trainer that saves a whole sentence instantly.
 - **Automatic emoji suggestions** based on the word or sentence context you're typing.
+
+  ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif)
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for an automatic period + space.
 - Auto-capitalize the first letter of each sentence (English).
@@ -122,6 +144,8 @@ with a carefully tailored experience for each.
   (from 1 hour to 30 days, or never).
 - Automatically saves the last screenshot (a single thumbnail that replaces the previous one).
 - The last copied text shows right in the middle suggestion slot for a quick re-paste.
+
+  ![Tapping the clipboard suggestion chip to paste](docs/gifs/paste_chip.gif)
 
 **😀 Emoji & GIF**
 - Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
