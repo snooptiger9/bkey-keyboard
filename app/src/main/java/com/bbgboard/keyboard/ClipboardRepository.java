@@ -164,7 +164,9 @@ public class ClipboardRepository {
                 ed.putString(KEY_PLAIN, json);
             }
             ed.apply();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("ClipboardRepository", "save()", e);
+        }
     }
 
     private void load() {
@@ -189,7 +191,9 @@ public class ClipboardRepository {
                     items.add(new ClipEntry(t, o.optBoolean("pinned", false), o.optLong("time", migrated)));
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("ClipboardRepository", "load()", e);
+        }
     }
 
     private static SecretKey getKey() throws Exception {

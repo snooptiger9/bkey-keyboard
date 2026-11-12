@@ -138,6 +138,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppLogger.init(this);
         prefs = new KeyboardPreferences(this);
         soundController = new SoundController(this, prefs);
         predictionEngine = new PredictionEngine(this, prefs);
@@ -425,6 +426,17 @@ public class MainActivity extends Activity {
         ));
         root.addView(group3);
 
+        LinearLayout group4 = createGroupedWhiteCard();
+        group4.addView(createMenuRow(
+                ModernIconView.ICON_SETTINGS_GEAR,
+                tr("سجل الأخطاء", "Error log"),
+                tr("للمطوّر فقط — لعرض ومشاركة أي خطأ صار بالتطبيق",
+                        "Developer use — view and share any error the app ran into"),
+                false,
+                this::openErrorLogScreen
+        ));
+        root.addView(group4);
+
         int copyrightYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
         TextView copyrightTv = new TextView(this);
         copyrightTv.setText("© bkey " + copyrightYear + tr(" — جميع الحقوق محفوظة", " — All rights reserved"));
@@ -604,6 +616,71 @@ public class MainActivity extends Activity {
         mainFrame.addView(scroll);
         restoreScroll(scroll);
         return root;
+    }
+
+    private void openErrorLogScreen() {
+        LinearLayout root = createSubScreenTemplate(tr("سجل الأخطاء", "Error log"));
+
+        String logText = AppLogger.readLog(this);
+        boolean empty = logText == null || logText.trim().isEmpty();
+
+        TextView bodyTv = new TextView(this);
+        bodyTv.setText(empty
+                ? tr("ولا خطأ مسجّل لحد الآن 👍", "No errors logged yet 👍")
+                : logText);
+        bodyTv.setTextIsSelectable(true);
+        bodyTv.setTextColor(Color.parseColor("#1F2937"));
+        bodyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        bodyTv.setTypeface(Typeface.MONOSPACE);
+        bodyTv.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        bodyTv.setBackground(roundedCard("#FFFFFF", 16));
+        bodyTv.setPadding(dp(14), dp(14), dp(14), dp(14));
+        LinearLayout.LayoutParams lpBody = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lpBody.bottomMargin = dp(14);
+        bodyTv.setLayoutParams(lpBody);
+        root.addView(bodyTv);
+
+        if (!empty) {
+            LinearLayout btnRow = new LinearLayout(this);
+            btnRow.setOrientation(LinearLayout.HORIZONTAL);
+
+            TextView shareBtn = new TextView(this);
+            shareBtn.setText(tr("📤 مشاركة", "📤 Share"));
+            shareBtn.setTextColor(Color.WHITE);
+            shareBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+            shareBtn.setGravity(Gravity.CENTER);
+            shareBtn.setBackground(roundedCard("#2563EB", 12));
+            shareBtn.setPadding(dp(14), dp(12), dp(14), dp(12));
+            LinearLayout.LayoutParams lpShare = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            lpShare.setMarginEnd(dp(8));
+            shareBtn.setLayoutParams(lpShare);
+            shareBtn.setOnClickListener(v -> {
+                Intent send = new Intent(Intent.ACTION_SEND);
+                send.setType("text/plain");
+                send.putExtra(Intent.EXTRA_TEXT, AppLogger.readLog(this));
+                startActivity(Intent.createChooser(send, tr("مشاركة سجل الأخطاء", "Share error log")));
+            });
+            btnRow.addView(shareBtn);
+
+            TextView clearBtn = new TextView(this);
+            clearBtn.setText(tr("🗑️ مسح", "🗑️ Clear"));
+            clearBtn.setTextColor(Color.parseColor("#B91C1C"));
+            clearBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+            clearBtn.setGravity(Gravity.CENTER);
+            clearBtn.setBackground(roundedCard("#FEE2E2", 12));
+            clearBtn.setPadding(dp(14), dp(12), dp(14), dp(12));
+            LinearLayout.LayoutParams lpClear = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            lpClear.setMarginStart(dp(8));
+            clearBtn.setLayoutParams(lpClear);
+            clearBtn.setOnClickListener(v -> {
+                AppLogger.clearLog(this);
+                openErrorLogScreen();
+            });
+            btnRow.addView(clearBtn);
+
+            root.addView(btnRow);
+        }
     }
 
     private interface SwitchListener {
@@ -1397,7 +1474,9 @@ public class MainActivity extends Activity {
                         Toast.makeText(this, tr("فعّل الوصول للإشعارات لتطبيق bkey من الشاشة اللي بتفتح", "Enable notification access for bkey on the screen that opens"), Toast.LENGTH_LONG).show();
                         try {
                             startActivity(new android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
-                        } catch (Exception ignored) {}
+                        } catch (Exception e) {
+                            AppLogger.log("MainActivity", "openCorrectionsAndMemoryScreen()", e);
+                        }
                     }
                 }
         ));

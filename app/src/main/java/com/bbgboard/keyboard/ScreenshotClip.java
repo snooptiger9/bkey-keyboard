@@ -117,7 +117,8 @@ public final class ScreenshotClip {
                 }
                 return false;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            AppLogger.log("ScreenshotClip", "captureLatest()", e);
         } finally {
             if (cur != null) cur.close();
         }

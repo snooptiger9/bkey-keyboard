@@ -439,7 +439,9 @@ public class BlackBerryKeyboardView extends View {
                 if (topOverlayPopup.isShowing()) {
                     topOverlayPopup.dismiss();
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryKeyboardView", "dismissFlyingPopup()", e);
+            }
         }
     }
 
@@ -759,7 +761,9 @@ public class BlackBerryKeyboardView extends View {
                 topOverlayPopup.showAtLocation(this, Gravity.NO_GRAVITY, 0, popupTopY);
             }
             topOverlayView.invalidate();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryKeyboardView", "launchWordOutsideKeyboard()", e);
+        }
 
         postInvalidateOnAnimation();
     }
