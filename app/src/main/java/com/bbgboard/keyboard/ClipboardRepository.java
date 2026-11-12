@@ -49,17 +49,7 @@ public class ClipboardRepository {
         this.prefs = context.getSharedPreferences("bb_keyboard_clipboard_prefs", Context.MODE_PRIVATE);
         this.keyboardPrefs = new KeyboardPreferences(context);
 
-        boolean firstRun = !prefs.contains(KEY_PLAIN) && !prefs.contains(KEY_ENC);
         load();
-        if (!prefs.getBoolean("seeded_v14", false)) {
-            if (firstRun && items.isEmpty()) {
-                items.add(new ClipEntry("السلام عليكم ورحمة الله وبركاته", true));
-                items.add(new ClipEntry("جزاك الله خيراً ويعطيك العافية", true));
-                items.add(new ClipEntry("إن شاء الله أكون معك بعد قليل", false));
-                save();
-            }
-            prefs.edit().putBoolean("seeded_v14", true).apply();
-        }
 
         if (prefs.contains(KEY_PLAIN)) {
             save();
