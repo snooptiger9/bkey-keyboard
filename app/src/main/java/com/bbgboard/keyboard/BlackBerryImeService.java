@@ -189,7 +189,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     pendingOtpTimestamp = SystemClock.elapsedRealtime();
                     refreshPredictions();
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryImeService", "onReceive()", e);
+            }
         }
     };
 
@@ -223,14 +225,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 registerReceiver(smsOtpReceiver, filter);
             }
             otpReceiverRegistered = true;
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "registerOtpReceiverIfNeeded()", e);
+        }
     }
 
     private void unregisterOtpReceiverIfNeeded() {
         if (!otpReceiverRegistered) return;
         try {
             unregisterReceiver(smsOtpReceiver);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "unregisterOtpReceiverIfNeeded()", e);
+        }
         otpReceiverRegistered = false;
     }
 
@@ -461,6 +467,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onCreate() {
         super.onCreate();
+        AppLogger.init(this);
         activeInstance = this;
         keyboardPrefs = new KeyboardPreferences(this);
         keyboardPrefs.registerChangeListener(appearanceChangeListener);
@@ -514,7 +521,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void releaseReclaimableCaches() {
         try {
             Glide.get(this).clearMemory();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "releaseReclaimableCaches()", e);
+        }
         if (soundController != null) soundController.releaseSounds();
     }
 
@@ -704,7 +713,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (!VoiceInputController.hasPermission(this)) {
 
             Intent i = new Intent(this, MicPermissionActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try { startActivity(i); } catch (Exception ignored) {}
+            try { startActivity(i); } catch (Exception e) {
+                AppLogger.log("BlackBerryImeService", "onVoiceInputRequested()", e);
+            }
             return;
         }
         if (!VoiceInputController.isAvailable(this)) {
@@ -956,7 +967,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         try {
             Glide.get(this).clearMemory();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onFinishInputView()", e);
+        }
         super.onFinishInputView(finishingInput);
     }
 
@@ -1015,7 +1028,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
             }
             decor.setSystemUiVisibility(flags);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "applyNavigationBarColor()", e);
+        }
     }
 
     private void updateLearningPolicy(EditorInfo info) {
@@ -1131,7 +1146,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "openAppSettingsActivity()", e);
+        }
     }
 
     @Override
@@ -1171,7 +1188,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             getContentResolver().registerContentObserver(
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, shotObserver);
             shotObserverRegistered = true;
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "registerShotObserverIfNeeded()", e);
+        }
     }
 
     private void unregisterShotObserver() {
@@ -1179,7 +1198,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (!shotObserverRegistered) return;
         try {
             getContentResolver().unregisterContentObserver(shotObserver);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "unregisterShotObserver()", e);
+        }
         shotObserverRegistered = false;
     }
 
@@ -1212,7 +1233,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     });
                 }
             });
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "tryCaptureScreenshotClip()", e);
+        }
     }
 
     private void useScreenshotClip() {
@@ -1229,7 +1252,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                         InputContentInfo ici = new InputContentInfo(uri,
                                 new ClipDescription("Screenshot", new String[]{"image/jpeg"}), null);
                         committedInline = ic.commitContent(ici, InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION, null);
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        AppLogger.log("BlackBerryImeService", "useScreenshotClip()", e);
+                    }
                     break;
                 }
             }
@@ -1240,7 +1265,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
                 boolean arabicToast = keyboardView == null || keyboardView.isArabic();
                 Toast.makeText(this, arabicToast ? "تم نسخ لقطة الشاشة — اضغط لصق هنا" : "Screenshot copied — paste it here", Toast.LENGTH_SHORT).show();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryImeService", "useScreenshotClip()", e);
+            }
         }
         soundController.playKeyClick();
         showKeyboardMain();
@@ -1270,7 +1297,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         try {
             Bitmap bmp = BitmapFactory.decodeFile(ScreenshotClip.file(this).getAbsolutePath());
             if (bmp != null) thumb.setImageBitmap(bmp);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "buildScreenshotThumbRow()", e);
+        }
 
         LinearLayout textBox = new LinearLayout(this);
         textBox.setOrientation(LinearLayout.VERTICAL);
@@ -1531,7 +1560,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     }
                 });
             });
-        } catch (java.util.concurrent.RejectedExecutionException ignored) {}
+        } catch (java.util.concurrent.RejectedExecutionException e) {
+            AppLogger.log("BlackBerryImeService", "refreshPredictionsNow()", e);
+        }
     }
 
     @Override
@@ -1706,7 +1737,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         try {
             if (ic.performContextMenuAction(android.R.id.selectAll)) return true;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onSwipeSelectAll()", e);
         }
 
         android.view.inputmethod.ExtractedTextRequest req = new android.view.inputmethod.ExtractedTextRequest();
@@ -1731,7 +1763,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     lastCopyTime = 0L;
                     return true;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryImeService", "onSwipeDownCopyPaste()", e);
             }
             android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (cm != null && cm.hasPrimaryClip() && cm.getPrimaryClip().getItemCount() > 0) {
@@ -1750,7 +1783,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 lastCopyTime = now;
                 return true;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onSwipeDownCopyPaste()", e);
         }
         return false;
     }
@@ -2843,7 +2877,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             iv.setBackgroundColor(sugBarC());
             try {
                 Glide.with(this).load(gif.previewUrl).into(iv);
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryImeService", "buildGifRow()", e);
+            }
             iv.setOnClickListener(v -> {
                 keyboardPrefs.recordUsedGif(gif.previewUrl, gif.fullUrl);
                 sendGif(gif.fullUrl);
@@ -2883,7 +2919,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                                 InputContentInfo ici = new InputContentInfo(uri,
                                         new ClipDescription("GIF", new String[]{"image/gif"}), null);
                                 committedInline = ic.commitContent(ici, InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION, null);
-                            } catch (Exception ignored) {}
+                            } catch (Exception e) {
+                                AppLogger.log("BlackBerryImeService", "sendGif()", e);
+                            }
                             break;
                         }
                     }
@@ -2893,7 +2931,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                         ClipData cd = ClipData.newUri(getContentResolver(), "GIF", uri);
                         if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
                         Toast.makeText(this, arabicToast ? "تم نسخ الصورة المتحركة — اضغط لصق هنا" : "GIF copied — paste it here", Toast.LENGTH_SHORT).show();
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        AppLogger.log("BlackBerryImeService", "sendGif()", e);
+                    }
                 }
             });
         });

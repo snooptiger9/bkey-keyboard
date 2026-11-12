@@ -47,7 +47,9 @@ public class SoundController {
                     .setMaxStreams(12)
                     .setAudioAttributes(attrs)
                     .build();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("SoundController", "initSoundPool()", e);
+        }
 
         new Thread(this::loadOrBuildSounds, "SoundController-load").start();
     }
@@ -59,7 +61,9 @@ public class SoundController {
     public synchronized void releaseSounds() {
         try {
             if (soundPool != null) soundPool.release();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("SoundController", "releaseSounds()", e);
+        }
         soundPool = null;
         java.util.Arrays.fill(tapSoundIds, 0);
         java.util.Arrays.fill(swipeSoundIds, 0);
@@ -116,7 +120,9 @@ public class SoundController {
             swipeSoundIds[9] = buildSwipeTripleTickWav(cacheDir, swNames[8]);
             swipeSoundIds[10] = buildSwipeBlackBerryOriginalWav(cacheDir, swNames[9]);
 
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("SoundController", "loadOrBuildSounds()", e);
+        }
     }
 
     private static class Bandpass {

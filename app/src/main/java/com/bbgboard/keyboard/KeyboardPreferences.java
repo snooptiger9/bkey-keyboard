@@ -131,7 +131,9 @@ public class KeyboardPreferences {
                     if (!em.isEmpty()) list.add(em);
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("KeyboardPreferences", "getRecentEmojis()", e);
+        }
         if (list.isEmpty() && !prefs.contains("recent_emojis_v7")) {
             list.addAll(Arrays.asList(
                 "😊", "😂", "❤️", "👍", "🤲", "🌹", "✨", "🔥",
@@ -153,7 +155,9 @@ public class KeyboardPreferences {
             JSONArray arr = new JSONArray();
             for (String e : current) arr.put(e);
             prefs.edit().putString("recent_emojis_v7", arr.toString()).apply();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("KeyboardPreferences", "recordUsedEmoji()", e);
+        }
     }
 
     public List<String[]> getRecentGifs() {
@@ -170,7 +174,9 @@ public class KeyboardPreferences {
                     if (!preview.isEmpty() && !full.isEmpty()) list.add(new String[]{preview, full});
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("KeyboardPreferences", "getRecentGifs()", e);
+        }
         return list;
     }
 
@@ -206,7 +212,9 @@ public class KeyboardPreferences {
                 arr.put(o);
             }
             prefs.edit().putString("recent_gifs_v1", arr.toString()).apply();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("KeyboardPreferences", "saveRecentGifs()", e);
+        }
     }
 
     public String getGiphyApiKey() {
@@ -478,7 +486,9 @@ public class KeyboardPreferences {
             JSONArray arr = new JSONArray();
             for (String e : current) arr.put(e);
             prefs.edit().putString("recent_emojis_v7", arr.toString()).apply();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("KeyboardPreferences", "removeRecentEmoji()", e);
+        }
     }
 
     public boolean isNumberRowForPasswords() {
@@ -632,7 +642,9 @@ public class KeyboardPreferences {
                     map.put(k, v);
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("KeyboardPreferences", "getShortcuts()", e);
+        }
         return map;
     }
 
@@ -665,7 +677,9 @@ public class KeyboardPreferences {
                 obj.put(e.getKey(), e.getValue());
             }
             prefs.edit().putString("shortcuts_json_v7", obj.toString()).apply();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("KeyboardPreferences", "saveShortcutsMap()", e);
+        }
     }
 
     public java.util.Set<String> getDismissedDefaultWords(boolean arabic) {

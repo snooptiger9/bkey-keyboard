@@ -58,6 +58,8 @@ final class GifDownloadCache {
                 files[i].delete();
                 i++;
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("GifDownloadCache", "pruneIfNeeded()", e);
+        }
     }
 }

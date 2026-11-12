@@ -129,7 +129,9 @@ public class PredictionEngine {
                 int weight = (int) Math.round(maxWeight - (maxWeight - minWeight) * (Math.log(1.0 + i) / denom));
                 target.put(w, Math.max(minWeight, weight));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("PredictionEngine", "loadBundledDictionary()", e);
+        }
     }
 
     private void cleanupOldLearnedDataOnce() {
@@ -151,7 +153,9 @@ public class PredictionEngine {
             }
             rebuildLearnedIndex();
             saveToPrefs();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("PredictionEngine", "cleanupOldLearnedDataOnce()", e);
+        }
         prefs.edit().putBoolean("cleanup_v17_done", true).apply();
     }
 
@@ -984,7 +988,9 @@ public class PredictionEngine {
                     .putString("bigrams_v1", bs)
                     .putString("trigrams_v1", ts)
                     .apply();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("PredictionEngine", "writeSnapshotToPrefs()", e);
+        }
         }
     }
 
@@ -1052,7 +1058,9 @@ public class PredictionEngine {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("PredictionEngine", "loadFromPrefs()", e);
+        }
         rebuildLearnedIndex();
     }
 }

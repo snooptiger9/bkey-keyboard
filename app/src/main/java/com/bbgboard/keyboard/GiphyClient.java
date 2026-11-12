@@ -106,7 +106,9 @@ final class GiphyClient {
                     list.add(new GifResult(previewUrl, fullUrl));
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            AppLogger.log("GiphyClient", "parse()", e);
+        }
         return list;
     }
 }

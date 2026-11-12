@@ -41,7 +41,8 @@ public class WhatsAppOtpListenerService extends NotificationListenerService {
                 prefs.setPendingWhatsAppOtp(code);
                 BlackBerryImeService.notifyWhatsAppOtpDetected();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            AppLogger.log("WhatsAppOtpListenerService", "onNotificationPosted()", e);
         }
     }
 }
