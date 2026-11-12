@@ -79,6 +79,12 @@
 
 **[⬇️ تحميل آخر نسخة APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
+### 📩 الدعم
+
+إذا عجبك المشروع وتبي تدعمه، تقدر ترسل عبر PayPal:
+
+**[💛 ادعم المشروع عبر PayPal](https://paypal.me/algahmdi)**
+
 ---
 
 ## 📖 English
@@ -157,6 +163,12 @@ with a carefully tailored experience for each.
 
 
 **[⬇️ Download the latest APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
+
+### 📩 Support
+
+If you like the project and want to support it, you can send a tip via PayPal:
+
+**[💛 Support the project on PayPal](https://paypal.me/algahmdi)**
 
 ---
 
