@@ -17,8 +17,8 @@ android {
         minSdk 24
         targetSdk 34
 
-        versionCode 200
-        versionName "200.0"
+        versionCode 201
+        versionName "201.0"
     }
 
     buildFeatures {
@@ -33,7 +33,6 @@ android {
         }
         full {
             dimension "features"
-            applicationIdSuffix ".full"
             versionNameSuffix "-full"
             buildConfigField "boolean", "OTP_FEATURES_ENABLED", "true"
         }
