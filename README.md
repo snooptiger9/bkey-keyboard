@@ -151,12 +151,10 @@ with a carefully tailored experience for each.
 - Verification-code (OTP) suggestions are an **opt-in feature**: you have to turn it on yourself
   and grant SMS/notification permission. If you never enable it, the keyboard never reads any
   message. Even when enabled, everything is processed on-device only, never sent to any server.
-- The app's signing key is protected via GitHub Secrets, never exposed in the codebase.
+- The app's signing key is protected via GitHub Secrets, 
 
 ### 📥 Download
 
-A stable link that always downloads the **latest signed APK** — no manual update needed, it refreshes
-automatically with every new build:
 
 **[⬇️ Download the latest APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
