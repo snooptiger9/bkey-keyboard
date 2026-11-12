@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class GifCacheProvider extends ContentProvider {
-    public static final String AUTHORITY = "com.bbgboard.keyboard.gifcache";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".gifcache";
 
     @Override public boolean onCreate() { return true; }
 

@@ -90,8 +90,19 @@
 
 ### 📥 التحميل
 
+فيه نسختان من bkey — افرق بينهم فقط ميزتين اقتراح رمز التحقق (OTP) التلقائي. اختر حسب حاجتك:
 
-**[⬇️ تحميل آخر نسخة APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
+| | **النسخة العادية** (موصى بها) | **النسخة الكاملة** |
+|---|---|---|
+| **تثبّت مباشرة بدون تحذير** | ✅ نعم | ⚠️ قد يحذّرك Google Play Protect أول مرة |
+| **اقتراح رمز OTP من الرسائل/واتساب** | ❌ غير موجودة | ✅ موجودة |
+| **تناسب** | أغلب الناس | من يبي ميزة الـ OTP ويتقبّل خطوة إضافية عند التثبيت |
+
+**[⬇️ تحميل النسخة العادية (موصى بها)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
+
+**[⬇️ تحميل النسخة الكاملة (فيها اقتراح OTP)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk)**
+
+> ⚠️ **ملاحظة عن النسخة الكاملة**: لأنها تطلب صلاحية قراءة الرسائل والوصول لإشعارات واتساب (لميزة اقتراح رمز التحقق)، يوقف **Google Play Protect** تثبيتها تلقائياً برسالة "App blocked to protect your device" — هذا سلوك قياسي من جوجل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات تحديداً، وليس خطأ أو فيروس بالتطبيق. جوجل ما توثّق طريقة رسمية لتجاوزه لتطبيق خارج المتجر، فإذا تبي هذي الميزة تحديداً، جرّب توقيف فحص Play Protect مؤقتاً (إعدادات ← Google ← Play Protect ← ⚙️) قبل التثبيت — بدون ضمان إنه يشتغل على كل الأجهزة. **النسخة العادية تثبّت بدون أي من هذا.**
 
 ### 📩 الدعم
 
@@ -189,8 +200,19 @@ with a carefully tailored experience for each.
 
 ### 📥 Download
 
+There are two builds of bkey, differing only in the automatic verification-code (OTP) suggestion features. Pick whichever fits you:
 
-**[⬇️ Download the latest APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
+| | **Regular build** (recommended) | **Full build** |
+|---|---|---|
+| **Installs directly, no warning** | ✅ Yes | ⚠️ Google Play Protect may warn on first install |
+| **Auto-suggest OTP from SMS/WhatsApp** | ❌ Not included | ✅ Included |
+| **Best for** | Most people | Anyone who wants the OTP feature and is fine with an extra install step |
+
+**[⬇️ Download the regular build (recommended)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
+
+**[⬇️ Download the full build (includes OTP suggestions)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk)**
+
+> ⚠️ **About the full build**: because it requests SMS-read and WhatsApp-notification access (for the OTP suggestion feature), **Google Play Protect** will automatically block its install with "App blocked to protect your device" — this is standard Google behavior for any app installed outside the Play Store that requests these specific permissions, not a bug or malware flag. Google doesn't document an official way around this for apps outside the Store; if you specifically want this feature, try temporarily turning off Play Protect scanning (Settings → Google → Play Protect → ⚙️) before installing — not guaranteed to work on every device. **The regular build installs with none of this.**
 
 ### 📩 Support
 

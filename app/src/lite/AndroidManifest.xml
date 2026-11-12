@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Overlay applied only to the "lite" flavor (manifest merger combines this
+    with app/src/main/AndroidManifest.xml). It removes the two permissions
+    Google Play Protect hard-blocks on sideloaded APKs (RECEIVE_SMS and the
+    WhatsApp notification-listener service), so this flavor installs with
+    no warning. The OTP settings UI is hidden in this flavor too
+    (see BuildConfig.OTP_FEATURES_ENABLED in MainActivity.java).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />
+
+    <application>
+        <service
+            android:name=".WhatsAppOtpListenerService"
+            tools:node="remove" />
+    </application>
+
+</manifest>

@@ -17,8 +17,26 @@ android {
         minSdk 24
         targetSdk 34
 
-        versionCode 199
-        versionName "199.0"
+        versionCode 200
+        versionName "200.0"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    flavorDimensions = ["features"]
+    productFlavors {
+        lite {
+            dimension "features"
+            buildConfigField "boolean", "OTP_FEATURES_ENABLED", "false"
+        }
+        full {
+            dimension "features"
+            applicationIdSuffix ".full"
+            versionNameSuffix "-full"
+            buildConfigField "boolean", "OTP_FEATURES_ENABLED", "true"
+        }
     }
 
     signingConfigs {
