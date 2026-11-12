@@ -98,6 +98,9 @@ public class BlackBerryKeyboardView extends View {
     private final RectF menuButtonRect = new RectF();
     private final RectF[] suggestionRects = new RectF[]{new RectF(), new RectF(), new RectF()};
     private final RectF resizeHandleBarRect = new RectF();
+    private final RectF resizeDoneButtonRect = new RectF();
+    private final RectF resizeDragHandlePillRect = new RectF();
+    private boolean resizeDoneButtonPressed = false;
     private boolean menuButtonPressed = false;
 
     private final RectF micButtonRect = new RectF();
@@ -190,6 +193,9 @@ public class BlackBerryKeyboardView extends View {
     private boolean enterCustom = false;
     private final Paint shiftActiveAccentPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint resizeBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint resizeBarPressedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint resizeBarBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint resizePillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private float startX = 0f;
     private float startY = 0f;
@@ -400,6 +406,9 @@ public class BlackBerryKeyboardView extends View {
         shiftActiveAccentPaint.setStrokeCap(Paint.Cap.ROUND);
 
         resizeBarPaint.setColor(Color.parseColor("#059669"));
+        resizeBarPressedPaint.setColor(Color.parseColor("#047857"));
+        resizeBarBgPaint.setColor(Color.parseColor("#E6111827"));
+        resizePillPaint.setColor(Color.parseColor("#9CA3AF"));
         fretLinePaint.setStrokeWidth(2.4f * density);
         keyDividerPaint.setStrokeWidth(0.8f * density);
 
@@ -557,7 +566,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private float getResizeBarHeight() {
-        return isResizeDragMode ? (30f * density) : 0f;
+        return isResizeDragMode ? (38f * density) : 0f;
     }
 
     private float getSuggestionBarHeight() {
@@ -1091,6 +1100,21 @@ public class BlackBerryKeyboardView extends View {
         float botH = getBottomRowHeight();
 
         resizeHandleBarRect.set(0f, 0f, w, resizeH);
+        if (resizeH > 0f) {
+            float pillW = 36f * density;
+            float pillH = 3.5f * density;
+            float pillTop = 4f * density;
+            resizeDragHandlePillRect.set((w - pillW) / 2f, pillTop, (w + pillW) / 2f, pillTop + pillH);
+
+            float btnH = resizeH - 10f * density;
+            float btnW = 58f * density;
+            float btnRight = w - 8f * density;
+            float btnTop = pillTop + pillH + (resizeH - pillTop - pillH - btnH) / 2f;
+            resizeDoneButtonRect.set(btnRight - btnW, btnTop, btnRight, btnTop + btnH);
+        } else {
+            resizeDragHandlePillRect.setEmpty();
+            resizeDoneButtonRect.setEmpty();
+        }
 
         float sugEdge = getBottomRowEdgeInsetPx(w);
         float menuW = 42f * density;
@@ -1255,14 +1279,31 @@ public class BlackBerryKeyboardView extends View {
         sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity * sugTextScale);
 
         if (isResizeDragMode) {
-            canvas.drawRect(resizeHandleBarRect, resizeBarPaint);
-            String label = "↕ اسحب للأعلى أو الأسفل لتغيير الحجم (" + Math.round(keyboardScale * 100) + "%) — اضغط للحفظ ✓";
-            sugPrimaryTextPaint.setTextSize(12f * scaledDensity);
+            canvas.drawRect(resizeHandleBarRect, resizeBarBgPaint);
+
+            float pillRadius = resizeDragHandlePillRect.height() / 2f;
+            canvas.drawRoundRect(resizeDragHandlePillRect, pillRadius, pillRadius, resizePillPaint);
+
+            String label = "↕ اسحب لأعلى أو لأسفل (" + Math.round(keyboardScale * 100) + "%)";
+            sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
             int prevColor = sugPrimaryTextPaint.getColor();
+            Paint.Align prevAlign = sugPrimaryTextPaint.getTextAlign();
             sugPrimaryTextPaint.setColor(Color.WHITE);
-            float ty = resizeHandleBarRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-            canvas.drawText(label, resizeHandleBarRect.centerX(), ty, sugPrimaryTextPaint);
+            sugPrimaryTextPaint.setTextAlign(Paint.Align.LEFT);
+            float labelY = resizeDragHandlePillRect.bottom
+                    + (resizeHandleBarRect.bottom - resizeDragHandlePillRect.bottom
+                            - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent())) / 2f;
+            canvas.drawText(label, 14f * density, labelY, sugPrimaryTextPaint);
+
+            float doneRadius = resizeDoneButtonRect.height() / 2f;
+            canvas.drawRoundRect(resizeDoneButtonRect, doneRadius, doneRadius,
+                    resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint);
+            sugPrimaryTextPaint.setTextAlign(Paint.Align.CENTER);
+            float doneTy = resizeDoneButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
+            canvas.drawText("✓ " + (isArabic ? "تم" : "Done"), resizeDoneButtonRect.centerX(), doneTy, sugPrimaryTextPaint);
+
             sugPrimaryTextPaint.setColor(prevColor);
+            sugPrimaryTextPaint.setTextAlign(prevAlign);
             sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity * sugTextScale);
         }
 
@@ -2247,6 +2288,11 @@ public class BlackBerryKeyboardView extends View {
                 handler.removeCallbacks(spaceCursorHoldRunnable);
 
                 if (isResizeDragMode && y <= resizeH) {
+                    if (resizeDoneButtonRect.contains(x, y)) {
+                        resizeDoneButtonPressed = true;
+                        invalidate();
+                        return true;
+                    }
                     isResizingDrag = true;
                     resizeStartScale = keyboardScale;
                     return true;
@@ -2408,6 +2454,7 @@ public class BlackBerryKeyboardView extends View {
                 boolean wasMenuPressed = menuButtonPressed;
                 boolean wasMicPressed = micButtonPressed;
                 boolean wasResizing = isResizingDrag;
+                boolean wasDoneButtonPressed = resizeDoneButtonPressed;
 
                 touchDownKey = null;
                 visualPressedKey = null;
@@ -2416,7 +2463,16 @@ public class BlackBerryKeyboardView extends View {
                 micButtonPressed = false;
                 isDragging = false;
                 isResizingDrag = false;
+                resizeDoneButtonPressed = false;
                 invalidate();
+
+                if (wasDoneButtonPressed) {
+                    if (resizeDoneButtonRect.contains(x, y)) {
+                        setResizeDragMode(false);
+                        soundController.playKeyClick();
+                    }
+                    return true;
+                }
 
                 if (wasResizing) {
                     if (Math.abs(dx) < 12f * density && Math.abs(dy) < 12f * density) {
