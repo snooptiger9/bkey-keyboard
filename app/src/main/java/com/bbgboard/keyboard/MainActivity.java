@@ -448,6 +448,19 @@ public class MainActivity extends Activity {
         ));
         root.addView(group3);
 
+        int copyrightYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+        TextView copyrightTv = new TextView(this);
+        copyrightTv.setText("© bkey " + copyrightYear + tr(" — جميع الحقوق محفوظة", " — All rights reserved"));
+        copyrightTv.setTextColor(Color.parseColor("#9CA3AF"));
+        copyrightTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        copyrightTv.setGravity(Gravity.CENTER);
+        copyrightTv.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        LinearLayout.LayoutParams lpCopyright = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpCopyright.topMargin = dp(18);
+        copyrightTv.setLayoutParams(lpCopyright);
+        root.addView(copyrightTv);
+
         scroll.addView(root);
         homeMenuView = scroll;
         mainFrame.addView(scroll);

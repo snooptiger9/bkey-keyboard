@@ -49,8 +49,8 @@ jobs:
           set -o pipefail
           ./gradlew assembleRelease --no-daemon 2>&1 | tee build_output.log
 
-      # عند فشل البناء: نرفع سجل الخطأ داخل المستودع نفسه (بدل Artifacts اللي Claude ما يقدر يوصلها)
-      # حتى يقدر يسحبه بـ git pull عادي ويشوف سبب الفشل بالضبط.
+      # عند فشل البناء: نرفع سجل الخطأ داخل المستودع نفسه (بدل Artifacts المنفصلة)
+      # حتى يسهل سحبه بـ git pull عادي ومعرفة سبب الفشل بالضبط.
       - name: Commit build log on failure
         if: failure()
         run: |
@@ -69,8 +69,8 @@ jobs:
           path: app/build/outputs/apk/release/*.apk
 
       # نرفع ملف الـ APK الجاهز داخل المستودع نفسه (مجلد release/) بدل "Artifacts" التابعة لـ
-      # GitHub (مخزّنة على سيرفرات تخزين منفصلة Claude ما يقدر يوصلها من بيئته الحالية).
-      # هذا يخلي Claude يسحبها بـ git pull عادي، نفس قناة git المستخدمة أصلاً للرفع والتحميل.
+      # GitHub (مخزّنة على سيرفرات منفصلة)، حتى يسهل سحبها بـ git pull عادي، نفس قناة git
+      # المستخدمة أصلاً للرفع والتحميل.
       - name: Commit built APK into the repo
         run: |
           mkdir -p release
