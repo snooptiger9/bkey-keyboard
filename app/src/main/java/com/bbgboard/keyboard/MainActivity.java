@@ -1739,12 +1739,47 @@ public class MainActivity extends Activity {
         gifCard.addView(gifHeader);
 
         TextView gifDesc = new TextView(this);
-        gifDesc.setText(tr("تبويب GIF بنافذة الإيموجي يحتاج مفتاح مجاني: سجّل حساب بـ developers.giphy.com/dashboard، اضغط Create an App، وانسخ الـ API Key من هناك والصقه هنا",
-                "The GIF tab needs a free key: sign up at developers.giphy.com/dashboard, click \"Create an App\", copy the API Key it gives you, and paste it here"));
+        gifDesc.setText(tr(
+                "تبويب GIF بنافذة الإيموجي يحتاج مفتاح مجاني من GIPHY. الخطوات بالترتيب:\n\n"
+                        + "١) لو ما عندك حساب GIPHY من قبل: افتح رابط التسجيل تحت وسجّل حساب جديد (بالإيميل أو حساب فيسبوك).\n"
+                        + "٢) بعد تسجيل الدخول، روح developers.giphy.com/dashboard بنفس الحساب.\n"
+                        + "٣) اضغط زر \"Create an App\"، واختر نوع \"API\" (مو \"SDK\")، وسمّي التطبيق أي اسم (مثلاً: bkey).\n"
+                        + "٤) وافق على شروط الاستخدام، وبيعطيك مباشرة \"API Key\" — انسخه كامل.\n"
+                        + "٥) الصقه بالخانة تحت واضغط \"حفظ المفتاح\".",
+                "The GIF tab needs a free key from GIPHY. Steps in order:\n\n"
+                        + "1) If you don't have a GIPHY account yet: open the sign-up link below and create one (email or Facebook).\n"
+                        + "2) Once logged in, go to developers.giphy.com/dashboard with that same account.\n"
+                        + "3) Click \"Create an App\", choose the \"API\" type (not \"SDK\"), and name it anything (e.g. bkey).\n"
+                        + "4) Accept the terms — it immediately gives you an \"API Key\". Copy it in full.\n"
+                        + "5) Paste it in the field below and tap \"Save key\"."));
         gifDesc.setTextColor(Color.parseColor("#6B7280"));
         gifDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
         gifDesc.setPadding(0, 0, 0, dp(10));
         gifCard.addView(gifDesc);
+
+        // رابط صفحة التسجيل الفعلية (sign up) وليس لوحة التحكم (dashboard) — هذا أول شي يحتاجه
+        // مستخدم ما عنده حساب GIPHY أصلاً. قابل للنسخ بالضغط عليه مباشرة (بدون فتح متصفح).
+        TextView gifSignupLabel = new TextView(this);
+        gifSignupLabel.setText(tr("رابط التسجيل (اضغط لنسخه):", "Sign-up link (tap to copy):"));
+        gifSignupLabel.setTextColor(Color.parseColor("#6B7280"));
+        gifSignupLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        gifSignupLabel.setPadding(0, 0, 0, dp(2));
+        gifCard.addView(gifSignupLabel);
+
+        final String giphySignupUrl = "https://giphy.com";
+        TextView gifSignupLink = new TextView(this);
+        gifSignupLink.setText(giphySignupUrl);
+        gifSignupLink.setTextColor(Color.parseColor("#2563EB"));
+        gifSignupLink.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
+        gifSignupLink.setTypeface(Typeface.DEFAULT_BOLD);
+        gifSignupLink.setPaintFlags(gifSignupLink.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
+        gifSignupLink.setPadding(0, 0, 0, dp(12));
+        gifSignupLink.setOnClickListener(v -> {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            if (cm != null) cm.setPrimaryClip(android.content.ClipData.newPlainText("GIPHY", giphySignupUrl));
+            android.widget.Toast.makeText(this, tr("تم نسخ رابط التسجيل", "Sign-up link copied"), android.widget.Toast.LENGTH_SHORT).show();
+        });
+        gifCard.addView(gifSignupLink);
 
         final EditText gifKeyEdit = new EditText(this);
         gifKeyEdit.setText(prefs.getGiphyApiKey());
