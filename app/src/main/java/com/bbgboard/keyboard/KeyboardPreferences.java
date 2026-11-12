@@ -272,7 +272,7 @@ public class KeyboardPreferences {
     }
 
     public int getThemeMode() {
-        return prefs.getInt("theme_mode", THEME_BLACKBERRY_DARK);
+        return prefs.getInt("theme_mode", THEME_GBOARD_WHITE);
     }
 
     public void setThemeMode(int mode) {
@@ -290,7 +290,7 @@ public class KeyboardPreferences {
     }
 
     public int getKeyboardStyle() {
-        int style = prefs.getInt("keyboard_style", STYLE_BLACKBERRY_FRETS);
+        int style = prefs.getInt("keyboard_style", STYLE_GBOARD_MATERIAL);
         return style == STYLE_GBOARD_SOFT_ROUND ? STYLE_MODERN_PILL : style;
     }
 

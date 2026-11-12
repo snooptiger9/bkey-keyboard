@@ -535,10 +535,12 @@ public class MainActivity extends Activity {
         row.setPadding(dp(18), dp(16), dp(18), dp(16));
 
         // رجّعنا الأيقونة لليسار (كانت leftMargin=14 تدخلها لجنب النص بزيادة) وكبّرناها شوي (28→32).
+        // استخدمنا marginStart/End (مو left/right مباشرة) حتى تنعكس صح تلقائياً بالوضع العربي (RTL):
+        // كانت left/right ثابتتين فتخلي الفجوة بجنب الأيقونة الخطأ وتشيل الأيقونة قريبة زيادة من النص.
         ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor("#5F6368"), Color.TRANSPARENT);
         LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(32), dp(32));
-        lpIcon.leftMargin = 0;
-        lpIcon.rightMargin = dp(10);
+        lpIcon.setMarginStart(0);
+        lpIcon.setMarginEnd(dp(10));
         icon.setLayoutParams(lpIcon);
 
         LinearLayout textCol = new LinearLayout(this);
@@ -1817,9 +1819,11 @@ public class MainActivity extends Activity {
         dirHeader.setTypeface(Typeface.DEFAULT_BOLD);
         dirHeader.setPadding(0, 0, 0, dp(8));
         dirCard.addView(dirHeader);
+        // استخدمنا مثلثات (▶ ◀) بدل أسهم الطباعة (→ ←) لأن بعض الخطوط ترسم السهمين بحجمين مختلفين
+        // فعلياً رغم نفس حجم النص؛ المثلثات شكلها متماثل تماماً بأي خط، فيضمن تطابق الحجم بصرياً.
         dirCard.addView(createExclusiveRadioList(
-                tr(new String[]{"من اليسار لليمين  →", "من اليمين لليسار  ←"},
-                   new String[]{"Left to right  →", "Right to left  ←"}),
+                tr(new String[]{"من اليسار لليمين  ▶", "من اليمين لليسار  ◀"},
+                   new String[]{"Left to right  ▶", "Right to left  ◀"}),
                 prefs.getSwipeDeleteDirection(),
                 idx -> prefs.setSwipeDeleteDirection(idx)));
         TextView dirNote = new TextView(this);
