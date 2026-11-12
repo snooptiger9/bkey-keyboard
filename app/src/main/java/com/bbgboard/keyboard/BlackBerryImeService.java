@@ -2230,6 +2230,34 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (clipsListContainer == null) return;
         clipsListContainer.removeAllViews();
 
+        boolean arabicUi = keyboardView == null || keyboardView.isArabic();
+
+        if (keyboardPrefs.isIncognitoMode()) {
+            if (clipCountTv != null) clipCountTv.setText("");
+            LinearLayout incog = new LinearLayout(this);
+            incog.setOrientation(LinearLayout.VERTICAL);
+            incog.setGravity(Gravity.CENTER);
+            incog.setPadding(dp(16), dp(26), dp(16), dp(26));
+
+            ModernIconView incogIcon = new ModernIconView(this, ModernIconView.ICON_CLIPBOARD_PAD,
+                    subC(), Color.TRANSPARENT);
+            incogIcon.setLayoutParams(new LinearLayout.LayoutParams(dp(54), dp(54)));
+
+            TextView incogTv = new TextView(this);
+            incogTv.setText(arabicUi
+                    ? "وضع التخفي مفعّل\nالحافظة مخفية الآن ولا تُحفظ عناصر جديدة"
+                    : "Incognito mode is on\nClipboard is hidden and nothing new is being saved");
+            incogTv.setTextColor(subC());
+            incogTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+            incogTv.setGravity(Gravity.CENTER);
+            incogTv.setPadding(0, dp(6), 0, 0);
+
+            incog.addView(incogIcon);
+            incog.addView(incogTv);
+            clipsListContainer.addView(incog);
+            return;
+        }
+
         ScreenshotClip.pruneIfOld(this, keyboardPrefs.getClipRetentionHours() * 3600L * 1000L);
         boolean hasShotThumb = keyboardPrefs.isScreenshotClipEnabled() && ScreenshotClip.exists(this);
         if (hasShotThumb) {
@@ -2237,7 +2265,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         List<ClipboardRepository.ClipEntry> clips = clipboardRepo.getClips();
-        boolean arabicUi = keyboardView == null || keyboardView.isArabic();
         if (clipCountTv != null) {
             if (clips.isEmpty()) {
                 clipCountTv.setText("");
@@ -2259,7 +2286,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             emptyIcon.setLayoutParams(new LinearLayout.LayoutParams(dp(54), dp(54)));
 
             TextView emptyTv = new TextView(this);
-            emptyTv.setText("Nothing copied yet\nAnything you copy will show up here");
+            emptyTv.setText(arabicUi
+                    ? "ما فيه شي منسوخ بعد\nأي شي تنسخه بيظهر هنا"
+                    : "Nothing copied yet\nAnything you copy will show up here");
             emptyTv.setTextColor(subC());
             emptyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             emptyTv.setGravity(Gravity.CENTER);
