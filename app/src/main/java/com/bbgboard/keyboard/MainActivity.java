@@ -1053,7 +1053,7 @@ public class MainActivity extends Activity {
             enterTiles.add(createPreviewTile(enterNames[i], enterHex[i], prefs.getEnterColor() == color,
                     v -> { prefs.setEnterColor(color); refreshThemeScreen(root); }));
         }
-        addTileGrid(enterCard, enterTiles, 3);
+        addTileGrid(enterCard, enterTiles, 5);
         root.addView(enterCard);
 
         // أحجام الكيبورد: نقلناها من صفحة التفضيلات لأنها جزء من المظهر مثل باقي الصفحة.
@@ -1191,25 +1191,49 @@ public class MainActivity extends Activity {
         return btn;
     }
 
+    /** دائرة لون صغيرة ومرتبة (نفس أسلوب منتقي ألوان السمة بأغلب الكيبوردات)، بدل المربع الكبير. */
     private View createPreviewTile(String label, String colorHex, boolean selected, View.OnClickListener onClick) {
         LinearLayout tile = new LinearLayout(this);
         tile.setOrientation(LinearLayout.VERTICAL);
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
         tile.setOnClickListener(onClick);
 
+        int holderSize = dp(58);
+        int circleSize = dp(46);
         FrameLayout swatchHolder = new FrameLayout(this);
-        swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
-        GradientDrawable swatch = roundedCard(colorHex, 16);
-        if (selected) swatch.setStroke(dp(3), Color.parseColor("#2563EB"));
-        else swatch.setStroke(dp(1), Color.parseColor("#E5E7EB"));
-        swatchHolder.setBackground(swatch);
-        swatchHolder.setElevation(selected ? dp(4) : dp(1));
+        swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(holderSize, holderSize));
+
+        if (selected) {
+            // هالة رفيعة حول الدائرة بدل إطار سميك على اللون نفسه — نفس شكل جوجل بورد عند التحديد.
+            GradientDrawable ring = new GradientDrawable();
+            ring.setShape(GradientDrawable.OVAL);
+            ring.setColor(Color.TRANSPARENT);
+            ring.setStroke(dp(2), Color.parseColor("#2563EB"));
+            View ringView = new View(this);
+            ringView.setBackground(ring);
+            FrameLayout.LayoutParams lpRing = new FrameLayout.LayoutParams(holderSize, holderSize);
+            lpRing.gravity = Gravity.CENTER;
+            ringView.setLayoutParams(lpRing);
+            swatchHolder.addView(ringView);
+        }
+
+        View circle = new View(this);
+        GradientDrawable swatch = new GradientDrawable();
+        swatch.setShape(GradientDrawable.OVAL);
+        swatch.setColor(Color.parseColor(colorHex));
+        swatch.setStroke(dp(1), Color.parseColor("#E5E7EB"));
+        circle.setBackground(swatch);
+        circle.setElevation(selected ? dp(3) : dp(1));
+        FrameLayout.LayoutParams lpCircle = new FrameLayout.LayoutParams(circleSize, circleSize);
+        lpCircle.gravity = Gravity.CENTER;
+        circle.setLayoutParams(lpCircle);
+        swatchHolder.addView(circle);
 
         if (selected) {
             TextView check = new TextView(this);
             check.setText("✓");
             check.setTextColor(colorHex.equals("#FFFFFF") ? Color.parseColor("#2563EB") : Color.WHITE);
-            check.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
+            check.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             check.setTypeface(Typeface.DEFAULT_BOLD);
             FrameLayout.LayoutParams lpCheck = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lpCheck.gravity = Gravity.CENTER;
@@ -1221,9 +1245,9 @@ public class MainActivity extends Activity {
         labelTv.setText(label);
         labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
         labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         labelTv.setGravity(Gravity.CENTER);
-        labelTv.setPadding(0, dp(6), 0, 0);
+        labelTv.setPadding(0, dp(5), 0, 0);
         labelTv.setMaxLines(2);
 
         tile.addView(swatchHolder);
@@ -1238,37 +1262,37 @@ public class MainActivity extends Activity {
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
         tile.setOnClickListener(onClick);
 
-        // أصغر شوي من بقية البطاقات (كانت 92×76) حتى تضل الأربع بطاقات بصف واحد فقط.
+        // أصغر من قبل (كانت 76×66) حتى تنسجم مع بقية البطاقات المصغّرة.
         FrameLayout holder = new FrameLayout(this);
-        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(76), dp(66)));
-        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 16));
-        holder.setElevation(selected ? dp(4) : dp(1));
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(62), dp(54)));
+        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 13));
+        holder.setElevation(selected ? dp(3) : dp(1));
 
         TextView sample = new TextView(this);
         sample.setText("أب Ab");
         sample.setTypeface(typeface);
         sample.setTextColor(Color.parseColor("#111827"));
-        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         sample.setGravity(Gravity.CENTER);
         holder.addView(sample, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         GradientDrawable frame = new GradientDrawable();
-        frame.setCornerRadius(dp(16));
+        frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
+        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
         holder.setForeground(frame);
         if (selected) {
             TextView badge = new TextView(this);
             badge.setText("✓");
             badge.setTextColor(Color.WHITE);
-            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
             badge.setTypeface(Typeface.DEFAULT_BOLD);
             badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard("#2563EB", 9));
-            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(18), dp(18));
+            badge.setBackground(roundedCard("#2563EB", 7));
+            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
             lpB.gravity = Gravity.TOP | Gravity.END;
-            lpB.topMargin = dp(3);
-            lpB.rightMargin = dp(3);
+            lpB.topMargin = dp(2);
+            lpB.rightMargin = dp(2);
             holder.addView(badge, lpB);
         }
 
@@ -1276,9 +1300,9 @@ public class MainActivity extends Activity {
         labelTv.setText(label);
         labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
         labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         labelTv.setGravity(Gravity.CENTER);
-        labelTv.setPadding(0, dp(6), 0, 0);
+        labelTv.setPadding(0, dp(5), 0, 0);
         labelTv.setMaxLines(2);
 
         tile.addView(holder);
@@ -1294,29 +1318,29 @@ public class MainActivity extends Activity {
         tile.setOnClickListener(onClick);
 
         FrameLayout holder = new FrameLayout(this);
-        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
-        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 16));
-        holder.setElevation(selected ? dp(4) : dp(1));
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(72), dp(60)));
+        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 13));
+        holder.setElevation(selected ? dp(3) : dp(1));
         holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         // إطار الاختيار فوق المعاينة + شارة ✓ زرقاء
         GradientDrawable frame = new GradientDrawable();
-        frame.setCornerRadius(dp(16));
+        frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 3 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
+        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
         holder.setForeground(frame);
         if (selected) {
             TextView badge = new TextView(this);
             badge.setText("✓");
             badge.setTextColor(Color.WHITE);
-            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
             badge.setTypeface(Typeface.DEFAULT_BOLD);
             badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard("#2563EB", 9));
-            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(18), dp(18));
+            badge.setBackground(roundedCard("#2563EB", 7));
+            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
             lpB.gravity = Gravity.TOP | Gravity.END;
-            lpB.topMargin = dp(3);
-            lpB.rightMargin = dp(3);
+            lpB.topMargin = dp(2);
+            lpB.rightMargin = dp(2);
             holder.addView(badge, lpB);
         }
 
@@ -1324,9 +1348,9 @@ public class MainActivity extends Activity {
         labelTv.setText(label);
         labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
         labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         labelTv.setGravity(Gravity.CENTER);
-        labelTv.setPadding(0, dp(6), 0, 0);
+        labelTv.setPadding(0, dp(5), 0, 0);
         labelTv.setMaxLines(2);
 
         tile.addView(holder);
@@ -1341,14 +1365,14 @@ public class MainActivity extends Activity {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lpRow.topMargin = dp(13);
+            lpRow.topMargin = dp(10);
             row.setLayoutParams(lpRow);
             int rowCount = Math.min(i + perRow, tiles.size()) - i;
             for (int j = i; j < Math.min(i + perRow, tiles.size()); j++) {
                 LinearLayout.LayoutParams lpTile = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
                 int posInRow = j - i;
-                lpTile.leftMargin = posInRow > 0 ? dp(5) : 0;
-                lpTile.rightMargin = posInRow < rowCount - 1 ? dp(5) : 0;
+                lpTile.leftMargin = posInRow > 0 ? dp(3) : 0;
+                lpTile.rightMargin = posInRow < rowCount - 1 ? dp(3) : 0;
                 tiles.get(j).setLayoutParams(lpTile);
                 row.addView(tiles.get(j));
             }
