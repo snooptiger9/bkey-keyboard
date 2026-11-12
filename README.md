@@ -92,17 +92,31 @@
 
 فيه نسختان من bkey — افرق بينهم فقط ميزتين اقتراح رمز التحقق (OTP) التلقائي. اختر حسب حاجتك:
 
-| | **النسخة العادية** (موصى بها) | **النسخة الكاملة** |
-|---|---|---|
-| **تثبّت مباشرة بدون تحذير** | ✅ نعم | ⚠️ قد يحذّرك Google Play Protect أول مرة |
-| **اقتراح رمز OTP من الرسائل/واتساب** | ❌ غير موجودة | ✅ موجودة |
-| **تناسب** | أغلب الناس | من يبي ميزة الـ OTP ويتقبّل خطوة إضافية عند التثبيت |
+| | **النسخة العادية (موصى بها)** | **النسخة الكاملة** |
+|---|:-:|:-:|
+| **تثبّت بدون أي تحذير** | ✅ | ⚠️ ممكن تنبّهك عند أول تثبيت |
+| **اقتراح رمز التحقق تلقائياً من الرسائل وواتساب** | ❌ | ✅ |
+| **تناسب** | أغلب المستخدمين | من يحتاج ميزة رمز التحقق تحديداً |
 
 **[⬇️ تحميل النسخة العادية (موصى بها)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
-**[⬇️ تحميل النسخة الكاملة (فيها اقتراح OTP)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk)**
+**[⬇️ تحميل النسخة الكاملة (فيها اقتراح رمز التحقق)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk)**
 
-> ⚠️ **ملاحظة عن النسخة الكاملة**: لأنها تطلب صلاحية قراءة الرسائل والوصول لإشعارات واتساب (لميزة اقتراح رمز التحقق)، يوقف **Google Play Protect** تثبيتها تلقائياً برسالة "App blocked to protect your device" — هذا سلوك قياسي من جوجل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات تحديداً، وليس خطأ أو فيروس بالتطبيق. جوجل ما توثّق طريقة رسمية لتجاوزه لتطبيق خارج المتجر، فإذا تبي هذي الميزة تحديداً، جرّب توقيف فحص Play Protect مؤقتاً (إعدادات ← Google ← Play Protect ← ⚙️) قبل التثبيت — بدون ضمان إنه يشتغل على كل الأجهزة. **النسخة العادية تثبّت بدون أي من هذا.**
+> ⚠️ **ملاحظة عن النسخة الكاملة**
+>
+> بما إنها تطلب صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات (عشان ميزة اقتراح رمز التحقق)، نظام حماية جوجل يوقف تثبيتها تلقائياً بمجرد فتح ملف التثبيت، برسالة تحذيرية على الشاشة. هذا سلوك قياسي من جوجل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات بالذات، وليس عيباً ولا فيروساً بالتطبيق.
+>
+> إذا تبي هذي الميزة بالذات، عطّل فحص الحماية مؤقتاً قبل التثبيت بهذي الخطوات:
+>
+> 1. افتح تطبيق **متجر Google Play**.
+> 2. اضغط صورة حسابك بأعلى يمين الشاشة.
+> 3. اختر **Play Protect**.
+> 4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.
+> 5. أوقف خيار **Scan apps with Play Protect**.
+> 6. ثبّت النسخة الكاملة.
+> 7. رجّع تشغيل الخيار بعدها من نفس الشاشة (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
+>
+> **النسخة العادية تثبّت مباشرة بدون أي خطوة من هذي.**
 
 ### 📩 الدعم
 
@@ -212,7 +226,21 @@ There are two builds of bkey, differing only in the automatic verification-code 
 
 **[⬇️ Download the full build (includes OTP suggestions)](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk)**
 
-> ⚠️ **About the full build**: because it requests SMS-read and WhatsApp-notification access (for the OTP suggestion feature), **Google Play Protect** will automatically block its install with "App blocked to protect your device" — this is standard Google behavior for any app installed outside the Play Store that requests these specific permissions, not a bug or malware flag. Google doesn't document an official way around this for apps outside the Store; if you specifically want this feature, try temporarily turning off Play Protect scanning (Settings → Google → Play Protect → ⚙️) before installing — not guaranteed to work on every device. **The regular build installs with none of this.**
+> ⚠️ **About the full build**
+>
+> Because it requests SMS-read and WhatsApp-notification access (for the OTP suggestion feature), Google Play Protect blocks its install automatically with a warning screen the moment you open the APK. This is standard Google behavior for any app installed outside the Play Store that requests these specific permissions — not a bug or malware flag.
+>
+> If you specifically want this feature, turn off Play Protect scanning before installing:
+>
+> 1. Open the **Google Play Store** app.
+> 2. Tap your profile picture, top right.
+> 3. Tap **Play Protect**.
+> 4. Tap the ⚙️ settings icon, top right.
+> 5. Turn off **Scan apps with Play Protect**.
+> 6. Install the full build.
+> 7. Turn the setting back on afterward (recommended to keep it on for your other apps).
+>
+> **The regular build installs directly with none of these steps.**
 
 ### 📩 Support
 
