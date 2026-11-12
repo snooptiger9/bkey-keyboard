@@ -2,9 +2,9 @@ plugins {
     id 'com.android.application'
 }
 
-// كلمات سر التوقيع صارت بملف keystore.properties المنفصل (مو مكتوبة هنا بالكود صراحة)، حتى لا
-// تكون ظاهرة داخل سكربت البناء نفسه. الملف لسه داخل المشروع (لازم لـ CI يقدر يوقّع تلقائياً)،
-// فهذا تنظيم أفضل للسر مو حماية كاملة — لو تبي حماية حقيقية ينقل لـ GitHub Secrets بدل كذا.
+// كلمة سر التوقيع صارت بـGitHub Secrets، مو بالمستودع إطلاقاً. ملف keystore.properties يُبنى
+// تلقائياً وقت كل تشغيل CI من السر (.github/workflows/build.yml)، ولا يُحفظ أو يُرفع للمستودع
+// (موجود بـ.gitignore). لو تبني محلياً على جهازك تحتاج تسوي الملف بنفسك بنفس الصيغة.
 def keystorePropsFile = file('keystore.properties')
 def keystoreProps = new Properties()
 if (keystorePropsFile.exists()) {

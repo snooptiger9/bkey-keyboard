@@ -3,3 +3,5 @@
 .idea/
 *.iml
 local.properties
+# كلمة سر التوقيع صارت بـGitHub Secrets، هذا الملف يُبنى وقت CI فقط ولا يُحفظ بالمستودع إطلاقاً.
+app/keystore.properties
