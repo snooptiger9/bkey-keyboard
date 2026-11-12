@@ -113,11 +113,10 @@ public class BlackBerryKeyboardView extends View {
     private boolean voiceEnabled = true;
     private boolean voiceListening = false;
 
-    // الشريط المختصر (toolbar) قبل بدء الكتابة: أيقونة الحافظة تتبدّل لأيقونة أدوات، وتبين أيقونة
-    // ضبط الارتفاع بدل الخانة الوسطى من الاقتراحات، بنفس فكرة جي بورد قبل أي كتابة بالحقل.
+    // الشريط المختصر (toolbar) قبل بدء الكتابة: تبين أيقونة ضبط الارتفاع بدل الخانة الوسطى من
+    // الاقتراحات، بنفس فكرة جي بورد قبل أي كتابة بالحقل. أيقونة زر الدرج نفسها ثابتة (لا تتبدّل)
+    // في الحالتين، قبل الكتابة وأثناءها.
     private boolean toolbarIdleMode = false;
-    private long toolbarModeChangedAt = 0L;
-    private static final long TOOLBAR_ANIM_MS = 160L;
 
     // 1. متغيرات أنميشن الكلمة الطائرة (أبطأ وأكثر وضوحاً: 520ms)
     private PopupWindow topOverlayPopup;
@@ -737,7 +736,6 @@ public class BlackBerryKeyboardView extends View {
     public void setToolbarIdleMode(boolean idle) {
         if (this.toolbarIdleMode == idle) return;
         this.toolbarIdleMode = idle;
-        toolbarModeChangedAt = SystemClock.uptimeMillis();
         invalidate();
     }
 
@@ -1377,22 +1375,8 @@ public class BlackBerryKeyboardView extends View {
         if (menuButtonPressed) {
             canvas.drawRect(menuButtonRect, sugFlashPaint);
         }
-        long tbNow = SystemClock.uptimeMillis();
-        long tbElapsed = tbNow - toolbarModeChangedAt;
-        float tbAnimT = tbElapsed >= TOOLBAR_ANIM_MS ? 1f : Math.max(0f, tbElapsed / (float) TOOLBAR_ANIM_MS);
-        if (tbAnimT < 1f) postInvalidateOnAnimation();
-        // idleVisual = 1 يعني الشريط المختصر ظاهر بالكامل، 0 يعني شريط الاقتراحات العادي ظاهر بالكامل
-        float idleVisual = toolbarIdleMode ? tbAnimT : (1f - tbAnimT);
-        int prevMenuIconAlpha = iconStrokePaint.getAlpha();
-        if (idleVisual > 0.02f) {
-            iconStrokePaint.setAlpha((int) (idleVisual * 255f));
-            drawClipboardMenuIcon(canvas, menuButtonRect);
-        }
-        if (idleVisual < 0.98f) {
-            iconStrokePaint.setAlpha((int) ((1f - idleVisual) * 255f));
-            drawToolbarIcon(canvas, menuButtonRect);
-        }
-        iconStrokePaint.setAlpha(prevMenuIconAlpha);
+        // أيقونة زر الدرج ثابتة بنفس الشكل قبل الكتابة وأثناءها، بدون أي تبديل أو أنميشن.
+        drawToolbarIcon(canvas, menuButtonRect);
         canvas.drawLine(menuButtonRect.right, sugTop + 5f * density, menuButtonRect.right, sugBottom - 5f * density, keyDividerPaint);
         if (voiceEnabled) {
             if (micButtonPressed || voiceListening) {
@@ -2188,19 +2172,18 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStrokeWidth(prevW);
     }
 
-    /** أيقونة "أدوات" (ثلاث نقاط) تظهر مكان أيقونة الحافظة أثناء الكتابة الفعلية، للإشارة إلى أن
-     * الضغط عليها يرجّع الشريط المختصر (نفس أيقونة الحافظة من حيث الضغط، فقط شكل مختلف). */
+    /** أيقونة زر فتح درج الحافظة (ثلاث خطوط أفقية فوق بعض، شكل القائمة ☰)، ثابتة قبل الكتابة وأثناءها. */
     private void drawToolbarIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
-        Paint.Style prevStyle = iconStrokePaint.getStyle();
-        iconStrokePaint.setStyle(Paint.Style.FILL);
-        float dotR = 2.1f * density;
-        float gap = 7.2f * density;
-        canvas.drawCircle(cx - gap, cy, dotR, iconStrokePaint);
-        canvas.drawCircle(cx, cy, dotR, iconStrokePaint);
-        canvas.drawCircle(cx + gap, cy, dotR, iconStrokePaint);
-        iconStrokePaint.setStyle(prevStyle);
+        float prevW = iconStrokePaint.getStrokeWidth();
+        iconStrokePaint.setStrokeWidth(1.6f * density);
+        float halfW = 8f * density;
+        float gap = 4.6f * density;
+        canvas.drawLine(cx - halfW, cy - gap, cx + halfW, cy - gap, iconStrokePaint);
+        canvas.drawLine(cx - halfW, cy, cx + halfW, cy, iconStrokePaint);
+        canvas.drawLine(cx - halfW, cy + gap, cx + halfW, cy + gap, iconStrokePaint);
+        iconStrokePaint.setStrokeWidth(prevW);
     }
 
     private void drawShiftKeyIcon(Canvas canvas, RectF rect) {
