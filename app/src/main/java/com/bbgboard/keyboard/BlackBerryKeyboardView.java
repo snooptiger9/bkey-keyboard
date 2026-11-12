@@ -1284,7 +1284,8 @@ public class BlackBerryKeyboardView extends View {
             float pillRadius = resizeDragHandlePillRect.height() / 2f;
             canvas.drawRoundRect(resizeDragHandlePillRect, pillRadius, pillRadius, resizePillPaint);
 
-            String label = "↕ اسحب لأعلى أو لأسفل (" + Math.round(keyboardScale * 100) + "%)";
+            String label = (isArabic ? "↕ اسحب لأعلى أو لأسفل (" : "↕ Drag up or down (")
+                    + Math.round(keyboardScale * 100) + "%)";
             sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
             int prevColor = sugPrimaryTextPaint.getColor();
             Paint.Align prevAlign = sugPrimaryTextPaint.getTextAlign();
