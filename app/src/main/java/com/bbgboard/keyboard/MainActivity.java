@@ -1447,39 +1447,41 @@ public class MainActivity extends Activity {
                 checked -> prefs.setVoiceButtonEnabled(checked)
         ));
 
-        root.addView(createSwitchTile(
-                tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
-                tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 5 دقائق فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 5 minutes. Needs SMS permission"),
-                prefs.isOtpSuggestEnabled() && checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED,
-                checked -> {
-                    if (checked) {
-                        if (checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                            prefs.setOtpSuggestEnabled(true);
+        if (BuildConfig.OTP_FEATURES_ENABLED) {
+            root.addView(createSwitchTile(
+                    tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
+                    tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 5 دقائق فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 5 minutes. Needs SMS permission"),
+                    prefs.isOtpSuggestEnabled() && checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED,
+                    checked -> {
+                        if (checked) {
+                            if (checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                prefs.setOtpSuggestEnabled(true);
+                            } else {
+                                requestPermissions(new String[]{android.Manifest.permission.RECEIVE_SMS}, 78);
+                            }
                         } else {
-                            requestPermissions(new String[]{android.Manifest.permission.RECEIVE_SMS}, 78);
+                            prefs.setOtpSuggestEnabled(false);
                         }
-                    } else {
-                        prefs.setOtpSuggestEnabled(false);
                     }
-                }
-        ));
+            ));
 
-        root.addView(createSwitchTile(
-                tr("اقتراح رمز التحقق تلقائياً من واتساب", "Auto-suggest verification code from WhatsApp"),
-                tr("يقرأ إشعارات واتساب فقط (بدون أي تطبيق آخر) بحثاً عن رمز تحقق، ويعرضه في منتصف الاقتراحات لمدة 5 دقائق. كل المعالجة محلية بالجهاز ولا تُرسل لأي سيرفر. يحتاج صلاحية «الوصول للإشعارات» تفعّلها بنفسك من شاشة أندرويد اللي تفتح", "Reads only WhatsApp notifications (no other app) looking for a verification code, and shows it in the middle suggestion slot for 5 minutes. Fully on-device, nothing sent to any server. Needs \"Notification access\", which you enable yourself on the Android screen that opens"),
-                prefs.isWhatsAppOtpSuggestEnabled() && isNotificationAccessGranted(),
-                checked -> {
-                    prefs.setWhatsAppOtpSuggestEnabled(checked);
-                    if (checked && !isNotificationAccessGranted()) {
-                        Toast.makeText(this, tr("فعّل الوصول للإشعارات لتطبيق bkey من الشاشة اللي بتفتح", "Enable notification access for bkey on the screen that opens"), Toast.LENGTH_LONG).show();
-                        try {
-                            startActivity(new android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
-                        } catch (Exception e) {
-                            AppLogger.log("MainActivity", "openCorrectionsAndMemoryScreen()", e);
+            root.addView(createSwitchTile(
+                    tr("اقتراح رمز التحقق تلقائياً من واتساب", "Auto-suggest verification code from WhatsApp"),
+                    tr("يقرأ إشعارات واتساب فقط (بدون أي تطبيق آخر) بحثاً عن رمز تحقق، ويعرضه في منتصف الاقتراحات لمدة 5 دقائق. كل المعالجة محلية بالجهاز ولا تُرسل لأي سيرفر. يحتاج صلاحية «الوصول للإشعارات» تفعّلها بنفسك من شاشة أندرويد اللي تفتح", "Reads only WhatsApp notifications (no other app) looking for a verification code, and shows it in the middle suggestion slot for 5 minutes. Fully on-device, nothing sent to any server. Needs \"Notification access\", which you enable yourself on the Android screen that opens"),
+                    prefs.isWhatsAppOtpSuggestEnabled() && isNotificationAccessGranted(),
+                    checked -> {
+                        prefs.setWhatsAppOtpSuggestEnabled(checked);
+                        if (checked && !isNotificationAccessGranted()) {
+                            Toast.makeText(this, tr("فعّل الوصول للإشعارات لتطبيق bkey من الشاشة اللي بتفتح", "Enable notification access for bkey on the screen that opens"), Toast.LENGTH_LONG).show();
+                            try {
+                                startActivity(new android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                            } catch (Exception e) {
+                                AppLogger.log("MainActivity", "openCorrectionsAndMemoryScreen()", e);
+                            }
                         }
                     }
-                }
-        ));
+            ));
+        }
 
         LinearLayout trainCard = createGroupedWhiteCard();
         trainCard.setPadding(dp(16), dp(16), dp(16), dp(16));

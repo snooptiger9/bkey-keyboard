@@ -52,7 +52,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build release APK
+      - name: Build release APKs (lite + full)
         run: |
           set -o pipefail
           ./gradlew assembleRelease --no-daemon 2>&1 | tee build_output.log
@@ -68,21 +68,24 @@ jobs:
           git commit -m "ci: build error log [skip ci]" || true
           git push || true
 
-      - name: Upload APK
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: bkey-release-apk
-          path: app/build/outputs/apk/release/*.apk
+          name: bkey-release-apks
+          path: |
+            app/build/outputs/apk/lite/release/*.apk
+            app/build/outputs/apk/full/release/*.apk
 
-      - name: Commit built APK into the repo
+      - name: Commit built APKs into the repo
         run: |
           mkdir -p release
-          cp app/build/outputs/apk/release/*.apk release/bkey-latest.apk
+          cp app/build/outputs/apk/lite/release/*.apk release/bkey-latest.apk
+          cp app/build/outputs/apk/full/release/*.apk release/bkey-full-latest.apk
           git config user.name "bkey-ci"
           git config user.email "ci@bkey.local"
-          git add release/bkey-latest.apk
+          git add release/bkey-latest.apk release/bkey-full-latest.apk
           if ! git diff --cached --quiet; then
-            git commit -m "ci: update built APK [skip ci]"
+            git commit -m "ci: update built APKs [skip ci]"
             git push
           else
             echo "No APK changes to commit."

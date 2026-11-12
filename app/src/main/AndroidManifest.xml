@@ -47,13 +47,13 @@
 
         <provider
             android:name=".ScreenshotProvider"
-            android:authorities="com.bbgboard.keyboard.screenshots"
+            android:authorities="${applicationId}.screenshots"
             android:exported="false"
             android:grantUriPermissions="true" />
 
         <provider
             android:name=".GifCacheProvider"
-            android:authorities="com.bbgboard.keyboard.gifcache"
+            android:authorities="${applicationId}.gifcache"
             android:exported="false"
             android:grantUriPermissions="true" />
 

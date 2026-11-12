@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class ScreenshotProvider extends ContentProvider {
-    public static final String AUTHORITY = "com.bbgboard.keyboard.screenshots";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".screenshots";
 
     @Override public boolean onCreate() { return true; }
 
