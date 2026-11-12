@@ -66,10 +66,6 @@
 - **خصوصية أولاً**: وضع تخفي (Incognito) يوقف التعلّم والحفظ بالحافظة بالكامل، وكلمات المرور/الإيميلات/الروابط
   لا يُتعلَّم منها مطلقاً حتى في الوضع العادي.
 
-### 📥 التحميل
-
-آخر نسخة APK موقّعة جاهزة دائماً من صفحة **[Releases](../../releases)** في هذا المستودع.
-
 ### 🔒 الخصوصية والأمان
 
 - لا يوجد اتصال بالإنترنت إلا لميزتي GIF (GIPHY) والكتابة بالصوت، وكلاهما **اختياري بالكامل** —
@@ -77,6 +73,10 @@
 - اقتراح أكواد التحقق (OTP) **ميزة اختيارية** لازم تفعّلها بنفسك وتمنح إذن الرسائل/الإشعارات؛
   إذا ما فعّلتها، الكيبورد ما يقرأ أي رسالة إطلاقاً. وحتى لو فعّلتها، كل المعالجة على الجهاز فقط ولا تُرسل لأي سيرفر خارجي.
 - مفتاح توقيع التطبيق محمي عبر GitHub Secrets، وليس مكشوفاً في الكود.
+
+### 📥 التحميل
+
+آخر نسخة APK موقّعة جاهزة دائماً من صفحة **[Releases](../../releases)** في هذا المستودع.
 
 ---
 
@@ -142,11 +142,6 @@ with a carefully tailored experience for each.
 - **Privacy-first**: Incognito mode disables learning and clipboard saving entirely; passwords,
   emails and links are never learned from, even outside Incognito mode.
 
-### 📥 Download
-
-The latest signed APK is always available from the **[Releases](../../releases)** page of this
-repository. Every new release is built and signed automatically by GitHub Actions on each update.
-
 ### 🔒 Privacy & security
 
 - No network access except for the GIF (GIPHY) and voice-typing features, and both are **fully
@@ -156,6 +151,11 @@ repository. Every new release is built and signed automatically by GitHub Action
   and grant SMS/notification permission. If you never enable it, the keyboard never reads any
   message. Even when enabled, everything is processed on-device only, never sent to any server.
 - The app's signing key is protected via GitHub Secrets, never exposed in the codebase.
+
+### 📥 Download
+
+The latest signed APK is always available from the **[Releases](../../releases)** page of this
+repository.
 
 ---
 
