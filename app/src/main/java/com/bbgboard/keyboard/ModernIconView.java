@@ -27,22 +27,19 @@ public class ModernIconView extends View {
     public static final int ICON_CLOSE = 15;
     public static final int ICON_FORWARD_ARROW = 16;
     public static final int ICON_BACKSPACE = 17;
-    public static final int ICON_PUSHPIN = 18;   // دبوس مائل (تثبيت نص الحافظة)
-    public static final int ICON_TRASH = 19;     // سلة محذوفات (حذف نص الحافظة)
-    public static final int ICON_MIC = 20;       // مايكروفون (الكتابة بالصوت داخل قائمة الحافظة)
+    public static final int ICON_PUSHPIN = 18;
+    public static final int ICON_TRASH = 19;
+    public static final int ICON_MIC = 20;
 
     private boolean filled = false;
     private float iconScale = 1f;
     private boolean pillBackground = false;
 
-    /** يجعل خلفية الأيقونة كبسولة بيضاوية كاملة (نصف الارتفاع) بدل مربع بزوايا دائرية،
-     * مثل تضليل مفتاح "123" في سمة Gboard. */
     public void setPillBackground(boolean pill) {
         this.pillBackground = pill;
         invalidate();
     }
 
-    /** تصغير/تكبير الرسم داخل المساحة، وسماكة الخط بالـ dp (لتطابق أيقونة الحافظة الرئيسية). */
     public void setStyle(float scale, float strokeDp) {
         this.iconScale = scale;
         strokePaint.setStrokeWidth(strokeDp * density);
@@ -54,7 +51,6 @@ public class ModernIconView extends View {
         invalidate();
     }
 
-    /** يغيّر شكل الأيقونة المرسومة بعد الإنشاء (مثل تبديل اتجاه السهم). */
     public void setIconType(int type) {
         this.iconType = type;
         invalidate();
@@ -125,7 +121,7 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_RESIZE_HEIGHT: {
-                // سهم مزدوج عمودي بين خطين أفقيين (ارتفاع)
+
                 canvas.drawLine(cx, cy - r * 0.62f, cx, cy + r * 0.62f, strokePaint);
                 Path arrows = new Path();
                 arrows.moveTo(cx - r * 0.38f, cy - r * 0.28f);
@@ -270,7 +266,7 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_PUSHPIN: {
-                // دبوس مائل 45° بخطوط فقط (يُملأ لما يكون مثبّتاً)
+
                 canvas.save();
                 canvas.rotate(45f, cx, cy);
                 Path pin = new Path();
@@ -288,7 +284,7 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_TRASH: {
-                // سلة: غطاء بمقبض، جسم مائل قليلاً، وخطان داخليان
+
                 float top = cy - r * 0.5f;
                 canvas.drawLine(cx - r * 0.85f, top, cx + r * 0.85f, top, strokePaint);
                 Path handle = new Path();
@@ -324,8 +320,7 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_BACKSPACE: {
-                // أيقونة حذف مرسومة (بدل رمز يونيكود "⌫" اللي يطلع مشوّهاً على بعض الأجهزة):
-                // جسم خماسي الشكل متجه لليسار مع علامة X بالمنتصف، نفس شكل زر الحذف المعروف.
+
                 Path body = new Path();
                 body.moveTo(cx + r * 0.72f, cy - r * 0.55f);
                 body.lineTo(cx - r * 0.05f, cy - r * 0.55f);
@@ -341,8 +336,7 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_FORWARD_ARROW: {
-                // نفس سهم الرجوع لكن معكوس بالكامل (متجه لليمين)، لزر الرجوع لكيبورد الحروف
-                // من قائمتي الإيموجي والحافظة، أنسب للقراءة من اليمين لليسار.
+
                 Path arrowF = new Path();
                 arrowF.moveTo(cx - r * 0.75f, cy);
                 arrowF.lineTo(cx + r * 0.65f, cy);

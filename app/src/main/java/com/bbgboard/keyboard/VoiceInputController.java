@@ -10,20 +10,16 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import java.util.ArrayList;
 
-/**
- * الكتابة بالصوت: يغلّف SpeechRecognizer حتى تبقى منطقته خارج خدمة الكيبورد.
- * كل الاستدعاءات على الخيط الرئيسي. النتيجة الجزئية تُعرض نصاً مؤقتاً، والنهائية تُدخَل في الحقل.
- */
 final class VoiceInputController {
 
     interface Callback {
-        /** نص جزئي أثناء الكلام (يُعرض كنص مؤقت). */
+
         void onPartial(String text);
-        /** النص النهائي عند انتهاء الكلام. */
+
         void onResult(String text);
-        /** تغيّرت حالة الاستماع (لتمييز زر المايك). */
+
         void onListeningChanged(boolean listening);
-        /** رسالة خطأ للمستخدم (null = لا شيء يُعرض، مثل الصمت). */
+
         void onError(String message);
     }
 
@@ -47,7 +43,6 @@ final class VoiceInputController {
 
     boolean isListening() { return listening; }
 
-    /** يبدأ الاستماع، أو يوقفه (فتصل النتيجة النهائية) لو كان يستمع. */
     void toggle(boolean arabic) {
         if (listening) {
             if (recognizer != null) recognizer.stopListening();
@@ -56,7 +51,6 @@ final class VoiceInputController {
         }
     }
 
-    /** يلغي الاستماع فوراً بدون إدخال أي نص (مثلاً عند اختفاء الكيبورد). */
     void cancel() {
         if (recognizer != null) recognizer.cancel();
         setListening(false);
@@ -125,7 +119,7 @@ final class VoiceInputController {
                 case SpeechRecognizer.ERROR_NO_MATCH:
                 case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
                 case SpeechRecognizer.ERROR_CLIENT:
-                    callback.onError(null); // صمت أو إلغاء: لا نزعج المستخدم
+                    callback.onError(null);
                     break;
                 case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
                     callback.onError("إذن الميكروفون مطلوب");

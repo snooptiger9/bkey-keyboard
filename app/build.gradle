@@ -2,9 +2,6 @@ plugins {
     id 'com.android.application'
 }
 
-// كلمة سر التوقيع صارت بـGitHub Secrets، مو بالمستودع إطلاقاً. ملف keystore.properties يُبنى
-// تلقائياً وقت كل تشغيل CI من السر (.github/workflows/build.yml)، ولا يُحفظ أو يُرفع للمستودع
-// (موجود بـ.gitignore). لو تبني محلياً على جهازك تحتاج تسوي الملف بنفسك بنفس الصيغة.
 def keystorePropsFile = file('keystore.properties')
 def keystoreProps = new Properties()
 if (keystorePropsFile.exists()) {
@@ -19,15 +16,13 @@ android {
         applicationId "com.bbgboard.keyboard"
         minSdk 24
         targetSdk 34
-        // versionCode/versionName يتبعان نفس ترقيم vNNN اللي يُسلَّم بيه كل بناء (ظاهر بإعدادات أندرويد
-        // > التطبيقات، حتى يطابق الرقم اللي يشوفه المستخدم عند كل نسخة جديدة بدون لخبطة بين الترقيمين).
-        versionCode 187
-        versionName "187.0"
+
+        versionCode 188
+        versionName "188.0"
     }
 
     signingConfigs {
-        // مفتاح توقيع ثابت داخل المشروع نفسه (وليس مفتاح Debug العشوائي لجهازك)، حتى كل نسخة جديدة
-        // ترسل لك تحدّث النسخة المثبتة فوق بعضها طبيعي بدون حذف ولا فقدان الكلمات المحفوظة والحافظة.
+
         bkeyStable {
             storeFile file('bkey_release.keystore')
             storePassword keystoreProps.getProperty('storePassword')
@@ -54,8 +49,8 @@ android {
 }
 
 dependencies {
-    // لبناء ستايل اقتراحات الملء التلقائي (حساب/باسورد) داخل شريط الكيبورد بدل نافذة منبثقة
+
     implementation 'androidx.autofill:autofill:1.1.0'
-    // لعرض وتشغيل صور GIF المتحركة بتبويب GIF
+
     implementation 'com.github.bumptech.glide:glide:4.16.0'
 }

@@ -5,12 +5,6 @@ import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
-/**
- * يقرأ إشعارات واتساب فقط (يتجاهل كل تطبيق آخر فوراً) للبحث عن رمز تحقق بداخلها، ويحفظه مؤقتاً
- * (5 دقائق) ليُعرض كاقتراح بالكيبورد بنفس طريقة رمز SMS تماماً. يحتاج صلاحية "الوصول للإشعارات"
- * يفعّلها المستخدم يدوياً من إعدادات أندرويد — صلاحية حساسة نطلبها فقط لهذا الاستخدام المحدد، ولا
- * نرسل أي بيانات لأي سيرفر (كل المعالجة محلية بالجهاز).
- */
 public class WhatsAppOtpListenerService extends NotificationListenerService {
 
     private static final String[] WHATSAPP_PACKAGES = {"com.whatsapp", "com.whatsapp.w4b"};

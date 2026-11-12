@@ -25,8 +25,6 @@ jobs:
       - name: Point Gradle at the runner's preinstalled Android SDK
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
 
-      # كلمة سر التوقيع ما تُحفظ بالمستودع أبداً، تُجلب من GitHub Secrets وقت البناء فقط وتُكتب
-      # بملف مؤقت على رنر CI (ما يصير commit له أبداً، يروح مع نهاية الـjob).
       - name: Write keystore.properties from secret
         env:
           BKEY_KEYSTORE_PASSWORD: ${{ secrets.BKEY_KEYSTORE_PASSWORD }}
@@ -49,8 +47,6 @@ jobs:
           set -o pipefail
           ./gradlew assembleRelease --no-daemon 2>&1 | tee build_output.log
 
-      # عند فشل البناء: نرفع سجل الخطأ داخل المستودع نفسه (بدل Artifacts المنفصلة)
-      # حتى يسهل سحبه بـ git pull عادي ومعرفة سبب الفشل بالضبط.
       - name: Commit build log on failure
         if: failure()
         run: |
@@ -68,9 +64,6 @@ jobs:
           name: bkey-release-apk
           path: app/build/outputs/apk/release/*.apk
 
-      # نرفع ملف الـ APK الجاهز داخل المستودع نفسه (مجلد release/) بدل "Artifacts" التابعة لـ
-      # GitHub (مخزّنة على سيرفرات منفصلة)، حتى يسهل سحبها بـ git pull عادي، نفس قناة git
-      # المستخدمة أصلاً للرفع والتحميل.
       - name: Commit built APK into the repo
         run: |
           mkdir -p release

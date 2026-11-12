@@ -42,7 +42,6 @@ public class MainActivity extends Activity {
     private EditText floatingTestEdit;
     private View floatingTestFab;
 
-    // ===== تذكّر مكان السكرول: الرجوع يعيدك لنفس الموضع في الشاشة السابقة =====
     private final java.util.ArrayDeque<Integer> scrollStack = new java.util.ArrayDeque<>();
     private boolean returningBack = false;
     private int pendingScrollY = 0;
@@ -53,7 +52,6 @@ public class MainActivity extends Activity {
         return v instanceof ScrollView ? v.getScrollY() : 0;
     }
 
-    /** إعادة فتح نفس الشاشة بعد تغيير إعداد، بنفس موضع السكرول وبدون إضافة مدخل جديد لسجل الرجوع. */
     private void reopenKeepingScroll(Runnable open) {
         pendingScrollY = currentScrollY();
         returningBack = true;
@@ -69,7 +67,6 @@ public class MainActivity extends Activity {
 
     private boolean skipNavAnim = false;
 
-    /** يضبط موضع السكرول قبل أول رسم (بدون وميض) ويشغّل أنميشن الانتقال: للأمام من جهة، وللرجوع من الجهة المعاكسة. */
     private void restoreScroll(final ScrollView scroll) {
         final int y = pendingScrollY;
         final int dir = returningBack ? -1 : 1;
@@ -105,18 +102,15 @@ public class MainActivity extends Activity {
         return (int) (v * getResources().getDisplayMetrics().density);
     }
 
-    /** true إذا كانت لغة الجهاز الحالية عربية، لعرض كل نص الإعدادات بلغة واحدة فقط بدل الاثنتين معاً. */
     private boolean isDeviceArabic() {
         String lang = java.util.Locale.getDefault().getLanguage();
         return lang != null && lang.toLowerCase(java.util.Locale.ROOT).startsWith("ar");
     }
 
-    /** يرجع النص العربي أو الإنجليزي حسب لغة الجهاز فقط. */
     private String tr(String ar, String en) {
         return isDeviceArabic() ? ar : en;
     }
 
-    /** هل مانح المستخدم صلاحية "الوصول للإشعارات" لهذا التطبيق؟ (لازمة لاقتراح رمز واتساب). */
     private boolean isNotificationAccessGranted() {
         String enabled = android.provider.Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
         return enabled != null && enabled.contains(getPackageName());
@@ -158,8 +152,6 @@ public class MainActivity extends Activity {
 
         showHomeGboardSettingsMenu();
 
-        // حاوية جذر فوق mainFrame: زر الكيبورد العائم وحقل تجربته أبناء لها مباشرة، مو لـ
-        // mainFrame — حتى يضلّوا ظاهرين فوق كل الشاشات (كل شاشة تمسح أبناء mainFrame وتستبدلها).
         FrameLayout rootContainer = new FrameLayout(this);
         rootContainer.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -168,8 +160,6 @@ public class MainActivity extends Activity {
         setContentView(rootContainer);
     }
 
-    /** زر عائم يفتح حقل صغير ويطلع له الكيبورد فوراً، عشان تشوف تغييرات المظهر وأنت بأي شاشة
-     * إعدادات بدون ما ترجع لحقل التجربة بالأعلى. */
     private void addFloatingKeyboardTester(FrameLayout root) {
         floatingTestEdit = new EditText(this);
         floatingTestEdit.setHint(tr("جرّب الكيبورد هنا...", "Try the keyboard here..."));
@@ -203,8 +193,6 @@ public class MainActivity extends Activity {
         root.addView(fab);
         floatingTestFab = fab;
 
-        // إذا المستخدم خفى الكيبورد بطريقة غير زر العوم (زر الرجوع، سحبة الإخفاء، أو تبديل الشاشة)
-        // نخفي حقل التجربة نفسه تلقائياً بدل ما يضل ظاهر على الشاشة بدون داعي.
         root.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             if (floatingTestEdit.getVisibility() != View.VISIBLE) return;
             Rect visibleFrame = new Rect();
@@ -247,21 +235,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        // لو المستخدم رجع من إعدادات النظام بعد تفعيل الكيبورد أو اختياره، نحدّث بطاقة الإعداد
-        // في الشاشة الرئيسية فوراً بدون ما نرجعه لها لو كان بشاشة إعدادات فرعية.
+
         if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) == homeMenuView) {
             showHomeGboardSettingsMenu();
         }
     }
 
-    /** المعرّف الحقيقي اللي يستخدمه أندرويد لهذا الكيبورد (نفس صيغة ComponentName.flattenToShortString()
-     *  اللي يرجعها InputMethodInfo.getId() ويخزنها Settings.Secure.DEFAULT_INPUT_METHOD، مثل
-     *  "com.bbgboard.keyboard/.BlackBerryImeService" وليس اسم الكلاس الكامل). */
     private String ownImeId() {
         return new ComponentName(this, BlackBerryImeService.class).flattenToShortString();
     }
 
-    /** هل الكيبورد مفعّل حالياً ضمن قائمة لوحات المفاتيح المفعّلة بالنظام؟ */
     private boolean isOwnImeEnabled() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm == null) return false;
@@ -272,7 +255,6 @@ public class MainActivity extends Activity {
         return false;
     }
 
-    /** هل الكيبورد هو المختار حالياً كلوحة المفاتيح الافتراضية بالنظام؟ */
     private boolean isOwnImeSelected() {
         String current = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
         return ownImeId().equals(current);
@@ -313,8 +295,6 @@ public class MainActivity extends Activity {
         lpSetup.bottomMargin = dp(16);
         quickSetupCard.setLayoutParams(lpSetup);
 
-        // تُخفى خطوة "تفعيل الكيبورد" تلقائياً إذا كان مفعّلاً أصلاً (زي باقي الكيبوردات)، ويتبقى
-        // زر الاختيار فقط؛ ولو كان مختاراً حالياً كمان، تتحول الخطوة لتأكيد أخضر بدل خطوة مطلوبة.
         boolean imeEnabled = isOwnImeEnabled();
         boolean imeSelected = imeEnabled && isOwnImeSelected();
 
@@ -367,7 +347,6 @@ public class MainActivity extends Activity {
         quickSetupCard.addView(quickTestEdit);
         root.addView(quickSetupCard);
 
-        // المجموعة 1
         LinearLayout group1 = createGroupedWhiteCard();
         group1.addView(createMenuRow(
                 ModernIconView.ICON_GLOBE_LANG,
@@ -385,7 +364,6 @@ public class MainActivity extends Activity {
         ));
         root.addView(group1);
 
-        // المجموعة 2
         LinearLayout group2 = createGroupedWhiteCard();
         group2.addView(createMenuRow(
                 ModernIconView.ICON_TEXT_CORRECTION,
@@ -428,7 +406,6 @@ public class MainActivity extends Activity {
         ));
         root.addView(group2);
 
-        // المجموعة 3
         LinearLayout group3 = createGroupedWhiteCard();
         group3.addView(createMenuRow(
                 ModernIconView.ICON_CLIPBOARD_PAD,
@@ -484,7 +461,6 @@ public class MainActivity extends Activity {
         return th + " • " + st;
     }
 
-    /** صف كامل العرض لخطوة إعداد واحدة (تفعيل أو اختيار الكيبورد)، بلون مميز وأيقونة حديثة. */
     private View createSetupStepRow(int iconType, String colorHex, String title, String subtitle, View.OnClickListener onClick) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -547,9 +523,6 @@ public class MainActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(18), dp(16), dp(18), dp(16));
 
-        // رجّعنا الأيقونة لليسار (كانت leftMargin=14 تدخلها لجنب النص بزيادة) وكبّرناها شوي (28→32).
-        // استخدمنا marginStart/End (مو left/right مباشرة) حتى تنعكس صح تلقائياً بالوضع العربي (RTL):
-        // كانت left/right ثابتتين فتخلي الفجوة بجنب الأيقونة الخطأ وتشيل الأيقونة قريبة زيادة من النص.
         ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor("#5F6368"), Color.TRANSPARENT);
         LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(32), dp(32));
         lpIcon.setMarginStart(0);
@@ -637,10 +610,8 @@ public class MainActivity extends Activity {
         void onToggle(boolean checked);
     }
 
-    /** صف تبديل بأسلوب قوائم Gboard: العنوان والوصف على جهة، ومفتاح التبديل في الطرف الآخر، داخل بطاقة بيضاء مستقلة. */
-    /** بطاقة اختيار مدة الحذف التلقائي لنصوص الحافظة القديمة (المثبّت مستثنى). */
     private View createClipRetentionTile() {
-        final int[] values = {1, 4, 24, 72, 168, 336, 720, 0}; // بالساعات
+        final int[] values = {1, 4, 24, 72, 168, 336, 720, 0};
         final String[] labels = {
                 tr("ساعة واحدة", "1 hour"), tr("4 ساعات", "4 hours"), tr("يوم واحد", "1 day"), tr("3 أيام", "3 days"), tr("أسبوع", "1 week"),
                 tr("أسبوعين", "2 weeks"), tr("30 يوماً", "30 days"), tr("بدون حذف تلقائي", "Never")};
@@ -665,7 +636,7 @@ public class MainActivity extends Activity {
         card.addView(value);
         final Runnable refresh = () -> {
             int cur = prefs.getClipRetentionHours();
-            String label = labels[4]; // الافتراضي (168 ساعة = أسبوع) بعد ما ضفنا "ساعة واحدة" بالأول
+            String label = labels[4];
             for (int i = 0; i < values.length; i++) if (values[i] == cur) label = labels[i];
             value.setText(tr("المدة: ", "Keep for: ") + label
                     + tr("  (المثبّت لا يُحذف)", "  (pinned items are kept)"));
@@ -692,8 +663,6 @@ public class MainActivity extends Activity {
         return createSwitchTile(title, subtitle, checked, true, listener);
     }
 
-    /** نفس البطاقة، بس مع إمكانية تعطيلها (رمادية وما تنلمس) لو enabled=false — نستخدمها لما يكون
-     *  الخيار موجود لكن بدون فايدة بالوضع الحالي (مثل خيار سحب المسافة لو لغة وحدة بس مفعّلة). */
     private View createSwitchTile(String title, String subtitle, boolean checked, boolean enabled, final SwitchListener listener) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
@@ -772,9 +741,8 @@ public class MainActivity extends Activity {
         return listLayout;
     }
 
-    /** يحفظ حالة تفعيل اللغتين دفعة وحدة، ويمنع إطفاء آخر لغة مفعّلة (لازم توصل وحدة على الأقل). */
     private void setLanguagesEnabled(boolean arabicOn, boolean englishOn) {
-        if (!arabicOn && !englishOn) return; // ما نسمح نطفي اللغتين سوا
+        if (!arabicOn && !englishOn) return;
         int mode = arabicOn && englishOn ? KeyboardPreferences.LANGUAGE_MODE_BOTH
                 : arabicOn ? KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY
                 : KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
@@ -792,8 +760,7 @@ public class MainActivity extends Activity {
     }
 
     private void fillLanguagesScreen(final LinearLayout root) {
-        // كل لغة لها خيار تفعيل مستقل (زي جي بورد)، تقدر تفعّل الاثنتين سوا أو وحدة بس، وبهذا
-        // الأسلوب لو ضفنا لغات بالمستقبل يصير كل وحدة منها مجرد خيار إضافي بنفس القائمة.
+
         TextView langModeHeader = new TextView(this);
         langModeHeader.setText(tr("اللغات المفعّلة:", "Enabled languages:"));
         langModeHeader.setTextColor(Color.parseColor("#111827"));
@@ -802,7 +769,6 @@ public class MainActivity extends Activity {
         langModeHeader.setPadding(dp(4), 0, dp(4), dp(8));
         root.addView(langModeHeader);
 
-        // توضيح للعلاقة بين تفعيل لغة/لغتين وظهور خيار السحب وزر التبديل 🌐، حتى ما يلخبط المستخدم.
         TextView langModeNote = new TextView(this);
         langModeNote.setText(tr(
                 "لو فعّلت اللغتين سوا، تقدر تختار طريقة التبديل بينهم (سحب المسافة أو زر 🌐). "
@@ -835,9 +801,6 @@ public class MainActivity extends Activity {
                     refreshLanguagesScreen(root);
                 }));
 
-        // لو اللغتين مفعّلتين، هذا الخيار يتحكم بطريقة التبديل بينهم: سحب زر المسافة، أو لو مطفي
-        // يظهر زر 🌐 مخصص للتبديل بدلاً منه (مكان زر الإيموجي، والإيموجي ينتقل للضغط المطوّل عليه).
-        // لو لغة وحدة بس مفعّلة، نخليه ظاهر لكن معطّل (رمادي) حتى يفهم المستخدم ليش ماله فايدة الحين.
         boolean bothLangsOn = arabicOn && englishOn;
         root.addView(createSwitchTile(
                 tr("التبديل بسحب زر المسافة", "Switch by swiping the space bar"),
@@ -859,7 +822,7 @@ public class MainActivity extends Activity {
                 prefs.setScreenshotClipEnabled(false);
                 Toast.makeText(this, tr("لم يُمنح إذن الصور، فلا يمكن حفظ لقطات الشاشة", "Photos permission was not granted, so screenshots can't be saved"), Toast.LENGTH_LONG).show();
             }
-            openClipboardScreen(); // يبقى في نفس صفحة الحافظة اللي منها طلب الإذن، بدل القفز لصفحة ثانية
+            openClipboardScreen();
         }
         if (requestCode == 78) {
             boolean granted = checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -867,7 +830,7 @@ public class MainActivity extends Activity {
             if (!granted) {
                 Toast.makeText(this, tr("لم يُمنح إذن الرسائل، فلن يُقترح رمز التحقق تلقائياً", "SMS permission wasn't granted, so the code won't be suggested automatically"), Toast.LENGTH_LONG).show();
             }
-            openCorrectionsAndMemoryScreen(); // يبقى في نفس صفحة التصحيح والذاكرة اللي منها طلب الإذن
+            openCorrectionsAndMemoryScreen();
         }
     }
 
@@ -952,7 +915,6 @@ public class MainActivity extends Activity {
         fillThemeAndStyleScreen(root);
     }
 
-    /** تحديث الشاشة في مكانها بعد اختيار (بدون إعادة بناء الصفحة كلها: لا وميض ولا قفز بالسكرول). */
     private void refreshThemeScreen(LinearLayout root) {
         root.removeViews(1, root.getChildCount() - 1);
         fillThemeAndStyleScreen(root);
@@ -971,8 +933,6 @@ public class MainActivity extends Activity {
         fHeader.setPadding(0, 0, 0, dp(10));
         fontCard.addView(fHeader);
 
-        // كل خط (افتراضي/Tajawal) بنسختين: عادي (Regular) وبولد، يختار المستخدم بينهم بنفسه.
-        // (حذفنا Almarai عادي وبولد بناءً على طلب المستخدم.)
         int[] fontIds = {
                 KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD,
                 KeyboardPreferences.FONT_TAJAWAL_REGULAR, KeyboardPreferences.FONT_TAJAWAL};
@@ -1046,7 +1006,6 @@ public class MainActivity extends Activity {
         addTileGrid(styleCard, styleTiles, 3);
         root.addView(styleCard);
 
-        // لون كبسولة زر الإدخال (السهم يبقى أبيض)
         LinearLayout enterCard = createGroupedWhiteCard();
         enterCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView eHeader = new TextView(this);
@@ -1069,10 +1028,6 @@ public class MainActivity extends Activity {
         addTileGrid(enterCard, enterTiles, 5);
         root.addView(enterCard);
 
-        // أحجام الكيبورد: نقلناها من صفحة التفضيلات لأنها جزء من المظهر مثل باقي الصفحة.
-        // كل واحد منها "افتراضي" أو "مخصص" (يفتح السلايدر)، حتى تبقى هذي القائمة مختصرة.
-        // "افتراضي" هنا = القيم اللي اختارها المستخدم كأفضل إعداد (118% / 105% / 115% / +3)،
-        // مو القيم المحايدة (100%/0) — هذي صارت قيم المصنع الفعلية بالتطبيق.
         root.addView(buildSizerCard(
                 tr("5. حجم الحروف داخل المربعات", "5. Key letter size"),
                 Math.round(prefs.getKeyFontScale() * 100), 118, 80, 150,
@@ -1091,7 +1046,6 @@ public class MainActivity extends Activity {
                 pct -> prefs.setSuggestionBarScale(pct / 100f),
                 pct -> pct + "%"));
 
-        // حجم خط الاقتراحات: المستوى نفسه هو قيمة السلايدر (مو نسبة٪)، الافتراضي +3
         root.addView(buildSizerCard(
                 tr("8. حجم خط الاقتراحات", "8. Suggestion text size"),
                 prefs.getSuggestionTextLevel(), 3, 0, 5,
@@ -1099,12 +1053,9 @@ public class MainActivity extends Activity {
                 lv -> lv == 0 ? tr("بدون تكبير", "No enlargement") : "+" + lv));
     }
 
-    /** بطاقة معاينة صغيرة بلون مصمت وعلامة اختيار، بنفس أسلوب شبكة السمات في إعدادات أندرويد. */
     private interface IntSetter { void set(int value); }
     private interface IntLabelFormatter { String format(int value); }
 
-    /** بطاقة "افتراضي / مخصص" لإعداد رقمي (نسبة أو مستوى): تبدأ مطوية (بدون سلايدر ظاهر) إذا كانت
-     *  القيمة الحالية تساوي الافتراضي، وتبدأ مفتوحة إذا كانت مخصصة من قبل؛ هذا يخلي القائمة مختصرة. */
     private LinearLayout buildSizerCard(String title, int currentValue, int defaultValue,
                                          int min, int max, IntSetter setter, IntLabelFormatter formatter) {
         LinearLayout card = createGroupedWhiteCard();
@@ -1204,7 +1155,6 @@ public class MainActivity extends Activity {
         return btn;
     }
 
-    /** دائرة لون صغيرة ومرتبة (نفس أسلوب منتقي ألوان السمة بأغلب الكيبوردات)، بدل المربع الكبير. */
     private View createPreviewTile(String label, String colorHex, boolean selected, View.OnClickListener onClick) {
         LinearLayout tile = new LinearLayout(this);
         tile.setOrientation(LinearLayout.VERTICAL);
@@ -1217,7 +1167,7 @@ public class MainActivity extends Activity {
         swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(holderSize, holderSize));
 
         if (selected) {
-            // هالة رفيعة حول الدائرة بدل إطار سميك على اللون نفسه — نفس شكل جوجل بورد عند التحديد.
+
             GradientDrawable ring = new GradientDrawable();
             ring.setShape(GradientDrawable.OVAL);
             ring.setColor(Color.TRANSPARENT);
@@ -1268,14 +1218,12 @@ public class MainActivity extends Activity {
         return tile;
     }
 
-    /** بطاقة معاينة لخط الحروف: حرف نموذجي مرسوم فعلياً بالخط المختار. */
     private View createFontPreviewTile(String label, Typeface typeface, boolean selected, View.OnClickListener onClick) {
         LinearLayout tile = new LinearLayout(this);
         tile.setOrientation(LinearLayout.VERTICAL);
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
         tile.setOnClickListener(onClick);
 
-        // أصغر من قبل (كانت 76×66) حتى تنسجم مع بقية البطاقات المصغّرة.
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(62), dp(54)));
         holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 13));
@@ -1323,7 +1271,6 @@ public class MainActivity extends Activity {
         return tile;
     }
 
-    /** بطاقة معاينة لشكل المفاتيح: مربعان صغيران بنفس استدارة الشكل المختار. */
     private View createKeyStylePreviewTile(String label, int styleId, boolean selected, View.OnClickListener onClick) {
         LinearLayout tile = new LinearLayout(this);
         tile.setOrientation(LinearLayout.VERTICAL);
@@ -1336,7 +1283,7 @@ public class MainActivity extends Activity {
         holder.setElevation(selected ? dp(3) : dp(1));
         holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // إطار الاختيار فوق المعاينة + شارة ✓ زرقاء
+
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
@@ -1371,8 +1318,6 @@ public class MainActivity extends Activity {
         return tile;
     }
 
-    /** يرتب قائمة بطاقات في شبكة صفوف متساوية العرض، بعدد أعمدة محدد، داخل الحاوية المعطاة.
-     *  فيه تباعد أفقي بسيط بين البطاقات نفسها (مو بس بين الصفوف) حتى تبين كل بطاقة منفصلة ومودرن أكثر. */
     private void addTileGrid(LinearLayout container, List<View> tiles, int perRow) {
         for (int i = 0; i < tiles.size(); i += perRow) {
             LinearLayout row = new LinearLayout(this);
@@ -1418,7 +1363,6 @@ public class MainActivity extends Activity {
                 checked -> prefs.setAutoCorrectEnabled(checked)
         ));
 
-        // إعدادات الاقتراحات (زر المايك، رمز التحقق من الرسائل)
         root.addView(createSwitchTile(
                 tr("زر الكتابة بالصوت (المايك)", "Voice typing button (mic)"),
                 tr("يظهر على يمين صف الاقتراحات؛ اضغطه وتكلم ويكتب الكلام. يحتاج إذن الميكروفون واتصالاً بالإنترنت غالباً", "Shows on the right of the suggestion row; tap it and speak to type. Needs mic permission and usually an internet connection"),
@@ -1500,7 +1444,6 @@ public class MainActivity extends Activity {
         });
         trainCard.addView(btnClear);
 
-        // قائمة الكلمات المتعلمة في نافذة مستقلة (فتح/إغلاق + بحث)
         root.addView(trainCard);
         root.addView(createMenuRow(
                 ModernIconView.ICON_SLIDERS_PREFS,
@@ -1510,7 +1453,6 @@ public class MainActivity extends Activity {
                 this::openLearnedWordsScreen));
     }
 
-    /** نافذة الكلمات المتعلمة: مربع بحث وقائمة، والرجوع يعيد لشاشة التصحيح. */
     private void openLearnedWordsScreen() {
         LinearLayout root = createSubScreenTemplate(tr("الكلمات المتعلمة", "Learned words"), this::openCorrectionsAndMemoryScreen);
         final LinearLayout learnedListMount = new LinearLayout(this);
@@ -1628,7 +1570,6 @@ public class MainActivity extends Activity {
         fillEmojiScreen(root);
     }
 
-    /** تحديث الشاشة في مكانها بعد اختيار (بدون إعادة بناء الصفحة كلها: لا وميض ولا قفز بالسكرول). */
     private void refreshEmojiScreen(LinearLayout root) {
         root.removeViews(1, root.getChildCount() - 1);
         fillEmojiScreen(root);
@@ -1669,7 +1610,6 @@ public class MainActivity extends Activity {
         sizeCard.addView(sizeSeek);
         root.addView(sizeCard);
 
-        // لون وشفافية كبسولتي "أبجد"/الحذف العائمتين في نافذتي الرموز والحافظة
         LinearLayout capsuleCard = createGroupedWhiteCard();
         capsuleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView capsuleHeader = new TextView(this);
@@ -1680,7 +1620,6 @@ public class MainActivity extends Activity {
         capsuleHeader.setPadding(0, 0, 0, dp(10));
         capsuleCard.addView(capsuleHeader);
 
-        // معاينة حية: تطلع بنفس شكل الكبسولة العائمة الفعلي (لون + شفافية) وتتحدث فوراً مع أي تغيير.
         FrameLayout previewHolder = new FrameLayout(this);
         previewHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
         GradientDrawable previewBg = new GradientDrawable();
@@ -1702,14 +1641,12 @@ public class MainActivity extends Activity {
         previewHolder.addView(previewCapsule);
         capsuleCard.addView(previewHolder);
 
-        // "نفس لون زر الرجوع" = قيمة خاصة (-1) تعني الكبسولة تاخذ لون النص المعكوس (أبيض بسمة غامقة،
-        // أسود بسمة فاتحة) بدل لون ثابت، مطابقةً لزر الرجوع في نفس النافذة بالضبط.
         boolean darkThemeNow = prefs.getThemeMode() != KeyboardPreferences.THEME_GBOARD_WHITE;
         final String followBackHex = darkThemeNow ? "#F8FAFC" : "#1E293B";
         String[] capsuleNames = tr(
                 new String[]{"أسود", "أبيض", "رمادي فاتح"},
                 new String[]{"Black", "White", "Light gray"});
-        // الرمادي الفاتح بتدرّج أوضح (مو قريب من الأبيض) حتى يبقى متميز عن "أبيض" حتى مع شفافية عالية.
+
         String[] capsuleHex = {"#000000", "#FFFFFF", "#9CA3AF"};
         final int FOLLOW_BACK = KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL;
         List<View> capsuleTiles = new ArrayList<>();
@@ -1775,8 +1712,6 @@ public class MainActivity extends Activity {
         clearCard.addView(clearBtn);
         root.addView(clearCard);
 
-        // ===== تبويب GIF (بحث وإرسال صور متحركة من GIPHY) يحتاج مفتاح API مجاني من المستخدم =====
-        // (كنا نستخدم Tenor، لكن جوجل أوقفت خدمتها للمطورين بتاريخ 30 يونيو 2026)
         LinearLayout gifCard = createGroupedWhiteCard();
         gifCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView gifHeader = new TextView(this);
@@ -1806,8 +1741,6 @@ public class MainActivity extends Activity {
         gifDesc.setPadding(0, 0, 0, dp(10));
         gifCard.addView(gifDesc);
 
-        // رابط صفحة التسجيل الفعلية (sign up) وليس لوحة التحكم (dashboard) — هذا أول شي يحتاجه
-        // مستخدم ما عنده حساب GIPHY أصلاً. قابل للنسخ بالضغط عليه مباشرة (بدون فتح متصفح).
         TextView gifSignupLabel = new TextView(this);
         gifSignupLabel.setText(tr("رابط التسجيل (اضغط لنسخه):", "Sign-up link (tap to copy):"));
         gifSignupLabel.setTextColor(Color.parseColor("#6B7280"));
@@ -1903,8 +1836,7 @@ public class MainActivity extends Activity {
         dirHeader.setTypeface(Typeface.DEFAULT_BOLD);
         dirHeader.setPadding(0, 0, 0, dp(8));
         dirCard.addView(dirHeader);
-        // استخدمنا مثلثات (▶ ◀) بدل أسهم الطباعة (→ ←) لأن بعض الخطوط ترسم السهمين بحجمين مختلفين
-        // فعلياً رغم نفس حجم النص؛ المثلثات شكلها متماثل تماماً بأي خط، فيضمن تطابق الحجم بصرياً.
+
         dirCard.addView(createExclusiveRadioList(
                 tr(new String[]{"من اليسار لليمين  ▶", "من اليمين لليسار  ◀"},
                    new String[]{"Left to right  ▶", "Right to left  ◀"}),
@@ -1918,8 +1850,6 @@ public class MainActivity extends Activity {
         dirNote.setPadding(0, dp(8), 0, 0);
         dirCard.addView(dirNote);
         root.addView(dirCard);
-
-        // خيار "التبديل بسحب زر المسافة" انتقل لصفحة اللغة (بجانب اختيار اللغات المفعّلة).
 
         root.addView(createSwitchTile(
                 tr("تحريك المؤشر بالضغط المستمر على زر المسافة", "Move the cursor by holding and dragging the space bar"),
@@ -2068,7 +1998,6 @@ public class MainActivity extends Activity {
     private void openClipboardScreen() {
         LinearLayout root = createSubScreenTemplate(tr("الحافظة الذكية (Clipboard)", "Smart Clipboard"));
 
-        // إعدادات الحافظة (لقطة الشاشة، آخر نص منسوخ، مدة الحذف)
         root.addView(createSwitchTile(
                 tr("حفظ آخر لقطة شاشة في الحافظة", "Save last screenshot to clipboard"),
                 tr("تظهر مصغّرة واحدة فقط في قائمة الحافظة، وكل لقطة جديدة تحل محل السابقة. تحتاج إذن الوصول للصور", "Shows a single thumbnail in the clipboard list; each new screenshot replaces the last. Needs photos permission"),
@@ -2091,7 +2020,6 @@ public class MainActivity extends Activity {
         ));
 
         root.addView(createClipRetentionTile());
-
 
         LinearLayout card = createGroupedWhiteCard();
         card.setPadding(dp(16), dp(16), dp(16), dp(16));

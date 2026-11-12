@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
 
-/** نافذة شفافة تطلب إذن الميكروفون للكتابة بالصوت (الكيبورد نفسه ما يقدر يطلب الأذونات) ثم تُغلق. */
 public class MicPermissionActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

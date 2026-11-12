@@ -11,16 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * إدارة تفضيلات الكيبورد الشاملة (الإصدار 7.0):
- * - إضافة خيار تفعيل أو إيقاف البوب أب عند الضغط على الحروف (Key Press Popup).
- * - حفظ الرموز التعبيرية المستخدمة حديثاً (Recent Emojis).
- * - حفظ إعدادات الصوت والسمات والأشكال والاختصارات.
- */
 public class KeyboardPreferences {
 
-    /** مدة صلاحية رمز OTP المكتشف (SMS أو إشعار واتساب) قبل يختفي تلقائياً — مصدر واحد مشترك
-     *  حتى لا نكتب "5 دقائق" رقماً منفصلاً بكل مكان ونخاطر نغيّر واحد وننسى الثاني. */
     public static final long OTP_VALIDITY_MS = 5 * 60 * 1000L;
 
     public static final int THEME_BLACKBERRY_DARK = 0;
@@ -38,7 +30,6 @@ public class KeyboardPreferences {
     public static final int STYLE_SOFT_RAISED = 8;
     public static final int STYLE_CIRCLES = 9;
     public static final int STYLE_GLASS = 10;
-    // (رقم 5 "مستدير جداً" كان مكرراً مع "كبسولات" فأُزيل، ومن كان مختاره ينتقل لكبسولات)
 
     public static final int SOUND_PROFILE_BB_CLASSIC = 0;
     public static final int SOUND_PROFILE_BB_Q10_SOFT = 1;
@@ -66,9 +57,6 @@ public class KeyboardPreferences {
         removeDefaultShortcutsOnce();
     }
 
-    // كانت النسخ القديمة تضيف اختصارات جاهزة تلقائياً (سع، جخ، اشل...). هذا تنظيف لمرة وحدة
-    // يشيلها من أي تركيب قديم فيه هالاختصارات محفوظة، بدون ما يمسح أي اختصار المستخدم ضافه بنفسه
-    // بنفس المفتاح (نتأكد النص مطابق تماماً للقيمة الافتراضية القديمة قبل الحذف).
     private void removeDefaultShortcutsOnce() {
         if (prefs.contains("default_shortcuts_removed_v7")) return;
         Map<String, String> oldDefaults = new LinkedHashMap<>();
@@ -99,7 +87,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("key_preview_popup_enabled", enabled).apply();
     }
 
-    /** اقتراح رمز التحقق (OTP) تلقائياً من الرسائل الجديدة؛ يتطلب صلاحية قراءة الرسائل ويكون معطّلاً افتراضياً. */
     public boolean isOtpSuggestEnabled() {
         return prefs.getBoolean("otp_suggest_enabled", false);
     }
@@ -108,7 +95,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("otp_suggest_enabled", enabled).apply();
     }
 
-    /** اقتراح رمز التحقق تلقائياً من إشعارات واتساب؛ يتطلب صلاحية "الوصول للإشعارات" ويكون معطّلاً افتراضياً. */
     public boolean isWhatsAppOtpSuggestEnabled() {
         return prefs.getBoolean("whatsapp_otp_suggest_enabled", false);
     }
@@ -117,7 +103,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("whatsapp_otp_suggest_enabled", enabled).apply();
     }
 
-    /** رمز تحقق واتساب المكتشف من آخر إشعار (من WhatsAppOtpListenerService)، صالح 5 دقائق فقط ثم يختفي تلقائياً. */
     public void setPendingWhatsAppOtp(String code) {
         prefs.edit().putString("pending_wa_otp_code", code)
                 .putLong("pending_wa_otp_time", System.currentTimeMillis()).apply();
@@ -171,7 +156,6 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
-    /** آخر صور GIF أرسلتها (أحدث وحده أول)، كل عنصر {previewUrl, fullUrl}، تُعرض بأول صفّين قبل الترند. */
     public List<String[]> getRecentGifs() {
         List<String[]> list = new ArrayList<>();
         try {
@@ -203,7 +187,6 @@ public class KeyboardPreferences {
         saveRecentGifs(current);
     }
 
-    /** يحذف GIF واحد من قائمة "آخر ما استخدمته" (ضغطة مطوّلة على أي وحدة بالقسم). */
     public void removeRecentGif(String fullUrl) {
         if (fullUrl == null || fullUrl.isEmpty()) return;
         List<String[]> current = new ArrayList<>(getRecentGifs());
@@ -226,7 +209,6 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
-    /** مفتاح GIPHY API (مجاني من حساب المطوّر بـ developers.giphy.com)، مطلوب حتى يشتغل تبويب GIF. */
     public String getGiphyApiKey() {
         return prefs.getString("giphy_api_key", "");
     }
@@ -235,7 +217,6 @@ public class KeyboardPreferences {
         prefs.edit().putString("giphy_api_key", key == null ? "" : key.trim()).apply();
     }
 
-    /** حجم خط الاقتراحات: 0 = بدون تكبير، 1..5 = أكبر بـ 8% لكل درجة (حتى 140%). الافتراضي +3. */
     public int getSuggestionTextLevel() {
         return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 3)));
     }
@@ -279,8 +260,6 @@ public class KeyboardPreferences {
         prefs.edit().putInt("theme_mode", mode).apply();
     }
 
-    /** يسجّل مستمعاً يُنادى فوراً (نداء داخلي بالذاكرة، بدون أي IPC) لما يتغيّر أي إعداد — يُستخدم
-     *  لتحديث مظهر الكيبورد لحظياً وهو مفتوح، بدل الانتظار لحد يُقفل ويُفتح من جديد. */
     public void registerChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
         prefs.registerOnSharedPreferenceChangeListener(listener);
     }
@@ -294,21 +273,17 @@ public class KeyboardPreferences {
         return style == STYLE_GBOARD_SOFT_ROUND ? STYLE_MODERN_PILL : style;
     }
 
-    /** لون كبسولة زر الإدخال (ARGB)، أو 0 = لون الكيبورد الافتراضي. */
     public int getEnterColor() {
         int c = prefs.getInt("enter_color", 0);
-        return c == 0xFF2563EB ? 0xFF8AB4F8 : c; // الأزرق القديم صار أزرق فاتح (مثل جي بورد)
+        return c == 0xFF2563EB ? 0xFF8AB4F8 : c;
     }
 
     public void setEnterColor(int color) {
         prefs.edit().putInt("enter_color", color).apply();
     }
 
-    /** قيمة خاصة لـ getFloatingCapsuleColor: الكبسولة تاخذ لون النص المعكوس (مثل زر الرجوع) بدل لون ثابت. */
     public static final int FLOATING_CAPSULE_FOLLOW_LABEL = -1;
 
-    /** لون كبسولتي "أبجد"/الحذف العائمتين في نافذتي الرموز والحافظة (RGB بدون ألفا)، أو
-     * FLOATING_CAPSULE_FOLLOW_LABEL لتتبع لون زر الرجوع. افتراضي: أسود. */
     public int getFloatingCapsuleColor() {
         return prefs.getInt("floating_capsule_color", 0x000000);
     }
@@ -317,7 +292,6 @@ public class KeyboardPreferences {
         prefs.edit().putInt("floating_capsule_color", rgb).apply();
     }
 
-    /** مستوى عتامة الكبسولة العائمة (0-100)، يتحكم فيه المستخدم بنفسه. افتراضي 85%. */
     public int getFloatingCapsuleOpacity() {
         return prefs.getInt("floating_capsule_opacity", 85);
     }
@@ -331,10 +305,9 @@ public class KeyboardPreferences {
         prefs.edit().putInt("keyboard_style", style).apply();
     }
 
-    // خط حروف الكيبورد: 0 = افتراضي النظام، 1 = Tajawal، 2 = Almarai (كلاهما يدعم العربي والإنجليزي)
     public static final int FONT_SYSTEM_DEFAULT = 0;
-    public static final int FONT_TAJAWAL = 1; // Tajawal Bold
-    public static final int FONT_ALMARAI = 2; // Almarai Bold
+    public static final int FONT_TAJAWAL = 1;
+    public static final int FONT_ALMARAI = 2;
     public static final int FONT_SYSTEM_DEFAULT_BOLD = 3;
     public static final int FONT_TAJAWAL_REGULAR = 4;
     public static final int FONT_ALMARAI_REGULAR = 5;
@@ -454,7 +427,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_up_anim_enabled", enabled).apply();
     }
 
-    /** اتجاه السحب للمسح: 0 = من اليسار لليمين (الافتراضي)، 1 = من اليمين لليسار. */
     public int getSwipeDeleteDirection() {
         return prefs.getInt("swipe_delete_direction", 0);
     }
@@ -463,7 +435,6 @@ public class KeyboardPreferences {
         prefs.edit().putInt("swipe_delete_direction", dir == 1 ? 1 : 0).apply();
     }
 
-    /** سحبة تحديد كل النص: دائماً بالاتجاه المعاكس لاتجاه سحبة المسح (حتى ما تتعارض الحركتين أبداً). */
     public boolean isSwipeSelectAllEnabled() {
         return prefs.getBoolean("swipe_select_all_enabled", true);
     }
@@ -472,7 +443,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_select_all_enabled", enabled).apply();
     }
 
-    /** سحبة للأسفل: نسخ النص المحدد، وتتحول للصق تلقائياً لمدة دقيقة بعد كل نسخة. */
     public boolean isSwipeDownCopyPasteEnabled() {
         return prefs.getBoolean("swipe_down_copy_paste_enabled", true);
     }
@@ -481,7 +451,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_down_copy_paste_enabled", enabled).apply();
     }
 
-    /** أنيميشن ارتداد الزر نفسه عند الضغط عليه (ينضغط ثم يرتد لحجمه الطبيعي). */
     public boolean isKeyBounceAnimationEnabled() {
         return prefs.getBoolean("key_bounce_anim_enabled", false);
     }
@@ -512,7 +481,6 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
-    /** إظهار صف الأرقام تلقائياً في حقول كلمات المرور. */
     public boolean isNumberRowForPasswords() {
         return prefs.getBoolean("number_row_for_passwords", true);
     }
@@ -529,7 +497,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("number_row_enabled", enabled).apply();
     }
 
-    /** أرقام عربية هندية (١٢٣) في صف الأرقام العربي. */
     public boolean isArabicIndicDigits() {
         return prefs.getBoolean("arabic_indic_digits", false);
     }
@@ -538,7 +505,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("arabic_indic_digits", enabled).apply();
     }
 
-    /** حفظ مصغّرة آخر لقطة شاشة في الحافظة (تحتاج إذن الصور). */
     public boolean isScreenshotClipEnabled() {
         return prefs.getBoolean("screenshot_clip_enabled", false);
     }
@@ -547,9 +513,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("screenshot_clip_enabled", enabled).apply();
     }
 
-    // ===== اللغات =====
-
-    /** اللغات المفعّلة: 0 العربية والإنجليزية (تبديل بالسحب)، 1 عربي فقط، 2 إنجليزي فقط (لا تبديل). */
     public int getLanguageMode() {
         return prefs.getInt("language_mode", LANGUAGE_MODE_BOTH);
     }
@@ -558,9 +521,6 @@ public class KeyboardPreferences {
         prefs.edit().putInt("language_mode", mode).apply();
     }
 
-    // ===== الكتابة بالصوت =====
-
-    /** زر المايك في صف الاقتراحات (يمين الصف). */
     public boolean isVoiceButtonEnabled() {
         return prefs.getBoolean("voice_button_enabled", true);
     }
@@ -569,9 +529,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("voice_button_enabled", enabled).apply();
     }
 
-    // ===== الحافظة =====
-
-    /** إظهار آخر نص/رقم منسوخ في خانة الاقتراح الوسطى لمدة قصيرة (مثل جي بورد). */
     public boolean isClipChipEnabled() {
         return prefs.getBoolean("clip_chip_enabled", true);
     }
@@ -580,10 +537,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("clip_chip_enabled", enabled).apply();
     }
 
-    /**
-     * مدة بقاء النصوص غير المثبتة ولقطة الشاشة في الحافظة بالساعات (0 = لا حذف تلقائي). الافتراضي 168 (أسبوع).
-     * من اختار قبل كذا مدة بالأيام تنتقل قيمته تلقائياً.
-     */
     public int getClipRetentionHours() {
         if (prefs.contains("clip_retention_hours")) return prefs.getInt("clip_retention_hours", 168);
         if (prefs.contains("clip_retention_days")) return prefs.getInt("clip_retention_days", 7) * 24;
@@ -594,7 +547,6 @@ public class KeyboardPreferences {
         prefs.edit().putInt("clip_retention_hours", hours).apply();
     }
 
-    /** وضع التخفي: لا يتعلم كلمات ولا يحفظ الحافظة. */
     public boolean isIncognitoMode() {
         return prefs.getBoolean("incognito_mode", false);
     }
@@ -603,7 +555,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("incognito_mode", enabled).apply();
     }
 
-    /** وضع اليد الواحدة: 0 = معطّل، 1 = لليسار، 2 = لليمين. */
     public int getOneHandedMode() {
         return prefs.getInt("one_handed_mode", 0);
     }
@@ -628,7 +579,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("space_swipe_lang_enabled", enabled).apply();
     }
 
-    /** الضغط المستمر على زر المسافة ثم السحب يحرّك المؤشر حرفاً حرفاً؛ لا يتعارض مع سحب تبديل اللغة السريع. */
     public boolean isSpaceCursorDragEnabled() {
         return prefs.getBoolean("space_cursor_drag_enabled", true);
     }
@@ -637,8 +587,6 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("space_cursor_drag_enabled", enabled).apply();
     }
 
-    /** تصحيح تلقائي صامت: يستبدل الكلمة بأقرب كلمة صحيحة معروفة عند الضغط على مسافة، بدون أي لمس يدوي.
-     *  معطّل افتراضياً؛ عند إيقافه يعود السلوك لاقتراح التصحيح اليدوي (تلمسه أو تسحبه لتقبله). */
     public boolean isAutoCorrectEnabled() {
         return prefs.getBoolean("auto_correct_enabled", false);
     }
@@ -720,10 +668,6 @@ public class KeyboardPreferences {
         } catch (Exception ignored) {}
     }
 
-    /**
-     * الكلمات الثابتة التي تظهر كاقتراحات افتراضية قبل ما تكتب أي شيء يمكن إزالتها بضغطة مطولة،
-     * فتُستبعد نهائياً ويحل محلها كلمة أخرى أكثر استخداماً.
-     */
     public java.util.Set<String> getDismissedDefaultWords(boolean arabic) {
         String key = arabic ? "dismissed_defaults_ar" : "dismissed_defaults_en";
         String raw = prefs.getString(key, "");

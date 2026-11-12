@@ -7,11 +7,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/** يحمّل ملف GIF كامل (مو المصغّرة) لمجلد كاش مؤقت حتى يُرسل للمحادثة عبر commitContent. */
 final class GifDownloadCache {
     private GifDownloadCache() {}
 
-    // حد أقصى لمجلد الكاش: 60 ملف أو 40 ميجا، أيهما يوصل أول حد يحذف الأقدم.
     private static final int MAX_FILES = 60;
     private static final long MAX_BYTES = 40L * 1024 * 1024;
 
@@ -21,7 +19,6 @@ final class GifDownloadCache {
         return d;
     }
 
-    /** يحمّل الـGIF من رابطه لملف محلي ويرجع اسم الملف، أو null لو فشل. يُستدعى بخيط خلفي. */
     static String downloadBlocking(Context c, String url) {
         HttpURLConnection conn = null;
         try {
@@ -47,7 +44,6 @@ final class GifDownloadCache {
         }
     }
 
-    /** يحذف أقدم ملفات مجلد الكاش حتى يرجع تحت حد عدد الملفات/الحجم المسموح. */
     private static void pruneIfNeeded(File dir) {
         try {
             File[] files = dir.listFiles();
