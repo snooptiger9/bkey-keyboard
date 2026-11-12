@@ -34,6 +34,8 @@
 
   ![سحب للأسفل للنسخ](docs/gifs/swipe_copy.gif)
 - ضغط مطوّل + سحب على زر المسافة: تحريك المؤشر حرفاً حرفاً.
+
+  ![ضغط مطوّل وسحب زر المسافة لتحريك المؤشر](docs/gifs/cursor_move.gif)
 - سحب زر المسافة يميناً/يساراً: تبديل اللغة (عربي/إنجليزي) بدون زر 🌐 منفصل.
 - ضغط مطوّل على أي حرف: بوب أب الحروف البديلة (حركات، حروف أجنبية...).
 
@@ -125,6 +127,8 @@ with a carefully tailored experience for each.
 
   ![Swipe down to copy](docs/gifs/swipe_copy.gif)
 - Press-and-hold + drag the space bar: move the cursor character by character.
+
+  ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif)
 - Swipe the space bar left/right: switch language (Arabic/English) without a separate 🌐 button.
 - Long-press any key: popup with alternate characters (diacritics, accented letters...).
 
