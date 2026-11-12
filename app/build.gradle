@@ -21,8 +21,8 @@ android {
         targetSdk 34
         // versionCode/versionName يتبعان نفس ترقيم vNNN اللي يُسلَّم بيه كل بناء (ظاهر بإعدادات أندرويد
         // > التطبيقات، حتى يطابق الرقم اللي يشوفه المستخدم عند كل نسخة جديدة بدون لخبطة بين الترقيمين).
-        versionCode 186
-        versionName "186.0"
+        versionCode 187
+        versionName "187.0"
     }
 
     signingConfigs {
