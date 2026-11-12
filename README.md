@@ -106,9 +106,9 @@
 > 2. اضغط صورة حسابك بأعلى يمين الشاشة.
 > 3. اختر **Play Protect**.
 > 4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.
-> 5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?» وفيها خياران: **Pause** (توقيف مؤقت، يرجع يشتغل لوحده تلقائياً بعد يوم) أو **Turn off** (إيقاف كامل لين ترجعه بنفسك). اختر أيهما تريح له بالك — **Pause** أسهل لأنه يرجع يشتغل لوحده.
+> 5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?»، اختر **Pause**.
 > 6. رجع لشاشة OTP داخل التطبيق واضغط زر تحميل التحديث، وثبّته.
-> 7. إذا اخترت **Turn off**، رجّع تشغيل الخيار بعدها بنفسك من نفس الشاشة (يفضّل يضل شغّال دايماً لباقي تطبيقاتك). وإذا اخترت **Pause** فما تحتاج تسوي شي، يرجع يشتغل لوحده تلقائياً.
+> 7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التحديث (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
 >
 > التحديث متوفر فقط من داخل التطبيق، وبما إنه تحديث لنفس التطبيق (نفس هوية التطبيق)، يثبّت فوق النسخة الأساسية مباشرة ويحتفظ بكل إعداداتك — ما يصير تطبيق ثاني منفصل.
 
@@ -224,9 +224,9 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 > 2. Tap your profile picture, top right.
 > 3. Tap **Play Protect**.
 > 4. Tap the ⚙️ settings icon, top right.
-> 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?" with two options: **Pause** (temporary, turns itself back on automatically after a day) or **Turn off** (stays off until you turn it back on yourself). Pick whichever you're more comfortable with — **Pause** is simpler since it re-enables itself.
+> 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
 > 6. Go back to the OTP screen in the app, tap the download button, and install it.
-> 7. If you chose **Turn off**, turn the setting back on yourself afterward from that same screen (recommended to keep it on for your other apps). If you chose **Pause**, there's nothing to do — it turns itself back on automatically.
+> 7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after the update (recommended to keep it on for your other apps).
 >
 > The update is only available from inside the app, and since it's an update to the same app (same app identity), it installs right over the base version and keeps all your settings — it never becomes a second, separate app.
 
