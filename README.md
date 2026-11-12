@@ -76,7 +76,6 @@
 
 ### 📥 التحميل
 
-رابط ثابت يحمّل **آخر نسخة APK موقّعة دائماً** بدون أي تحديث يدوي — يتحدث تلقائياً مع كل بناء جديد:
 
 **[⬇️ تحميل آخر نسخة APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
