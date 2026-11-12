@@ -25,6 +25,22 @@ jobs:
       - name: Point Gradle at the runner's preinstalled Android SDK
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
 
+      # كلمة سر التوقيع ما تُحفظ بالمستودع أبداً، تُجلب من GitHub Secrets وقت البناء فقط وتُكتب
+      # بملف مؤقت على رنر CI (ما يصير commit له أبداً، يروح مع نهاية الـjob).
+      - name: Write keystore.properties from secret
+        env:
+          BKEY_KEYSTORE_PASSWORD: ${{ secrets.BKEY_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$BKEY_KEYSTORE_PASSWORD" ]; then
+            echo "::error::Secret BKEY_KEYSTORE_PASSWORD غير موجود — أضفه من Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          cat > app/keystore.properties <<EOF
+          storePassword=$BKEY_KEYSTORE_PASSWORD
+          keyAlias=bkeyalias
+          keyPassword=$BKEY_KEYSTORE_PASSWORD
+          EOF
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
