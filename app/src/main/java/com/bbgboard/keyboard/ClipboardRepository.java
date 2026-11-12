@@ -16,10 +16,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
-/**
- * قائمة الحافظة. النصوص تُخزَّن مشفّرة (AES-GCM بمفتاح داخل Android Keystore لا يخرج من الجهاز)،
- * وكل نص له وقت إضافة ليُحذف تلقائياً بعد المدة المختارة (المثبّت لا يُحذف أبداً).
- */
 public class ClipboardRepository {
 
     public static class ClipEntry {
@@ -47,14 +43,12 @@ public class ClipboardRepository {
     private final KeyboardPreferences keyboardPrefs;
     private final List<ClipEntry> items = new ArrayList<>();
 
-    // مفتاح AES من Android Keystore يُخزَّن مؤقتاً هنا (لنفس العملية) حتى لا نكرر نداء Keystore
-    // (IPC فعلي مع خدمة النظام) في كل عملية قراءة/كتابة — وهو الجزء المكلف فعلاً، وليس فك تشفير JSON.
     private static volatile SecretKey cachedKey;
 
     public ClipboardRepository(Context context) {
         this.prefs = context.getSharedPreferences("bb_keyboard_clipboard_prefs", Context.MODE_PRIVATE);
         this.keyboardPrefs = new KeyboardPreferences(context);
-        // الجمل الافتراضية تُضاف مرة واحدة فقط لمن لا توجد عنده حافظة محفوظة، ولا تعود بعد حذفها
+
         boolean firstRun = !prefs.contains(KEY_PLAIN) && !prefs.contains(KEY_ENC);
         load();
         if (!prefs.getBoolean("seeded_v14", false)) {
@@ -66,7 +60,7 @@ public class ClipboardRepository {
             }
             prefs.edit().putBoolean("seeded_v14", true).apply();
         }
-        // ترحيل النسخة القديمة غير المشفرة (إن وُجدت) إلى المشفرة
+
         if (prefs.contains(KEY_PLAIN)) {
             save();
         }
@@ -80,7 +74,6 @@ public class ClipboardRepository {
         return sorted;
     }
 
-    /** يحذف النصوص غير المثبتة الأقدم من المدة المختارة. يرجع true إذا حذف شيئاً. */
     private boolean pruneOld() {
         int hours = keyboardPrefs.getClipRetentionHours();
         if (hours <= 0) return false;
@@ -165,9 +158,9 @@ public class ClipboardRepository {
             SharedPreferences.Editor ed = prefs.edit();
             if (enc != null) {
                 ed.putString(KEY_ENC, enc);
-                ed.remove(KEY_PLAIN); // لا نُبقي نسخة نصية صريحة
+                ed.remove(KEY_PLAIN);
             } else {
-                // Keystore غير متاح (نادر): نحافظ على الوظيفة بدل فقدان البيانات
+
                 ed.putString(KEY_PLAIN, json);
             }
             ed.apply();
@@ -192,14 +185,12 @@ public class ClipboardRepository {
                 JSONObject o = arr.getJSONObject(i);
                 String t = o.optString("text", "");
                 if (!t.isEmpty()) {
-                    // النصوص القديمة بلا وقت تُعتبر مضافة الآن (لا تُحذف فجأة عند أول تحديث)
+
                     items.add(new ClipEntry(t, o.optBoolean("pinned", false), o.optLong("time", migrated)));
                 }
             }
         } catch (Exception ignored) {}
     }
-
-    // ===== التشفير =====
 
     private static SecretKey getKey() throws Exception {
         SecretKey k = cachedKey;

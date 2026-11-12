@@ -16,10 +16,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** عميل بسيط لـ GIPHY API (بحث وترند صور GIF). كل الطلبات على خيط خلفي والنتيجة ترجع بخيط الواجهة.
- *  (استبدلنا Tenor بعد ما جوجل أوقفت خدمته للمطورين بتاريخ 30 يونيو 2026). */
 final class GiphyClient {
-    // خيط daemon (زي باقي خيوط التطبيق الخلفية) حتى لا يمنع إنهاء العملية لو ظل بانتظار شبكة بطيئة.
+
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "bkey-gif-fetch");
         t.setDaemon(true);
@@ -29,8 +27,8 @@ final class GiphyClient {
     private static final String BASE = "https://api.giphy.com/v1/gifs/";
 
     static final class GifResult {
-        final String previewUrl; // نسخة صغيرة لعرضها بالشبكة (fixed_width)
-        final String fullUrl;    // النسخة الكاملة اللي ترسل بالمحادثة (original)
+        final String previewUrl;
+        final String fullUrl;
         GifResult(String previewUrl, String fullUrl) {
             this.previewUrl = previewUrl;
             this.fullUrl = fullUrl;

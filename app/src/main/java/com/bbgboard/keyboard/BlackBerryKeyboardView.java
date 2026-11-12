@@ -25,14 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * واجهة الكيبورد المتقدمة (الإصدار 7.0):
- * 1. إبطاء أنميشن طيران الكلمة (520ms) وزيادة وضوح الكلمة الطائرة عبر خلفية كبسولة بارزة وخط عريض واضح.
- * 2. حذف الأرقام العربية من أزرار الحروف العربية.
- * 3. تصغير لوقو الرمز التعبيري (😊) في الصف السفلي ليتناسق مع الأزرار.
- * 4. إضافة بوب أب معاينة الحرف عند اللمس (Key Press Popup) مع خيار لتفعيله أو إيقافه.
- * 5. إضافة بوب أب الخيارات المتعددة عند الضغط المطول على الحروف العربية لاختيار التشكيل أو الهمزات باللمس أو التمرير.
- */
 public class BlackBerryKeyboardView extends View {
 
     public enum KeyType {
@@ -72,21 +64,21 @@ public class BlackBerryKeyboardView extends View {
         void onCharacterTyped(String text);
         void onBackspaceSingle();
         boolean onSwipeLeftDeleteWord();
-        /** سحبة من اليمين لليسار (الاتجاه المعاكس تماماً لسحبة المسح) لتحديد كل النص المكتوب. */
+
         boolean onSwipeSelectAll();
-        /** سحبة للأسفل: نسخ النص المحدد (أو لصق إذا كنا بعد النسخ مباشرة بفترة اللصق المؤقتة). */
+
         boolean onSwipeDownCopyPaste();
         void onSwipeUpSuggestion(int zoneIndex);
         void onEnterKey();
         void onToggleClipboardMenu();
-        /** ضغط زر المايك (الكتابة بالصوت) في صف الاقتراحات. */
+
         void onVoiceInputRequested();
         void onToggleEmoji();
         void onLanguageChanged(boolean isArabic);
         void onSuggestionLongPress(int slotIndex, String word);
-        /** خطوة واحدة لتحريك المؤشر من سحب زر المسافة (true = يمين بصرياً، false = يسار بصرياً). */
+
         void onCursorStep(boolean moveRight);
-        /** المستخدم لمس زر الإيموجي وهو يعرض اقتراحاً — يُدرج هذا الإيموجي مباشرة بدل فتح قائمة الإيموجي. */
+
         void onEmojiSuggestionAccepted(String emoji);
     }
 
@@ -107,18 +99,14 @@ public class BlackBerryKeyboardView extends View {
     private final RectF[] suggestionRects = new RectF[]{new RectF(), new RectF(), new RectF()};
     private final RectF resizeHandleBarRect = new RectF();
     private boolean menuButtonPressed = false;
-    // زر المايك (الكتابة بالصوت) على يمين صف الاقتراحات، بنفس مساحة زر الحافظة على اليسار
+
     private final RectF micButtonRect = new RectF();
     private boolean micButtonPressed = false;
     private boolean voiceEnabled = true;
     private boolean voiceListening = false;
 
-    // الشريط المختصر (toolbar) قبل بدء الكتابة: تبين أيقونة ضبط الارتفاع بدل الخانة الوسطى من
-    // الاقتراحات، بنفس فكرة جي بورد قبل أي كتابة بالحقل. أيقونة زر الدرج نفسها ثابتة (لا تتبدّل)
-    // في الحالتين، قبل الكتابة وأثناءها.
     private boolean toolbarIdleMode = false;
 
-    // 1. متغيرات أنميشن الكلمة الطائرة (أبطأ وأكثر وضوحاً: 520ms)
     private PopupWindow topOverlayPopup;
     private TopOverlayCanvasView topOverlayView;
     private String flyingWordText = null;
@@ -128,40 +116,34 @@ public class BlackBerryKeyboardView extends View {
     private int animatingSlotIndex = -1;
     private static final long FLY_OUTSIDE_DURATION_MS = 820L;
 
-    // 7. متغيرات بوب أب معاينة الحرف عند الضغط (Key Press Preview Popup)
     private KeyDef activePreviewKey = null;
-    /** عمل يُنفَّذ مباشرة بعد رسم الإطار الحالي (انظر ACTION_UP). */
+
     private Runnable afterDrawAction = null;
 
-    // 8. متغيرات بوب أب الخيارات عند الضغط المطول (Long-Press Alternatives Popup)
     private boolean isLongPressPopupVisible = false;
     private boolean longPressAwaitingTap = false;
-    /** بوب أب زر اللغة: اختيار 😀 يفتح لوحة الإيموجي بدل كتابته كحرف. */
+
     private boolean longPressOpensEmoji = false;
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
     private final List<RectF> longPressCellRects = new ArrayList<>();
     private final RectF longPressPopupBoxRect = new RectF();
-    /** مستطيل مؤقت يُعاد استخدامه بدل تخصيص RectF جديد مع كل مفتاح في كل رسمة، لتفادي تهنيج/تقطّع
-     * الرسم (خصوصاً أثناء سحب إصبع فوق بوب أب الضغط المطول، حيث invalidate() يتكرر بسرعة عالية). */
+
     private final RectF scratchKeyRect = new RectF();
-    // مستطيلات مؤقتة للرسم: تُعاد استخدامها بدل إنشاء كائنات جديدة في كل إطار (تخفف الضغط على الذاكرة)
+
     private final RectF drawRectA = new RectF();
     private final RectF drawRectB = new RectF();
     private final RectF drawRectC = new RectF();
     private int longPressHighlightedIndex = 0;
-    /** عرض خلية واحدة ونقطة انطلاق السحب (مركز الزر المضغوط، أي مكان الإصبع فعلياً)، والخلية اللي
-     * تقع تحت الإصبع في تلك اللحظة (longPressBaseIndex) — الاختيار أثناء السحب يُحسب بالمسافة
-     * النسبية من هذي النقطة بدل موضع مطلق أو افتراض إن الإصبع يبدأ فوق أول خلية (وهو خطأ، لأن
-     * البوب أب يكون متمركزاً فوق الزر لا بادئاً من حافته). */
+
     private float longPressCellW = 44f;
     private float longPressDragBaseX = 0f;
     private int longPressBaseIndex = 0;
 
     private final List<List<KeyDef>> rows = new ArrayList<>();
-    /** نسخ إضافية من الحروف المكررة على طرفي فجوة المنتصف (مثل Gboard)؛ تُحسب فقط عند تفعيل وضع التقسيم. */
+
     private final List<KeyDef> splitDuplicateKeys = new ArrayList<>();
-    // فجوة إضافية بين الأزرار تُفعَّل فقط في وضع التابلت (الكيبورد المقسوم)
+
     private float tabletKeyGapX = 0f;
     private float tabletKeyGapY = 0f;
     private static final java.util.Set<String> SPLIT_GAP_DUPLICATE_LETTERS =
@@ -196,13 +178,13 @@ public class BlackBerryKeyboardView extends View {
     private final Paint flyingBadgeBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupCardBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupCardBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    /** إطار فقاعات المعاينة والبوب أب: بلون فواصل الكيبورد (نفس درجة الأزرار) بدل رمادي مزرق. */
+
     private final Paint popupEdgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint popupTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint iconStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint enterArrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private int enterActionId = android.view.inputmethod.EditorInfo.IME_ACTION_NONE; // نوع أيقونة زر الإدخال (بحث/تم/إرسال..)
+    private int enterActionId = android.view.inputmethod.EditorInfo.IME_ACTION_NONE;
     private final Paint enterFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint stylePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private boolean enterCustom = false;
@@ -211,7 +193,7 @@ public class BlackBerryKeyboardView extends View {
 
     private float startX = 0f;
     private float startY = 0f;
-    private float lastTouchX = 0f; // آخر موضع لمسة فعلي، يُستخدم لمعرفة هل بدأ سحب حقيقي قبل تفعيل وضع تحريك المؤشر
+    private float lastTouchX = 0f;
     private float resizeStartScale = 1.0f;
     private boolean isDragging = false;
     private boolean isResizingDrag = false;
@@ -219,7 +201,7 @@ public class BlackBerryKeyboardView extends View {
 
     private KeyDef touchDownKey = null;
     private KeyDef visualPressedKey = null;
-    // ===== أنيميشن ارتداد الزر (اختياري من الإعدادات): الزر ينضغط شوي ثم يرتد لحجمه الطبيعي =====
+
     private KeyDef bounceKey = null;
     private long bounceStartTime = 0L;
     private static final long KEY_BOUNCE_MS = 240L;
@@ -227,7 +209,6 @@ public class BlackBerryKeyboardView extends View {
     private int touchDownSuggestionSlot = -1;
     private boolean suggestionLongPressConsumed = false;
 
-    // اقتراح إيموجي يظهر مكان أيقونة زر الإيموجي نفسه (بدل شريط الاقتراحات)، ويختفي تلقائياً لو ما لُمس.
     private String emojiKeySuggestion = null;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -283,18 +264,12 @@ public class BlackBerryKeyboardView extends View {
         }
     };
 
-    // --- التحكم بالمؤشر عبر سحب زر المسافة (بدون التأثير إطلاقاً على السحب السريع لتبديل اللغة) ---
-    // الفكرة: تبديل اللغة يبقى يعمل بالضبط كما كان (سحبة سريعة وتحرير الإصبع). لكن لو استمر الإصبع
-    // ضاغطاً على المسافة لمدة قصيرة (أطول من الفليك العادي)، يتفعّل "وضع تحريك المؤشر" تلقائياً، وعندها
-    // تحريك الإصبع يمين/يسار يحرّك المؤشر حرفاً حرفاً، ورفع الإصبع بعدها لا يبدّل اللغة إطلاقاً.
     private boolean spaceCursorModeActive = false;
     private float spaceCursorStepBaseX = 0f;
     private final Runnable spaceCursorHoldRunnable = new Runnable() {
         @Override
         public void run() {
-            // لا نفعّل وضع تحريك المؤشر إذا كان الإصبع تحرك أفقياً بشكل واضح قبل انتهاء المهلة —
-            // هذا يعني أن المستخدم يسحب لتبديل اللغة (خصوصاً عند بداية السحب قرب حافة الزر، حيث
-            // المسافة المتاحة أقل وتأخذ وقت أطول من المعتاد لتتجاوز عتبة التبديل).
+
             if (touchDownKey != null && touchDownKey.type == KeyType.SPACE
                     && Math.abs(lastTouchX - startX) < 14f * density) {
                 spaceCursorModeActive = true;
@@ -304,9 +279,6 @@ public class BlackBerryKeyboardView extends View {
         }
     };
 
-    /**
-     * نافذة علوية شفافة فوق الكيبورد ترسم الكلمة الطائرة بوضوح عالٍ وبسرعة متزنة (520ms) خارج حدود الكيبورد.
-     */
     private class TopOverlayCanvasView extends View {
         public TopOverlayCanvasView(Context ctx) {
             super(ctx);
@@ -334,11 +306,6 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    /**
-     * أنميشن اختيار الكلمة المقترحة (مطابق لكيبورد بلاك بيري القديم):
-     * الكلمة تظهر كنص شفاف خفيف (بدون كبسولة) من مكانها في شريط الاقتراحات وترتفع للأعلى
-     * بحركة تبدأ سريعة ثم تتباطأ، وتتلاشى تدريجياً قبل أن تصل لحقل الكتابة.
-     */
     private void drawGhostFlyingWord(Canvas canvas, String word, float cx, float startBaselineY, float progress) {
         float p = Math.max(0f, Math.min(1f, progress));
         float inv = 1f - p;
@@ -363,8 +330,6 @@ public class BlackBerryKeyboardView extends View {
         flyingWordPaint.setAlpha(255);
     }
 
-    /** خط حروف المفاتيح المختار من الإعدادات (يدعم العربي والإنجليزي)، أو خط النظام الافتراضي لو
-     * تعذّر تحميل ملف الخط لأي سبب. */
     private static Typeface loadKeyTypeface(Context context, int fontId) {
         String assetPath;
         switch (fontId) {
@@ -383,8 +348,6 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    /** خط نافذة معاينة الحرف وقائمة الضغط المطول: نفس خط المفاتيح المختار بالضبط الآن إن كل خط
-     * (افتراضي/Tajawal/Almarai) له نسخة Regular وBold صريحة يختارها المستخدم بنفسه. */
     private Typeface popupTypefaceFor(int fontId) {
         return loadKeyTypeface(getContext(), fontId);
     }
@@ -480,9 +443,6 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    /** تُستدعى كل مرة يفتح حقل كتابة (onStartInputView)، بدون أي تحقق "تغيّر الثيم أو لا" — عملية خفيفة
-     *  (ألوان وخطوط وإعادة رسم) فمافيه مانع تتكرر. (قارن مع BlackBerryImeService.rebuildDrawersIfThemeChanged()
-     *  اللي يتحقق قبل يعيد البناء، لأن إعادة بناء درج الحافظة/الإيموجي كامل أثقل بكثير). */
     public void reloadAppearanceFromPrefs() {
         this.keyboardScale = prefs.getKeyboardScale();
         this.keyFontScale = prefs.getKeyFontScale();
@@ -501,7 +461,6 @@ public class BlackBerryKeyboardView extends View {
         rebuildKeys();
     }
 
-    /** لون كبسولة زر الإدخال المخصص (من الإعدادات)، وسهمه أبيض ليبقى واضحاً فوق أي لون. */
     private void applyEnterColor() {
         int c = prefs.getEnterColor();
         enterCustom = c != 0;
@@ -587,7 +546,6 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    /** لون خلفية الكيبورد الحالي (يُستخدم لتلوين شريط التنقل أسفل الشاشة). */
     public int getShellColor() {
         return bgShellPaint.getColor();
     }
@@ -612,8 +570,6 @@ public class BlackBerryKeyboardView extends View {
         return 50f * density * keyboardScale;
     }
 
-    /** غير مستخدمة حالياً: الفراغ فوق صف المسافة صار يُضبط عبر materialTopInsetDp نفسه (6.8dp)
-     * بدل مساحة تخطيط إضافية منفصلة. أبقيناها 0 حتى لا نضيف ارتفاع زيادة غير مقصود للوحة. */
     private float extraBottomRowGapPx() {
         return 0f;
     }
@@ -631,10 +587,6 @@ public class BlackBerryKeyboardView extends View {
         return isArabic;
     }
 
-    /**
-     * دوال مساعدة عامة (public) تكشف شكل/أبعاد زر "؟123" الحقيقي في الكيبورد الرئيسي، حتى تقدر
-     * قوائم الحافظة والإيموجي ترسم زر "أبجد"/الرجوع بنفس شكله ومكانه بالضبط بدل تقليد تقريبي.
-     */
     public int getActiveKeyboardStyle() {
         return keyboardStyle;
     }
@@ -643,10 +595,6 @@ public class BlackBerryKeyboardView extends View {
         return sugBarPaint.getColor();
     }
 
-    /**
-     * يرسم زر حرف عادي بنفس ستايل وألوان الكيبورد الحالي على صورة بالحجم المطلوب بالضبط.
-     * تُستخدم كخلفية لأزرار اقتراحات الملء التلقائي حتى تطلع متناسقة مع أزرار الكيبورد.
-     */
     public android.graphics.Bitmap renderKeyChipBitmap(int w, int h) {
         android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(Math.max(1, w), Math.max(1, h),
                 android.graphics.Bitmap.Config.ARGB_8888);
@@ -685,7 +633,6 @@ public class BlackBerryKeyboardView extends View {
         return mainTextPaint.getColor();
     }
 
-    /** ارتفاع شريط الاقتراحات العلوي (px) ومكانه، يستخدمهم الشريط المدمج لاقتراحات الملء التلقائي. */
     public float getSuggestionBarHeightPx() {
         return getSuggestionBarHeight();
     }
@@ -698,18 +645,14 @@ public class BlackBerryKeyboardView extends View {
         return getBottomRowHeight();
     }
 
-    /** الفجوة الفارغة على طرفي الصف السفلي (يسار ويمين) عند تفعيل وضع الكيبورد المقسوم (تابلت). */
     public float getBottomRowEdgeInsetPx(int widthPx) {
         return isSplitKeyboardActive(widthPx) ? widthPx * 0.03f : SIDE_MARGIN_DP * density;
     }
 
-    /** هامش صغير على يمين ويسار كل الصفوف (كل اللغات) خارج وضع التابلت، بدل التصاق الأزرار بحافة الشاشة. */
     private static final float SIDE_MARGIN_DP = 1.5f;
 
-    /** إزاحة صف الإنجليزي الثاني (ASDF...) من الجانبين بنسبة من عرض مفتاح (جي بورد = 0.5، هنا أقل شوي). */
     private static final float ENGLISH_ROW2_INDENT_KEYS = 0.35f;
 
-    /** عرض زر "؟123" الحقيقي في الصف السفلي بالضبط، بنفس نسبة وزنه من إجمالي أوزان الصف. */
     public float getSymbolsKeyWidthPx(int widthPx) {
         List<KeyDef> bottomRow = buildBottomRow();
         if (bottomRow.isEmpty()) return 0f;
@@ -732,7 +675,6 @@ public class BlackBerryKeyboardView extends View {
         return isResizeDragMode;
     }
 
-    /** يبدّل بين شريط الاقتراحات العادي والشريط المختصر (قبل بدء الكتابة، مثل جي بورد). */
     public void setToolbarIdleMode(boolean idle) {
         if (this.toolbarIdleMode == idle) return;
         this.toolbarIdleMode = idle;
@@ -743,7 +685,6 @@ public class BlackBerryKeyboardView extends View {
         return toolbarIdleMode;
     }
 
-    /** يلغي الشفت وتثبيت الكابتال (يستخدم عند إخفاء الكيبورد أو تبديل اللغة حتى ما يبقى الكابتال معلّق). */
     public void resetShiftState() {
         if (!isShift && !isCapsLock) return;
         isShift = false;
@@ -763,15 +704,12 @@ public class BlackBerryKeyboardView extends View {
         setSuggestions(newSuggestions, false);
     }
 
-    /** clipIcon: يرسم أيقونة الحافظة (خطوط بدون لون) بجانب نص الخانة الوسطى — لعرض آخر نص منسوخ. */
     public void setSuggestions(List<String> newSuggestions, boolean clipIcon) {
         setSuggestions(newSuggestions, clipIcon ? 1 : 0);
     }
 
-    /** iconType: 0 بدون أيقونة، 1 أيقونة الحافظة (نص منسوخ)، 2 أيقونة صورة (لقطة شاشة). */
     public void setSuggestions(List<String> newSuggestions, int iconType) {
-        // كانت الدالة تتجاهل أي قائمة أقل من 3 عناصر بالكامل (حتى القائمة الفاضية المقصودة لمسح
-        // الاقتراحات)، فتبقى الكلمة القديمة ظاهرة. الآن تُكمَّل بفراغات بدل ما تُرفض.
+
         List<String> padded = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
             padded.add((newSuggestions != null && i < newSuggestions.size()) ? newSuggestions.get(i) : "");
@@ -783,9 +721,6 @@ public class BlackBerryKeyboardView extends View {
 
     private int middleIconType = 0;
 
-    /**
-     * التعديل رقم 1: إطلاق الكلمة من صندوق الاقتراحات لأعلى الشاشة خارج الكيبورد بسرعة هادئة (520ms) ووضوح عالٍ.
-     */
     private void launchWordOutsideKeyboard(int slotIndex) {
         if (!prefs.isSwipeUpAnimationEnabled()) return;
         if (slotIndex < 0 || slotIndex >= suggestions.size()) return;
@@ -829,9 +764,6 @@ public class BlackBerryKeyboardView extends View {
         postInvalidateOnAnimation();
     }
 
-    /**
-     * التعديل رقم 8: فتح بوب أب الخيارات المتعددة فوق الحرف عند الضغط المطول.
-     */
     private void openLongPressPopupForKey(KeyDef key) {
         if (key == null || key.alts == null || key.alts.isEmpty()) return;
         longPressOptions = new ArrayList<>(key.alts);
@@ -853,7 +785,6 @@ public class BlackBerryKeyboardView extends View {
         if (left < 6f * density) left = 6f * density;
         if (left + totalW > getWidth() - 6f * density) left = getWidth() - 6f * density - totalW;
 
-        // يوضع البوب أب فوق الزر مباشرة، مع ضمان بقائه داخل حدود الكيبورد القابلة للمس (y >= 2dp)
         float top = key.rect.top - totalH - 4f * density;
         if (top < 2f * density) {
             top = 2f * density;
@@ -865,16 +796,12 @@ public class BlackBerryKeyboardView extends View {
             RectF cellRect = new RectF(cl, top + pad, cl + cellW, top + pad + cellH);
             longPressCellRects.add(cellRect);
         }
-        // نقطة انطلاق السحب = مركز الزر المضغوط فعلياً (مكان الإصبع الحقيقي)، والخلية الأساسية هي
-        // الخلية اللي تقع تحت الإصبع في تلك اللحظة — وليست بالضرورة الخلية الأولى، لأن البوب أب
-        // يُرسم متمركزاً فوق الزر لا بادئاً من حافته. هذا يصحح القفز المفاجئ عند أول حركة سحب بسيطة.
+
         longPressCellW = cellW;
         longPressDragBaseX = key.rect.centerX();
         int centerIdx = findLongPressOptionIndexAtX(longPressDragBaseX);
         longPressBaseIndex = (centerIdx >= 0) ? centerIdx : 0;
-        // ملاحظة: longPressBaseIndex يُستخدم فقط كأساس لحساب خطوات السحب (لضمان دقتها)، لكن الخيار
-        // المميّز افتراضياً قبل أي حركة سحب يبقى دائماً الخيار الأول (index 0) — هو الحرف الأصلي
-        // للزر، ومن المتوقع إنه يكون المختار لو المستخدم رفع إصبعه فوراً بدون أي سحب.
+
         longPressHighlightedIndex = 0;
         invalidate();
     }
@@ -894,26 +821,21 @@ public class BlackBerryKeyboardView extends View {
     private int lastRowCount = 0;
     private boolean passwordFieldMode = false;
 
-    /** يُستدعى من الخدمة عند فتح حقل كلمة مرور لإظهار صف الأرقام (إن كان الخيار مفعلاً). */
     public void setPasswordFieldMode(boolean enabled) {
         this.passwordFieldMode = enabled;
     }
 
-    /** يُستدعى من الخدمة عند فتح حقل يقبل أرقاماً فقط (رقم، هاتف، تاريخ/وقت) لعرض لوحة أرقام مخصصة بدل الحروف. */
     public void setNumericFieldMode(boolean enabled) {
         if (this.isNumericFieldMode == enabled) return;
         this.isNumericFieldMode = enabled;
         if (enabled) {
-            // امسح فوراً أي اقتراحات متبقية من الحقل السابق، بدل انتظار تحديث غير متزامن من الخدمة —
-            // بعض الحقول المخصصة (مثل خانات رمز التحقق المنفصلة) لا تستدعي onStartInputView بشكل
-            // موثوق مع كل تبديل تركيز، فكانت اقتراحات الحقل القديم تبقى ظاهرة فوق لوحة الأرقام.
+
             suggestions = Arrays.asList("", "", "");
             emojiKeySuggestion = null;
         }
         rebuildKeys();
     }
 
-    /** يعرض إيموجي مقترح مكان أيقونة زر الإيموجي نفسه (null يرجعه لأيقونته العادية). */
     public void setEmojiKeySuggestion(String emoji) {
         if (java.util.Objects.equals(emojiKeySuggestion, emoji)) return;
         emojiKeySuggestion = emoji;
@@ -961,13 +883,6 @@ public class BlackBerryKeyboardView extends View {
         invalidate();
     }
 
-    /**
-     * لوحة أرقام مخصصة تظهر تلقائياً في الحقول التي تقبل أرقاماً فقط (رقم/هاتف/تاريخ ووقت)،
-     * مبنية بنفس نظام KeyDef/KeyType لتأخذ ألوان وشكل السمة والنمط المختارين تلقائياً.
-     */
-    // لوحة أرقام بأربعة أعمدة بنفس شكل لوحة جي بورد الأصلية للأرقام (4 صفوف فقط حتى ما يتغير
-    // ارتفاع الكيبورد)، والعمود الرابع فيه أزرار وظيفية تحمل رموز بديلة بنفس أسلوب كيبوردنا
-    // (رمز صغير على الزاوية يُكتب بالضغط المطول).
     private List<List<KeyDef>> buildNumericFieldRows() {
         List<KeyDef> row1 = Arrays.asList(
             new KeyDef("1"),
@@ -996,11 +911,6 @@ public class BlackBerryKeyboardView extends View {
         return Arrays.asList(row1, row2, row3, row4);
     }
 
-    /**
-     * التعديل رقم 3 و 8:
-     * - حذف الأرقام العربية من أزرار الحروف العربية نهائياً.
-     * - تزويد كل حرف عربي بخياراته (الهمزات، الحركات، التشكيل، والحروف البديلة) لتظهر في بوب أب عند الضغط المطول.
-     */
     private List<List<KeyDef>> buildArabicGboardRows() {
         List<KeyDef> row1 = Arrays.asList(
             new KeyDef("ض"),
@@ -1049,7 +959,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private List<List<KeyDef>> buildEnglishQwertyRows() {
-        boolean showNums = false; // الأرقام المطبوعة على صف الحروف الأول محذوفة نهائياً
+        boolean showNums = false;
         List<KeyDef> row1 = Arrays.asList(
             new KeyDef(getTypedEnglishChar("Q"), showNums ? "1" : "", Collections.singletonList("1")),
             new KeyDef(getTypedEnglishChar("W"), showNums ? "2" : "", Collections.singletonList("2")),
@@ -1088,8 +998,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private List<List<KeyDef>> buildSymbolsRows() {
-        // الرمز الصغير (الرقم العربي) فوق كل رقم إنجليزي يختفي إذا كانت العربية معطّلة بالكامل من
-        // إعدادات اللغة، نفس منطق صف الأرقام العادي — الرقم الكبير يبقى إنجليزي بدون أي تغيير.
+
         boolean arabicOff = prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
         List<KeyDef> row1 = arabicOff ? Arrays.asList(
             new KeyDef("1"), new KeyDef("2"), new KeyDef("3"), new KeyDef("4"), new KeyDef("5"),
@@ -1125,7 +1034,7 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef(":", "", Collections.singletonList(":")),
             new KeyDef("؛", ";", Collections.singletonList(";")),
             new KeyDef("!", "¡", Collections.singletonList("¡")),
-            // زر الاستفهام يتبع لغة الكيبورد الحالية: عربي يطلع "؟" كبير و"?" صغير، وإنجليزي بالعكس.
+
             new KeyDef(isArabic ? "؟" : "?", isArabic ? "?" : "؟", Collections.singletonList(isArabic ? "?" : "؟")),
             new KeyDef("،", ",", Collections.singletonList(",")),
             new KeyDef("%", "‰", Collections.singletonList("‰")),
@@ -1137,13 +1046,13 @@ public class BlackBerryKeyboardView extends View {
 
     private List<KeyDef> buildBottomRow() {
         String symLabel = isSymbols ? (isArabic ? "أبجد" : "ABC") : (isArabic ? "؟123" : "?123");
-        // لغة واحدة فقط: بدون أسهم التبديل لأن السحب للتبديل معطّل
+
         boolean singleLanguage = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_BOTH;
         String spaceLabel = singleLanguage ? (isArabic ? "العربية" : "English")
                 : (isArabic ? "‹  العربية  ›" : "‹  English  ›");
         return Arrays.asList(
             new KeyDef(symLabel, "", Collections.<String>emptyList(), KeyType.SYMBOLS, 1.25f),
-            // لو السحب لتبديل اللغة مقفول واللغتين مفعّلتين: زر تبديل اللغة (🌐) مكان الإيموجي، والإيموجي بالضغط المطوّل
+
             languageKeyShown()
                 ? new KeyDef("🌐", "", Collections.singletonList("😀"), KeyType.LANGUAGE, 1.0f)
                 : new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f),
@@ -1176,7 +1085,6 @@ public class BlackBerryKeyboardView extends View {
 
         resizeHandleBarRect.set(0f, 0f, w, resizeH);
 
-        // في وضع التابلت يأخذ شريط الاقتراحات نفس فجوتي الطرفين (يمين ويسار) اللي تأخذها صفوف الكيبورد
         float sugEdge = getBottomRowEdgeInsetPx(w);
         float menuW = 42f * density;
         menuButtonRect.set(sugEdge, resizeH, sugEdge + menuW, resizeH + sugH);
@@ -1197,8 +1105,7 @@ public class BlackBerryKeyboardView extends View {
         tabletKeyGapX = splitActive ? 2.2f * density : 0f;
         tabletKeyGapY = splitActive ? 0.8f * density : 0f;
         splitDuplicateKeys.clear();
-        // فجوة المنتصف 25% من العرض، وفجوتان أصغر على طرفي الكيبورد (يسار ويمين) نفس شكل الكيبورد
-        // الأصلي على الشاشة الكبيرة بدل ما يلتصق الحروف بحافة الشاشة تماماً.
+
         float gapW = splitActive ? w * 0.25f : 0f;
         float edgeW = splitActive ? w * 0.03f : 0f;
         float halfW = (w - gapW - edgeW * 2f) / 2f;
@@ -1210,21 +1117,19 @@ public class BlackBerryKeyboardView extends View {
             List<KeyDef> row = rows.get(rIdx);
             float rowH = (rIdx == rows.size() - 1) ? botH : keyH;
             if (rIdx == rows.size() - 1) topY += extraBottomRowGapPx();
-            // الصف الأخير (الأسفل: الرموز، الإيموجي، المسافة، الإدخال) يبقى بشريط واحد متصل بدون فاصل —
-            // بالضبط زي كيبورد الشاشات الكبيرة المعروف؛ الفاصل فقط في صفوف الحروف والأرقام فوقه.
+
             if (splitActive && rIdx != rows.size() - 1) {
-                // صف ASDF... بالإنجليزي: نفس إزاحة الجوال من الطرفين الخارجيين (مفتاح النصف ≈ halfW/5.5)
+
                 float indent = (rIdx == 1 && !isArabic && !isSymbols && row.size() == 9)
                         ? ENGLISH_ROW2_INDENT_KEYS * halfW / 5.5f : 0f;
                 layoutSplitRow(row, topY, rowH, leftStartX + indent, halfW - indent, rightStartX, halfW - indent);
             } else {
-                // الصف الأخير (المسافة/الإدخال) يبقى شريط واحد متصل بدون فاصل بالمنتصف، لكن لو وضع
-                // التقسيم مفعّل يأخذ نفس فجوتي الطرفين (يمين ويسار) مثل بقية الصفوف فوقه تماماً.
+
                 float rowEdge;
                 if (splitActive) {
                     rowEdge = edgeW;
                 } else if (isNumericFieldMode) {
-                    rowEdge = 5f * density; // هامش الحافة للوحة الأرقام فقط
+                    rowEdge = 5f * density;
                 } else {
                     rowEdge = SIDE_MARGIN_DP * density;
                 }
@@ -1234,7 +1139,7 @@ public class BlackBerryKeyboardView extends View {
                 for (KeyDef k : row) totalWeight += bottomRowWeight(k, bottomRowTablet);
                 float leftX = rowEdge;
                 if (!splitActive && rIdx == 1 && !isArabic && !isSymbols && row.size() == 9) {
-                    // صف ASDF... بالإنجليزي: نفس عرض مفاتيح الصف الأول مع إزاحة من الجانبين (مثل جي بورد)
+
                     float pad = availRowW * ENGLISH_ROW2_INDENT_KEYS / (totalWeight + 2f * ENGLISH_ROW2_INDENT_KEYS);
                     leftX += pad;
                     availRowW -= 2f * pad;
@@ -1249,10 +1154,6 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    /**
-     * وزن مفتاح في الصف السفلي. في وضع التابلت زر المسافة أطول والأزرار اللي على جنبيه (؟123، الإيموجي،
-     * النقطة، الإدخال) أصغر شوي، لأن العرض الكبير يخلي الأزرار الجانبية ضخمة بلا فايدة.
-     */
     private static float bottomRowWeight(KeyDef k, boolean tablet) {
         if (!tablet) return k.weight;
         switch (k.type) {
@@ -1266,29 +1167,19 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    /** الفجوة الإضافية الأفقية بين الأزرار (px) في وضع التابلت، أو 0 خارجه. */
     public float getTabletKeyGapXPx(int widthPx) {
         return isSplitKeyboardActive(widthPx) ? 2.2f * density : 0f;
     }
 
-    /** الفجوة الإضافية العمودية بين الأزرار (px) في وضع التابلت، أو 0 خارجه. */
     public float getTabletKeyGapYPx(int widthPx) {
         return isSplitKeyboardActive(widthPx) ? 0.8f * density : 0f;
     }
 
-    /** هل يجب تفعيل وضع الكيبورد المقسوم لنصفين (بفاصل بالمنتصف) عند هذا العرض الحالي؟
-     *  تلقائي دائماً حسب عرض الشاشة (بدون خيار يدوي). */
     private boolean isSplitKeyboardActive(int widthPx) {
         float widthDp = widthPx / density;
-        return widthDp >= 600f; // عتبة الشاشات الكبيرة القياسية (تابلت أو الشاشة الداخلية لجوال قابل للطي)
+        return widthDp >= 600f;
     }
 
-    /**
-     * يوزّع مفاتيح صف واحد على نصفين منفصلين بفاصل فاضٍ بالمنتصف. الحرف القريب من حافة الفجوة
-     * (ا، غ، ة بالعربي، وg، v بالإنجليزي) يتكرر على الجهتين — لكن بدل ما تكون النسخة المكررة مفتاح
-     * عائم بحجم مختلف فوق الفجوة، هي تُحسب كعضو حقيقي ضمن توزيع أوزان نصفها الجديد، فتاخذ بالضبط
-     * نفس حجم بقية مفاتيح ذلك النصف — هذا يحل مشكلة تفاوت حجم الحروف بين الجهتين.
-     */
     private void layoutSplitRow(List<KeyDef> row, float topY, float rowH, float leftStartX, float leftW, float rightStartX, float rightW) {
         float totalWeight = 0f;
         for (KeyDef k : row) totalWeight += k.weight;
@@ -1375,7 +1266,7 @@ public class BlackBerryKeyboardView extends View {
         if (menuButtonPressed) {
             canvas.drawRect(menuButtonRect, sugFlashPaint);
         }
-        // أيقونة زر الدرج ثابتة بنفس الشكل قبل الكتابة وأثناءها، بدون أي تبديل أو أنميشن.
+
         drawToolbarIcon(canvas, menuButtonRect);
         canvas.drawLine(menuButtonRect.right, sugTop + 5f * density, menuButtonRect.right, sugBottom - 5f * density, keyDividerPaint);
         if (voiceEnabled) {
@@ -1395,8 +1286,6 @@ public class BlackBerryKeyboardView extends View {
                 canvas.drawLine(r.right, sugTop + 5f * density, r.right, sugBottom - 5f * density, keyDividerPaint);
             }
 
-            // أثناء الشريط المختصر (قبل الكتابة) ما يصير يظهر أي كلمة مقترحة إطلاقاً في هذي الخانات،
-            // حتى لو بقيت قيمة قديمة بقائمة الاقتراحات لأي سبب — الحقيقة البصرية مربوطة بهذي الحالة فقط.
             String word = (!toolbarIdleMode && i < suggestions.size()) ? suggestions.get(i) : "";
             Paint paint = sugTextPaint;
             float textY = r.centerY() - (paint.descent() + paint.ascent()) / 2f;
@@ -1412,7 +1301,7 @@ public class BlackBerryKeyboardView extends View {
             } else if (i == 1 && middleIconType == 3 && !word.isEmpty()) {
                 drawTextChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType != 0 && !word.isEmpty()) {
-                // أيقونة الحافظة نفسها (نفس شكل أيقونة القائمة) على يسار النص، والمجموعة كلها في منتصف الخانة
+
                 float iconW = 18f * density;
                 float gap = 6f * density;
                 String shown = ellipsizeWord(word, r.width() - 14f * density - iconW - gap, paint);
@@ -1432,7 +1321,6 @@ public class BlackBerryKeyboardView extends View {
 
         canvas.drawLine(0f, sugBottom, getWidth(), sugBottom, fretLinePaint);
 
-        // 2. رسم صفوف المفاتيح
         for (int rIdx = 0; rIdx < rows.size(); rIdx++) {
             List<KeyDef> row = rows.get(rIdx);
             for (KeyDef k : row) {
@@ -1463,16 +1351,12 @@ public class BlackBerryKeyboardView extends View {
                 if (!k.sub.isEmpty()) {
                     if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                             || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
-                        // نقيس حدود الحبر الفعلية للنص (مو نقطة الإرساء فقط) ونثبّتها داخل حافة
-                        // الزر المرئية بهامش أمان يغطي انحناء الزاوية، بدل تخمين إزاحة ثابتة — لأن
-                        // تخمين الإزاحة كان يفشل مع بعض الخطوط (الرقم يطلع خارج الزر رغم الإزاحة).
+
                         boolean softSub = keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND;
                         float cornerRadius = (softSub ? 17.0f : 9.5f) * density;
                         float hInsetPx = (softSub ? 2.6f : 2.1f) * density + tabletKeyGapX;
                         float topInsetPx = materialTopInsetDp(k.type, softSub) * density + tabletKeyGapY;
-                        // أقل هامش يضمن الخروج من منطقة انحناء الزاوية (المسافة القطرية اللي
-                        // تلامس القوس تساوي نصف القطر × (1 − جذر2/2) ≈ 0.293)، زائد هامش بسيط —
-                        // مو نصف القطر كامل، عشان يضل الرقم "بالزاوية" فعلاً مو منزاح لمنتصف الزر.
+
                         float safeMargin = cornerRadius * 0.38f + 1.0f * density;
                         float visibleRight = k.rect.right - hInsetPx;
                         float visibleTop = k.rect.top + topInsetPx;
@@ -1503,13 +1387,13 @@ public class BlackBerryKeyboardView extends View {
                 } else if (k.type == KeyType.LANGUAGE && emojiKeySuggestion == null) {
                     drawGlobeIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI && emojiKeySuggestion == null) {
-                    // ما فيه اقتراح إيموجي حالياً: نرسم أيقونة وجه مبتسم بخط أبيض بدل رمز الإيموجي الملون.
+
                     drawEmojiIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
-                    // التعديل رقم 6: تصغير لوقو الرمز التعبيري في الصف السفلي ليكون متناسقاً وأنيقاً
+
                     float prevSize = mainTextPaint.getTextSize();
                     String glyph = k.main;
-                    // اقتراح إيموجي: يتبدّل رمز الزر نفسه فقط (بدون دائرة أو تكبير)
+
                     if (emojiKeySuggestion != null) glyph = emojiKeySuggestion;
                     mainTextPaint.setTextSize(15.5f * scaledDensity);
                     float textY = k.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.0f * density;
@@ -1543,7 +1427,6 @@ public class BlackBerryKeyboardView extends View {
             bounceKey = null;
         }
 
-        // 2ب. رسم نسخ الحروف المكررة على طرفي فجوة المنتصف (وضع الكيبورد المقسوم على الشاشات الكبيرة)
         for (KeyDef dup : splitDuplicateKeys) {
             Paint dupBg = (dup == visualPressedKey && !isDragging) ? keyPressedPaint : keyBgPaint;
             drawStyledKeyCell(canvas, dup, dupBg);
@@ -1557,19 +1440,16 @@ public class BlackBerryKeyboardView extends View {
             mainTextPaint.setTextSize(prevSize);
         }
 
-        // 3. التعديل رقم 7: رسم بوب أب معاينة الحرف عند اللمس (Key Press Preview Popup)
         if (activePreviewKey != null) {
             drawKeyPreviewBubble(canvas, activePreviewKey);
         }
 
-        // 4. التعديل رقم 8: رسم بوب أب الخيارات المتعددة عند الضغط المطول (Long-Press Alternatives Popup)
         if (isLongPressPopupVisible && !longPressOptions.isEmpty()) {
             drawLongPressPopupMenu(canvas);
         }
 
         drawDeleteTagAnimation(canvas, now);
 
-        // رسم الكلمة الطائرة على الكانفاس إذا لم تكن النافذة العلوية نشطة
         if (isFlyingActive && (topOverlayPopup == null || !topOverlayPopup.isShowing())) {
             float progress = (float) (now - flyingStartTime) / (float) FLY_OUTSIDE_DURATION_MS;
             float startYCanvas = sugTop + getSuggestionBarHeight() * 0.62f;
@@ -1581,9 +1461,6 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    // ===== أنيميشن المسح بالسحب: علامة حذف تنزلق مع اتجاه السحب (مقاسة من فيديو بلاك بيري الأصلي) =====
-    // المدة ~380 ملّي ثانية، حركة S سلسة (تسارع ثم تباطؤ) مسافتها نحو نصف عرض الشاشة، وتكبر العلامة من 40% إلى 100%
-    // مع شفافية تبدأ باهتة ثم تصير ناصعة في المنتصف وتتلاشى في آخر الحركة.
     private static final long DELETE_TAG_MS = 380L;
     private long deleteTagStart = 0L;
     private float deleteTagX0 = 0f, deleteTagY = 0f, deleteTagDir = 1f;
@@ -1591,16 +1468,14 @@ public class BlackBerryKeyboardView extends View {
     private final Paint deleteTagFill = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint deleteTagCross = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    /** مقدار تكبير/تصغير الزر أثناء أنيميشن الارتداد: ينضغط لأصغر حجم بسرعة ثم يرتد ويتجاوز
-     * حجمه الطبيعي شوي قبل ما يستقر عليه تماماً (منحنى overshoot بسيط، بدون مكتبات أنيميشن). */
     private float keyBounceScale(long elapsedMs) {
         float t = Math.max(0f, Math.min(1f, elapsedMs / (float) KEY_BOUNCE_MS));
         if (t < 0.3f) {
-            // انضغاط واضح وسريع (مو خفيف) أول ما تلمس الزر
+
             float u = t / 0.3f;
             return 1f - 0.26f * u;
         }
-        // ثم ينقز ويرتد متجاوزاً حجمه الطبيعي بوضوح قبل ما يستقر (overshoot أقوى من قبل)
+
         float u = (t - 0.3f) / 0.7f;
         float tension = 4.2f;
         float um1 = u - 1f;
@@ -1608,21 +1483,19 @@ public class BlackBerryKeyboardView extends View {
         return 0.74f + 0.26f * overshoot;
     }
 
-    /** إزاحة رأسية خفيفة (بكسل) تواكب الانضغاط/الارتداد، عشان يحس إنه "ينقز" فعلاً مو بس يتمدد
-     * مكانه: ينزل شوي وقت الانضغاط ثم يقفز لأعلى شوي وقت الارتداد قبل ما يرجع لمكانه الطبيعي. */
     private float keyBounceLiftPx(long elapsedMs) {
         float t = Math.max(0f, Math.min(1f, elapsedMs / (float) KEY_BOUNCE_MS));
-        float maxDown = 4.0f * density;   // ينزل شوي وقت الانضغاط
-        float maxUp = 13.0f * density;    // يقفز لأعلى وقت الارتداد (نقزة أوضح بكثير)
+        float maxDown = 4.0f * density;
+        float maxUp = 13.0f * density;
         if (t < 0.3f) {
             float u = t / 0.3f;
-            return maxDown * u; // موجب = نزول (نظام إحداثيات الكانفاس: Y يكبر لتحت)
+            return maxDown * u;
         }
         float u = (t - 0.3f) / 0.7f;
         float tension = 4.2f;
         float um1 = u - 1f;
-        float overshoot = um1 * um1 * ((tension + 1f) * um1 + tension) + 1f; // يبدأ 0 ويتجاوز 1 ثم يستقر على 1
-        // نحول overshoot لإزاحة: يبدأ من maxDown (استمرار الانضغاط) وينتقل لقفزة فوق الصفر (سالب) ثم يرجع صفر
+        float overshoot = um1 * um1 * ((tension + 1f) * um1 + tension) + 1f;
+
         return maxDown * (1f - overshoot) - maxUp * Math.max(0f, overshoot - 1f);
     }
 
@@ -1651,9 +1524,9 @@ public class BlackBerryKeyboardView extends View {
         else if (t < 0.7f) alpha = 1f;
         else alpha = 1f - (t - 0.7f) / 0.3f;
 
-        float tw = 30f * density * scale;   // العرض الكلي مع الرأس المدبب
+        float tw = 30f * density * scale;
         float th = 14f * density * scale;
-        float tip = th * 0.5f;              // عمق الرأس المدبب
+        float tip = th * 0.5f;
         float d = deleteTagDir;
         float left = cx - d * tw / 2f;
         float right = cx + d * tw / 2f;
@@ -1682,7 +1555,6 @@ public class BlackBerryKeyboardView extends View {
         postInvalidateOnAnimation();
     }
 
-    /** بوب أب صغير يظهر فوراً فوق الزر المضغوط حالياً ليعاين حرفه مكبّراً، بنفس ألوان البطاقات الحالية حسب السمة. */
     private void drawKeyPreviewBubble(Canvas canvas, KeyDef key) {
         float bubbleW = key.rect.width() - 5f * density;
         float bubbleH = key.rect.height() - 5f * density;
@@ -1739,14 +1611,12 @@ public class BlackBerryKeyboardView extends View {
         boolean isSpecialKey = (key.type != KeyType.CHAR && key.type != KeyType.SPACE);
         boolean pillKey = (key.type == KeyType.SYMBOLS || key.type == KeyType.ENTER);
         final float gx = tabletKeyGapX;
-        // لوحة الأرقام فقط: نقصان بسيط بالفراغ العمودي بين الصفوف (يُطبّق على كل الأنماط بنفس
-        // طريقة tabletKeyGapY، بدون ما يأثر على لوحة الحروف العادية).
-        // الهامش الأساسي 5.9dp لكل جهة، ناقص 1.9dp في لوحة الأرقام فقط عشان يصير 4.0dp.
+
         final float gy = tabletKeyGapY + (isNumericFieldMode ? -1.9f * density : 0f);
 
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
                 || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
-            // الشكل الذي في صورة Gboard: أزرار مستديرة بفواصل، ومفاتيح ?123 والإدخال على شكل كبسولة كاملة
+
             boolean soft = (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND);
             float hInset = (soft ? 2.6f : 2.0f) * density + gx;
             float topInset = materialTopInsetDp(key.type, soft) * density + gy;
@@ -1758,7 +1628,7 @@ public class BlackBerryKeyboardView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_BORDERLESS) {
-            // بدون حدود للأزرار (مثل خيار Gboard بدون إطار): الحروف تظهر بلا خلفية، والمفاتيح الخاصة كبسولات
+
             RectF r = insetRect(rawRect, 3.0f * density + gx, 4.5f * density + gy);
             float radius = pillKey ? r.height() / 2f : 13f * density;
             if (pressed || isSpecialKey) {
@@ -1782,7 +1652,7 @@ public class BlackBerryKeyboardView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_KEYCAP_3D) {
-            // زر بارز بحافة سفلية سميكة تعطي إحساس الزر الميكانيكي
+
             float edge = pressed ? 1.2f * density : 3.4f * density;
             RectF cap = drawRectA;
             cap.set(rawRect.left + 2.8f * density + gx, rawRect.top + 3.2f * density + gy,
@@ -1797,7 +1667,7 @@ public class BlackBerryKeyboardView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_SOFT_RAISED) {
-            // بطاقة بارزة ناعمة: ظل خفيف تحتها وخط لامع رفيع بحافتها العلوية
+
             RectF r = insetRect(rawRect, 2.6f * density + gx, 3.6f * density + gy);
             float radius = 12f * density;
             RectF shadow = drawRectB;
@@ -1813,7 +1683,7 @@ public class BlackBerryKeyboardView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
-            // الحروف دوائر، والمفاتيح العريضة (مسافة، شفت...) كبسولات
+
             float w = rawRect.width(), h = rawRect.height();
             float d = Math.min(w, h) - 6f * density;
             RectF r = drawRectA;
@@ -1826,7 +1696,7 @@ public class BlackBerryKeyboardView extends View {
             return;
         }
         if (keyboardStyle == KeyboardPreferences.STYLE_GLASS) {
-            // زجاجي: تعبئة شبه شفافة مع إطار رفيع ولمعة علوية
+
             RectF r = insetRect(rawRect, 2.8f * density + gx, 3.8f * density + gy);
             float radius = 10f * density;
             int fillColor = fillPaint.getColor();
@@ -1883,7 +1753,6 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
-    // ===== شريحة لقطة الشاشة: مربع بحواف ناعمة فيه معاينة صغيرة للقطة + كلمة "لقطة شاشة" =====
     private android.graphics.Bitmap shotThumb = null;
     private android.graphics.BitmapShader shotShader = null;
     private final Paint shotThumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
@@ -1900,7 +1769,6 @@ public class BlackBerryKeyboardView extends View {
         invalidate();
     }
 
-    /** نفس شكل ونافذة شريحة لقطة الشاشة (مربع بخلفية وإطار)، بدون أي أيقونة — نص فقط في المنتصف. */
     private void drawTextChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
         float chipH = Math.min(slot.height() - 12f * density, 38f * density);
         float padH = 14f * density;
@@ -1939,7 +1807,6 @@ public class BlackBerryKeyboardView extends View {
         shotChipRect.set(cx - chipW / 2f, cy - chipH / 2f, cx + chipW / 2f, cy + chipH / 2f);
         float radius = 11f * density;
 
-        // خلفية بنفس لون أزرار الكيبورد الخاصة وإطار رفيع بلون إطار الأزرار
         shotChipFill.setStyle(Paint.Style.FILL);
         shotChipFill.setColor(keySpecialBgPaint.getColor());
         canvas.drawRoundRect(shotChipRect, radius, radius, shotChipFill);
@@ -1949,14 +1816,12 @@ public class BlackBerryKeyboardView extends View {
         shotChipStroke.setAlpha(140);
         canvas.drawRoundRect(shotChipRect, radius, radius, shotChipStroke);
 
-        // المعاينة على جهة الكتابة: يمين في العربي، ويسار في الإنجليزي
         boolean thumbRight = isArabic;
         float thumbLeft = thumbRight ? shotChipRect.right - pad - thumbW : shotChipRect.left + pad;
         shotThumbRect.set(thumbLeft, cy - thumbW * 0.5f - (chipH - 8f * density - thumbW) / 2f, thumbLeft + thumbW, cy + chipH / 2f - 4f * density);
         shotThumbRect.top = shotChipRect.top + 4f * density;
         shotThumbRect.bottom = shotChipRect.bottom - 4f * density;
 
-        // قص مركزي (center-crop) للصورة داخل مستطيل المعاينة
         float sw = shotThumb.getWidth(), sh = shotThumb.getHeight();
         float tw = shotThumbRect.width(), th = shotThumbRect.height();
         float scale = Math.max(tw / sw, th / sh);
@@ -1976,15 +1841,11 @@ public class BlackBerryKeyboardView extends View {
         textPaint.setTextAlign(prevAlign);
     }
 
-    // ===== زر تبديل اللغة (يظهر لما السحب على المسافة مقفول) =====
-
     private boolean languageKeyShown() {
         return !prefs.isSpaceSwipeLangEnabled()
                 && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH;
     }
 
-    /** يرجّع الكيبورد لصفحة الحروف (عربي/إنجليزي) لو كان مفتوح على صفحة الرموز؛ تُستخدم لما نفتح
-     *  كيبورد البحث (GIF مثلاً) حتى ما يفضل عالق على صفحة الرموز من آخر استخدام. */
     public void exitSymbolsIfActive() {
         if (isSymbols) {
             isSymbols = false;
@@ -2009,7 +1870,6 @@ public class BlackBerryKeyboardView extends View {
         else listener.onCharacterTyped(chosen);
     }
 
-    /** أيقونة الكرة الأرضية بنفس أسلوب أيقونتي الحافظة والمايك (خطوط بدون لون). */
     private void drawGlobeIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
@@ -2029,7 +1889,6 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
-    /** أيقونة وجه مبتسم بخط أبيض (دائرة + عينين + ابتسامة) بدل رمز الإيموجي الملون، بنفس أسلوب أيقونة الكرة الأرضية. */
     private void drawEmojiIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
@@ -2047,7 +1906,7 @@ public class BlackBerryKeyboardView extends View {
         float eyeOffsetY = r * 0.28f;
         canvas.drawCircle(cx - eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
         canvas.drawCircle(cx + eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
-        // الفم مصمت (نفس شكل أيقونة جي بورد: نصف قرص مملوء مو خط منحني رفيع)، مو خط محيط فقط.
+
         iconStrokePaint.setStyle(Paint.Style.FILL);
         RectF smile = drawRectA;
         float smileR = r * 0.62f;
@@ -2058,36 +1917,29 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
-    /** الفراغ العمودي العلوي (بالـdp) لمفتاح معيّن في ثيم Gboard Material/Soft Round. معزولة بدالة
-     * حتى نفس القيم تُستخدم في رسم شكل الزر وفي موضع الرقم الصغير أعلى الزر (sub label)، فما ينزاح
-     * الرقم خارج الزر لمن نكبر الفراغ. */
     private float materialTopInsetDp(KeyType type, boolean soft) {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
         boolean bottomRowKey = type == KeyType.SYMBOLS || type == KeyType.EMOJI || type == KeyType.LANGUAGE
                 || type == KeyType.SPACE || type == KeyType.PERIOD || type == KeyType.ENTER;
-        // قياس فعلي من لقطة شاشة جي بورد الحقيقية: الفراغ بين الأسطر (حروف/صف المسافة) موحّد
-        // تقريباً بنسبة ~6.8dp لكل جهة (وليس 12dp كما جُرّب سابقاً، لأنها طلعت أكبر من جي بورد فعلياً).
+
         if (letterRowKey) return 5.9f;
         if (bottomRowKey) return 5.9f;
         return 4.0f;
     }
 
-    /** نفس فكرة materialTopInsetDp لكن للفراغ السفلي. */
     private float materialBottomInsetDp(KeyType type, boolean soft) {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
         return letterRowKey ? 5.9f : 4.0f;
     }
 
-    /** يميّز زر المايك أثناء الاستماع. */
     public void setVoiceListening(boolean listening) {
         if (voiceListening == listening) return;
         voiceListening = listening;
         invalidate();
     }
 
-    /** لو اللغة الواحدة مفعّلة نثبّت لغة الكيبورد عليها (ويُلغى تأثير السحب للتبديل). */
     private void applyLanguageMode() {
         int mode = prefs.getLanguageMode();
         if (mode == KeyboardPreferences.LANGUAGE_MODE_BOTH) return;
@@ -2099,7 +1951,6 @@ public class BlackBerryKeyboardView extends View {
         if (listener != null) listener.onLanguageChanged(isArabic);
     }
 
-    /** أيقونة المايكروفون بنفس أسلوب أيقونة الحافظة: خطوط بدون لون وبنفس الحجم تقريباً. */
     private void drawMicIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
@@ -2123,7 +1974,6 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
-    /** أيقونة صورة (إطار وشمس وجبل) بنفس أسلوب أيقونة الحافظة: خطوط بدون لون. */
     private void drawImageIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
@@ -2146,7 +1996,6 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
-    /** أيقونة الحافظة الحديثة (لوح بمشبك علوي وسطور نص) بدل أيقونة الخطوط الثلاثة. */
     private void drawClipboardMenuIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
@@ -2172,7 +2021,6 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStrokeWidth(prevW);
     }
 
-    /** أيقونة زر فتح درج الحافظة (ثلاث خطوط أفقية فوق بعض، شكل القائمة ☰)، ثابتة قبل الكتابة وأثناءها. */
     private void drawToolbarIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
@@ -2224,7 +2072,6 @@ public class BlackBerryKeyboardView extends View {
         return text.substring(0, len) + ellipsis;
     }
 
-    /** يحدد أي أيقونة تُرسم على زر الإدخال حسب نوع الحقل (بحث، تم، إرسال...) مثل جي بورد. */
     public void setEnterActionIcon(int actionId) {
         if (this.enterActionId != actionId) {
             this.enterActionId = actionId;
@@ -2341,7 +2188,7 @@ public class BlackBerryKeyboardView extends View {
                 return i;
             }
         }
-        // لمس في فجوة الطرف (وضع التابلت): أقرب خانة
+
         return x < suggestionRects[0].left ? 0 : (x > suggestionRects[2].right ? 2 : 1);
     }
 
@@ -2354,7 +2201,7 @@ public class BlackBerryKeyboardView extends View {
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                // إذا كان بوب أب الخيارات المطولة مفتوحاً وبانتظار اختيار المستخدم باللمس:
+
                 if (isLongPressPopupVisible && longPressAwaitingTap) {
                     if (longPressPopupBoxRect.contains(x, y)) {
                         int idx = findLongPressOptionIndexAtX(x);
@@ -2369,7 +2216,7 @@ public class BlackBerryKeyboardView extends View {
                         invalidate();
                         return true;
                     } else {
-                        // الضغط خارج البوب أب يغلقه ويكمل ضغطة الزر الجديد بشكل طبيعي
+
                         isLongPressPopupVisible = false;
                         longPressAwaitingTap = false;
                         invalidate();
@@ -2429,7 +2276,7 @@ public class BlackBerryKeyboardView extends View {
                     }
                     if (prefs.isKeyPreviewPopupEnabled()
                             && (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD)) {
-                        // يظهر فوراً بدون أي تأخير (زي Gboard بالضبط)، ويُلغى فوراً أول ما يبدأ سحب حقيقي.
+
                         activePreviewKey = touchDownKey;
                     }
                     invalidate();
@@ -2440,8 +2287,7 @@ public class BlackBerryKeyboardView extends View {
                         handler.postDelayed(longPressRunnable, prefs.getLongPressDelayMs());
                     } else if (touchDownKey.type == KeyType.SPACE && prefs.isSpaceCursorDragEnabled()) {
                         spaceCursorModeActive = false;
-                        // مهلة قصيرة جداً تميّز بين "فليك" سريع لتبديل اللغة و"ضغط مستمر" لتحريك المؤشر،
-                        // بدون أي علاقة بعتبة التبديل السريع نفسها، فالسلوكان مستقلان تماماً عن بعض.
+
                         handler.postDelayed(spaceCursorHoldRunnable, 180L);
                     }
                 }
@@ -2465,14 +2311,10 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                // إذا كان بوب أب الضغط المطول مفتوحاً والمستخدم يحرك إصبعه لاختيار الحرف البديل:
                 if (isLongPressPopupVisible && !longPressAwaitingTap) {
                     if (Math.abs(dxMove) > 8f * density || longPressPopupBoxRect.contains(x, y)) {
                         hasSlidDuringLongPress = true;
-                        // الخيار يُحسب بالمسافة النسبية من نقطة انطلاق السحب (مكان الإصبع الحقيقي)
-                        // بدءاً من الخلية اللي تقع تحته أصلاً، خطوة واحدة = عرض خلية واحدة — بدل
-                        // اختبار موضع مطلق أو افتراض بداية من الخلية الأولى، حتى ما يصير قفز مفاجئ.
-                        // الخطوة أطول من عرض الخلية بـ 40% عشان السحب يكون أهدأ ولا يقفز بين الحروف بحركة صغيرة
+
                         int steps = longPressCellW > 0f
                                 ? Math.round((x - longPressDragBaseX) / (longPressCellW * 1.4f))
                                 : 0;
@@ -2500,7 +2342,6 @@ public class BlackBerryKeyboardView extends View {
                     }
                 }
 
-                // وضع تحريك المؤشر مفعّل (بعد الضغط المستمر على المسافة): كل خطوة أفقية صغيرة = خطوة مؤشر واحدة.
                 if (spaceCursorModeActive && listener != null) {
                     float cursorStepPx = 14f * density;
                     while (x - spaceCursorStepBaseX >= cursorStepPx) {
@@ -2523,7 +2364,7 @@ public class BlackBerryKeyboardView extends View {
                 handler.removeCallbacks(spaceCursorHoldRunnable);
 
                 if (spaceCursorModeActive) {
-                    // كان في وضع تحريك المؤشر: ارفع الإصبع بدون أي تبديل لغة إطلاقاً، فقط إنهاء الوضع.
+
                     spaceCursorModeActive = false;
                     touchDownKey = null;
                     visualPressedKey = null;
@@ -2544,7 +2385,7 @@ public class BlackBerryKeyboardView extends View {
                         invalidate();
                         return true;
                     } else {
-                        // المستخدم رفع إصبعه بعد ظهور البوب أب لكي يضغط على الخيار الذي يريده!
+
                         longPressAwaitingTap = true;
                         touchDownKey = null;
                         visualPressedKey = null;
@@ -2615,8 +2456,6 @@ public class BlackBerryKeyboardView extends View {
                     }
                 }
 
-                // السحب للأعلى لاختيار الكلمة المقترحة: تنطلق الكلمة لأعلى الشاشة خارج الكيبورد بوضوح وسرعة متزنة
-                // كبّرنا المسافة المطلوبة (كانت 32) حتى ما تنطلق بسحبة خفيفة بالغلط — المقياس مسافة بس، مو سرعة.
                 float swipeUpThreshold = 42f * density;
                 if (dy < -swipeUpThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
                     int zone = getHorizontalSuggestionZone(startX);
@@ -2627,8 +2466,6 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                // السحب للأسفل: نسخ النص المحدد، وإذا تم النسخ يتحول السحب للأسفل إلى لصق لمدة دقيقة.
-                // نفس تكبير مسافة السحب للأعلى (32 → 42)، مسافة فقط بدون أي اعتبار للسرعة.
                 float swipeDownThreshold = 42f * density;
                 if (prefs.isSwipeDownCopyPasteEnabled() && dy > swipeDownThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
                     boolean done = listener != null && listener.onSwipeDownCopyPaste();
@@ -2639,10 +2476,6 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                // السحب لمسح كلمة كاملة (الاتجاه من الإعدادات: الافتراضي من اليسار لليمين).
-                // كبّرنا الحد الأدنى تكه كمان (62 → 78) لأن السحبة الخفيفة كانت تمسح بالغلط أثناء
-                // الكتابة العادية. المقياس مسافة السحب فقط (مو سرعته)، فسحبة أطول تلغي الخطأ بدون
-                // ما تخلي السحبة المقصودة أبطأ أو أصعب.
                 float swipeLeftThreshold = 72f * density;
                 boolean deleteDirOk = (prefs.getSwipeDeleteDirection() == 1) ? (dx < -swipeLeftThreshold) : (dx > swipeLeftThreshold);
                 if (prefs.isSwipeDeleteWordEnabled() && deleteDirOk && Math.abs(dx) > Math.abs(dy) * 1.5f) {
@@ -2655,8 +2488,6 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                // سحبة تحديد كل النص: نفس الحد لكن بالاتجاه المعاكس تماماً لسحبة المسح، فالحركتان
-                // ما تتعارضان أبداً مهما كان اتجاه المسح المختار بالإعدادات.
                 boolean selectAllDirOk = (prefs.getSwipeDeleteDirection() == 1) ? (dx > swipeLeftThreshold) : (dx < -swipeLeftThreshold);
                 if (prefs.isSwipeSelectAllEnabled() && selectAllDirOk && Math.abs(dx) > Math.abs(dy) * 1.5f) {
                     boolean selected = listener != null && listener.onSwipeSelectAll();
@@ -2675,8 +2506,7 @@ public class BlackBerryKeyboardView extends View {
                         soundController.playKeyClick();
                     }
                     if (key.type == KeyType.CHAR || key.type == KeyType.PERIOD) {
-                        // الحرف ينكتب بعد رسم الإطار التالي: فقاعة المعاينة تختفي فوراً أول ما يرتفع الإصبع
-                        // بدل ما تنتظر انتهاء معالجة الحرف.
+
                         afterDrawAction = () -> handleKeyTap(key);
                         invalidate();
                     } else {

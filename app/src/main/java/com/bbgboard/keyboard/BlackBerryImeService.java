@@ -47,11 +47,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * خدمة لوحة المفاتيح الأساسية في أندرويد (الإصدار 7.0):
- * - التعديل رقم 4: إضافة زر الضبط (بلوقو الترس فقط بدون نص) داخل قائمة الحافظة يفتح إعدادات التطبيق مباشرة.
- * - التعديل رقم 5: تكبير زر الرجوع للكيبورد داخل قائمة الرموز التعبيرية ليكون واضحاً وسهل اللمس.
- */
 public class BlackBerryImeService extends InputMethodService implements BlackBerryKeyboardView.KeyboardActionListener {
 
     private KeyboardPreferences keyboardPrefs;
@@ -62,7 +57,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private FrameLayout rootContainer;
     private BlackBerryKeyboardView keyboardView;
-    // يحدّث مظهر الكيبورد (ثيم/خط/لون/حجم) لحظياً وهو مفتوح لما تتغيّر الإعدادات، بدون الحاجة لقفله وإعادة فتحه.
+
     private static final java.util.Set<String> APPEARANCE_PREF_KEYS = new java.util.HashSet<>(java.util.Arrays.asList(
             "theme_mode", "keyboard_style", "key_font", "enter_color",
             "key_font_scale", "keyboard_scale", "suggestion_bar_scale", "suggestion_text_level"));
@@ -74,14 +69,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         rebuildDrawersIfThemeChanged();
     };
-    // زر صغير بالمساحة الفاضية لوضع اليد الواحدة، يبدّل جهة الكيبورد (يمين/يسار) بضغطة وحدة
+
     private FrameLayout oneHandedSwitchBtn;
     private ModernIconView oneHandedSwitchIcon;
     private LinearLayout clipboardDrawerView;
     private LinearLayout clipsListContainer;
     private TextView clipCountTv;
     private LinearLayout clipHeaderRow;
-    // شريط اقتراحات الملء التلقائي (حسابات/باسوردات) المدمج داخل الكيبورد بدل النافذة المنبثقة
+
     private FrameLayout inlineStrip;
     private LinearLayout inlineStripRow;
     private boolean inlineHasSuggestions = false;
@@ -98,30 +93,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private final List<View> emojiSectionHeaders = new ArrayList<>();
     private final List<TextView> emojiTabViews = new ArrayList<>();
     private int activeEmojiCategory = 0;
-    // يمنع تحديث تحديد التبويب تلقائياً حسب موضع السكرول، إلا إذا كان المستخدم فعلياً يسحب بإصبعه.
-    // أي سكرول برمجي (إعادة بناء الأقسام، إرجاع للأعلى، إلخ) قد يصير بمواضع عناوين غير مقاسة بعد
-    // (قبل تمريرة تخطيط كاملة)، فيحسب فئة غلط (آخر فئة) فوق التحديد الصحيح. نبدأ بالإيقاف الافتراضي،
-    // ولا نرفعه إلا لما يلمس المستخدم القائمة فعلياً (ACTION_DOWN)، وهذا وقتها نثق بالحساب تماماً.
+
     private boolean suppressEmojiTabScrollSync = true;
     private TextView clipAbcBackLabel;
     private TextView emojiAbcBackLabel;
 
-    // ===== تبويب GIF داخل نافذة الإيموجي (بحث وتحميل عبر GIPHY) =====
     private TextView gifTabView;
     private FrameLayout gifPanel;
-    private TextView gifSearchBox; // صف البحث (مجرد عرض نص، مو EditText حقيقي، لأنه ما يقدر يطلع كيبورد نظام داخل IME نفسه)
-    private TextView gifSearchClearBtn; // زر X يظهر بس لما فيه كلمة بحث فعّالة، يمسحها ويرجع لصفحة GIF الرئيسية
-    private LinearLayout gifGrid; // يحمل قسم "آخر ما استخدمت" (لو فيه) + قسم الترند/نتائج البحث، كل وحد بعنوانه
+    private TextView gifSearchBox;
+    private TextView gifSearchClearBtn;
+    private LinearLayout gifGrid;
     private ScrollView gifScroll;
     private TextView gifStatusText;
     private boolean gifPanelShown = false;
-    private String gifLastQuery = null; // null = لسه ما حمّلنا شي (نحمّل الترند أول مرة بس)
-    private boolean gifLastLoadedArabic; // اللغة اللي بنيت فيها عناوين/محتوى GIF آخر مرة
+    private String gifLastQuery = null;
+    private boolean gifLastLoadedArabic;
 
-    // الكتابة بالبحث تستخدم نفس لوحة مفاتيحنا (زي جي بورد بالضبط: يفتح الكيبورد العادي فوقه شريط
-    // البحث بدل ما يحاول يطلع كيبورد نظام ثاني، لأن هذا مستحيل من داخل تطبيق هو نفسه الكيبورد).
-    // بدون أي أيقونات X أو إنتر: الكتابة تستجيب لحروف لوحتنا وزر الحذف فقط، والبحث الفعلي ما يصير
-    // إلا لما تضغط إنتر (فاضي = يرجع لصفحة الترند وآخر ما استخدمت).
     private boolean gifSearchFocused = false;
     private final StringBuilder gifQueryBuilder = new StringBuilder();
     private FrameLayout gifSearchBar;
@@ -130,13 +117,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private boolean numericFieldActive = false;
     private boolean passwordFieldActive = false;
 
-    // ===== آخر نص منسوخ في الخانة الوسطى (مثل جي بورد) =====
     private static final long CLIP_CHIP_MS = 60 * 1000L;
-    private static final long SHOT_CHIP_MS = 80 * 1000L; // لقطة الشاشة تبقى أطول من النص المنسوخ
+    private static final long SHOT_CHIP_MS = 80 * 1000L;
     private String clipChipText = null;
     private long clipChipTime = 0L;
-    /** نسخة معلّمة "حساسة" من أندرويد (مثل كود من تطبيق Authenticator): نقدر نلصقها زي جي بورد بالضبط،
-     * لكن ما نعرض نصها الحقيقي على الشاشة ولا نحفظها بسجل النسخ — فقط نقاط مخفية. */
+
     private boolean clipChipSensitive = false;
     private final Runnable clipChipExpiry = this::refreshPredictions;
 
@@ -148,7 +133,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 && (SystemClock.elapsedRealtime() - clipChipTime) < CLIP_CHIP_MS;
     }
 
-    // لقطة شاشة جديدة: تظهر في الخانة الوسطى بنفس نظام النص المنسوخ (60 ثانية، وتختفي بالكتابة)
     private boolean screenshotChipActive = false;
     private long screenshotChipTime = 0L;
 
@@ -169,8 +153,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         uiHandler.removeCallbacks(clipChipExpiry);
     }
 
-    /** النص للعرض: سطر واحد وقصير، واللصق يكون بالنص الكامل. نسخة "حساسة" تظهر كنقاط مخفية فقط
-     * (نفس أسلوب جي بورد)، بدون كشف محتواها الحقيقي على الشاشة. */
     private String clipChipDisplay(String full) {
         if (clipChipSensitive) {
             int len = Math.max(4, Math.min(full.trim().length(), 10));
@@ -182,15 +164,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return flat.length() > 40 ? flat.substring(0, 40) + "…" : flat;
     }
 
-    // تصحيح تلقائي صامت (اختياري، معطّل افتراضياً): يحفظ آخر استبدال تلقائي حتى يمكن التراجع عنه فوراً
-    // بالباكسبيس (زي Gboard بالضبط) طالما ما كتب المستخدم أي شيء آخر بعده.
     private String lastAutoCorrectOriginal = null;
     private String lastAutoCorrectResult = null;
-    /** كلمة ألغى المستخدم تصحيحها بالباكسبيس: ما نصححها تلقائياً مرة ثانية (يكسر اللوب). */
+
     private String rejectedAutoCorrectWord = null;
 
-    // اقتراح رمز التحقق (OTP) تلقائياً من رسائل SMS الجديدة فقط أثناء فتح الكيبورد
-    // (مدة الصلاحية الآن بمصدر واحد مشترك: KeyboardPreferences.OTP_VALIDITY_MS)
     private String pendingOtpCode = null;
     private long pendingOtpTimestamp = 0L;
     private boolean otpReceiverRegistered = false;
@@ -215,12 +193,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     };
 
-    /** هل فيه رمز تحقق صالح الآن، من SMS أو من إشعار واتساب (WhatsAppOtpListenerService)؟ */
     private boolean hasValidPendingOtp() {
         return currentOtpCode() != null;
     }
 
-    /** الرمز الفعلي اللي يُعرض الآن — SMS أولاً لو صالح، وإلا رمز واتساب المحفوظ بالإعدادات. */
     private String currentOtpCode() {
         if (pendingOtpCode != null && (SystemClock.elapsedRealtime() - pendingOtpTimestamp) < KeyboardPreferences.OTP_VALIDITY_MS) {
             return pendingOtpCode;
@@ -240,8 +216,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         try {
             IntentFilter filter = new IntentFilter(android.provider.Telephony.Sms.Intents.SMS_RECEIVED_ACTION);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // لازم RECEIVER_EXPORTED (وليس NOT_EXPORTED): بث الرسائل يصدر من عملية النظام/الاتصالات
-                // وهي تعتبر "تطبيق آخر" بنظر هذا العلم، فـ NOT_EXPORTED يمنع وصول البث فعلياً (موثق من Google).
+
                 registerReceiver(smsOtpReceiver, filter, Context.RECEIVER_EXPORTED);
             } else {
                 registerReceiver(smsOtpReceiver, filter);
@@ -280,7 +255,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         "Symbols & Flags"
     };
 
-    /** عناوين فئات الإيموجي حسب لغة الكيبورد الحالية (عربي/إنجليزي)، تتبع تبديل اللغة مباشرة. */
     private String[] emojiCatTitles() {
         return (keyboardView != null && !keyboardView.isArabic()) ? EMOJI_CAT_TITLES_EN : EMOJI_CAT_TITLES;
     }
@@ -428,7 +402,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     };
 
-    /** مدراء كلمات المرور وتطبيقات البنوك تعلّم النسخ الحساس بهذه العلامة؛ نحترمها ولا نخزنه. */
     private static boolean isSensitiveClip(ClipData clip) {
         try {
             android.content.ClipDescription d = clip.getDescription();
@@ -453,22 +426,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     && clip.getDescription() != null
                     && !clip.getDescription().hasMimeType("text/*")
                     && !clip.getDescription().hasMimeType("text/plain")) {
-                return; // نسخة صورة (مثل لقطة الشاشة التي ننسخها نحن) — ليست نصاً يُحفظ في قائمة الحافظة
+                return;
             }
             boolean sensitive = clip != null && isSensitiveClip(clip);
             if (clip != null && clip.getItemCount() > 0) {
                 CharSequence cs = clip.getItemAt(0).coerceToText(BlackBerryImeService.this);
                 if (cs != null) {
                     String copiedText = cs.toString().trim();
-                    // أندرويد ما يكشف لنا اسم التطبيق اللي نسخ (محجوب لحماية الخصوصية)، فما نقدر نميّز
-                    // "تطبيق Authenticator" تحديداً من غيره. البديل العملي: نسمح بالنسخة الحساسة فقط
-                    // لو شكلها كود تحقق (أرقام فقط، 4-10 خانات) — أي نسخة حساسة ثانية (كلمة مرور
-                    // حقيقية مثلاً) تُرفض بالكامل زي ما كانت، بدون أي اقتراح حتى لو مخفي.
+
                     boolean sensitiveLooksLikeCode = sensitive && copiedText.replaceAll("\\s+", "").matches("\\d{4,10}");
                     boolean sensitiveBlocked = sensitive && !sensitiveLooksLikeCode;
                     if (!copiedText.isEmpty() && !keyboardPrefs.isIncognitoMode() && !sensitiveBlocked) {
-                        // النسخة الحساسة اللي شكلها كود (Authenticator مثلاً) ما تُحفظ بسجل النسخ الدائم،
-                        // بس نقدر نعرضها كاقتراح لصق مؤقت بنقاط مخفية (نفس أسلوب جي بورد بالضبط).
+
                         if (!sensitive) {
                             clipboardRepo.addClip(copiedText, false);
                             refreshClipboardDrawerList();
@@ -495,7 +464,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardPrefs = new KeyboardPreferences(this);
         keyboardPrefs.registerChangeListener(appearanceChangeListener);
         soundController = new SoundController(this, keyboardPrefs);
-        // التحميل على خيط خلفي حتى لا يتأخر ظهور الكيبورد؛ أول ما يجهز نحدّث الاقتراحات
+
         predictionEngine = new PredictionEngine(this, keyboardPrefs, true);
         predictionEngine.setOnReadyListener(() -> uiHandler.post(this::refreshPredictions));
         clipboardRepo = new ClipboardRepository(this);
@@ -527,9 +496,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         super.onDestroy();
     }
 
-    /** وقت ضغط ذاكرة حقيقي بالنظام (الكيبورد غالباً مخفي وقت هذا)، نفرّغ أكبر الكاشات القابلة لإعادة
-     *  البناء بسهولة — صور GIF المحمّلة بـGlide وأصوات الكيبورد — بدل ما نترك عملية الكيبورد هدف
-     *  سهل لقاتل الذاكرة. ما نلمس قاموس التنبؤ لأنه ضروري لسرعة الاقتراحات فور رجوع الكتابة. */
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
@@ -551,8 +517,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (soundController != null) soundController.releaseSounds();
     }
 
-    /** مرجع ثابت للنسخة الحالية (نفس العملية)، يسمح لـ WhatsAppOtpListenerService يحدّث الاقتراح
-     *  فوراً لما يلقط رمز، بدون انتظار أول ضغطة زر. آمن: يُستخدم فقط من نفس عملية التطبيق. */
     private static BlackBerryImeService activeInstance;
 
     static void notifyWhatsAppOtpDetected() {
@@ -582,7 +546,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         rootContainer.addView(emojiDrawerView);
         drawersTheme = keyboardPrefs.getThemeMode();
 
-        // زر تبديل جهة اليد الواحدة، يظهر بالمساحة الفاضية فقط لما يكون الوضع مفعّلاً.
         oneHandedSwitchIcon = new ModernIconView(this, ModernIconView.ICON_FORWARD_ARROW, Color.WHITE, Color.parseColor("#33FFFFFF"));
         oneHandedSwitchIcon.setStyle(0.85f, 2.0f);
         oneHandedSwitchBtn = new FrameLayout(this);
@@ -603,9 +566,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         FrameLayout.LayoutParams lpOneHandedBtn = new FrameLayout.LayoutParams(dp(40), dp(40));
         rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
 
-        // شريط بحث GIF: يظهر فوق لوحة المفاتيح العادية وقت الكتابة بالبحث بدل نافذة GIF (يستبدلها
-        // مؤقتاً، نفس فكرة جي بورد). بدون زر إنتر (الإنتر الحقيقي بالكيبورد يسوي نفس الشي)، بس فيه
-        // زر X يمسح كلمة البحث نهائياً ويرجع لصفحة الترند وآخر ما استخدمت.
         gifSearchBar = new FrameLayout(this);
         gifSearchBar.setVisibility(View.GONE);
         LinearLayout gifBarRow = new LinearLayout(this);
@@ -628,8 +588,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifCancelBtn.setPadding(dp(14), 0, dp(14), 0);
         gifCancelBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
-            gifQueryBuilder.setLength(0); // يمسح كلمة البحث فعلياً، مو بس يسكّر الكيبورد
-            closeGifSearchKeyboard(true); // فاضي ⇒ يرجع لصفحة الترند وآخر ما استخدمت
+            gifQueryBuilder.setLength(0);
+            closeGifSearchKeyboard(true);
         });
         gifBarRow.addView(gifCancelBtn);
 
@@ -647,9 +607,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return rootContainer;
     }
 
-    /** نافذتا الحافظة والإيموجي تُبنيان بألوان السمة وقت إنشائهما، فنعيد بناءهما لما تتغير السمة.
-     *  (فرق متعمد عن keyboardView.reloadAppearanceFromPrefs(): هذا الأخير خفيف ويعاد كل مرة بدون تحقق،
-     *  بعكس إعادة بناء الدرج كامل هنا اللي أثقل، فلازم نتحقق أولاً إن الثيم تغيّر فعلاً قبل نعيد البناء). */
     private int drawersTheme = -1;
 
     private void rebuildDrawersIfThemeChanged() {
@@ -667,8 +624,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
-        // لو كان مفتوح كيبورد بحث GIF من جلسة سابقة (مثلاً تبديل حقل الكتابة بينما كان مفتوحاً)، نسكّره
-        // بدون تشغيل بحث حتى ما يعلق الكيبورد بحالة غريبة.
+
         if (gifSearchFocused) {
             gifSearchFocused = false;
             if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
@@ -692,7 +648,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             boolean noEnterAction = info != null && (info.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0;
             keyboardView.setEnterActionIcon(noEnterAction ? EditorInfo.IME_ACTION_NONE : actionId);
         }
-        // لو الأصوات كانت متفرّغة من الذاكرة (تفريغ ضغط ذاكرة أو كانت مقفلة بالأساس وصارت مفعّلة)، نعيد تحميلها هنا.
+
         if (soundController != null) soundController.ensureLoaded();
         rebuildDrawersIfThemeChanged();
         applyNavigationBarColor();
@@ -702,7 +658,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             registerOtpReceiverIfNeeded();
         } else {
             unregisterOtpReceiverIfNeeded();
-            pendingOtpCode = null; // فقط رمز SMS؛ رمز واتساب له إعداده الخاص ومايتأثر بهذا
+            pendingOtpCode = null;
         }
         if (!keyboardPrefs.isWhatsAppOtpSuggestEnabled()) {
             keyboardPrefs.clearPendingWhatsAppOtp();
@@ -712,11 +668,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         tryCaptureScreenshotClip(false);
         setExtractViewShown(false);
     }
-
-
-    // =====================================================================
-    // الكتابة بالصوت (المنطق في VoiceInputController، هنا الربط بالحقل فقط)
-    // =====================================================================
 
     private VoiceInputController voiceController;
 
@@ -736,7 +687,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     if (keyboardView != null) keyboardView.setVoiceListening(listening);
                     if (!listening) {
                         InputConnection ic = getCurrentInputConnection();
-                        if (ic != null) ic.finishComposingText(); // أي نص جزئي لم يكتمل يُثبَّت كما هو
+                        if (ic != null) ic.finishComposingText();
                     }
                 }
                 @Override public void onError(String message) {
@@ -750,7 +701,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onVoiceInputRequested() {
         if (!VoiceInputController.hasPermission(this)) {
-            // الكيبورد ما يقدر يطلب الإذن بنفسه: نافذة شفافة صغيرة تطلبه
+
             Intent i = new Intent(this, MicPermissionActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try { startActivity(i); } catch (Exception ignored) {}
             return;
@@ -762,9 +713,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         voice().toggle(keyboardView != null && keyboardView.isArabic());
     }
 
-    // ===== أداء الكتابة: كاش لنص ما قبل المؤشر، وحساب الاقتراحات على خيط خلفي =====
-
-    /** خيط واحد لحساب الاقتراحات، وآخر للعمليات البطيئة (فحص لقطة الشاشة) — بدل إنشاء Thread جديد كل مرة. */
     private final ExecutorService predictionExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "bkey-predict");
         t.setDaemon(true);
@@ -780,12 +728,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private volatile int predictionGen = 0;
     private long lastShotCheckTime = 0L;
 
-    // آخر 90 حرف قبل المؤشر: كل قراءة من التطبيق هي طلب IPC، وكانت الكتابة الواحدة تطلبها أكثر من مرة.
-    // الكاش يبطل تلقائياً مع أي تعديل نسويه (عبر غلاف InputConnection) ومع إشعارات النظام، وينتهي بعد 1.5 ثانية.
     private String cachedBefore90 = null;
     private long cachedBeforeTime = 0L;
 
-    // موضع المؤشر الحالي (للتحريك بالسحب على المسافة)
     private static final long CURSOR_SESSION_MS = 600L;
     private int curSelStart = -1;
     private int curSelEnd = -1;
@@ -807,14 +752,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return s;
     }
 
-    /** آخر n حرف قبل المؤشر (من الكاش لو n ≤ 90). */
     private CharSequence textBefore(InputConnection ic, int n) {
         if (n > 90) return ic.getTextBeforeCursor(n, 0);
         String all = textBefore90(ic);
         return all.length() <= n ? all : all.substring(all.length() - n);
     }
 
-    /** غلاف يبطل الكاش قبل أي أمر يعدّل النص أو المؤشر. */
     private final class CacheInvalidatingConnection extends InputConnectionWrapper {
         CacheInvalidatingConnection(InputConnection target) { super(target, true); }
         @Override public boolean commitText(CharSequence text, int newCursorPosition) { invalidateTextCache(); return super.commitText(text, newCursorPosition); }
@@ -849,17 +792,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return icWrapped;
     }
 
-    // ===== اقتراحات الملء التلقائي المدمجة (أندرويد 11+) =====
-    // بدون هذا الدعم النظام يعرض اقتراحات الحساب/الباسورد كنافذة منبثقة تاخذ التركيز وتخفي الكيبورد.
-    // مع الدعم تظهر الاقتراحات داخل الكيبورد نفسه فوق الأحرف مثل جي بورد، والكيبورد يبقى ظاهر.
-
     @Override
     @TargetApi(Build.VERSION_CODES.R)
     public android.view.inputmethod.InlineSuggestionsRequest onCreateInlineSuggestionsRequest(Bundle uiExtras) {
         try {
             int barH = keyboardView != null ? Math.round(keyboardView.getSuggestionBarHeightPx()) : dp(40);
             if (barH <= 0) barH = dp(40);
-            // ستايل أزرار الاقتراحات: نفس شكل وألوان أزرار الكيبورد الحالية (الخلفية تُرسم بنفس دالة رسم المفاتيح)
+
             androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder styleBuilder =
                     androidx.autofill.inline.v1.InlineSuggestionUi.newStyleBuilder();
             if (keyboardView != null) {
@@ -950,7 +889,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         rootContainer.addView(inlineStrip);
     }
 
-    /** الشريط يظهر فقط لما فيه اقتراحات والكيبورد الرئيسي ظاهر (مو قائمة الإيموجي/الحافظة). */
     private void updateInlineStripVisibility() {
         if (inlineStrip == null || keyboardView == null) return;
         boolean show = inlineHasSuggestions && keyboardView.getVisibility() == View.VISIBLE;
@@ -983,10 +921,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public boolean onEvaluateFullscreenMode() {
-        // تعطيل وضع "ملء الشاشة" الافتراضي لنظام أندرويد (extract view) نهائياً. هذا الوضع القديم يخلي
-        // خانة الكتابة تاخذ الشاشة كاملة مع زر "تم" وشريط فاضي كبير فوق الكيبورد — بالضبط المشكلة اللي
-        // تظهر عندك بالشاشة الكبيرة/الداخلية للجوال القابل للطي. جي بورد وأغلب الكيبوردات الحديثة
-        // تعطّل هذا الوضع صراحة؛ تطبيقنا ما كان يعطّله أبداً، فكان يرجع للسلوك الافتراضي القديم لأندرويد.
+
         return false;
     }
 
@@ -1001,43 +936,35 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onFinishInputView(boolean finishingInput) {
         if (keyboardView != null) {
             keyboardView.dismissFlyingPopup();
-            // الكيبورد يُغلق/يُخفى: أي اقتراح إيموجي لم يُلمس يختفي، ولا يبقى معلّقاً لجلسة الكتابة التالية.
+
             keyboardView.setEmojiKeySuggestion(null);
-            // إخفاء الكيبورد يلغي تثبيت الكابتال حتى ما يرجع معلّق بالجلسة الجاية
+
             keyboardView.resetShiftState();
-            // الصورة المصغّرة للقطة الشاشة ما لها فايدة بعد انتهاء صلاحية الشريحة؛ نفرّغها من الذاكرة
-            // (لو الشريحة لسه صالحة، نتركها عشان تظهر فوراً لو رجع فتح الكيبورد بسرعة).
+
             if (!hasValidShotChip()) keyboardView.setScreenshotThumb(null);
         }
         clearInlineSuggestions();
         unregisterShotObserver();
-        if (voiceController != null) voiceController.cancel(); // الكيبورد يختفي: نوقف الاستماع
+        if (voiceController != null) voiceController.cancel();
         invalidateTextCache();
         if (predictionEngine != null) {
-            predictionEngine.flushPendingSave(); // غير متزامن: لا يوقف الخيط الرئيسي
+            predictionEngine.flushPendingSave();
         }
-        // إغلاق الكيبورد: نرجّع قائمتي الرموز وGIF لأول تبويب (مو آخر سكرول/تصنيف/بحث)، حتى لو
-        // فتحهما المستخدم بالجلسة الجاية بدون ما يمر على onToggleEmoji() أول شي.
+
         resetEmojiAndGifToFirstTab();
-        // صور GIF المعاينة (Glide) تفضل محمّلة بالذاكرة إلى الأبد لو ما فرّغناها هنا — الدرج نفسه
-        // ما يُعاد بناؤه إلا عند تغيير الثيم، فهذي أول فرصة نفرّغ فيها كاش الصور وقت إخفاء الكيبورد.
+
         try {
             Glide.get(this).clearMemory();
         } catch (Exception ignored) {}
         super.onFinishInputView(finishingInput);
     }
 
-    /** يرجّع درج الرموز التعبيرية وGIF لحالتهما الافتراضية (أول تصنيف/أعلى سكرول)، تُستدعى كل ما
-     *  يُغلق الكيبورد حتى ما تبقى حالة قديمة (سكرول أو بحث GIF) معلّقة للجلسة الجاية.
-     *  ملاحظة مهمة: ما نستدعي hideGifPanel()/closeGifSearchKeyboard() هنا، لأنهما يسوّون
-     *  keyboardView.setVisibility(GONE) وقت الكتابة ببحث GIF — لو كان المستخدم بهذا الوضع واقفل
-     *  الكيبورد، هذا كان يخلي الكيبورد نفسه يختفي (يطلع أسود) بدل ما يختفي درج الإيموجي/GIF بس. */
     private void resetEmojiAndGifToFirstTab() {
         activeEmojiCategory = 0;
         gifPanelShown = false;
         gifSearchFocused = false;
         gifQueryBuilder.setLength(0);
-        gifLastQuery = null; // يخلي فتح GIF الجاي يبدأ على "الشائع الآن" + "آخر ما استخدمت" من جديد
+        gifLastQuery = null;
         suppressEmojiTabScrollSync = true;
         if (gifPanel != null) gifPanel.setVisibility(View.GONE);
         if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.VISIBLE);
@@ -1062,7 +989,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd, int candidatesStart, int candidatesEnd) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd);
         invalidateTextCache();
-        // أثناء سحب المؤشر نعتمد على تتبعنا المباشر (الإشعارات تتأخر وقد ترجع موضعاً أقدم)
+
         if (SystemClock.uptimeMillis() - lastCursorStepTime > CURSOR_SESSION_MS) {
             curSelStart = newSelStart;
             curSelEnd = newSelEnd;
@@ -1070,7 +997,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshPredictions();
     }
 
-    /** تلوين منطقة شريط التنقل أسفل الكيبورد بنفس لون الكيبورد بدل الأبيض. */
     private void applyNavigationBarColor() {
         if (keyboardView == null) return;
         try {
@@ -1091,7 +1017,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         } catch (Exception ignored) {}
     }
 
-    /** لا نتعلم الكلمات في حقول كلمات المرور والروابط، ولا مع وضع التخفي (البريد الإلكتروني يُتعلَّم). */
     private void updateLearningPolicy(EditorInfo info) {
         boolean allowed = true;
         boolean passwordField = false;
@@ -1119,7 +1044,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     || cls == android.text.InputType.TYPE_CLASS_DATETIME) {
                 numericOnly = true;
             }
-            if ((info.imeOptions & 0x1000000) != 0) { // IME_FLAG_NO_PERSONALIZED_LEARNING
+            if ((info.imeOptions & 0x1000000) != 0) {
                 allowed = false;
             }
         }
@@ -1133,7 +1058,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
-    /** وضع اليد الواحدة: تصغير عرض الكيبورد وإزاحته لليسار أو لليمين. */
     private void applyOneHandedMode() {
         if (keyboardView == null) return;
         int mode = keyboardPrefs.getOneHandedMode();
@@ -1149,8 +1073,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateOneHandedSwitchButton();
     }
 
-    /** يحدّث ظهور وموضع واتجاه سهم زر تبديل جهة اليد الواحدة حسب الوضع الحالي. مخفي تماماً لو
-     *  وضع اليد الواحدة معطّل أو لو الكيبورد نفسه مو ظاهر حالياً (فتحة الحافظة/الإيموجي). */
     private void updateOneHandedSwitchButton() {
         if (oneHandedSwitchBtn == null) return;
         int mode = keyboardPrefs.getOneHandedMode();
@@ -1159,8 +1081,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             oneHandedSwitchBtn.setVisibility(View.GONE);
             return;
         }
-        // الكيبورد يسار (mode==1) ⇒ الفراغ يمين ⇒ الزر يمين وسهمه لليمين، والعكس بالعكس.
-        // هامش بسيط عن حافة الشاشة حتى ما يضل لاصق فيها تماماً.
+
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) oneHandedSwitchBtn.getLayoutParams();
         lp.gravity = Gravity.CENTER_VERTICAL | (mode == 1 ? Gravity.RIGHT : Gravity.LEFT);
         lp.rightMargin = mode == 1 ? dp(10) : 0;
@@ -1170,7 +1091,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         oneHandedSwitchBtn.setVisibility(View.VISIBLE);
     }
 
-    /** يجعل ارتفاع القائمة (الحافظة/الإيموجي) مساوياً لارتفاع الكيبورد الحالي حتى لا يصغر الكيبورد عند فتحها. */
     private void matchDrawerHeightToKeyboard(View drawer) {
         if (keyboardView == null || drawer == null) return;
         int h = keyboardView.getHeight();
@@ -1183,7 +1103,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
-    /** ظهور تدريجي (تلاشي مع إزاحة خفيفة) للنافذة أو الكيبورد عند التبديل بينهم. */
     private void fadeIn(View v, int slideDp) {
         v.animate().cancel();
         v.setAlpha(0f);
@@ -1194,8 +1113,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void showKeyboardMain() {
         if (keyboardView == null) return;
-        if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
-        if (gifPanelShown) hideGifPanel(); // حتى لو رجعت تفتح نافذة الإيموجي، تفتح على آخر تصنيف رموز مو GIF
+        if (gifSearchFocused) closeGifSearchKeyboard(false);
+        if (gifPanelShown) hideGifPanel();
         boolean wasDrawer = clipboardDrawerView.getVisibility() == View.VISIBLE || emojiDrawerView.getVisibility() == View.VISIBLE;
         keyboardView.setVisibility(View.VISIBLE);
         clipboardDrawerView.setVisibility(View.GONE);
@@ -1216,11 +1135,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onToggleClipboardMenu() {
-        if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
-        if (gifPanelShown) hideGifPanel(); // حتى لو رجعت تفتح نافذة الإيموجي، تفتح على آخر تصنيف رموز مو GIF
-        // اتجاه رأس قائمة الحافظة ثابت دائماً (LTR) بغض النظر عن لغة الكيبورد الحالية، حتى يبقى
-        // ترتيب أيقونات الإعدادات/التكبير/الرجوع وموضع نص العدّاد ("No items") ثابتاً بدون ما
-        // ينقلب مكانها كل ما بدّلت بين العربي والإنجليزي.
+        if (gifSearchFocused) closeGifSearchKeyboard(false);
+        if (gifPanelShown) hideGifPanel();
+
         updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
         refreshClipboardDrawerList();
         matchDrawerHeightToKeyboard(clipboardDrawerView);
@@ -1234,18 +1151,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         tryCaptureScreenshotClip(true);
     }
 
-    /**
-     * يبحث في الخلفية عن لقطة شاشة التُقطت قبل لحظات ويحفظ مصغّرة واحدة منها فقط؛
-     * كل لقطة جديدة تحل محل القديمة تلقائياً. لا يعمل إلا إذا فعّل المستخدم الخيار ومنح الإذن.
-     */
-    // ===== مراقبة الصور الجديدة والكيبورد ظاهر: لقطة الشاشة تطلع فوراً بدون قفل الكيبورد وفتحه =====
     private boolean shotObserverRegistered = false;
     private final Runnable shotObserverRunnable = () -> tryCaptureScreenshotClip(true);
     private final android.database.ContentObserver shotObserver =
             new android.database.ContentObserver(new android.os.Handler(android.os.Looper.getMainLooper())) {
                 @Override
                 public void onChange(boolean selfChange) {
-                    // الإشعار يتكرر أكثر من مرة لنفس اللقطة، فنؤخر الفحص قليلاً ونجمعها في فحص واحد
+
                     uiHandler.removeCallbacks(shotObserverRunnable);
                     uiHandler.postDelayed(shotObserverRunnable, 700L);
                 }
@@ -1273,7 +1185,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void tryCaptureScreenshotClip(boolean force) {
         if (!keyboardPrefs.isScreenshotClipEnabled()) return;
         if (!ScreenshotClip.hasPermission(this)) return;
-        // ظهور الكيبورد يتكرر مع كل حقل؛ نكتفي بفحص واحد كل بضع ثوانٍ (فتح الحافظة يجبر الفحص دائماً)
+
         long now = SystemClock.elapsedRealtime();
         if (!force && now - lastShotCheckTime < 3000L) return;
         lastShotCheckTime = now;
@@ -1302,7 +1214,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         } catch (Exception ignored) {}
     }
 
-    /** يحاول إدراج لقطة الشاشة مباشرة في المحادثة إن كان التطبيق يدعم ذلك، وإلا ينسخها لتُلصق يدوياً. */
     private void useScreenshotClip() {
         if (!ScreenshotClip.exists(this)) return;
         Uri uri = ScreenshotClip.contentUri(this);
@@ -1334,7 +1245,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         showKeyboardMain();
     }
 
-    /** صف المصغّرة لآخر لقطة شاشة في أعلى قائمة الحافظة؛ يظهر فقط إذا كان الخيار مفعّلاً وفيه لقطة محفوظة. */
     private View buildScreenshotThumbRow() {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -1344,7 +1254,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         GradientDrawable cardBg = roundedBg(keyBgC(), 14);
         cardBg.setStroke(dp(1), keyDividerC());
         row.setBackground(cardBg);
-        // نفس حشوة بطاقات المقصوصات (dp4) حتى تتطابق حواف بطاقة آخر لقطة شاشة مع حواف بطاقات النصوص تماماً.
+
         row.setPadding(dp(4), dp(4), dp(4), dp(4));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1400,11 +1310,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onToggleEmoji() {
-        if (gifSearchFocused) closeGifSearchKeyboard(false); // يرجّع هامش الكيبورد لوضعه الطبيعي أول شي
+        if (gifSearchFocused) closeGifSearchKeyboard(false);
         refreshBottomBarGeometry();
-        // نوقف مزامنة التبويب مع السكرول: إعادة البناء + رجوع السكرول للأعلى قد يسببان حدث سكرول
-        // ببيانات غير مقاسة بعد. ما نرفع الإيقاف هنا أبداً بالاعتماد على توقيت—بنتأكد أن المستخدم
-        // لمس القائمة فعلياً (انظر emojiScroll.setOnTouchListener) قبل ما نثق بحساب السكرول التلقائي.
+
         suppressEmojiTabScrollSync = true;
         rebuildEmojiSections();
         updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
@@ -1421,12 +1329,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onLanguageChanged(boolean isArabic) {
         refreshPredictions();
-        // تبديل اللغة يحدّث عناوين فئات قائمة الإيموجي فوراً لو كانت مفتوحة أصلاً، بدل ما تبقى بلغة قديمة.
+
         if (emojiDrawerView != null && emojiDrawerView.getVisibility() == View.VISIBLE) {
             rebuildEmojiSections();
         }
         updateAbcBackLabels(isArabic);
-        // نفس الشي لنصوص تبويب GIF (مربع البحث وشريط الكتابة وعناوين "آخر ما استخدمت"/"شائع الآن").
+
         updateGifSearchBoxDisplay(gifLastQuery);
         if (gifSearchFocused) {
             updateGifQueryDisplay();
@@ -1435,7 +1343,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
-    /** يحدّث نص زر "ABC / ا ب ت" أسفل قائمتي الحافظة والإيموجي ليطابق لغة الكيبورد الحالية. */
     private void updateAbcBackLabels(boolean isArabic) {
         String label = isArabic ? "أبجد" : "ABC";
         if (clipAbcBackLabel != null) clipAbcBackLabel.setText(label);
@@ -1446,18 +1353,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onCursorStep(boolean moveRight) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
-        // نحرّك المؤشر بـ setSelection داخل نص الحقل فقط (بدل أحداث DPAD)، لأن DPAD عند حافة النص
-        // كان ينقل التركيز لأزرار وعناصر ثانية في الصفحة. هنا المؤشر ما يطلع من مربع النص أبداً.
-        // موضع المؤشر نتتبعه بأنفسنا (من إشعارات النظام ثم تحديث مباشر مع كل خطوة)، فلا نطلب نص الحقل كاملاً.
+
         long now = SystemClock.uptimeMillis();
         boolean newSession = (now - lastCursorStepTime) > CURSOR_SESSION_MS;
         lastCursorStepTime = now;
 
         if (newSession) {
-            // اتجاه النص يُحدد مرة واحدة لكل سحبة (بدل كل خطوة)
+
             cursorRtl = isRtlAroundCursor(textBefore(ic, 2), ic.getTextAfterCursor(2, 0));
             if (curSelStart < 0 || curSelEnd < 0) {
-                // موضع المؤشر غير معروف (نادر): نسأل التطبيق مرة واحدة فقط لهذه السحبة
+
                 android.view.inputmethod.ExtractedTextRequest req = new android.view.inputmethod.ExtractedTextRequest();
                 android.view.inputmethod.ExtractedText et = ic.getExtractedText(req, 0);
                 if (et == null) return;
@@ -1465,16 +1370,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 curSelEnd = et.startOffset + et.selectionEnd;
             }
         }
-        // الحركة المرئية (يمين/يسار) تتحول لاتجاه منطقي حسب اتجاه النص: في العربي اليمين = للخلف.
+
         boolean forward = cursorRtl ? !moveRight : moveRight;
 
-        // قراءة حرف أو حرفين بجوار المؤشر تؤكد وجود نص باتجاه الحركة (حافة النص = لا شيء) وتكشف الإيموجي المزدوج
         CharSequence neighbor = forward ? ic.getTextAfterCursor(2, 0) : ic.getTextBeforeCursor(2, 0);
         if (neighbor == null || neighbor.length() == 0) return;
         int step = 1;
         if (forward && neighbor.length() >= 2 && Character.isHighSurrogate(neighbor.charAt(0))
                 && Character.isLowSurrogate(neighbor.charAt(1))) {
-            step = 2; // إيموجي من جزأين: نتخطاه كاملاً
+            step = 2;
         } else if (!forward && neighbor.length() >= 2
                 && Character.isLowSurrogate(neighbor.charAt(neighbor.length() - 1))
                 && Character.isHighSurrogate(neighbor.charAt(neighbor.length() - 2))) {
@@ -1488,7 +1392,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         curSelEnd = target;
     }
 
-    /** هل النص حول المؤشر اتجاهه من اليمين لليسار؟ يعتمد على أقرب حرف "قوي" ثم لغة الكيبورد. */
     private boolean isRtlAroundCursor(CharSequence before, CharSequence after) {
         if (before != null) {
             for (int i = before.length() - 1; i >= 0; i--) {
@@ -1511,24 +1414,21 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onEmojiSuggestionAccepted(String emoji) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null || emoji == null) return;
-        // مسافة قبله (لو ما كانت موجودة فعلاً قبل المؤشر) ومسافة بعده، حتى لو انحذفت المسافة الأصلية
-        // بسبب التصحيح التلقائي أو تحويل "نقطتين" لنقطة في نفس اللحظة — يضمن عدم التصاق الإيموجي بالكلمة.
+
         CharSequence beforeCs = textBefore(ic, 1);
         String before = beforeCs != null ? beforeCs.toString() : "";
         String prefixSpace = (!before.isEmpty() && !Character.isWhitespace(before.charAt(before.length() - 1))) ? " " : "";
         ic.commitText(prefixSpace + emoji + " ", 1);
-        // ليست "كلمة" يتعلمها محرك التوقع، فقط إدراج مباشر، ثم تحديث الاقتراحات عادي.
+
         refreshPredictions();
     }
 
-    /** [0]=البادئة الحالية (أو فاضية بعد مسافة)، [1]=آخر كلمة مكتملة، [2]=الكلمة قبلها (للسياق الأوسع). */
     private String[] getTypingContext() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return new String[]{"", "", ""};
         String before = textBefore90(ic);
         if (before.isEmpty()) return new String[]{"", "", ""};
-        // سطر جديد فاضي (زي أول ما تفتح ملاحظة وتنزل سطر): ما نكمل اقتراحات من آخر كلمة بسطر سابق،
-        // نفس تصرف جي بورد تماماً — السياق يبدأ من الصفر مع كل سطر جديد.
+
         if (before.charAt(before.length() - 1) == '\n') return new String[]{"", "", ""};
 
         boolean endsWithSpace = Character.isWhitespace(before.charAt(before.length() - 1));
@@ -1564,7 +1464,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private final android.os.Handler uiHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private boolean predictionsPending = false;
 
-    /** يدمج الاستدعاءات المتتالية (حرف + تحديث المؤشر) في حساب واحد لتوفير المعالج والبطارية. */
     private void refreshPredictions() {
         if (predictionsPending) return;
         predictionsPending = true;
@@ -1576,12 +1475,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void refreshPredictionsNow() {
         if (keyboardView == null) return;
-        final int gen = ++predictionGen; // أي حساب سابق لسا ما انتهى يصير قديماً ويُهمل
+        final int gen = ++predictionGen;
         String[] ctx = getTypingContext();
-        // رمز التحقق (إن وُجد وصالح) يأخذ أولوية فوق أي شيء آخر، ويظهر في المنتصف فقط — حتى في لوحة الأرقام
-        // (حيث الاقتراحات العادية معطّلة أصلاً)، طالما الحقل فاضي ولسه ما بدأ المستخدم يكتب فيه شيء.
+
         if (hasValidPendingOtp() && ctx[0].isEmpty()) {
-            // نفس شكل ونافذة شريحة لقطة الشاشة بالضبط (مربع بخلفية وإطار)، بدون أي أيقونة قفل.
+
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", currentOtpCode(), ""), 3);
             keyboardView.setEmojiKeySuggestion(null);
@@ -1605,8 +1503,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        // الحقل فاضي تماماً ولسه ما بدأ المستخدم يكتب فيه شيء (ولا فيه رمز/لقطة/نص منسوخ معلّق):
-        // نفس حالة جي بورد قبل أي كتابة — يبين الشريط المختصر بدل شريط الاقتراحات العادي.
+
         if (ctx[0].isEmpty() && (ctx[1] == null || ctx[1].isEmpty())) {
             keyboardView.setToolbarIdleMode(true);
             keyboardView.setSuggestions(java.util.Collections.<String>emptyList());
@@ -1615,14 +1512,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         keyboardView.setToolbarIdleMode(false);
 
-        // اقتراح الإيموجي يظهر على زر الإيموجي نفسه فور إكمال كلمة معروفة، سواء كانت لسا بدون مسافة
-        // (ctx[0] = الكلمة الحالية قيد الكتابة) أو بعد ما ضغط مسافة (ctx[1] = آخر كلمة مكتملة)،
-        // ويختفي تلقائياً أول ما تبدأ كتابة حرف جديد لا يطابق كلمة معروفة (لأن refreshPredictionsNow تُستدعى مع كل حرف).
         String emojiSuggestion = !ctx[0].isEmpty() ? EmojiSuggester.suggestFor(ctx[0])
                 : (ctx[1] != null && !ctx[1].isEmpty() ? EmojiSuggester.suggestFor(ctx[1]) : null);
         keyboardView.setEmojiKeySuggestion(emojiSuggestion);
 
-        // حساب الاقتراحات (بحث وترتيب في قاموس كبير) يتم على خيط خلفي، والنتيجة ترجع للواجهة فقط لو ما تغيّر الإدخال
         final String c0 = ctx[0], c1 = ctx[1], c2 = ctx[2];
         final boolean arabic = keyboardView.isArabic();
         try {
@@ -1654,10 +1547,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String prevWord = ctx[1];
         String prevWord2 = ctx[2];
 
-        clearClipChip(); // بدأ يكتب بنفسه: يختفي النص المنسوخ
-        // لو كان رمز تحقق معلّقاً والمستخدم بدأ يكتب يدوياً (بدل ما يضغط على الاقتراح)، نلغي الرمز
-        // المعلّق فوراً. هذا يمنع رجوع ظهوره من جديد في حقول رمز التحقق المقسّمة لعدة خانات منفصلة
-        // (كل خانة حقل مستقل يرجع فاضياً بعد كل رقم)، حيث كان الرمز يستمر يظهر ولا يختفي.
+        clearClipChip();
+
         if (hasValidPendingOtp() && !" ".equals(text)) {
             clearPendingOtp();
         }
@@ -1686,8 +1577,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 }
             }
 
-            // تصحيح تلقائي صامت (اختياري، معطّل افتراضياً من الإعدادات): يستبدل الكلمة المكتوبة بأقرب كلمة
-            // معروفة موثوقة لو كانت قريبة جداً (فرق حرف واحد فقط)، ويحفظ النسخة الأصلية للتراجع الفوري بالباكسبيس.
             if (!currentPrefix.isEmpty() && keyboardPrefs.isAutoCorrectEnabled() && currentPrefix.indexOf('@') < 0
                     && !currentPrefix.equalsIgnoreCase(rejectedAutoCorrectWord)) {
                 String correction = predictionEngine.findAutoCorrection(currentPrefix, keyboardView.isArabic());
@@ -1725,7 +1614,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifSearchFocused) {
             int len = gifQueryBuilder.length();
             if (len > 0) gifQueryBuilder.deleteCharAt(len - 1);
-            updateGifQueryDisplay(); // يمسح النص المعروض فوراً، حتى لو صار فاضي (ما تبقى كلمة معلّقة)
+            updateGifQueryDisplay();
             return;
         }
         InputConnection ic = getCurrentInputConnection();
@@ -1734,7 +1623,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (selected != null && selected.length() > 0) {
             ic.commitText("", 1);
         } else if (lastAutoCorrectResult != null && undoAutoCorrectIfImmediate(ic)) {
-            // تراجع فوري عن التصحيح التلقائي: رجّعنا الكلمة الأصلية بدل حذف حرف واحد فقط.
+
         } else {
             int len = lastGraphemeLength(ic);
             ic.deleteSurroundingText(len, 0);
@@ -1744,7 +1633,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshPredictions();
     }
 
-    /** لو آخر شيء مكتوب هو بالضبط "النتيجة المصححة + مسافة"، يرجعه للكلمة الأصلية (بدون مسافة) دفعة واحدة. */
     private boolean undoAutoCorrectIfImmediate(InputConnection ic) {
         String expected = lastAutoCorrectResult + " ";
         CharSequence before = textBefore(ic, expected.length());
@@ -1755,7 +1643,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return true;
     }
 
-    /** طول آخر "حرف مرئي" قبل المؤشر (الإيموجي المركّب يتكوّن من عدة أكواد، فيُحذف دفعة واحدة). */
     private int lastGraphemeLength(InputConnection ic) {
         CharSequence before = textBefore(ic, 32);
         if (before == null || before.length() == 0) return 1;
@@ -1767,7 +1654,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             int start = it.preceding(end);
             if (start == java.text.BreakIterator.DONE || start >= end) start = end - 1;
             int len = end - start;
-            // لا نحذف حرفاً عربياً مع حركاته دفعة واحدة، فقط الإيموجي والرموز المركبة
+
             int cp = str.codePointBefore(end);
             boolean emojiLike = cp > 0xFFFF || (cp >= 0x2190 && cp <= 0x2BFF) || cp == 0xFE0F || cp == 0x200D || (cp >= 0x20E3 && cp <= 0x20E3);
             if (!emojiLike && len > 1) {
@@ -1784,8 +1671,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
 
-        // إذا كان هناك تحديد نشط (مثلاً بعد سحبة "تحديد الكل")، نحذف المحدد نفسه مباشرة
-        // بدل البحث عن "الكلمة قبل المؤشر" (اللي تفشل لأن بداية التحديد تكون عند أول النص).
         android.view.inputmethod.ExtractedTextRequest selReq = new android.view.inputmethod.ExtractedTextRequest();
         android.view.inputmethod.ExtractedText selEt = ic.getExtractedText(selReq, 0);
         if (selEt != null && selEt.selectionEnd > selEt.selectionStart) {
@@ -1817,12 +1702,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public boolean onSwipeSelectAll() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
-        // أولاً نجرب أمر "تحديد الكل" الرسمي (يعمل صح مع أغلب حقول النص المعتادة في النظام).
+
         try {
             if (ic.performContextMenuAction(android.R.id.selectAll)) return true;
         } catch (Exception ignored) {
         }
-        // بديل احتياطي: نجيب طول النص كامل عبر ExtractedText ونحدده يدوياً من البداية للنهاية.
+
         android.view.inputmethod.ExtractedTextRequest req = new android.view.inputmethod.ExtractedTextRequest();
         android.view.inputmethod.ExtractedText et = ic.getExtractedText(req, 0);
         if (et == null || et.text == null || et.text.length() == 0) return false;
@@ -1830,7 +1715,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     private long lastCopyTime = 0L;
-    private static final long PASTE_WINDOW_MS = 60_000L; // دقيقة واحدة بعد النسخ يتحول السحب للأسفل إلى لصق
+    private static final long PASTE_WINDOW_MS = 60_000L;
 
     @Override
     public boolean onSwipeDownCopyPaste() {
@@ -1842,7 +1727,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (pasteMode) {
             try {
                 if (ic.performContextMenuAction(android.R.id.paste)) {
-                    lastCopyTime = 0L; // بعد اللصق مباشرة ترجع السحبة للأسفل "نسخ"، مو بعد دقيقة
+                    lastCopyTime = 0L;
                     return true;
                 }
             } catch (Exception ignored) {
@@ -1879,7 +1764,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String lastCompletedWord2 = ctx[2];
 
         if (hasValidPendingOtp() && currentPrefix.isEmpty()) {
-            // الجانبان فاضيان وقت ظهور رمز التحقق، فقط المنتصف (1) يُدخل الرمز؛ الباقي بدون أي إجراء.
+
             if (zoneIndex == 1) {
                 ic.commitText(currentOtpCode(), 1);
                 clearPendingOtp();
@@ -1898,7 +1783,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         if (hasValidClipChip() && currentPrefix.isEmpty()) {
-            // الخانتان الجانبيتان فاضيتان وقت ظهور النص المنسوخ؛ فقط المنتصف يلصقه.
+
             if (zoneIndex == 1) {
                 ic.commitText(clipChipText, 1);
                 clearClipChip();
@@ -1907,15 +1792,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        // لمن يكون الشريط فاضي فعلاً (وضع الخمول قبل أي كتابة)، ما نسحب أي كلمة حتى لو محرك التوقع
-        // عنده كلمات شائعة يملأ فيها الخانات داخلياً — لأن المستخدم ما يشوف شي على الشريط أصلاً.
         if (currentPrefix.isEmpty() && (lastCompletedWord == null || lastCompletedWord.isEmpty())) return;
 
         List<String> suggestions = predictionEngine.getThreeSuggestions(currentPrefix, lastCompletedWord, lastCompletedWord2, keyboardView.isArabic());
         if (suggestions.isEmpty()) return;
         String chosen = (zoneIndex >= 0 && zoneIndex < suggestions.size()) ? suggestions.get(zoneIndex) : suggestions.get(0);
-        // العبارات (فيها مسافة) والإيموجي (بدون أي حرف) لا تُعتبر "كلمة" يتعلمها محرك التوقع.
-        if (chosen == null || chosen.isEmpty()) return; // خانة فاضية: ما نكتب شي
+
+        if (chosen == null || chosen.isEmpty()) return;
         boolean learnableChoice = chosen.indexOf(' ') < 0 && containsLetter(chosen);
 
         if (!currentPrefix.isEmpty()) {
@@ -1932,7 +1815,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshPredictions();
     }
 
-    /** صحيح لو فيه حرف واحد فأكثر (عربي أو إنجليزي) — يُستخدم لاستبعاد الإيموجي من التعلّم كـ"كلمة". */
     private static boolean containsLetter(String s) {
         if (s == null) return false;
         for (int i = 0; i < s.length(); i++) {
@@ -1981,15 +1863,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return (int) (value * getResources().getDisplayMetrics().density);
     }
 
-    // ===== ألوان نوافذ الحافظة والإيموجي: نفس ألوان الكيبورد (سمته الحالية) =====
     private int shellC()      { return keyboardView != null ? keyboardView.getShellColor() : Color.parseColor("#111111"); }
     private int sugBarC()     { return keyboardView != null ? keyboardView.getSuggestionBarColor() : Color.parseColor("#171717"); }
     private int keyBgC()      { return keyboardView != null ? keyboardView.getKeyBgColor() : Color.parseColor("#262626"); }
     private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
     private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
     private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
-    // كبسولة الأزرار العائمة (أبجد/الحذف) فقط: لون وشفافية يتحكم فيهم المستخدم من الإعدادات
-    // (أبيض/زجاجي/رمادي فاتح/عنابي/أسود + مستوى عتامة). زر الرجوع ما له علاقة فيها — يبقى على pillC.
+
     private int floatingPillC() {
         int rgb = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleColor() : 0x000000;
         if (rgb == KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL) rgb = labelC() & 0x00FFFFFF;
@@ -1998,12 +1878,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return (rgb & 0x00FFFFFF) | (alpha << 24);
     }
 
-    /**
-     * خلفية الكبسولة العائمة: طبقتان فوق بعض — خلفية سوداء ثابتة قوتها تتحرك عكسياً مع مستوى
-     * الشفافية (كل ما قلّت الشفافية صار السواد أوضح)، وفوقها لون المستخدم بنفس مستوى الشفافية.
-     * هذا يخلي الكبسولة تحافظ على تباين وقراءة واضحة بأي مستوى شفافية بدل ما تذوب بالخلفية
-     * المزدحمة خلفها (إيموجي/محتوى).
-     */
     private android.graphics.drawable.Drawable buildFloatingCapsuleDrawable() {
         int percent = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleOpacity() : 85;
         int colorAlpha = Math.round(255 * percent / 100f);
@@ -2039,7 +1913,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return gd;
     }
 
-    /** مراجع لعناصر الشريط السفلي حتى نقدر نحدّث حجمها/فراغاتها ديناميكياً بعد بنائها (انظر refreshBottomBarGeometry). */
     private static class BottomBarRefs {
         LinearLayout bar;
         FrameLayout abcWrap;
@@ -2052,8 +1925,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private BottomBarRefs clipBottomBarRefs;
     private BottomBarRefs emojiBottomBarRefs;
 
-    /** يحدّث لون/شفافية كبسولتي "أبجد"/الحذف من الإعدادات الحالية — تُبنى الخلفية مرة واحدة فقط
-     * عند إنشاء النافذة، فهذا يضمن انعكاس أي تغيير لاحق بالإعدادات (لون/شفافية) كل ما فُتحت القائمة. */
     private void refreshFloatingCapsuleColors(BottomBarRefs refs) {
         if (refs == null) return;
         if (refs.abcWrap != null) {
@@ -2064,13 +1935,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
-    /**
-     * شريط سفلي بنفس شكل ومكان زر "؟123" الحقيقي من الكيبورد الرئيسي بالضبط (نفس ستايل المفاتيح
-     * المختار حالياً من الإعدادات، نفس نسبة عرضه وارتفاعه)، يُستخدم في قائمتي الحافظة والإيموجي.
-     * أبعاده الفعلية (العرض/الفراغات الجانبية) تُحسب وتُحدّث ديناميكياً في refreshBottomBarGeometry()
-     * عند كل فتح للقائمة لأنها تعتمد على عرض الشاشة الحالي ووضع الكيبورد المقسوم (تابلت).
-     * لو withBackspace=true (قائمة الإيموجي فقط) يُضاف زر حذف إضافي أقصى اليمين بنفس الشكل.
-     */
     private BottomBarRefs buildBottomLettersBar(final boolean withBackspace) {
         BottomBarRefs refs = new BottomBarRefs();
 
@@ -2078,7 +1942,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        // بدون خلفية خاصة للشريط في النافذتين — شفاف يبيّن المحتوى خلفه (الإيموجي أو المقصوصات).
+
         bar.setBackgroundColor(Color.TRANSPARENT);
         bar.setPadding(dp(10), 0, dp(10), 0);
         bar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(54)));
@@ -2096,9 +1960,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         KeyShapeBackgroundView abcBg = new KeyShapeBackgroundView(this, style, fillColor, shadowColor, outlineColor, dividerColor);
         abcBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // زر "أبجد/ABC" (في نافذتي الرموز والحافظة): كبسولة غامقة تتبع خلفية الكيبورد، مو لون زر الرجوع.
+
         abcWrap.setBackground(buildFloatingCapsuleDrawable());
-        refs.abcBg = abcBg; // يبقى مرجعاً للقياس فقط ولا يُرسم
+        refs.abcBg = abcBg;
 
         TextView abcLabel = new TextView(this);
         abcLabel.setText((keyboardView == null || keyboardView.isArabic()) ? "أبجد" : "ABC");
@@ -2126,10 +1990,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             delWrap.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(40)));
             refs.delBg = null;
 
-            // نفس لون كبسولة "أبجد" الغامقة بالضبط.
             delWrap.setBackground(buildFloatingCapsuleDrawable());
 
-            // نفس رمز الحذف المستخدم بالكيبورد الرئيسية بالضبط (حرف "⌫" نصي)
             TextView delIcon = new TextView(this);
             delIcon.setText("⌫");
             delIcon.setTextColor(labelColor);
@@ -2149,12 +2011,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return refs;
     }
 
-    /**
-     * يحدّث حجم وفراغات زر "أبجد"/الحذف ديناميكياً حتى يطابقا زر "؟123" الحقيقي بالضبط (نفس عرضه
-     * النسبي وارتفاعه)، ويضيف نفس فراغات حواف الشاشة (يمين ويسار) اللي يأخذها الكيبورد الرئيسي في
-     * وضع التابلت لمحتوى القائمتين. يُستدعى كل مرة تُفتح فيها قائمة الحافظة أو الإيموجي لأن القياس
-     * يعتمد على عرض الشاشة الحالي ووضع الكيبورد المقسوم.
-     */
     private void refreshBottomBarGeometry() {
         if (keyboardView == null) return;
         int width = keyboardView.getWidth();
@@ -2166,7 +2022,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         int rowH = Math.round(keyboardView.getBottomRowHeightPx());
         float gapX = keyboardView.getTabletKeyGapXPx(width);
         float gapY = keyboardView.getTabletKeyGapYPx(width);
-        boolean tablet = gapX > 0f; // وضع التابلت فقط (edgeGap صار فيه هامش صغير للجوال أيضاً)
+        boolean tablet = gapX > 0f;
 
         applyBottomBarGeometry(clipBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
         applyBottomBarGeometry(emojiBottomBarRefs, edgeGap, symW, rowH, gapX, gapY);
@@ -2181,8 +2037,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     contentSidePad, emojiSectionsHost.getPaddingBottom());
         }
 
-        // الشريط العلوي (أقسام الإيموجي / ترويسة الحافظة) ياخذ نفس حواف الكيبورد والشريط السفلي في
-        // وضع التابلت، حتى تكون الأشرطة الثلاثة متناسقة ومحاذية لبعض.
         if (emojiHeaderRow != null) {
             emojiHeaderRow.setPadding(tablet ? edgeGap : dp(8), dp(5), tablet ? edgeGap : dp(8), dp(5));
         }
@@ -2190,7 +2044,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             clipHeaderRow.setPadding(tablet ? edgeGap + dp(6) : dp(14), dp(6),
                     tablet ? edgeGap + dp(6) : dp(12), dp(6));
         }
-        // زر الرجوع العلوي في قائمة الإيموجي بنفس عرض زر الحذف اللي تحته مباشرة في وضع التابلت.
+
         if (emojiBackBtn != null) {
             ViewGroup.LayoutParams lp = emojiBackBtn.getLayoutParams();
             if (lp != null) {
@@ -2202,8 +2056,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             }
         }
 
-        // أعمدة وعرض خلايا الإيموجي تُحسب من العرض الفعلي المتاح بعد الحواف، بدل عرض الشاشة الكامل
-        // (هذا اللي كان يقص العمود الأخير ويخلّي الإيموجي ما يتناسق في التابلت).
         int availW = width - contentSidePad * 2;
         int cols = Math.max(8, Math.min(16, availW / dp(46)));
         emojiGridCols = cols;
@@ -2215,8 +2067,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshFloatingCapsuleColors(refs);
         if (refs.abcBg != null) refs.abcBg.setExtraInset(gapX, gapY);
         if (refs.delBg != null) refs.delBg.setExtraInset(gapX, gapY);
-        // يسار الشريط = نفس حافة زر "؟123" الحقيقي بالكيبورد الرئيسية بالضبط، حتى يصير زر "أبجد"
-        // بنفس موضعه. يمين الشريط ياخذ حد أدنى أكبر بس لو فيه زر حذف، حتى ما تنقص كبسولته عند الحافة.
+
         int leftPad = edgeGap;
         int rightPad = (refs.delWrap != null) ? Math.max(edgeGap, dp(8)) : edgeGap;
         refs.bar.setPadding(leftPad, 0, rightPad, 0);
@@ -2243,9 +2094,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
-    /**
-     * قائمة الحافظة بتصميم حديث: ترويسة بأيقونة وعنوان وعدّاد، أزرار دائرية مرسومة بدل الإيموجي، وبطاقات للمقصوصات.
-     */
     private LinearLayout buildClipboardAndResizeDrawer() {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
@@ -2255,8 +2103,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
-        // اتجاه ثابت دائماً (LTR) بغض النظر عن لغة الكيبورد، عشان ترتيب الأيقونات وموضع العدّاد
-        // ما ينقلب بين العربي والإنجليزي.
+
         header.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         header.setGravity(Gravity.CENTER_VERTICAL);
         header.setBackgroundColor(sugBarC());
@@ -2269,8 +2116,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         lpTitleBox.leftMargin = dp(8);
         lpTitleBox.rightMargin = dp(6);
         titleBox.setLayoutParams(lpTitleBox);
-        // يفرض محاذاة يسار ثابتة لأقصى اليسار بكل اللغات (نفس مكان "2 items" بالإنجليزي)، بدل ما
-        // تنحسب تلقائياً حسب اتجاه نص اللغة الحالية.
+
         titleBox.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         titleBox.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
 
@@ -2279,8 +2125,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         titleRow.setGravity(Gravity.CENTER_VERTICAL);
         titleRow.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
 
-        // أيقونة الحافظة انتقلت لداخل ترويسة الدرج نفسه، بدل ما تكون أيقونة منفصلة على زر الفتح.
-        // بنفس شكل وحجم أيقونة الحافظة الأصلية (بدون setStyle مخصص، زي أيقونة حالة "فاضية" أسفل الدرج).
         ModernIconView clipTitleIcon = new ModernIconView(this, ModernIconView.ICON_CLIPBOARD_PAD,
                 labelC(), Color.TRANSPARENT);
         LinearLayout.LayoutParams lpClipIcon = new LinearLayout.LayoutParams(dp(28), dp(28));
@@ -2335,13 +2179,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setResizeDragMode(!keyboardView.isResizeDragMode());
         });
 
-        // زر الرجوع: نفس شكل وأيقونة زر الرجوع في قائمة الإيموجي (سهم فوق كبسولة)
         ModernIconView backIconBtn = new ModernIconView(this, ModernIconView.ICON_FORWARD_ARROW,
                 labelC(), pillC());
         backIconBtn.setPillBackground(true);
         backIconBtn.setStyle(0.85f, 2.3f);
         LinearLayout.LayoutParams lpBackClip = new LinearLayout.LayoutParams(dp(62), dp(42));
-        // مسافة أكبر (درجتين إضافيتين) عن مجموعة أيقونات الارتفاع/المايك/الضبط، حتى يبين زر الرجوع منفصل عنها.
+
         lpBackClip.leftMargin = dp(30);
         backIconBtn.setLayoutParams(lpBackClip);
         backIconBtn.setOnClickListener(v -> {
@@ -2356,8 +2199,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         header.addView(backIconBtn);
         container.addView(header);
 
-        // نفس أسلوب نافذة الرموز: إطار واحد يحط فيه القائمة وزر "أبجد" فوق بعض (Overlay)، بدل ما
-        // ياخذ زر أبجد شريط مستقل بخلفيته الخاصة — الآن عايم فوق المقصوصات مباشرة.
         FrameLayout clipContentFrame = new FrameLayout(this);
         clipContentFrame.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
@@ -2430,7 +2271,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        // بطاقتين بجنب بعض بكل سطر بدل بطاقة وحدة تاخذ العرض كامل
         for (int i = 0; i < clips.size(); i += 2) {
             LinearLayout pairRow = new LinearLayout(this);
             pairRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -2439,9 +2279,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             pairLp.bottomMargin = dp(7);
             pairRow.setLayoutParams(pairLp);
 
-            // كل بطاقة نص عرض السطر بالضبط (50/50)، وكل صف مستقل عن اللي فوقه وتحته — بطاقة طويلة
-            // (سطرين) في صف ما تأثر إطلاقاً على ترتيب أو محاذاة الصف الثاني، لأن كل صف LinearLayout
-            // منفصل بارتفاعه الخاص (WRAP_CONTENT) محسوب من أطول بطاقة داخله هو فقط.
             View cardA = buildClipCard(clips.get(i));
             LinearLayout.LayoutParams cardALp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             cardALp.setMarginEnd(dp(10));
@@ -2464,14 +2301,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
-    /** بطاقة عنصر واحد بقائمة الحافظة (نص + تثبيت + حذف)، تُستخدم بطاقتين بجنب بعض بكل سطر. */
     private View buildClipCard(final ClipboardRepository.ClipEntry clip) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
-        // ترتيب الأيقونات (تثبيت/حذف) ثابت دائماً (LTR) بغض النظر عن لغة الكيبورد، حتى ما ينقلب
-        // مكانها بين عربي وإنجليزي ويخلي أيقونة بطاقة ملاصقة لأيقونة البطاقة المجاورة بشكل مختلف
-        // كل لغة. فقط محاذاة النص نفسه (أسفل) تتغير حسب اللغة.
+
         row.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         row.setGravity(Gravity.CENTER_VERTICAL);
         GradientDrawable cardBg = roundedBg(keyBgC(), 14);
@@ -2506,7 +2340,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             showKeyboardMain();
         });
 
-        // نفس أيقونة الحذف المستخدمة في قائمة الكلمات المتعلمة (X)، بدل أيقونة سلة المهملات.
         ModernIconView delBtn = new ModernIconView(this, ModernIconView.ICON_CLOSE,
                 Color.parseColor("#F87171"), Color.TRANSPARENT);
         delBtn.setStyle(0.8f, 1.9f);
@@ -2522,10 +2355,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return row;
     }
 
-    /**
-     * قائمة الإيموجي: كل الأقسام في قائمة واحدة متصلة، فالتمرير للأسفل ينتقل تلقائياً للقسم التالي،
-     * والضغط على تبويب يقفز لبداية قسمه، والتبويب النشط يتبع موضع التمرير.
-     */
     private LinearLayout buildCategorizedEmojiDrawer() {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
@@ -2565,7 +2394,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             tabsRow.addView(tab);
         }
 
-        // تبويب GIF: مو ضمن تبويبات أقسام الإيموجي لأنه يبدّل الشاشة كاملة بدل ما يسكرول لقسم.
         TextView gifTab = new TextView(this);
         gifTab.setText("GIF");
         gifTab.setGravity(Gravity.CENTER);
@@ -2584,7 +2412,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         tabsRow.addView(gifTab);
 
-        // زر الرجوع للكيبورد: سهم متجه لليمين فوق كبسولة مضلّلة بيضاوية، بنفس أسلوب مفتاح "123" في سمة Gboard.
         ModernIconView backIconBtn = new ModernIconView(
                 this,
                 ModernIconView.ICON_FORWARD_ARROW,
@@ -2606,8 +2433,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         header.addView(backIconBtn);
         container.addView(header);
 
-        // إطار واحد يحط فيه شريط الإيموجي وزري أبجد/الحذف فوق بعض (Overlay)، حتى تختفي مساحة الشريط
-        // السفلي المنفصلة ويبين الإيموجي خلف الزرين العائمين، بدل أخذهما صف كامل مستقل.
         FrameLayout emojiContentFrame = new FrameLayout(this);
         emojiContentFrame.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         emojiContentFrameView = emojiContentFrame;
@@ -2616,8 +2441,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiScroll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         emojiScroll.setVerticalScrollBarEnabled(false);
         emojiScroll.setOnScrollChangeListener((v, sx, sy, ox, oy) -> updateActiveEmojiTabFromScroll(sy));
-        // لا نثق بحساب تحديد التبويب من موضع السكرول إلا لما يلمس المستخدم القائمة بإصبعه فعلياً،
-        // عشان نتفادى أي سكرول برمجي (فتح/إعادة بناء) يصير بمواضع عناوين غير مقاسة بعد.
+
         emojiScroll.setOnTouchListener((v, event) -> {
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 suppressEmojiTabScrollSync = false;
@@ -2641,7 +2465,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         container.addView(emojiContentFrame);
 
-        // ===== تبويب GIF: شريط بحث فوق وشبكة صور تحته، يبدّل مكان محتوى الإيموجي وقت ما يكون مفتوح =====
         boolean gifArabic = keyboardView == null || keyboardView.isArabic();
         gifPanel = new FrameLayout(this);
         gifPanel.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
@@ -2667,8 +2490,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifSearchBox.setGravity(Gravity.CENTER_VERTICAL | (gifArabic ? Gravity.RIGHT : Gravity.LEFT));
         gifSearchBox.setPadding(dp(12), dp(6), dp(12), dp(6));
         gifSearchBox.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-        // ما نقدر نستخدم EditText حقيقي هنا: التطبيق نفسه هو الكيبورد النشط حالياً فما يطلع له أي
-        // كيبورد نظام. نفس حل جي بورد: نضغط على الصف فيفتح كيبوردنا العادي فوق شريط بحث مؤقت.
+
         gifSearchBox.setOnClickListener(v -> {
             soundController.playKeyClick();
             openGifSearchKeyboard();
@@ -2682,7 +2504,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifSearchClearBtn.setGravity(Gravity.CENTER);
         gifSearchClearBtn.setPadding(dp(12), 0, dp(12), 0);
         gifSearchClearBtn.setVisibility(View.GONE);
-        // يمسح كلمة البحث الحالية ويرجع مباشرة لصفحة GIF الرئيسية (ترند + آخر ما استخدمت).
+
         gifSearchClearBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             gifLastQuery = "";
@@ -2782,13 +2604,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiScroll.smoothScrollTo(0, emojiSectionHeaders.get(index).getTop());
     }
 
-    /** يفتح تبويب GIF مكان محتوى الإيموجي، ويحمّل الترند أول مرة فقط. */
     private void showGifPanel() {
         if (gifPanel == null) return;
         gifPanelShown = true;
         if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.GONE);
         gifPanel.setVisibility(View.VISIBLE);
-        // تحديد تبويب GIF بنفس طريقة تحديد باقي تصنيفات الرموز (خلفية بيضاوية + شفافية كاملة).
+
         if (gifTabView != null) {
             gifTabView.setAlpha(1.0f);
             gifTabView.setBackground(roundedBg(pressedC(), 8));
@@ -2802,7 +2623,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifLastQuery = "";
             loadGifResults(true, "");
         } else if (gifLastLoadedArabic != gifArabic) {
-            // اللغة تغيّرت وقت ما كان تبويب GIF مقفول؛ لازم نعيد البناء حتى تترجم العناوين والمحتوى.
+
             loadGifResults(gifLastQuery.isEmpty(), gifLastQuery);
         }
     }
@@ -2819,16 +2640,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
-    /** يفتح الكتابة بمربع البحث: يحط كيبوردنا العادي فوقه شريط بحث مؤقت بدل نافذة GIF (نفس فكرة
-     *  جي بورد: يستخدم كيبورده هو لأنه ما يقدر يطلع له كيبورد نظام ثاني). الكتابة تستجيب لحروف
-     *  الكيبورد وزر الحذف، والبحث ما يصير إلا بالضغط على إنتر؛ زر X يلغي بدون بحث. */
     private void openGifSearchKeyboard() {
         if (keyboardView == null || gifSearchBar == null) return;
         gifSearchFocused = true;
         gifQueryBuilder.setLength(0);
         if (gifLastQuery != null) gifQueryBuilder.append(gifLastQuery);
         updateGifQueryDisplay();
-        // لازم يفتح على صفحة الحروف (عربي/إنجليزي)، مو صفحة الرموز لو كانت مفتوحة من قبل.
+
         keyboardView.exitSymbolsIfActive();
         if (emojiDrawerView != null) emojiDrawerView.setVisibility(View.GONE);
         keyboardView.setVisibility(View.VISIBLE);
@@ -2841,8 +2659,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateOneHandedSwitchButton();
     }
 
-    /** يسكّر كيبورد البحث ويرجّع نافذة GIF ويبحث بالنص المكتوب (فاضي ⇒ يرجع لصفحة الترند وآخر ما
-     *  استخدمت). زر الإنتر يستدعيها بالنص المكتوب، وزر X يمسح النص أول ثم يستدعيها فيرجع فاضي. */
     private void closeGifSearchKeyboard(boolean runSearch) {
         if (!gifSearchFocused) return;
         gifSearchFocused = false;
@@ -2892,7 +2708,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifSearchClearBtn != null) gifSearchClearBtn.setVisibility(hasQuery ? View.VISIBLE : View.GONE);
     }
 
-    /** يحمّل صور GIF (ترند أو نتائج بحث) من GIPHY ويعرضها بالشبكة. */
     private void loadGifResults(boolean trending, String query) {
         boolean gifArabic = keyboardView == null || keyboardView.isArabic();
         gifLastLoadedArabic = gifArabic;
@@ -2924,7 +2739,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             List<GiphyClient.GifResult> main = results;
             if (showRecents) {
                 List<String[]> recentPairs = keyboardPrefs.getRecentGifs();
-                // أول ثلاث صفوف بس (٣ × عدد الأعمدة) آخر GIF استخدمته، والباقي ترند عادي.
+
                 int recentLimit = GIF_GRID_COLUMNS * 3;
                 for (int i = 0; i < recentPairs.size() && i < recentLimit; i++) {
                     String[] g = recentPairs.get(i);
@@ -2958,8 +2773,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private static final int GIF_GRID_COLUMNS = 4;
 
-    /** يبني قسم "آخر ما استخدمت" (لو فيه) وبعده قسم الترند/نتائج البحث، كل وحد بعنوان فوقه
-     *  يفصلهم عن بعض (زي عناوين تصنيفات الإيموجي بالضبط). */
     private void fillGifSections(List<GiphyClient.GifResult> recents, List<GiphyClient.GifResult> main, boolean isSearch, boolean gifArabic) {
         gifGrid.removeAllViews();
         if (!recents.isEmpty()) {
@@ -3018,7 +2831,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return grid;
     }
 
-    /** يحمّل ملف الـGIF كامل بخيط خلفي، وبعدها يرسله للمحادثة (أو ينسخه لو التطبيق ما يدعم الإرسال المباشر). */
     private void sendGif(String url) {
         soundController.playKeyClick();
         ioExecutor.execute(() -> {
@@ -3078,8 +2890,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 tab.setAlpha(0.60f);
             }
         }
-        // تحديد فئة رموز عادية هنا يعني تبويب GIF مو مفتوح، فنتأكد دايماً إنه مو محدد بصرياً حتى لو
-        // صار خلل بمكان ثاني وبقي محدد من قبل (هذا هو المكان الوحيد اللي يحدد فيه أي تبويب فعلياً).
+
         if (gifTabView != null) {
             gifTabView.setBackgroundColor(Color.TRANSPARENT);
             gifTabView.setAlpha(0.60f);

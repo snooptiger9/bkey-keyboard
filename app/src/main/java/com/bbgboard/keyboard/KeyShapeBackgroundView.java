@@ -6,14 +6,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.View;
 
-/**
- * خلفية زر ترسم نفس شكل زر "؟123"/الإدخال الحقيقي في الكيبورد الرئيسي بالضبط (حسب ستايل الكيبورد
- * المختار حالياً من الإعدادات)، تُستخدم لأزرار خارج الكيبورد الرئيسي (زر "أبجد"/الحذف في قوائم
- * الحافظة والإيموجي) حتى يكون شكلها مطابقاً تماماً لشكل زر "؟123" بدل تقليد تقريبي بزاوية ثابتة.
- * هذا الكلاس نسخة مطابقة لمنطق BlackBerryKeyboardView.drawStyledKeyCell() لكن بافتراض pillKey=true
- * دائماً (لأن زر "؟123" نفسه دائماً pillKey)، ومرسومة على حدود الـView نفسها بدل مستطيل مفتاح داخل
- * الكانفس الكبير.
- */
 public class KeyShapeBackgroundView extends View {
 
     private final float density;
@@ -23,7 +15,7 @@ public class KeyShapeBackgroundView extends View {
     private final Paint outlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint dividerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rawRect = new RectF();
-    // فجوة إضافية بين الأزرار في وضع التابلت (نفس القيم اللي يستخدمها الكيبورد الرئيسي) حتى يتطابق الشكل
+
     private float extraX = 0f;
     private float extraY = 0f;
 
@@ -124,8 +116,7 @@ public class KeyShapeBackgroundView extends View {
             canvas.drawRoundRect(pillRect, radius, radius, fillPaint);
             return;
         }
-        // النمط الافتراضي (BLACKBERRY_FRETS وغيره): مستطيل متصل بخط فاصل بدون استدارة، بالضبط زي
-        // شكل زر "؟123" في الكيبورد الرئيسي بهذا النمط.
+
         canvas.drawRect(rawRect, fillPaint);
         canvas.drawLine(rawRect.right, rawRect.top, rawRect.right, rawRect.bottom, dividerPaint);
     }

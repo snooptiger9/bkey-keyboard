@@ -9,12 +9,6 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/**
- * محرك الصوت المتطور (الإصدار 7.0):
- * - التعديل رقم 2: إصلاح أصوات السحب لتكون مسموعة وواضحة تماماً على سماعات الجوال (ترددات متوسطة وعالية 480Hz-1850Hz بمدة 42-55ms).
- * - التعديل رقم 9: تصميم 5 محركات صوتية مختلفة جذرياً في الخامة الصوتية والتركيب الموجي لأصوات الكتابة
- *   (بلاك بيري كلاسيك، بلاك بيري Q10 العميق، فقاعة جي بورد الصاعدة، سويتش ميكانيكي مزدوج، وتكة iOS الحادة).
- */
 public class SoundController {
 
     private static final int SAMPLE_RATE = 44100;
@@ -34,9 +28,6 @@ public class SoundController {
         ensureLoaded();
     }
 
-    /** يحمّل أصوات الكيبورد فقط لو فعلاً محتاجينها (صوت الكتابة أو السحب مفعّل وعلى نغمة مخصّصة، مو
-     *  صوت النظام أو صامت) — لو الصوت كله مقفل ما نحمّل شي ونوفر الذاكرة. آمنة تتكرر: لا تسوي شي
-     *  لو محمّلة أصلاً. تُستخدم أيضاً لإعادة التحميل بعد تفريغ الذاكرة (releaseSounds) لو احتجناها لاحقاً. */
     public synchronized void ensureLoaded() {
         if (soundPool != null) return;
         boolean needed = (prefs.isSoundEnabled() && prefs.getSoundProfile() != KeyboardPreferences.SOUND_PROFILE_SYSTEM)
@@ -45,8 +36,6 @@ public class SoundController {
         initSoundPool();
     }
 
-    /** يبني SoundPool نفسه فوراً (رخيص)، ويدفع تحميل/توليد ملفات الصوت لخيط خلفي حتى لا يجمّد
-     *  ظهور الكيبورد عند أول تشغيل بعد التركيب أو تفريغ الكاش (توليد 20 ملف صوتي عملية معالج فعلية). */
     private void initSoundPool() {
         try {
             AudioAttributes attrs = new AudioAttributes.Builder()
@@ -63,13 +52,10 @@ public class SoundController {
         new Thread(this::loadOrBuildSounds, "SoundController-load").start();
     }
 
-    /** يحرر SoundPool نهائياً عند إغلاق خدمة الكيبورد. */
     public void release() {
         releaseSounds();
     }
 
-    /** يحرر الأصوات المحمّلة من الذاكرة (وقت ضغط ذاكرة النظام مثلاً)، بدون تدمير الكائن نفسه —
-     *  تقدر ترجع تحمّلها بعدين بنداء ensureLoaded() لو احتجناها من جديد. */
     public synchronized void releaseSounds() {
         try {
             if (soundPool != null) soundPool.release();
@@ -87,7 +73,6 @@ public class SoundController {
                 cacheDir.mkdirs();
             }
 
-            // أرقام الملفات: النقر 0-4 و6-9 (الرقم 5 = صوت النظام)، السحب 0-4 و6-9 (الرقم 5 = صامت)
             final int[] ids = {0, 1, 2, 3, 4, 6, 7, 8, 9, 10};
             final String[] tapNames = {"tap_bb_classic.wav", "tap_bb_q10.wav", "tap_gboard_pop.wav", "tap_mech_switch.wav",
                     "tap_ios_tick.wav", "tap_typewriter.wav", "tap_wooden.wav", "tap_waterdrop.wav", "tap_glass.wav", "tap_bb_original.wav"};
@@ -95,7 +80,6 @@ public class SoundController {
                     "sw_whoosh.wav", "sw_glass_ping.wav", "sw_paper.wav", "sw_bubble.wav", "sw_triple_tick.wav", "sw_bb_original.wav"};
             final String bsName = "tap_backspace_soft.wav";
 
-            // إن كانت الملفات مولّدة مسبقاً نحمّلها مباشرة بدون إعادة توليد الصوت (يوفر المعالج عند كل تشغيل)
             boolean allCached = new File(cacheDir, bsName).exists();
             for (String n : tapNames) allCached &= new File(cacheDir, n).exists();
             for (String n : swNames) allCached &= new File(cacheDir, n).exists();
@@ -135,10 +119,6 @@ public class SoundController {
         } catch (Exception ignored) {}
     }
 
-    // =========================================================================
-    // أدوات توليد الصوت (v8): أصوات حقيقية الطابع مبنية على ضوضاء مفلترة + رنين مخمّد
-    // بدل النغمات الجيبية البسيطة التي كانت تعطي صوتاً غريباً.
-    // =========================================================================
     private static class Bandpass {
         private double low = 0.0, band = 0.0;
         private final double q;
@@ -165,7 +145,6 @@ public class SoundController {
         }
     }
 
-    /** إضافة رنين جيبي مخمّد (جسم الزر) إلى المخزن بدءاً من عينة معيّنة. */
     private static void addResonance(double[] buf, int startSample, double freq, double freqEnd,
                                      double decayMs, double amp, double attackMs) {
         int n = buf.length - startSample;
@@ -181,7 +160,6 @@ public class SoundController {
         }
     }
 
-    /** إضافة نقرة ضوضاء مفلترة (احتكاك/ضربة) إلى المخزن. */
     private static void addNoiseBurst(double[] buf, int startSample, double centerHz, double q,
                                       double decayMs, double amp, long seed) {
         java.util.Random rnd = new java.util.Random(seed);
@@ -214,10 +192,6 @@ public class SoundController {
 
     private static int ms(int millis) { return (SAMPLE_RATE * millis) / 1000; }
 
-    // -------------------------------------------------------------------------
-    // أصوات الكتابة الخمسة (مختلفة الخامة فعلاً)
-    // -------------------------------------------------------------------------
-    /** 0: بلاك بيري كلاسيك: نقرة بلاستيك قصيرة + ثود دافئ خفيف. */
     private int buildBlackBerryClassicTapWav(File dir, String name) {
         double[] b = new double[ms(38)];
         addNoiseBurst(b, 0, 3200.0, 1.6, 2.2, 0.9, 11);
@@ -226,10 +200,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.80);
     }
 
-    /**
-     * 10: صوت لوحة بلاك بيري الأصلية كما قيس من تسجيل حقيقي: ثودة قصيرة جداً (حوالي 20 ملّي ثانية) طاقتها
-     * في الترددات المنخفضة (تحت 300 هرتز) مع ذيل خفيف جداً يصل لنحو 1 كيلو هرتز، وبدون حدة عالية.
-     */
     private int buildBlackBerryOriginalTapWav(File dir, String name) {
         double[] b = new double[ms(26)];
         addResonance(b, 0, 115.0, 95.0, 6.5, 1.0, 0.3);
@@ -240,7 +210,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.78);
     }
 
-    /** 1: بلاك بيري Q10: ضربة مكتومة عميقة، شبه كتم مطاطي. */
     private int buildBlackBerryQ10DeepWav(File dir, String name) {
         double[] b = new double[ms(52)];
         addNoiseBurst(b, 0, 700.0, 1.2, 4.0, 0.45, 23);
@@ -249,7 +218,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.85);
     }
 
-    /** 2: فقاعة Gboard: "توك" ناعم بتردد يهبط بسرعة. */
     private int buildGboardRisingPopWav(File dir, String name) {
         double[] b = new double[ms(46)];
         addResonance(b, 0, 1150.0, 480.0, 11.0, 1.0, 0.35);
@@ -258,7 +226,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.72);
     }
 
-    /** 3: ميكانيكي: "كليك" حاد ثم "كلاك" أعمق بعد 9 مللي ثانية. */
     private int buildMechanicalDoubleClickWav(File dir, String name) {
         double[] b = new double[ms(55)];
         addNoiseBurst(b, 0, 4200.0, 2.2, 1.6, 0.9, 41);
@@ -269,7 +236,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.85);
     }
 
-    /** 4: تكة كريستالية حادة وقصيرة. */
     private int buildIosCrispTickWav(File dir, String name) {
         double[] b = new double[ms(22)];
         addResonance(b, 0, 2800.0, 2300.0, 2.6, 1.0, 0.08);
@@ -278,7 +244,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.70);
     }
 
-    /** المسح: ثود منخفض أخف من الكتابة وبنبرة أدنى لتمييزه. */
     private int buildSoftBackspaceWav(File dir, String name) {
         double[] b = new double[ms(40)];
         addNoiseBurst(b, 0, 900.0, 1.2, 3.0, 0.4, 61);
@@ -286,21 +251,13 @@ public class SoundController {
         return finishSound(dir, name, b, 0.70);
     }
 
-    // -------------------------------------------------------------------------
-    // أصوات السحب الخمسة (مسموعة وواضحة، وكل واحد بشخصية مختلفة)
-    // -------------------------------------------------------------------------
-    /** 0: انطلاقة هوائية: نفحة هواء ترتفع نغمتها بسرعة. */
-    /**
-     * 10: سحب/مسح بلاك بيري الأصلي كما قيس من تسجيل حقيقي: حفيف قصير (حوالي 120 ملّي ثانية) ضوضاء واسعة
-     * بين 2 و8 كيلو هرتز، تبدأ حادة (نحو 3.8 كيلو) وتنزل لنحو 1.6 كيلو، بذروة عند 25-50 ملّي ثانية ثم ذيل خافت.
-     */
     private int buildSwipeBlackBerryOriginalWav(File dir, String name) {
         int n = ms(122);
         double[] b = new double[n];
         java.util.Random rnd = new java.util.Random(131);
         Bandpass bp = new Bandpass(0.8);
         for (int i = 0; i < n; i++) {
-            double t = i * 1000.0 / SAMPLE_RATE; // ملّي ثانية
+            double t = i * 1000.0 / SAMPLE_RATE;
             double fc = 1500.0 + 2500.0 * Math.exp(-t / 28.0);
             double attack = t < 24.0 ? Math.pow(t / 24.0, 1.3) : 1.0;
             double decay = t < 24.0 ? 1.0 : Math.exp(-(t - 24.0) / 20.0);
@@ -326,7 +283,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.85);
     }
 
-    /** 1: مخملي: هسهسة ناعمة منخفضة مع نغمة دافئة صاعدة. */
     private int buildSwipeVelvetShimmerWav(File dir, String name) {
         int n = ms(170);
         double[] b = new double[n];
@@ -345,7 +301,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.82);
     }
 
-    /** 2: نبضتان "توك-تيك" سريعتان. */
     private int buildSwipeDoublePulseWav(File dir, String name) {
         double[] b = new double[ms(130)];
         addNoiseBurst(b, 0, 1400.0, 1.4, 2.5, 0.8, 81);
@@ -356,7 +311,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.85);
     }
 
-    /** 3: انزلاق رنان: جرس ناعم يصعد مع هسهسة خفيفة. */
     private int buildSwipeHarmonicGlideWav(File dir, String name) {
         int n = ms(190);
         double[] b = new double[n];
@@ -373,7 +327,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.78);
     }
 
-    /** 4: موجة دافئة: هسهسة تصعد وتهبط كقوس. */
     private int buildSwipeWarmWhooshWav(File dir, String name) {
         int n = ms(210);
         double[] b = new double[n];
@@ -389,10 +342,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.85);
     }
 
-    // -------------------------------------------------------------------------
-    // أصوات كتابة جديدة (4): مصنّعة برمجياً على غرار أشهر أنواع أصوات الكيبورد
-    // -------------------------------------------------------------------------
-    /** 5: آلة كاتبة: ضربة معدنية قوية مع رنين قصير. */
     private int buildTypewriterTapWav(File dir, String name) {
         double[] b = new double[ms(60)];
         addNoiseBurst(b, 0, 2600.0, 1.0, 3.0, 0.9, 101);
@@ -402,7 +351,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.82);
     }
 
-    /** 6: خشبي: طرقة دافئة على خشب مع نغمة ثانية أعلى. */
     private int buildWoodenTapWav(File dir, String name) {
         double[] b = new double[ms(50)];
         addNoiseBurst(b, 0, 1300.0, 1.4, 2.5, 0.4, 111);
@@ -411,7 +359,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.80);
     }
 
-    /** 7: قطرة ماء: نغمة ناعمة ترتفع بسرعة. */
     private int buildWaterDropTapWav(File dir, String name) {
         int n = ms(70);
         double[] b = new double[n];
@@ -426,7 +373,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.72);
     }
 
-    /** 8: كريستال ناعم: رنين زجاجي خفيف قصير. */
     private int buildSoftGlassTapWav(File dir, String name) {
         double[] b = new double[ms(70)];
         addResonance(b, 0, 1760.0, 1760.0, 20.0, 1.0, 0.8);
@@ -435,10 +381,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.62);
     }
 
-    // -------------------------------------------------------------------------
-    // أصوات سحب جديدة (4)
-    // -------------------------------------------------------------------------
-    /** 6: رنين زجاجي: نغمتان متتاليتان صاعدتان. */
     private int buildSwipeGlassPingWav(File dir, String name) {
         double[] b = new double[ms(260)];
         addResonance(b, 0, 1319.0, 1319.0, 70.0, 0.85, 1.0);
@@ -448,7 +390,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.72);
     }
 
-    /** 7: ورقة: هسهسة حادة سريعة تصعد. */
     private int buildSwipePaperSwishWav(File dir, String name) {
         int n = ms(110);
         double[] b = new double[n];
@@ -463,7 +404,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.80);
     }
 
-    /** 8: فقاعة صاعدة: نغمة تصعد بنعومة مع تذبذب خفيف. */
     private int buildSwipeBubbleRiseWav(File dir, String name) {
         int n = ms(150);
         double[] b = new double[n];
@@ -478,7 +418,6 @@ public class SoundController {
         return finishSound(dir, name, b, 0.78);
     }
 
-    /** 9: ثلاث نقرات سريعة تصاعدية. */
     private int buildSwipeTripleTickWav(File dir, String name) {
         double[] b = new double[ms(120)];
         addResonance(b, 0, 1800.0, 1500.0, 5.0, 0.9, 0.1);
@@ -560,7 +499,6 @@ public class SoundController {
         }
     }
 
-    /** منحنى تحكم تربيعي-مكعّب: الأرقام الصغيرة تعطي صوتاً خافتاً جداً (2% شبه صامت). */
     private float swipeGain() {
         float x = prefs.getSwipeSoundVolume() / 100f;
         return (float) (0.6 * Math.pow(x, 3.0));
@@ -658,7 +596,6 @@ public class SoundController {
         }
     }
 
-    // ===== أسماء النغمات تتبع لغة الجهاز: عربي كامل، أو الجزء الإنجليزي الذي بين القوسين =====
     private static String localized(String full) {
         if (java.util.Locale.getDefault().getLanguage().startsWith("ar")) return full;
         int a = full.indexOf('('), b = full.lastIndexOf(')');

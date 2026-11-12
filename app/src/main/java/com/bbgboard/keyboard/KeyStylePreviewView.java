@@ -7,14 +7,10 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.View;
 
-/**
- * معاينة مصغّرة لشكل أزرار الكيبورد (زرّان حرفيان + زر إدخال) بألوان السمة الحالية،
- * ترسم نفس تفاصيل كل شكل (ظل، إطار، لمعة...) بدل مربعات متشابهة.
- */
 final class KeyStylePreviewView extends View {
     private final int style;
     private final int shell, keyBg, special, shadow, divider, outline, label;
-    private final int enterColor; // 0 = لون الأزرار الخاصة
+    private final int enterColor;
     private final boolean light;
     private final float d;
     private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -50,15 +46,15 @@ final class KeyStylePreviewView extends View {
 
         float pad = 7 * d, gap = 0;
         float kw = (w - 2 * pad) / 2f, kh = (h - 2 * pad) * 0.52f;
-        // صف الحروف
+
         cell(canvas, pad, pad, kw, kh, false, "A");
         cell(canvas, pad + kw, pad, kw, kh, false, "B");
-        // زر الإدخال (عريض)
+
         cell(canvas, pad, pad + kh, w - 2 * pad, h - 2 * pad - kh, true, "↵");
     }
 
     private void cell(Canvas c, float x, float y, float cw, float ch, boolean isSpecial, String txt) {
-        float s = 0.8f; // المعاينة أصغر من الكيبورد الحقيقي
+        float s = 0.8f;
         int fill = isSpecial ? (enterColor != 0 ? enterColor : special) : keyBg;
         RectF raw = r2; raw.set(x, y, x + cw, y + ch);
         float ix, iy, radius;
@@ -119,13 +115,13 @@ final class KeyStylePreviewView extends View {
                 p.setStrokeCap(Paint.Cap.ROUND); p.setColor(Color.WHITE); p.setAlpha(light ? 230 : 110);
                 c.drawLine(r.left + radius * 0.8f, r.top + 1.6f * d * s, r.right - radius * 0.8f, r.top + 1.6f * d * s, p); p.setAlpha(255); break;
             }
-            default: { // الكلاسيكي: مستطيلات متلاصقة بفاصل عمودي
+            default: {
                 r.set(raw);
                 p.setColor(fill); c.drawRect(r, p);
                 p.setColor(divider); p.setStrokeWidth(Math.max(1f, d)); c.drawLine(r.right, r.top, r.right, r.bottom, p); break;
             }
         }
-        // الحرف
+
         p.setStyle(Paint.Style.FILL); p.setColor(isSpecial && enterColor != 0 ? (isLightColor(enterColor) ? Color.parseColor("#0B1B3A") : Color.WHITE) : label);
         p.setTextAlign(Paint.Align.CENTER); p.setTextSize((isSpecial ? 13f : 15f) * d);
         c.drawText(txt, raw.centerX(), raw.centerY() - (p.descent() + p.ascent()) / 2f, p);

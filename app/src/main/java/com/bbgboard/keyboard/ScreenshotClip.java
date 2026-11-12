@@ -15,7 +15,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
 
-/** يحتفظ بصورة مصغّرة واحدة فقط لآخر لقطة شاشة؛ كل لقطة جديدة تحل محل السابقة. */
 public final class ScreenshotClip {
     private static final int MAX_SIDE = 720;
 
@@ -27,7 +26,6 @@ public final class ScreenshotClip {
 
     public static void clear(Context c) { file(c).delete(); }
 
-    /** نسخة صغيرة جداً (الضلع الأكبر maxSide بكسل) من المصغّرة المحفوظة لعرضها داخل شريط الاقتراحات. */
     public static Bitmap loadSmallThumb(Context c, int maxSide) {
         try {
             File f = file(c);
@@ -47,7 +45,6 @@ public final class ScreenshotClip {
         }
     }
 
-    /** يحذف المصغّرة لو مرّ عليها أكثر من المدة المحددة (0 أو أقل = بدون حذف). يرجع true إذا حذفها. */
     public static boolean pruneIfOld(Context c, long maxAgeMs) {
         if (maxAgeMs <= 0) return false;
         File f = file(c);
@@ -70,7 +67,6 @@ public final class ScreenshotClip {
         return Uri.parse("content://" + ScreenshotProvider.AUTHORITY + "/latest.jpg?v=" + file(c).lastModified());
     }
 
-    /** يبحث عن أحدث لقطة شاشة التُقطت قبل لحظات ويحفظ مصغّرتها. يرجع true إذا تغيّرت المصغّرة. */
     public static boolean captureLatest(Context c) {
         Cursor cur = null;
         try {
@@ -80,7 +76,7 @@ public final class ScreenshotClip {
                             MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media.RELATIVE_PATH}
                     : new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME,
                             MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media.DATA};
-            // نطلب فقط الصور المضافة خلال آخر ٣٠ ثانية وبحد أقصى ٦ صفوف (بدل مسح مكتبة الصور كاملة)
+
             long sinceSec = System.currentTimeMillis() / 1000L - 45L;
             String sel = MediaStore.Images.Media.DATE_ADDED + " >= ?";
             String[] selArgs = new String[]{String.valueOf(sinceSec)};
@@ -108,7 +104,7 @@ public final class ScreenshotClip {
                 String name = cur.getString(1);
                 long added = cur.getLong(2);
                 String path = cur.getString(3);
-                if (nowSec - added > 40) break; // اللقطة تُعتبر جديدة خلال 40 ثانية
+                if (nowSec - added > 40) break;
                 String hay = ((name == null ? "" : name) + " " + (path == null ? "" : path)).toLowerCase(Locale.ROOT);
                 if (!(hay.contains("screenshot") || hay.contains("screen_shot") || hay.contains("screen shot")
                         || hay.contains("لقطة"))) continue;

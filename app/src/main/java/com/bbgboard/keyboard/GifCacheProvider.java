@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-/** يقدّم ملف GIF المحمّل مؤقتاً بمجلد الكاش عند إرساله للمحادثة (نفس فكرة ScreenshotProvider). */
 public class GifCacheProvider extends ContentProvider {
     public static final String AUTHORITY = "com.bbgboard.keyboard.gifcache";
 
@@ -19,8 +18,7 @@ public class GifCacheProvider extends ContentProvider {
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         String name = uri.getLastPathSegment();
         if (name == null) throw new FileNotFoundException();
-        // لمنع الهروب من مجلد الكاش (مثلاً ".." داخل الاسم بعد فك ترميز %2F)، نأخذ اسم الملف فقط
-        // ونتأكد أن المسار النهائي يبقى داخل مجلد الكاش قبل فتحه.
+
         String safeName = new File(name).getName();
         if (safeName.isEmpty() || safeName.contains("..")) throw new FileNotFoundException();
         File dir = GifDownloadCache.dir(getContext());

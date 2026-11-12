@@ -8,7 +8,6 @@ import android.os.ParcelFileDescriptor;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-/** يقدّم صورة آخر لقطة شاشة محفوظة للتطبيق الذي يستقبلها عند الإرسال من الحافظة. */
 public class ScreenshotProvider extends ContentProvider {
     public static final String AUTHORITY = "com.bbgboard.keyboard.screenshots";
 
