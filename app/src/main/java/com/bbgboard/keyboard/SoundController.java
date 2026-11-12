@@ -547,15 +547,15 @@ public class SoundController {
     private static String getProfileDisplayNameAr(int profile) {
         switch (profile) {
             case KeyboardPreferences.SOUND_PROFILE_BB_CLASSIC:
-                return "بلاك بيري الأصلي (BlackBerry Classic Thock)";
+                return "طرقة كلاسيكية عميقة (Classic Deep Thock)";
             case KeyboardPreferences.SOUND_PROFILE_BB_Q10_SOFT:
-                return "بلاك بيري العميق الدافئ (BlackBerry Q10 Deep)";
+                return "طرقة عميقة دافئة (Warm Deep Tap)";
             case KeyboardPreferences.SOUND_PROFILE_GBOARD_POP:
-                return "فقاعة جي بورد الصاعدة (Gboard Water Pop)";
+                return "فقاعة ماء صاعدة (Water Pop)";
             case KeyboardPreferences.SOUND_PROFILE_MECHANICAL:
                 return "كيبورد ميكانيكي مزدوج (Mechanical Click-Clack)";
             case KeyboardPreferences.SOUND_PROFILE_IOS_TICK:
-                return "تكة كريستالية حادة (iOS Crisp Tick)";
+                return "تكة كريستالية حادة (Crisp Tick)";
             case 6:
                 return "آلة كاتبة (Typewriter)";
             case 7:
@@ -565,18 +565,18 @@ public class SoundController {
             case 9:
                 return "كريستال ناعم (Soft Glass)";
             case 10:
-                return "بلاك بيري الحقيقي — مقاس من التسجيل (BlackBerry Original)";
+                return "الطرقة الأصلية — مقاس من التسجيل (Original Recorded Tap)";
             case KeyboardPreferences.SOUND_PROFILE_SYSTEM:
                 return "صوت نظام أندرويد (System Default)";
             default:
-                return "بلاك بيري الأصلي";
+                return "طرقة كلاسيكية عميقة";
         }
     }
 
     private static String getSwipeProfileDisplayNameAr(int swipeProfile) {
         switch (swipeProfile) {
             case KeyboardPreferences.SWIPE_SOUND_BB_AIR_FLICK:
-                return "انطلاقة بلاك بيري الهوائية (BlackBerry Air Flick)";
+                return "انطلاقة هوائية خفيفة (Air Flick)";
             case KeyboardPreferences.SWIPE_SOUND_VELVET_BRUSH:
                 return "تموج مخملي ناعم (Velvet Shimmer)";
             case KeyboardPreferences.SWIPE_SOUND_MICRO_THOCK:
@@ -594,18 +594,18 @@ public class SoundController {
             case 9:
                 return "ثلاث نقرات سريعة (Triple Tick)";
             case 10:
-                return "حفيف بلاك بيري الحقيقي — مقاس من التسجيل (BlackBerry Original)";
+                return "الحفيف الأصلي — مقاس من التسجيل (Original Recorded Swish)";
             case KeyboardPreferences.SWIPE_SOUND_SILENT:
                 return "صامت للسحب فقط (Silent Swipe)";
             default:
-                return "انطلاقة بلاك بيري الهوائية";
+                return "انطلاقة هوائية خفيفة";
         }
     }
 
     private static String localized(String full) {
         if (java.util.Locale.getDefault().getLanguage().startsWith("ar")) return full;
         int a = full.indexOf('('), b = full.lastIndexOf(')');
-        return (a >= 0 && b > a) ? full.substring(a + 1, b) : "BlackBerry Classic";
+        return (a >= 0 && b > a) ? full.substring(a + 1, b) : "Classic Deep Thock";
     }
 
     public static String getProfileDisplayName(int profile) {
