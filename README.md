@@ -73,8 +73,10 @@
 
 ### 🔒 الخصوصية والأمان
 
-- لا يوجد اتصال بالإنترنت إلا لميزتي GIF (GIPHY) والكتابة بالصوت — بقية الكيبورد يعمل بالكامل محلياً.
-- أكواد التحقق (OTP) تُقرأ وتُعالج على الجهاز فقط ولا تُرسل لأي سيرفر خارجي.
+- لا يوجد اتصال بالإنترنت إلا لميزتي GIF (GIPHY) والكتابة بالصوت، وكلاهما **اختياري بالكامل** —
+  تقدر ما تستخدمهما إطلاقاً، ويبقى الكيبورد شغّال بدون أي اتصال بالإنترنت نهائياً.
+- اقتراح أكواد التحقق (OTP) **ميزة اختيارية** لازم تفعّلها بنفسك وتمنح إذن الرسائل/الإشعارات؛
+  إذا ما فعّلتها، الكيبورد ما يقرأ أي رسالة إطلاقاً. وحتى لو فعّلتها، كل المعالجة على الجهاز فقط ولا تُرسل لأي سيرفر خارجي.
 - مفتاح توقيع التطبيق محمي عبر GitHub Secrets، وليس مكشوفاً في الكود.
 
 ---
@@ -148,9 +150,12 @@ repository. Every new release is built and signed automatically by GitHub Action
 
 ### 🔒 Privacy & security
 
-- No network access except for the GIF (GIPHY) and voice-typing features — everything else runs
-  fully on-device.
-- Verification codes (OTP) are read and processed on-device only, never sent to any server.
+- No network access except for the GIF (GIPHY) and voice-typing features, and both are **fully
+  optional** — you can simply never use them, and the keyboard runs with zero internet connection
+  at all.
+- Verification-code (OTP) suggestions are an **opt-in feature**: you have to turn it on yourself
+  and grant SMS/notification permission. If you never enable it, the keyboard never reads any
+  message. Even when enabled, everything is processed on-device only, never sent to any server.
 - The app's signing key is protected via GitHub Secrets, never exposed in the codebase.
 
 ---
