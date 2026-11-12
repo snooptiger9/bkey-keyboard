@@ -4,3 +4,4 @@
 *.iml
 local.properties
 app/keystore.properties
+app/bkey_release.keystore
