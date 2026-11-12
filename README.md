@@ -76,7 +76,9 @@
 
 ### 📥 التحميل
 
-آخر نسخة APK موقّعة جاهزة دائماً من صفحة **[Releases](../../releases)** في هذا المستودع.
+رابط ثابت يحمّل **آخر نسخة APK موقّعة دائماً** بدون أي تحديث يدوي — يتحدث تلقائياً مع كل بناء جديد:
+
+**[⬇️ تحميل آخر نسخة APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
 ---
 
@@ -154,8 +156,10 @@ with a carefully tailored experience for each.
 
 ### 📥 Download
 
-The latest signed APK is always available from the **[Releases](../../releases)** page of this
-repository.
+A stable link that always downloads the **latest signed APK** — no manual update needed, it refreshes
+automatically with every new build:
+
+**[⬇️ Download the latest APK](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
 ---
 
