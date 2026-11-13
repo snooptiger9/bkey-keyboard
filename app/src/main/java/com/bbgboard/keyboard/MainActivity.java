@@ -206,15 +206,12 @@ public class MainActivity extends Activity {
             boolean keyboardOpen = keypadHeight > screenHeight * 0.15f;
 
             if (keyboardOpen) {
-                // The keyboard is confirmed open — keep the box glued right on top of it,
-                // whatever its real height is (depends on the user's keyboard size setting).
+                // The Activity already uses android:windowSoftInputMode="adjustResize", so the
+                // window itself shrinks to end exactly above the keyboard — our view, anchored
+                // with gravity=BOTTOM and a small fixed margin, is already glued to it with no
+                // extra math needed. (Adding keypadHeight again here used to double-compensate
+                // and push the box a whole keyboard-height too high.)
                 floatingTesterKeyboardConfirmedOpen = true;
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) floatingTestEdit.getLayoutParams();
-                int wantedMargin = keypadHeight + dp(8);
-                if (lp.bottomMargin != wantedMargin) {
-                    lp.bottomMargin = wantedMargin;
-                    floatingTestEdit.setLayoutParams(lp);
-                }
             } else if (floatingTesterKeyboardConfirmedOpen) {
                 // The keyboard was genuinely open before and just closed for real
                 // (back button or back gesture) — close the tester along with it.
