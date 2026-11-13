@@ -362,9 +362,9 @@ public class ModernIconView extends View {
             }
             case ICON_HEART: {
                 Path heart = new Path();
-                heart.moveTo(cx, cy + r * 0.75f);
-                heart.cubicTo(cx - r * 1.05f, cy - r * 0.15f, cx - r * 0.55f, cy - r * 0.95f, cx, cy - r * 0.35f);
-                heart.cubicTo(cx + r * 0.55f, cy - r * 0.95f, cx + r * 1.05f, cy - r * 0.15f, cx, cy + r * 0.75f);
+                heart.moveTo(cx, cy + r * 0.92f);
+                heart.cubicTo(cx - r * 1.18f, cy - r * 0.22f, cx - r * 0.62f, cy - r * 1.08f, cx, cy - r * 0.42f);
+                heart.cubicTo(cx + r * 0.62f, cy - r * 1.08f, cx + r * 1.18f, cy - r * 0.22f, cx, cy + r * 0.92f);
                 heart.close();
                 canvas.drawPath(heart, fillPaint);
                 break;
