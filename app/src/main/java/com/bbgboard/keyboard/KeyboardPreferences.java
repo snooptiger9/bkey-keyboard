@@ -103,6 +103,14 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("whatsapp_otp_suggest_enabled", enabled).apply();
     }
 
+    public boolean wasOtpFullBuildEverInstalled() {
+        return prefs.getBoolean("otp_full_build_ever_installed", false);
+    }
+
+    public void setOtpFullBuildEverInstalled(boolean value) {
+        prefs.edit().putBoolean("otp_full_build_ever_installed", value).apply();
+    }
+
     public void setPendingWhatsAppOtp(String code) {
         prefs.edit().putString("pending_wa_otp_code", code)
                 .putLong("pending_wa_otp_time", System.currentTimeMillis()).apply();

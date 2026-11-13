@@ -136,6 +136,8 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 > Turning this on needs an update that adds SMS-read and WhatsApp-notification access. Because of those two specific permissions, Google Play Protect blocks installing that update automatically with a warning screen. This is standard Google behavior for any app installed outside the Play Store that requests these permissions — not a bug or malware flag.
 >
 > If you want the feature, turn off Play Protect scanning, then download the update from inside the app itself (Settings → Verification code (OTP) suggestions → the download button):
+>
+> **Once you've turned it on, never update the app again from the main 📥 Download button above** — that button always installs the basic build without OTP, and since it's the same app, installing it silently removes the feature and its permissions with no warning. Always update from that same in-app button instead; it always fetches the full build and keeps the feature on.
 
 <details>
 <summary><b>Steps to pause Play Protect scanning (tap for details)</b></summary>
@@ -343,6 +345,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 > تفعيل هذي الميزة يحتاج تحديثاً يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات. بسبب هاتين الصلاحيتين بالذات، نظام حماية قوقل يوقف تثبيت التحديث تلقائياً برسالة تحذيرية. هذا سلوك قياسي من قوقل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات، وليس عيباً ولا فيروساً بالتطبيق.
 >
 > إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم حمّل التحديث من داخل التطبيق نفسه (الإعدادات ← اقتراح رمز التحقق (OTP) ← زر التحديث):
+>
+> **بعد ما تفعّلها، لا تحدّث التطبيق مرة ثانية من زر «📥 التحميل» الرئيسي بالأعلى** — هذا الزر ينزّل دايماً النسخة الأساسية بدون OTP، وبما إنه نفس التطبيق فتثبيته يحذف الميزة وصلاحياتها بدون أي تحذير. دايماً حدّث من نفس زر التحديث داخل التطبيق، فهو يجيب النسخة الكاملة ويحافظ على الميزة مفعّلة.
 
 <details>
 <summary><b>خطوات تعليق فحص Play Protect (اضغط للتفصيل)</b></summary>
