@@ -92,7 +92,7 @@ with a carefully tailored experience for each.
 <br>
 
 **🔊 Sound & vibration**
-- 5 typing tones + 5 independent swipe/delete tones, each with its own volume level.
+- Multiple typing tones + independent swipe/delete tones, each with its own volume level.
 - Optional haptic vibration on press and swipe.
 
 <br>
@@ -308,7 +308,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <br>
 
 **🔊 الصوت والاهتزاز**
-‏• 5 نغمات للكتابة + 5 نغمات مستقلة للسحب والحذف، كل مجموعة بمستوى صوت خاص بها‏.  
+‏• نغمات كتابة متعددة + نغمات مستقلة للسحب والحذف، كل مجموعة بمستوى صوت خاص بها‏.  
 ‏• اهتزاز لمسي اختياري عند الضغط والسحب‏.
 
 <br>

@@ -2529,7 +2529,7 @@ public class BlackBerryKeyboardView extends View {
 
                 if (key != null && key.type == KeyType.SPACE && prefs.isSpaceSwipeLangEnabled()
                         && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH) {
-                    float spaceSwipeThreshold = 25f * density;
+                    float spaceSwipeThreshold = 26f * density;
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
                         toggleLanguage();
                         return true;
@@ -2556,7 +2556,7 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                float swipeLeftThreshold = 72f * density;
+                float swipeLeftThreshold = 75f * density;
                 boolean deleteDirOk = (prefs.getSwipeDeleteDirection() == 1) ? (dx < -swipeLeftThreshold) : (dx > swipeLeftThreshold);
                 if (prefs.isSwipeDeleteWordEnabled() && deleteDirOk && Math.abs(dx) > Math.abs(dy) * 1.5f) {
                     boolean deleted = listener != null && listener.onSwipeLeftDeleteWord();
