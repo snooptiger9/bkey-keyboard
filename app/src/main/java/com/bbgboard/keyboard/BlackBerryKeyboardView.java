@@ -1071,9 +1071,10 @@ public class BlackBerryKeyboardView extends View {
     private List<KeyDef> buildBottomRow() {
         String symLabel = isSymbols ? (isArabic ? "أبجد" : "ABC") : (isArabic ? "؟123" : "?123");
 
-        boolean singleLanguage = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_BOTH;
-        String spaceLabel = singleLanguage ? (isArabic ? "العربية" : "English")
-                : (isArabic ? "‹  العربية  ›" : "‹  English  ›");
+        boolean showSwipeArrows = prefs.isSpaceSwipeLangEnabled()
+                && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH;
+        String spaceLabel = showSwipeArrows ? (isArabic ? "‹  العربية  ›" : "‹  English  ›")
+                : (isArabic ? "العربية" : "English");
         return Arrays.asList(
             new KeyDef(symLabel, "", Collections.<String>emptyList(), KeyType.SYMBOLS, 1.25f),
 
