@@ -77,7 +77,7 @@ with a carefully tailored experience for each.
 **😀 Emoji & GIF**
 - Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
   remove a single emoji).
-- Search and preview animated GIFs via KLIPY.
+- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs.
 
 <br>
 
@@ -287,7 +287,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 **😀 إيموجي و GIF**
 ‏• لوحة إيموجي ورموز كاملة، مع قسم "مستخدم حديثاً" (قابل للحذف أو حذف عنصر واحد بالضغط المطول)‏.  
-‏• بحث ومعاينة GIF متحركة عبر KLIPY‏.
+‏• تبويب GIF في لوحة الإيموجي مدعوم بـ KLIPY GIF — بحث ومعاينة صور GIF متحركة‏.
 
 <br>
 
