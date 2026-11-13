@@ -430,8 +430,8 @@ public class MainActivity extends Activity {
         group4.addView(createMenuRow(
                 ModernIconView.ICON_SETTINGS_GEAR,
                 tr("سجل الأخطاء", "Error log"),
-                tr("للمطوّر فقط — لعرض ومشاركة أي خطأ صار بالتطبيق",
-                        "Developer use — view and share any error the app ran into"),
+                tr("لعرض أي خطأ صار بالتطبيق وإرساله مباشرة لإيميل المطوّر",
+                        "View any error the app ran into and send it straight to the developer's email"),
                 false,
                 this::openErrorLogScreen
         ));
@@ -646,7 +646,7 @@ public class MainActivity extends Activity {
             btnRow.setOrientation(LinearLayout.HORIZONTAL);
 
             TextView shareBtn = new TextView(this);
-            shareBtn.setText(tr("📤 مشاركة", "📤 Share"));
+            shareBtn.setText(tr("📧 إرسال للمطوّر", "📧 Email developer"));
             shareBtn.setTextColor(Color.WHITE);
             shareBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
             shareBtn.setGravity(Gravity.CENTER);
@@ -656,10 +656,19 @@ public class MainActivity extends Activity {
             lpShare.setMarginEnd(dp(8));
             shareBtn.setLayoutParams(lpShare);
             shareBtn.setOnClickListener(v -> {
-                Intent send = new Intent(Intent.ACTION_SEND);
-                send.setType("text/plain");
-                send.putExtra(Intent.EXTRA_TEXT, AppLogger.readLog(this));
-                startActivity(Intent.createChooser(send, tr("مشاركة سجل الأخطاء", "Share error log")));
+                try {
+                    Intent send = new Intent(Intent.ACTION_SENDTO);
+                    send.setData(android.net.Uri.parse("mailto:"));
+                    send.putExtra(Intent.EXTRA_EMAIL, new String[]{"lvl60me@hotmail.com"});
+                    send.putExtra(Intent.EXTRA_SUBJECT, "bkey - " + tr("تقرير خطأ", "Error report"));
+                    send.putExtra(Intent.EXTRA_TEXT, AppLogger.readLog(this));
+                    startActivity(Intent.createChooser(send, tr("إرسال سجل الأخطاء", "Send error log")));
+                } catch (Exception e) {
+                    Intent send = new Intent(Intent.ACTION_SEND);
+                    send.setType("text/plain");
+                    send.putExtra(Intent.EXTRA_TEXT, AppLogger.readLog(this));
+                    startActivity(Intent.createChooser(send, tr("مشاركة سجل الأخطاء", "Share error log")));
+                }
             });
             btnRow.addView(shareBtn);
 

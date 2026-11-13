@@ -12,12 +12,15 @@
 
 ## 📖 العربية
 
+**🔗 اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
+
 ### ✨ الوصف
 
 **bkey** كيبورد أندرويد (IME) مستوحى من أزرار بلاك بيري الفيزيائية الكلاسيكية، لكن بتفاعل حديث:
 اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب لليسار على صف الحروف للحذف بدل الضغط المتكرر
 على الباكسبيس. يدعم العربية والإنجليزية بالكامل مع تجربة مخصصة بعناية لكل لغة.
 
+<a id="ar-features"></a>
 ### 🚀 المميزات
 
 <div dir="rtl">
@@ -84,6 +87,7 @@
 
 </div>
 
+<a id="ar-privacy"></a>
 ### 🔒 الخصوصية والأمان
 
 <div dir="rtl">
@@ -96,6 +100,7 @@
 
 </div>
 
+<a id="ar-download"></a>
 ### 📥 التحميل
 
 <p>
@@ -128,6 +133,65 @@
 
 </details>
 
+<a id="ar-faq"></a>
+### ❓ الأسئلة الشائعة
+
+<div dir="rtl">
+
+<details>
+<summary><b>هل الكيبورد يرسل أي بيانات أو كلمات أكتبها للإنترنت؟</b></summary>
+<br>
+
+لا إطلاقاً. كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك فقط. الاتصال بالإنترنت الوحيد هو لميزتي GIF والكتابة بالصوت الاختياريتين، وتقدر توقفهما وتستخدم الكيبورد بدون أي اتصال نهائياً. التفاصيل بقسم [الخصوصية والأمان](#ar-privacy).
+
+</details>
+
+<details>
+<summary><b>ليش جوجل بروتكت يحذّرني عند تحميل تحديث ميزة OTP؟</b></summary>
+<br>
+
+لأن التحديث يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات، وجوجل توقف تلقائياً أي تطبيق من خارج المتجر يطلب هذي الصلاحيات بالذات — سلوك قياسي ومو فيروس. خطوات تعليق التحذير مؤقتاً موجودة بقسم [التحميل](#ar-download).
+
+</details>
+
+<details>
+<summary><b>وين تتحفظ الكلمات اللي يتعلمها الكيبورد، وكيف أمسحها؟</b></summary>
+<br>
+
+تنحفظ محلياً على جهازك فقط. من إعدادات التطبيق قسم تدريب التوقعات، زر **"مسح جميع الكلمات المتعلمة"** يمسحها كلها فوراً.
+
+</details>
+
+<details>
+<summary><b>هل يستهلك الكيبورد بطارية أو ذاكرة كثير؟</b></summary>
+<br>
+
+لا، الكيبورد خفيف ويشتغل محلياً بدون أي معالجة بالسحابة. ميزتي GIF والكتابة بالصوت فقط هما اللي يحتاجون إنترنت وقت استخدامهم الفعلي، وباقي الوقت ما فيه أي نشاط شبكة.
+
+</details>
+
+<details>
+<summary><b>كيف أبلّغ عن خطأ أو مشكلة بالتطبيق؟</b></summary>
+<br>
+
+من إعدادات التطبيق ← **سجل الأخطاء**، تقدر تشوف آخر الأخطاء المسجّلة وتضغط **"📧 إرسال للمطوّر"** عشان يفتح لك تطبيق الإيميل جاهز ومرسل لـ lvl60me@hotmail.com. تفاصيل أكثر بقسم [المجتمع والإبلاغ عن الأخطاء](#ar-community).
+
+</details>
+
+</div>
+
+<a id="ar-community"></a>
+### 🤝 المجتمع والإبلاغ عن الأخطاء
+
+<div dir="rtl">
+
+- **واجهت خطأ أو تعطّل بالتطبيق؟** من الإعدادات ← **سجل الأخطاء** ← **"📧 إرسال للمطوّر"**، وبيفتح تطبيق الإيميل عندك جاهز برسالة فيها تفاصيل الخطأ، مرسلة مباشرة لـ **lvl60me@hotmail.com**.
+- تقدر ترسل لنفس الإيميل أي اقتراح، فكرة ميزة جديدة، أو ملاحظة عامة عن التطبيق.
+- الريبو حالياً خاص، فالتواصل المباشر عبر الإيميل هو الطريقة الوحيدة للتبليغ أو التواصل مع المطوّر.
+
+</div>
+
+<a id="ar-support"></a>
 ### 📩 الدعم
 
 إذا عجبك المشروع وتبي تدعمه، تقدر ترسل عبر PayPal:
@@ -138,6 +202,8 @@
 
 ## 📖 English
 
+**🔗 Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Support](#en-support)
+
 ### ✨ Overview
 
 **bkey** is an Android keyboard (IME) inspired by the classic BlackBerry physical keyboard, with a
@@ -145,6 +211,7 @@ modern gesture twist: swipe up on any suggestion to accept it instantly, and swi
 letter row for quick deletion instead of repeated backspace taps. Fully supports Arabic and English
 with a carefully tailored experience for each.
 
+<a id="en-features"></a>
 ### 🚀 Features
 
 **✋ Gestures**
@@ -212,6 +279,7 @@ with a carefully tailored experience for each.
 - **Privacy-first**: Incognito mode disables learning and clipboard saving entirely; passwords,
   emails and links are never learned from, even outside Incognito mode.
 
+<a id="en-privacy"></a>
 ### 🔒 Privacy & security
 
 - No network access except for the GIF (GIPHY) and voice-typing features, and both are **fully
@@ -223,6 +291,7 @@ with a carefully tailored experience for each.
   is processed on-device only, never sent to any server.
 
 
+<a id="en-download"></a>
 ### 📥 Download
 
 <p>
@@ -251,6 +320,57 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 
 </details>
 
+<a id="en-faq"></a>
+### ❓ FAQ
+
+<details>
+<summary><b>Does the keyboard send anything I type to the internet?</b></summary>
+<br>
+
+No, never. All learning, correction and prediction happen locally on your device. The only network access is for the optional GIF and voice-typing features, and you can turn both off and run the keyboard with zero internet connection at all. Details in [Privacy & security](#en-privacy).
+
+</details>
+
+<details>
+<summary><b>Why does Google Play Protect warn me when I download the OTP update?</b></summary>
+<br>
+
+Because that update adds SMS-read and notification-access permissions, and Google automatically blocks any app installed outside the Play Store that requests those specific permissions — standard behavior, not malware. Steps to pause the warning temporarily are in the [Download](#en-download) section.
+
+</details>
+
+<details>
+<summary><b>Where are my learned words stored, and how do I wipe them?</b></summary>
+<br>
+
+They're stored locally on your device only. In the app's settings, under the predictions-training section, the **"Clear all learned words"** button wipes them instantly.
+
+</details>
+
+<details>
+<summary><b>Does it use a lot of battery or memory?</b></summary>
+<br>
+
+No, the keyboard is lightweight and runs fully on-device. Only the GIF and voice-typing features use the network, and only while you're actively using them — otherwise there's zero network activity.
+
+</details>
+
+<details>
+<summary><b>How do I report a bug or a problem?</b></summary>
+<br>
+
+From the app's settings → **Error log**, you can see the latest logged errors and tap **"📧 Email developer"**, which opens your mail app pre-addressed to lvl60me@hotmail.com. More details in [Community & bug reports](#en-community).
+
+</details>
+
+<a id="en-community"></a>
+### 🤝 Community & bug reports
+
+- **Ran into a bug or crash?** Settings → **Error log** → **"📧 Email developer"** opens your mail app with the error details, sent straight to **lvl60me@hotmail.com**.
+- You can email the same address with suggestions, feature ideas, or general feedback.
+- The repo is currently private, so emailing directly is the only way to reach the developer.
+
+<a id="en-support"></a>
 ### 📩 Support
 
 If you like the project and want to support it, you can send a tip via PayPal:
