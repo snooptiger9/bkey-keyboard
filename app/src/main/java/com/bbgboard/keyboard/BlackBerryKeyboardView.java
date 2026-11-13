@@ -217,9 +217,10 @@ public class BlackBerryKeyboardView extends View {
     private long suggestionTouchDownTime = 0L;
     // A touch landing on the suggestion bar for less than this is treated as the finger
     // grazing it in transit toward the top key row while typing fast, not a deliberate tap —
-    // it's ignored instead of instantly committing the word. A deliberate tap always rests
-    // on the slot well past this, so it isn't felt as added delay.
-    private static final long MIN_SUGGESTION_TAP_HOLD_MS = 80L;
+    // it's ignored instead of instantly committing the word. This also gates the OTP-code
+    // and screenshot chips, which live in the same bar, so it's kept short enough that a
+    // real tap on any of them still feels instant.
+    private static final long MIN_SUGGESTION_TAP_HOLD_MS = 40L;
 
     private String emojiKeySuggestion = null;
 
