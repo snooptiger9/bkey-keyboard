@@ -4,7 +4,7 @@
 
 # bkey ⌨️
 
-**كيبورد أندرويد بطابع BlackBerry الكلاسيكي — سحب للأعلى لاختيار الاقتراح، وسحب لليسار للحذف.**
+**كيبورد أندرويد بطابع بلاك بيري الكلاسيكي — سحب للأعلى لاختيار الاقتراح، وسحب لليسار للحذف.**
 **A BlackBerry-style Android keyboard — swipe up to pick a suggestion, swipe left to delete.**
 
 ![Build](https://github.com/snooptiger9/bkey-keyboard/actions/workflows/build.yml/badge.svg)
@@ -144,6 +144,11 @@
 </details>
 
 <a id="ar-faq"></a>
+
+
+
+
+
 ### ❓ الأسئلة الشائعة
 
 <div dir="rtl">
@@ -323,6 +328,11 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 </details>
 
 <a id="en-faq"></a>
+
+
+
+
+
 ### ❓ FAQ
 
 <details>
