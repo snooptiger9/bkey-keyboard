@@ -92,7 +92,7 @@
 
 **[⬇️ تحميل bkey](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
-تطبيق واحد فقط، يثبّت مباشرة بدون أي تحذير. كل الميزات شغّالة من أول تثبيت، إلا ميزة **اقتراح رمز التحقق (OTP)** تلقائياً من الرسائل وواتساب — هذي معطّلة بالتثبيت الأساسي عشان ما تحتاج أي صلاحية حساسة ولا أي تحذير.
+
 
 إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتحميل التحديث الذي يضيف الميزة.
 
@@ -208,7 +208,7 @@ with a carefully tailored experience for each.
 
 **[⬇️ Download bkey](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
 
-Just one app, and it installs directly with no warning. Every feature works right after the first install, except automatic **verification-code (OTP) suggestions** from SMS and WhatsApp — that's off in the base install, precisely so it needs no sensitive permission and no warning.
+
 
 If you want the OTP feature, turn it on from inside the app: Settings → **Verification code (OTP) suggestions** — that screen explains it and has a button to download the update that adds it.
 
