@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -155,6 +156,16 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * The Activity's own window theme (Theme.DeviceDefault.Light.NoActionBar) has a plain white
+     * windowBackground, which otherwise flashes through for an instant during screen-switch
+     * animations — most noticeable in dark mode, since it's a bright white flash against dark
+     * screens. Overriding it at runtime keeps that gap the same color as the current mode.
+     */
+    private void applyWindowBackground() {
+        getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor(dm("#F2F4F8"))));
+    }
+
     private GradientDrawable roundedCard(String fillHex, int radiusDp) {
         GradientDrawable gd = new GradientDrawable();
         gd.setColor(Color.parseColor(fillHex));
@@ -178,6 +189,7 @@ public class MainActivity extends Activity {
         soundController = new SoundController(this, prefs);
         predictionEngine = new PredictionEngine(this, prefs);
         clipboardRepo = new ClipboardRepository(this);
+        applyWindowBackground();
 
         mainFrame = new FrameLayout(this);
         mainFrame.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
@@ -365,6 +377,8 @@ public class MainActivity extends Activity {
         themeToggleBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             prefs.setAppDarkMode(!prefs.isAppDarkMode());
+            applyWindowBackground();
+            mainFrame.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
             showHomeGboardSettingsMenu();
         });
         titleRowTop.addView(themeToggleBtn);
