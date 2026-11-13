@@ -1057,13 +1057,15 @@ public class MainActivity extends Activity {
 
         int[] fontIds = {
                 KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD,
-                KeyboardPreferences.FONT_TAJAWAL_REGULAR, KeyboardPreferences.FONT_TAJAWAL};
+                KeyboardPreferences.FONT_TAJAWAL_REGULAR, KeyboardPreferences.FONT_TAJAWAL,
+                KeyboardPreferences.FONT_ALMARAI_REGULAR, KeyboardPreferences.FONT_ALMARAI};
         String[] fontNames = tr(
-                new String[]{"افتراضي", "افتراضي بولد", "Tajawal", "Tajawal بولد"},
-                new String[]{"Default", "Default Bold", "Tajawal", "Tajawal Bold"});
+                new String[]{"افتراضي", "افتراضي بولد", "Tajawal", "Tajawal بولد", "Almarai", "Almarai بولد"},
+                new String[]{"Default", "Default Bold", "Tajawal", "Tajawal Bold", "Almarai", "Almarai Bold"});
         String[] fontAssets = {
                 null, null,
-                "fonts/tajawal_regular.ttf", "fonts/tajawal_bold.ttf"};
+                "fonts/tajawal_regular.ttf", "fonts/tajawal_bold.ttf",
+                "fonts/almarai_regular.ttf", "fonts/almarai_bold.ttf"};
         List<View> fontTiles = new ArrayList<>();
         for (int i = 0; i < fontIds.length; i++) {
             final int id = fontIds[i];
@@ -1115,10 +1117,9 @@ public class MainActivity extends Activity {
         styleCard.addView(sHeader);
 
         String[] styleNames = tr(
-                new String[]{"bkey", "bkey حديث", "كبسولات", "bkey ماتيريال", "بدون إطار", "إطار خفيف", "بارز ناعم", "دوائر", "زجاجي"},
-                new String[]{"bkey", "bkey modern", "Pill", "bkey material", "Borderless", "Outline", "Soft raised", "Circles", "Glass"});
-        int[] styleIds = {0, 1, 2, 3, 4, 6, 8, 9, 10};
-        int[] styleRadii = {2, 10, 20, 14, 8, 10, 12, 24, 10};
+                new String[]{"bkey", "bkey حديث", "كبسولات", "bkey ماتيريال", "بدون إطار", "إطار خفيف", "ثلاثية الأبعاد", "بارز ناعم", "دوائر", "زجاجي"},
+                new String[]{"bkey", "bkey modern", "Pill", "bkey material", "Borderless", "Outline", "3D keycaps", "Soft raised", "Circles", "Glass"});
+        int[] styleIds = {0, 1, 2, 3, 4, 6, 7, 8, 9, 10};
         List<View> styleTiles = new ArrayList<>();
         for (int i = 0; i < styleNames.length; i++) {
             final int id = styleIds[i];
@@ -1901,21 +1902,23 @@ public class MainActivity extends Activity {
         boolean darkThemeNow = prefs.getThemeMode() != KeyboardPreferences.THEME_GBOARD_WHITE;
         final String followBackHex = darkThemeNow ? "#F8FAFC" : "#1E293B";
         String[] capsuleNames = tr(
-                new String[]{"أسود", "أبيض", "رمادي فاتح"},
-                new String[]{"Black", "White", "Light gray"});
+                new String[]{"تلقائي (حسب السمة)", "أسود", "أبيض", "رمادي فاتح"},
+                new String[]{"Automatic (match theme)", "Black", "White", "Light gray"});
 
-        String[] capsuleHex = {"#000000", "#FFFFFF", "#9CA3AF"};
+        String[] capsuleHex = {followBackHex, "#000000", "#FFFFFF", "#9CA3AF"};
         final int FOLLOW_BACK = KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL;
         List<View> capsuleTiles = new ArrayList<>();
         final Runnable[] updatePreviewRef = new Runnable[1];
         for (int i = 0; i < capsuleNames.length; i++) {
-            final int color = Color.parseColor(capsuleHex[i]) & 0x00FFFFFF;
-            boolean selected = (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color
-                    && prefs.getFloatingCapsuleColor() != FOLLOW_BACK;
+            final boolean isAuto = i == 0;
+            final int color = isAuto ? FOLLOW_BACK : (Color.parseColor(capsuleHex[i]) & 0x00FFFFFF);
+            boolean selected = isAuto
+                    ? prefs.getFloatingCapsuleColor() == FOLLOW_BACK
+                    : (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color && prefs.getFloatingCapsuleColor() != FOLLOW_BACK;
             capsuleTiles.add(createPreviewTile(capsuleNames[i], capsuleHex[i], selected,
                     v -> { prefs.setFloatingCapsuleColor(color); refreshEmojiScreen(root); }));
         }
-        addTileGrid(capsuleCard, capsuleTiles, 3);
+        addTileGrid(capsuleCard, capsuleTiles, 2);
 
         final TextView opacityLabel = new TextView(this);
         opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + prefs.getFloatingCapsuleOpacity() + "%");
@@ -2214,7 +2217,7 @@ public class MainActivity extends Activity {
         pHeader.setPadding(0, 0, 0, dp(8));
         keySoundCard.addView(pHeader);
 
-        final int[] soundOrder = {10, 0, 1, 2, 3, 4, 5};
+        final int[] soundOrder = {10, 0, 1, 2, 3, 4, 6, 7, 8, 9, 5};
         String[] keySoundOptions = new String[soundOrder.length];
         int keySel = 0;
         for (int i = 0; i < soundOrder.length; i++) {
@@ -2238,7 +2241,7 @@ public class MainActivity extends Activity {
         swHeader.setPadding(0, 0, 0, dp(8));
         swipeSoundCard.addView(swHeader);
 
-        final int[] swipeSoundOrder = {10, 0, 1, 4, 7, 8, 9, 5};
+        final int[] swipeSoundOrder = {10, 0, 1, 2, 3, 4, 7, 8, 9, 5};
         String[] swipeSoundOptions = new String[swipeSoundOrder.length];
         int swSel = 0;
         for (int i = 0; i < swipeSoundOrder.length; i++) {
