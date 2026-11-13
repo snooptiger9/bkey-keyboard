@@ -2371,9 +2371,13 @@ public class MainActivity extends Activity {
             tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView del = new TextView(this);
-            del.setText(tr("حذف ✕", "Delete ✕"));
+            del.setText("✕");
             del.setTextColor(Color.parseColor("#DC2626"));
             del.setPadding(dp(8), dp(4), dp(8), dp(4));
+            LinearLayout.LayoutParams lpDel = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lpDel.leftMargin = dp(16);
+            del.setLayoutParams(lpDel);
             del.setOnClickListener(v -> {
                 prefs.removeShortcut(e.getKey());
                 populateShortcutsList(container);
