@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.png" alt="bkey — BlackBerry-style Android keyboard, English and Arabic layouts" width="100%">
+</p>
+
 # bkey ⌨️
 
 **كيبورد أندرويد بطابع BlackBerry الكلاسيكي — سحب للأعلى لاختيار الاقتراح، وسحب لليسار للحذف.**
