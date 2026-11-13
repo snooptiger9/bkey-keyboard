@@ -131,13 +131,13 @@ with a carefully tailored experience for each.
 
 **Use the button above only for this first install.** After that, always update from inside the app: open the app → Settings → **Update the app**. That one button always checks for the newest version and never changes anything else about your setup.
 
-If you want the OTP feature, turn it on from inside the app: Settings → **Verification code (OTP) suggestions** — that screen explains it and has a button to turn it on.
+If you want the OTP feature, turn it on from inside the app: Settings → **Suggestions & learning** → scroll down to **Verification code (OTP) suggestions** — that screen explains it and has a button to turn it on.
 
 > ⚠️ **About the OTP feature**
 >
 > Turning this on needs an update that adds SMS-read and WhatsApp-notification access. Because of those two specific permissions, Google Play Protect blocks installing that update automatically with a warning screen. This is standard Google behavior for any app installed outside the Play Store that requests these permissions — not a bug or malware flag.
 >
-> If you want the feature, turn off Play Protect scanning, then turn it on from inside the app itself (Settings → Verification code (OTP) suggestions → the button there):
+> If you want the feature, turn off Play Protect scanning, then turn it on from inside the app itself (Settings → Suggestions & learning → Verification code (OTP) suggestions → the button there):
 >
 > If you ever update the app from this GitHub page instead of the in-app button, just turn the feature back on from that same screen.
 
@@ -342,13 +342,13 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 **استخدم الزر بالأعلى فقط للتثبيت الأول.** بعد ذلك، حدّث التطبيق دايماً من داخله: افتح التطبيق ← الإعدادات ← **تحديث التطبيق**. هذا الزر وحده يتحقق من آخر إصدار كل مرة وما يغيّر أي شي آخر بإعداداتك.
 
-إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتفعيلها.
+إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **التصحيح والاقتراحات والتعلّم** ← انزل لتحت لين تلقى **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتفعيلها.
 
 > ⚠️ **ملاحظة عن ميزة رمز التحقق (OTP)**
 >
 > تفعيل هذي الميزة يحتاج تحديثاً يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات. بسبب هاتين الصلاحيتين بالذات، نظام حماية قوقل يوقف تثبيت التحديث تلقائياً برسالة تحذيرية. هذا سلوك قياسي من قوقل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات، وليس عيباً ولا فيروساً بالتطبيق.
 >
-> إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم فعّلها من داخل التطبيق نفسه (الإعدادات ← اقتراح رمز التحقق (OTP) ← الزر هناك):
+> إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم فعّلها من داخل التطبيق نفسه (الإعدادات ← التصحيح والاقتراحات والتعلّم ← اقتراح رمز التحقق (OTP) ← الزر هناك):
 >
 > إذا صار وحدّثت التطبيق من صفحة GitHub هذي بدل الزر اللي بالتطبيق، بس فعّل الميزة من نفس الشاشة مرة ثانية.
 
