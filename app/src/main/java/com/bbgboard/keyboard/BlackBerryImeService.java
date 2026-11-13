@@ -112,6 +112,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private boolean gifSearchFocused = false;
     private final StringBuilder gifQueryBuilder = new StringBuilder();
     private FrameLayout gifSearchBar;
+    private TextView gifAttributionLabel;
+    private LinearLayout gifAttributionBar;
     private TextView gifQueryDisplay;
     private long lastSpaceTapTime = 0L;
     private boolean numericFieldActive = false;
@@ -1366,6 +1368,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateAbcBackLabels(isArabic);
 
         updateGifSearchBoxDisplay(gifLastQuery);
+        updateGiphyAttributionBar();
         if (gifSearchFocused) {
             updateGifQueryDisplay();
         } else if (gifPanelShown && gifLastQuery != null) {
@@ -2598,6 +2601,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifCol.addView(gifScroll);
 
         gifPanel.addView(gifCol);
+        gifPanel.addView(buildGiphyAttributionBar(), new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
         container.addView(gifPanel);
 
         rebuildEmojiSections();
@@ -2667,6 +2672,41 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (emojiScroll == null || index < 0 || index >= emojiSectionHeaders.size()) return;
         updateEmojiTabHighlight(index);
         emojiScroll.smoothScrollTo(0, emojiSectionHeaders.get(index).getTop());
+    }
+
+    /** شريط إسناد "Powered by GIPHY" — ثابت وظاهر دائماً فوق نتائج/بحث الـ GIF، كما تشترط سياسة GIPHY. */
+    private View buildGiphyAttributionBar() {
+        boolean arabic = keyboardView == null || keyboardView.isArabic();
+
+        LinearLayout bar = new LinearLayout(this);
+        gifAttributionBar = bar;
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
+        bar.setBackground(roundedBg(sugBarC(), 0));
+        bar.setPadding(dp(10), dp(6), dp(10), dp(6));
+
+        ImageView mark = new ImageView(this);
+        mark.setImageResource(R.drawable.gph_attribution_mark);
+        LinearLayout.LayoutParams lpMark = new LinearLayout.LayoutParams(dp(14), dp(15));
+        mark.setLayoutParams(lpMark);
+        bar.addView(mark);
+
+        TextView label = new TextView(this);
+        gifAttributionLabel = label;
+        label.setText(arabic ? "مقدَّم من GIPHY" : "Powered by GIPHY");
+        label.setTextColor(subC());
+        label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
+        label.setPadding(dp(6), 0, dp(6), 0);
+        bar.addView(label);
+
+        return bar;
+    }
+
+    private void updateGiphyAttributionBar() {
+        if (gifAttributionBar == null || gifAttributionLabel == null) return;
+        boolean arabic = keyboardView == null || keyboardView.isArabic();
+        gifAttributionBar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
+        gifAttributionLabel.setText(arabic ? "مقدَّم من GIPHY" : "Powered by GIPHY");
     }
 
     private void showGifPanel() {
