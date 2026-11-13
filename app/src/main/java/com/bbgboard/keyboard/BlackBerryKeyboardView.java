@@ -1951,31 +1951,42 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
+    /**
+     * Negative/cutout style: a single solid filled face disc with the eyes and the mouth
+     * punched out of it (via Path boolean subtraction), instead of an outlined face with
+     * filled eyes/mouth drawn on top. The key background shows through the cutouts.
+     */
     private void drawEmojiIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
         float r = 8.2f * density;
-        float prevW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevStyle = iconStrokePaint.getStyle();
-        iconStrokePaint.setStrokeWidth(1.7f * density);
-        iconStrokePaint.setStyle(Paint.Style.STROKE);
-
-        canvas.drawCircle(cx, cy, r, iconStrokePaint);
-
         iconStrokePaint.setStyle(Paint.Style.FILL);
-        float eyeR = 0.9f * density;
+
+        Path face = new Path();
+        face.addCircle(cx, cy, r, Path.Direction.CW);
+
+        float eyeR = 1.35f * density;
         float eyeOffsetX = r * 0.42f;
         float eyeOffsetY = r * 0.28f;
-        canvas.drawCircle(cx - eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
-        canvas.drawCircle(cx + eyeOffsetX, cy - eyeOffsetY, eyeR, iconStrokePaint);
+        Path eyeLeft = new Path();
+        eyeLeft.addCircle(cx - eyeOffsetX, cy - eyeOffsetY, eyeR, Path.Direction.CW);
+        Path eyeRight = new Path();
+        eyeRight.addCircle(cx + eyeOffsetX, cy - eyeOffsetY, eyeR, Path.Direction.CW);
 
-        iconStrokePaint.setStyle(Paint.Style.FILL);
-        RectF smile = drawRectA;
         float smileR = r * 0.62f;
-        smile.set(cx - smileR, cy - smileR * 0.35f, cx + smileR, cy + smileR * 1.15f);
-        canvas.drawArc(smile, 25f, 130f, false, iconStrokePaint);
+        Path mouthOuter = new Path();
+        mouthOuter.addCircle(cx, cy + smileR * 0.30f, smileR * 0.98f, Path.Direction.CW);
+        Path mouthInner = new Path();
+        mouthInner.addCircle(cx, cy - smileR * 0.18f, smileR * 0.80f, Path.Direction.CW);
+        mouthOuter.op(mouthInner, Path.Op.DIFFERENCE);
 
-        iconStrokePaint.setStrokeWidth(prevW);
+        face.op(eyeLeft, Path.Op.DIFFERENCE);
+        face.op(eyeRight, Path.Op.DIFFERENCE);
+        face.op(mouthOuter, Path.Op.DIFFERENCE);
+
+        canvas.drawPath(face, iconStrokePaint);
+
         iconStrokePaint.setStyle(prevStyle);
     }
 
