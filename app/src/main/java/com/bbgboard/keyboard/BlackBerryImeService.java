@@ -268,6 +268,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return (keyboardView != null && !keyboardView.isArabic()) ? EMOJI_CAT_TITLES_EN : EMOJI_CAT_TITLES;
     }
 
+    // Index 0 (Recently used) keeps the drawn clock icon; the rest went back to plain emoji
+    // glyphs (null marks the one index that isn't an emoji tab).
+    private static final String[] EMOJI_CAT_TAB_EMOJI = new String[]{
+        null, "🙂", "🤍", "🌒", "🐶", "🧋", "🏎️", "⚠️"
+    };
+
     private static final int[] EMOJI_CAT_ICON_TYPES = new int[]{
         ModernIconView.ICON_CLOCK_RECENT,
         ModernIconView.ICON_EMOJI_SMILE,
@@ -2453,8 +2459,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiTabViews.clear();
         for (int i = 0; i < EMOJI_CAT_ICON_TYPES.length; i++) {
             final int catIdx = i;
-            ModernIconView tab = new ModernIconView(this, EMOJI_CAT_ICON_TYPES[i], labelC(), Color.TRANSPARENT);
-            tab.setStyle(0.86f, 2.0f);
+            View tab;
+            String emoji = EMOJI_CAT_TAB_EMOJI[i];
+            if (emoji != null) {
+                TextView emojiTab = new TextView(this);
+                emojiTab.setText(emoji);
+                emojiTab.setGravity(Gravity.CENTER);
+                emojiTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+                emojiTab.setPadding(dp(2), dp(5), dp(2), dp(5));
+                tab = emojiTab;
+            } else {
+                ModernIconView iconTab = new ModernIconView(this, EMOJI_CAT_ICON_TYPES[i], labelC(), Color.TRANSPARENT);
+                iconTab.setStyle(0.86f, 2.0f);
+                tab = iconTab;
+            }
             LinearLayout.LayoutParams lpTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
             lpTab.leftMargin = dp(2);
             lpTab.rightMargin = dp(2);
