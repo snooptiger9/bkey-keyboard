@@ -41,6 +41,8 @@ public class MainActivity extends Activity {
     private View homeMenuView;
     private EditText floatingTestEdit;
     private View floatingTestFab;
+    private EditText quickTestEdit;
+    private boolean floatingTesterKeyboardConfirmedOpen = false;
 
     private final java.util.ArrayDeque<Integer> scrollStack = new java.util.ArrayDeque<>();
     private boolean returningBack = false;
@@ -174,7 +176,7 @@ public class MainActivity extends Activity {
         FrameLayout.LayoutParams lpEdit = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lpEdit.gravity = Gravity.BOTTOM;
-        lpEdit.setMargins(dp(16), 0, dp(16), dp(86));
+        lpEdit.setMargins(dp(16), 0, dp(16), dp(8));
         floatingTestEdit.setLayoutParams(lpEdit);
         root.addView(floatingTestEdit);
 
@@ -190,7 +192,7 @@ public class MainActivity extends Activity {
         lpFab.gravity = Gravity.BOTTOM | (isDeviceArabic() ? Gravity.START : Gravity.END);
         lpFab.setMargins(dp(16), 0, dp(16), dp(16));
         fab.setLayoutParams(lpFab);
-        fab.setOnClickListener(v -> toggleFloatingTester());
+        fab.setOnClickListener(v -> openFloatingTester());
         root.addView(fab);
         floatingTestFab = fab;
 
@@ -202,26 +204,49 @@ public class MainActivity extends Activity {
             if (screenHeight <= 0) return;
             int keypadHeight = screenHeight - visibleFrame.bottom;
             boolean keyboardOpen = keypadHeight > screenHeight * 0.15f;
-            if (!keyboardOpen) {
-                floatingTestEdit.setVisibility(View.GONE);
-                floatingTestEdit.clearFocus();
+
+            if (keyboardOpen) {
+                // The keyboard is confirmed open — keep the box glued right on top of it,
+                // whatever its real height is (depends on the user's keyboard size setting).
+                floatingTesterKeyboardConfirmedOpen = true;
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) floatingTestEdit.getLayoutParams();
+                int wantedMargin = keypadHeight + dp(8);
+                if (lp.bottomMargin != wantedMargin) {
+                    lp.bottomMargin = wantedMargin;
+                    floatingTestEdit.setLayoutParams(lp);
+                }
+            } else if (floatingTesterKeyboardConfirmedOpen) {
+                // The keyboard was genuinely open before and just closed for real
+                // (back button or back gesture) — close the tester along with it.
+                closeFloatingTester();
             }
+            // else: keyboardOpen is false but we never confirmed it open yet — this is just
+            // the brief moment right after opening, before the IME reports its real frame.
+            // Ignoring it here is what fixes the "box never shows up" race.
         });
     }
 
-    private void toggleFloatingTester() {
+    private void openFloatingTester() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (floatingTestEdit.getVisibility() == View.VISIBLE) {
-            floatingTestEdit.setVisibility(View.GONE);
-            floatingTestEdit.clearFocus();
-            if (imm != null) imm.hideSoftInputFromWindow(floatingTestEdit.getWindowToken(), 0);
-        } else {
-            floatingTestEdit.setVisibility(View.VISIBLE);
-            floatingTestEdit.requestFocus();
-            floatingTestEdit.post(() -> {
-                if (imm != null) imm.showSoftInput(floatingTestEdit, InputMethodManager.SHOW_IMPLICIT);
-            });
-        }
+        floatingTesterKeyboardConfirmedOpen = false;
+        if (quickTestEdit != null) quickTestEdit.setVisibility(View.GONE);
+        if (floatingTestFab != null) floatingTestFab.setVisibility(View.GONE);
+        floatingTestEdit.setVisibility(View.VISIBLE);
+        floatingTestEdit.requestFocus();
+        floatingTestEdit.post(() -> {
+            if (imm != null) imm.showSoftInput(floatingTestEdit, InputMethodManager.SHOW_IMPLICIT);
+        });
+    }
+
+    private void closeFloatingTester() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        floatingTestEdit.setText("");
+        floatingTestEdit.setVisibility(View.GONE);
+        floatingTestEdit.clearFocus();
+        if (imm != null) imm.hideSoftInputFromWindow(floatingTestEdit.getWindowToken(), 0);
+        floatingTesterKeyboardConfirmedOpen = false;
+        if (floatingTestFab != null) floatingTestFab.setVisibility(View.VISIBLE);
+        if (quickTestEdit != null) quickTestEdit.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -338,7 +363,7 @@ public class MainActivity extends Activity {
             ));
         }
 
-        EditText quickTestEdit = new EditText(this);
+        quickTestEdit = new EditText(this);
         quickTestEdit.setHint(tr("اضغط هنا لتجربة الكيبورد والبوب أب وأصوات السحب...", "Tap here to try the keyboard, popups and swipe sounds..."));
         quickTestEdit.setHintTextColor(Color.parseColor("#9CA3AF"));
         quickTestEdit.setTextColor(Color.parseColor("#111827"));
