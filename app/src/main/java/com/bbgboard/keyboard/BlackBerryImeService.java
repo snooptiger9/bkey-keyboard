@@ -2454,7 +2454,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         for (int i = 0; i < EMOJI_CAT_ICON_TYPES.length; i++) {
             final int catIdx = i;
             ModernIconView tab = new ModernIconView(this, EMOJI_CAT_ICON_TYPES[i], labelC(), Color.TRANSPARENT);
-            tab.setStyle(0.78f, 2.0f);
+            tab.setStyle(0.86f, 2.0f);
             LinearLayout.LayoutParams lpTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
             lpTab.leftMargin = dp(2);
             lpTab.rightMargin = dp(2);
@@ -2470,6 +2470,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         TextView gifTab = new TextView(this);
         gifTab.setText("GIF");
         gifTab.setGravity(Gravity.CENTER);
+        gifTab.setTextColor(labelC());
         gifTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
         gifTab.setTypeface(Typeface.DEFAULT_BOLD);
         gifTab.setPadding(dp(2), dp(5), dp(2), dp(5));
