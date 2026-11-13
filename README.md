@@ -139,7 +139,7 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 >
 > If you want the feature, turn off Play Protect scanning, then turn it on from inside the app itself (Settings → Verification code (OTP) suggestions → the button there):
 >
-> If you ever update the app from this GitHub page instead of the in-app button, just turn the feature back on from that same screen — one tap and you're set.
+> If you ever update the app from this GitHub page instead of the in-app button, just turn the feature back on from that same screen.
 
 <details>
 <summary><b>Steps to pause Play Protect scanning (tap for details)</b></summary>
@@ -350,7 +350,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 >
 > إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم فعّلها من داخل التطبيق نفسه (الإعدادات ← اقتراح رمز التحقق (OTP) ← الزر هناك):
 >
-> إذا صار وحدّثت التطبيق من صفحة GitHub هذي بدل الزر اللي بالتطبيق، بس فعّل الميزة من نفس الشاشة مرة ثانية — ضغطة وحدة وخلاص.
+> إذا صار وحدّثت التطبيق من صفحة GitHub هذي بدل الزر اللي بالتطبيق، بس فعّل الميزة من نفس الشاشة مرة ثانية.
 
 <details>
 <summary><b>خطوات تعليق فحص Play Protect (اضغط للتفصيل)</b></summary>
