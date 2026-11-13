@@ -388,13 +388,16 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_PAW_PRINT: {
-                RectF pad = new RectF(cx - r * 0.42f, cy - r * 0.05f, cx + r * 0.42f, cy + r * 0.75f);
-                canvas.drawOval(pad, fillPaint);
-                float toeR = r * 0.20f;
-                canvas.drawCircle(cx - r * 0.48f, cy - r * 0.35f, toeR, fillPaint);
-                canvas.drawCircle(cx - r * 0.16f, cy - r * 0.62f, toeR, fillPaint);
-                canvas.drawCircle(cx + r * 0.16f, cy - r * 0.62f, toeR, fillPaint);
-                canvas.drawCircle(cx + r * 0.48f, cy - r * 0.35f, toeR, fillPaint);
+                // Toe-circle layout matches the standard "pets" paw-print icon's proportions
+                // (outer toes lower/wider, inner toes higher/closer together).
+                RectF pad = new RectF(cx - r * 0.70f, cy - r * 0.10f, cx + r * 0.70f, cy + r * 1.0f);
+                canvas.drawRoundRect(pad, r * 0.45f, r * 0.45f, fillPaint);
+                float outerToeR = r * 0.25f;
+                float innerToeR = r * 0.25f;
+                canvas.drawCircle(cx - r * 0.75f, cy - r * 0.25f, outerToeR, fillPaint);
+                canvas.drawCircle(cx - r * 0.30f, cy - r * 0.65f, innerToeR, fillPaint);
+                canvas.drawCircle(cx + r * 0.30f, cy - r * 0.65f, innerToeR, fillPaint);
+                canvas.drawCircle(cx + r * 0.75f, cy - r * 0.25f, outerToeR, fillPaint);
                 break;
             }
             case ICON_CUP_DRINK: {
