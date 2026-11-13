@@ -25,9 +25,12 @@ final class AppUpdater {
         return t;
     });
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    // رابط مباشر لسيرفر المحتوى (بدون المرور بإعادة التوجيه الوسيطة لصفحة github.com/.../raw/)
     private static final String UPDATE_URL =
-            "https://raw.githubusercontent.com/snooptiger9/bkey-keyboard/main/release/bkey-full-latest.apk";
+            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk";
+    // ترويسة متصفح حقيقية — بعض خوادم GitHub ترفض طلبات الأدوات البرمجية (404/403) إذا ما شافت user-agent يشبه متصفح
+    private static final String USER_AGENT =
+            "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
+    private static final int MAX_REDIRECTS = 5;
 
     interface Callback {
         void onFinished(boolean success);
@@ -42,15 +45,29 @@ final class AppUpdater {
                 File dest = new File(extDir, "bkey-update.apk");
                 if (dest.exists()) dest.delete();
 
-                URL url = new URL(UPDATE_URL);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(30000);
-                conn.setInstanceFollowRedirects(true);
-                // بعض خوادم GitHub ترفض الطلبات بدون User-Agent واضح
-                conn.setRequestProperty("User-Agent", "bkey-updater-android");
-
-                int code = conn.getResponseCode();
+                // نتبع إعادة التوجيه يدوياً (github.com/.../raw/ يحول إلى سيرفر المحتوى الفعلي)
+                // بدل الاعتماد على اتباع تلقائي قد لا يشتغل بنفس طريقة المتصفح
+                String currentUrl = UPDATE_URL;
+                int code;
+                for (int i = 0; ; i++) {
+                    if (i > MAX_REDIRECTS) throw new IOException("too many redirects");
+                    URL url = new URL(currentUrl);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(30000);
+                    conn.setInstanceFollowRedirects(false);
+                    conn.setRequestProperty("User-Agent", USER_AGENT);
+                    code = conn.getResponseCode();
+                    boolean isRedirect = code == HttpURLConnection.HTTP_MOVED_PERM
+                            || code == HttpURLConnection.HTTP_MOVED_TEMP
+                            || code == HttpURLConnection.HTTP_SEE_OTHER
+                            || code == 307 || code == 308;
+                    if (!isRedirect) break;
+                    String location = conn.getHeaderField("Location");
+                    conn.disconnect();
+                    if (location == null) throw new IOException("redirect with no Location header");
+                    currentUrl = location;
+                }
                 if (code != HttpURLConnection.HTTP_OK) {
                     throw new IOException("HTTP " + code + " from update server");
                 }
