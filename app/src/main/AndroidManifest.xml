@@ -10,8 +10,6 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <!-- للكتابة بالصوت (زر المايك في صف الاقتراحات) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- لتثبيت تحديث ميزة OTP تلقائياً بعد تنزيله داخل التطبيق -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- يسمح بالتعرف على خدمة التعرف على الكلام في الجهاز (مطلوب من أندرويد 11) -->
     <queries>
@@ -58,17 +56,6 @@
             android:authorities="${applicationId}.gifcache"
             android:exported="false"
             android:grantUriPermissions="true" />
-
-        <!-- يعطي رابط content:// لملف APK التحديث المنزّل، عشان مثبّت الحزم بالنظام يقدر يفتحه -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
 
         <!-- يقرأ إشعارات واتساب فقط للبحث عن رمز تحقق، ليُقترح بالكيبورد. يحتاج موافقة يدوية من
              المستخدم على "الوصول للإشعارات" من إعدادات أندرويد، ومعطّل افتراضياً (مرتبط بإعداد خاص). -->
