@@ -237,6 +237,12 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        if (prefs.isPendingReturnToOtpScreen()) {
+            prefs.setPendingReturnToOtpScreen(false);
+            openOtpSettingsScreen();
+            return;
+        }
+
         if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) == homeMenuView) {
             showHomeGboardSettingsMenu();
         }
@@ -924,7 +930,7 @@ public class MainActivity extends Activity {
             if (!granted) {
                 Toast.makeText(this, tr("لم يُمنح إذن الرسائل، فلن يُقترح رمز التحقق تلقائياً", "SMS permission wasn't granted, so the code won't be suggested automatically"), Toast.LENGTH_LONG).show();
             }
-            openCorrectionsAndMemoryScreen();
+            openOtpSettingsScreen();
         }
     }
 
@@ -1528,22 +1534,31 @@ public class MainActivity extends Activity {
     }
 
     private void checkForAppUpdate() {
-        Toast.makeText(this, tr("جاري تنزيل التحديث...", "Downloading the update..."), Toast.LENGTH_SHORT).show();
-        AppUpdater.downloadAndInstall(getApplicationContext(), success -> {
-            if (!success) {
+        Toast.makeText(this, tr("جاري التحقق من وجود تحديث...", "Checking for an update..."), Toast.LENGTH_SHORT).show();
+        AppUpdater.fetchRemoteVersionCode(remoteVersionCode -> {
+            if (remoteVersionCode != null && remoteVersionCode <= BuildConfig.VERSION_CODE) {
                 Toast.makeText(MainActivity.this,
-                        tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
-                                "Automatic download failed, opening the link in your browser instead"),
-                        Toast.LENGTH_LONG).show();
-                try {
-                    String url = BuildConfig.OTP_FEATURES_ENABLED
-                            ? "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"
-                            : "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk";
-                    startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)));
-                } catch (Exception e) {
-                    AppLogger.log("MainActivity", "checkForAppUpdate() download fallback", e);
-                }
+                        tr("التطبيق محدّث لآخر إصدار بالفعل", "The app is already up to date"),
+                        Toast.LENGTH_SHORT).show();
+                return;
             }
+            Toast.makeText(this, tr("جاري تنزيل التحديث...", "Downloading the update..."), Toast.LENGTH_SHORT).show();
+            AppUpdater.downloadAndInstall(getApplicationContext(), success -> {
+                if (!success) {
+                    Toast.makeText(MainActivity.this,
+                            tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
+                                    "Automatic download failed, opening the link in your browser instead"),
+                            Toast.LENGTH_LONG).show();
+                    try {
+                        String url = BuildConfig.OTP_FEATURES_ENABLED
+                                ? "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"
+                                : "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk";
+                        startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)));
+                    } catch (Exception e) {
+                        AppLogger.log("MainActivity", "checkForAppUpdate() download fallback", e);
+                    }
+                }
+            });
         });
     }
 
@@ -1591,6 +1606,7 @@ public class MainActivity extends Activity {
                         if (checked && !isNotificationAccessGranted()) {
                             Toast.makeText(this, tr("فعّل الوصول للإشعارات لتطبيق bkey من الشاشة اللي بتفتح", "Enable notification access for bkey on the screen that opens"), Toast.LENGTH_LONG).show();
                             try {
+                                prefs.setPendingReturnToOtpScreen(true);
                                 startActivity(new android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
                             } catch (Exception e) {
                                 AppLogger.log("MainActivity", "openOtpSettingsScreen()", e);
