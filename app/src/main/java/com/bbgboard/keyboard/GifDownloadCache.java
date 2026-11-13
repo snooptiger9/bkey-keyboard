@@ -7,24 +7,37 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Not a GIF cache/library in the GIPHY sense — this only exists because Android's
+ * commitContent()/ClipData APIs need an actual content:// file to hand to the receiving
+ * app (WhatsApp, SMS, etc.), and that app may read it a short while after the user acts.
+ * Every call here re-downloads a fresh copy under a unique name (no reuse of a previous
+ * download for the same GIF, ever), and anything older than a short grace window is swept
+ * away automatically — so nothing here is kept or reused as a stored library of GIPHY media.
+ */
 final class GifDownloadCache {
     private GifDownloadCache() {}
 
-    private static final int MAX_FILES = 60;
-    private static final long MAX_BYTES = 40L * 1024 * 1024;
+    // Long enough for the receiving app to read a just-sent/just-copied GIF (including a
+    // clipboard paste the user does a little while later), short enough that this never
+    // becomes a standing collection of GIF files.
+    private static final long MAX_AGE_MS = 30L * 60 * 1000;
 
     static File dir(Context c) {
         File d = new File(c.getCacheDir(), "gif_send");
         if (!d.exists()) d.mkdirs();
+        sweepStale(d);
         return d;
     }
 
     static String downloadBlocking(Context c, String url) {
         HttpURLConnection conn = null;
         try {
-            String name = "g" + Math.abs(url.hashCode()) + ".gif";
-            File dest = new File(dir(c), name);
-            if (dest.exists() && dest.length() > 0) return name;
+            File cacheDir = dir(c);
+            // Unique name every time — never reused/served from a prior download of the
+            // same URL, so nothing here is treated as a cached/stored copy of GIPHY media.
+            String name = "g" + System.nanoTime() + ".gif";
+            File dest = new File(cacheDir, name);
             conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(15000);
@@ -35,7 +48,6 @@ final class GifDownloadCache {
             while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
             out.close();
             in.close();
-            pruneIfNeeded(dir(c));
             return name;
         } catch (Exception e) {
             return null;
@@ -44,22 +56,16 @@ final class GifDownloadCache {
         }
     }
 
-    private static void pruneIfNeeded(File dir) {
+    private static void sweepStale(File dir) {
         try {
             File[] files = dir.listFiles();
             if (files == null) return;
-            long total = 0;
-            for (File f : files) total += f.length();
-            if (files.length <= MAX_FILES && total <= MAX_BYTES) return;
-            java.util.Arrays.sort(files, (a, b) -> Long.compare(a.lastModified(), b.lastModified()));
-            int i = 0;
-            while (i < files.length && (files.length - i > MAX_FILES || total > MAX_BYTES)) {
-                total -= files[i].length();
-                files[i].delete();
-                i++;
+            long now = System.currentTimeMillis();
+            for (File f : files) {
+                if (now - f.lastModified() > MAX_AGE_MS) f.delete();
             }
         } catch (Exception e) {
-            AppLogger.log("GifDownloadCache", "pruneIfNeeded()", e);
+            AppLogger.log("GifDownloadCache", "sweepStale()", e);
         }
     }
 }
