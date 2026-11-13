@@ -659,7 +659,7 @@ public class MainActivity extends Activity {
                 try {
                     Intent send = new Intent(Intent.ACTION_SENDTO);
                     send.setData(android.net.Uri.parse("mailto:"));
-                    send.putExtra(Intent.EXTRA_EMAIL, new String[]{"lvl60me@hotmail.com"});
+                    send.putExtra(Intent.EXTRA_EMAIL, new String[]{"lvl60me@gmail.com"});
                     send.putExtra(Intent.EXTRA_SUBJECT, "bkey - " + tr("تقرير خطأ", "Error report"));
                     send.putExtra(Intent.EXTRA_TEXT, AppLogger.readLog(this));
                     startActivity(Intent.createChooser(send, tr("إرسال سجل الأخطاء", "Send error log")));
