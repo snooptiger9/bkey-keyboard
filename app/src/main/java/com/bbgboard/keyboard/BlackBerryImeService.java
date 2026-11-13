@@ -588,6 +588,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifQueryDisplay = new TextView(this);
         gifQueryDisplay.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         gifQueryDisplay.setSingleLine(true);
+        gifQueryDisplay.setGravity(Gravity.CENTER_VERTICAL);
         gifQueryDisplay.setPadding(dp(14), 0, dp(14), 0);
         gifQueryDisplay.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         gifBarRow.addView(gifQueryDisplay);
