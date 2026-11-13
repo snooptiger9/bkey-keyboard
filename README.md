@@ -77,7 +77,7 @@ with a carefully tailored experience for each.
 **😀 Emoji & GIF**
 - Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
   remove a single emoji).
-- Search and preview animated GIFs via GIPHY.
+- Search and preview animated GIFs via KLIPY.
 
 <br>
 
@@ -111,7 +111,7 @@ with a carefully tailored experience for each.
 <a id="en-privacy"></a>
 ### 🔒 Privacy & security
 
-- No network access except for the GIF (GIPHY) and voice-typing features, and both are **fully
+- No network access except for the GIF (KLIPY) and voice-typing features, and both are **fully
   optional** — you can simply never use them, and the keyboard runs with zero internet connection
   at all.
 - Verification-code (OTP) suggestions **don't exist at all** in the base install — no SMS or
@@ -287,7 +287,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 **😀 إيموجي و GIF**
 ‏• لوحة إيموجي ورموز كاملة، مع قسم "مستخدم حديثاً" (قابل للحذف أو حذف عنصر واحد بالضغط المطول)‏.  
-‏• بحث ومعاينة GIF متحركة عبر GIPHY‏.
+‏• بحث ومعاينة GIF متحركة عبر KLIPY‏.
 
 <br>
 
@@ -323,7 +323,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 <div dir="rtl">
 
-‏• لا يوجد اتصال بالإنترنت إلا لميزتي GIF (GIPHY) والكتابة بالصوت، وكلاهما **اختياري بالكامل** —
+‏• لا يوجد اتصال بالإنترنت إلا لميزتي GIF (KLIPY) والكتابة بالصوت، وكلاهما **اختياري بالكامل** —
   تقدر ما تستخدمهما إطلاقاً، ويبقى الكيبورد شغّال بدون أي اتصال بالإنترنت نهائياً.
 ‏• اقتراح أكواد التحقق (OTP) **غير موجودة أصلاً** بالتثبيت الأساسي — ما فيه صلاحية رسائل ولا إشعارات إطلاقاً،
   والكيبورد ما يقدر يقرأ أي رسالة نهائياً. تضاف فقط إذا المستخدم نفسه طلبها ونزّل تحديثها من داخل التطبيق،

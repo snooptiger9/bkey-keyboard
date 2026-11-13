@@ -233,14 +233,6 @@ public class KeyboardPreferences {
         }
     }
 
-    public String getGiphyApiKey() {
-        return prefs.getString("giphy_api_key", "");
-    }
-
-    public void setGiphyApiKey(String key) {
-        prefs.edit().putString("giphy_api_key", key == null ? "" : key.trim()).apply();
-    }
-
     public int getSuggestionTextLevel() {
         return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 3)));
     }
