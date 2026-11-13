@@ -1369,7 +1369,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateAbcBackLabels(isArabic);
 
         updateGifSearchBoxDisplay(gifLastQuery);
-        updateGiphyAttributionBar();
+        updateGifAttributionBar();
         if (gifSearchFocused) {
             updateGifQueryDisplay();
         } else if (gifPanelShown && gifLastQuery != null) {
@@ -2602,7 +2602,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifCol.addView(gifScroll);
 
         gifPanel.addView(gifCol);
-        gifPanel.addView(buildGiphyAttributionBar(), new FrameLayout.LayoutParams(
+        gifPanel.addView(buildGifAttributionBar(), new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
         container.addView(gifPanel);
 
@@ -2675,8 +2675,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiScroll.smoothScrollTo(0, emojiSectionHeaders.get(index).getTop());
     }
 
-    /** شريط إسناد "Powered by GIPHY" — ثابت وظاهر دائماً فوق نتائج/بحث الـ GIF، كما تشترط سياسة GIPHY. */
-    private View buildGiphyAttributionBar() {
+    /** شريط إسناد "Powered by KLIPY" — ثابت وظاهر دائماً فوق نتائج/بحث الـ GIF، كما تشترط سياسة KLIPY.
+     *  ملاحظة: نص فقط مؤقتاً بدون شعار KLIPY الرسمي — شوف إرشادات العلامة التجارية الخاصة بهم
+     *  وأضف الشعار المناسب لاحقاً. */
+    private View buildGifAttributionBar() {
         boolean arabic = keyboardView == null || keyboardView.isArabic();
 
         LinearLayout bar = new LinearLayout(this);
@@ -2686,15 +2688,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.setBackground(roundedBg(sugBarC(), 0));
         bar.setPadding(dp(10), dp(6), dp(10), dp(6));
 
-        ImageView mark = new ImageView(this);
-        mark.setImageResource(R.drawable.gph_attribution_mark);
-        LinearLayout.LayoutParams lpMark = new LinearLayout.LayoutParams(dp(14), dp(15));
-        mark.setLayoutParams(lpMark);
-        bar.addView(mark);
-
         TextView label = new TextView(this);
         gifAttributionLabel = label;
-        label.setText(arabic ? "مقدَّم من GIPHY" : "Powered by GIPHY");
+        label.setText(arabic ? "مقدَّم من KLIPY" : "Powered by KLIPY");
         label.setTextColor(subC());
         label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         label.setPadding(dp(6), 0, dp(6), 0);
@@ -2703,11 +2699,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return bar;
     }
 
-    private void updateGiphyAttributionBar() {
+    private void updateGifAttributionBar() {
         if (gifAttributionBar == null || gifAttributionLabel == null) return;
         boolean arabic = keyboardView == null || keyboardView.isArabic();
         gifAttributionBar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
-        gifAttributionLabel.setText(arabic ? "مقدَّم من GIPHY" : "Powered by GIPHY");
+        gifAttributionLabel.setText(arabic ? "مقدَّم من KLIPY" : "Powered by KLIPY");
     }
 
     private void showGifPanel() {
@@ -2817,45 +2813,34 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void loadGifResults(boolean trending, String query) {
         boolean gifArabic = keyboardView == null || keyboardView.isArabic();
         gifLastLoadedArabic = gifArabic;
-        String apiKey = keyboardPrefs.getGiphyApiKey();
-        if (apiKey == null || apiKey.isEmpty()) {
-            if (gifGrid != null) gifGrid.removeAllViews();
-            if (gifStatusText != null) {
-                gifStatusText.setText(gifArabic
-                        ? "لازم تضيف مفتاح GIPHY API مجاني من إعدادات GIF حتى تشتغل هذي الميزة"
-                        : "Add a free GIPHY API key in GIF settings to use this feature");
-                gifStatusText.setVisibility(View.VISIBLE);
-            }
-            return;
-        }
         if (gifStatusText != null) {
             gifStatusText.setText(gifArabic ? "جاري التحميل..." : "Loading...");
             gifStatusText.setVisibility(View.VISIBLE);
         }
         if (gifGrid != null) gifGrid.removeAllViews();
         boolean showRecents = trending || query.isEmpty();
-        GiphyClient.Callback cb = (results, error) -> {
+        KlipyClient.Callback cb = (results, error) -> {
             if (gifGrid == null || gifStatusText == null) return;
             if (error != null) {
                 gifStatusText.setText((gifArabic ? "تعذّر التحميل: " : "Couldn't load: ") + error);
                 gifStatusText.setVisibility(View.VISIBLE);
                 return;
             }
-            List<GiphyClient.GifResult> recents = new ArrayList<>();
-            List<GiphyClient.GifResult> main = results;
+            List<KlipyClient.GifResult> recents = new ArrayList<>();
+            List<KlipyClient.GifResult> main = results;
             if (showRecents) {
                 List<String[]> recentPairs = keyboardPrefs.getRecentGifs();
 
                 int recentLimit = GIF_GRID_COLUMNS * 3;
                 for (int i = 0; i < recentPairs.size() && i < recentLimit; i++) {
                     String[] g = recentPairs.get(i);
-                    recents.add(new GiphyClient.GifResult(g[0], g[1]));
+                    recents.add(new KlipyClient.GifResult(g[0], g[1]));
                 }
                 if (!recents.isEmpty()) {
                     main = new ArrayList<>();
-                    for (GiphyClient.GifResult g : results) {
+                    for (KlipyClient.GifResult g : results) {
                         boolean dup = false;
-                        for (GiphyClient.GifResult r : recents) {
+                        for (KlipyClient.GifResult r : recents) {
                             if (r.fullUrl.equals(g.fullUrl)) { dup = true; break; }
                         }
                         if (!dup) main.add(g);
@@ -2871,15 +2856,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             fillGifSections(recents, main, !showRecents, gifArabic);
         };
         if (showRecents) {
-            GiphyClient.trending(apiKey, cb);
+            KlipyClient.trending(cb);
         } else {
-            GiphyClient.search(apiKey, query, cb);
+            KlipyClient.search(query, cb);
         }
     }
 
     private static final int GIF_GRID_COLUMNS = 4;
 
-    private void fillGifSections(List<GiphyClient.GifResult> recents, List<GiphyClient.GifResult> main, boolean isSearch, boolean gifArabic) {
+    private void fillGifSections(List<KlipyClient.GifResult> recents, List<KlipyClient.GifResult> main, boolean isSearch, boolean gifArabic) {
         gifGrid.removeAllViews();
         if (!recents.isEmpty()) {
             TextView recentHeader = gifSectionHeader(gifArabic ? "آخر ما استخدمته" : "Recently used");
@@ -2904,11 +2889,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return title;
     }
 
-    private GridLayout buildGifRow(List<GiphyClient.GifResult> results, boolean isRecent) {
+    private GridLayout buildGifRow(List<KlipyClient.GifResult> results, boolean isRecent) {
         GridLayout grid = new GridLayout(this);
         grid.setColumnCount(GIF_GRID_COLUMNS);
         int cellW = Math.max(dp(64), (getResources().getDisplayMetrics().widthPixels - dp(24)) / GIF_GRID_COLUMNS);
-        for (final GiphyClient.GifResult gif : results) {
+        for (final KlipyClient.GifResult gif : results) {
             ImageView iv = new ImageView(this);
             iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();

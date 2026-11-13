@@ -8,12 +8,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Not a GIF cache/library in the GIPHY sense — this only exists because Android's
+ * Not a GIF cache/library in the GIF-provider sense — this only exists because Android's
  * commitContent()/ClipData APIs need an actual content:// file to hand to the receiving
  * app (WhatsApp, SMS, etc.), and that app may read it a short while after the user acts.
  * Every call here re-downloads a fresh copy under a unique name (no reuse of a previous
  * download for the same GIF, ever), and anything older than a short grace window is swept
- * away automatically — so nothing here is kept or reused as a stored library of GIPHY media.
+ * away automatically — so nothing here is kept or reused as a stored library of the GIF provider media.
  */
 final class GifDownloadCache {
     private GifDownloadCache() {}
@@ -35,7 +35,7 @@ final class GifDownloadCache {
         try {
             File cacheDir = dir(c);
             // Unique name every time — never reused/served from a prior download of the
-            // same URL, so nothing here is treated as a cached/stored copy of GIPHY media.
+            // same URL, so nothing here is treated as a cached/stored copy of the GIF provider media.
             String name = "g" + System.nanoTime() + ".gif";
             File dest = new File(cacheDir, name);
             conn = (HttpURLConnection) new URL(url).openConnection();
