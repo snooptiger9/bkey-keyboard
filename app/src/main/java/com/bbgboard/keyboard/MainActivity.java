@@ -2050,7 +2050,7 @@ public class MainActivity extends Activity {
     }
 
     private void openSoundAndVibrationScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("الصوت والاهتزاز (5 نغمات كتابة + 5 نغمات سحب)", "Sound & Vibration (5 typing tones + 5 swipe tones)"));
+        LinearLayout root = createSubScreenTemplate(tr("الصوت والاهتزاز", "Sound & Vibration"));
 
         root.addView(createSwitchTile(
                 tr("تفعيل صوت الكتابة الفوري (Zero-Latency SoundPool)", "Enable instant typing sound (Zero-Latency SoundPool)"),
