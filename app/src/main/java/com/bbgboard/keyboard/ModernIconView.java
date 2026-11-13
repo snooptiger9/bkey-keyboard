@@ -361,12 +361,24 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_HEART: {
-                Path heart = new Path();
-                heart.moveTo(cx, cy + r * 0.92f);
-                heart.cubicTo(cx - r * 1.18f, cy - r * 0.22f, cx - r * 0.62f, cy - r * 1.08f, cx, cy - r * 0.42f);
-                heart.cubicTo(cx + r * 0.62f, cy - r * 1.08f, cx + r * 1.18f, cy - r * 0.22f, cx, cy + r * 0.92f);
-                heart.close();
-                canvas.drawPath(heart, fillPaint);
+                // Built from two plump round lobes plus a bottom point (like the classic emoji
+                // heart), instead of a single thin bezier outline — reads much bolder at small
+                // sizes and matches the visual weight of the other filled category icons.
+                float lobeR = r * 0.52f;
+                float lobeY = cy - r * 0.30f;
+                float lobeX = r * 0.50f;
+                Path left = new Path();
+                left.addCircle(cx - lobeX, lobeY, lobeR, Path.Direction.CW);
+                Path right = new Path();
+                right.addCircle(cx + lobeX, lobeY, lobeR, Path.Direction.CW);
+                Path point = new Path();
+                point.moveTo(cx - r * 1.02f, lobeY + lobeR * 0.25f);
+                point.lineTo(cx + r * 1.02f, lobeY + lobeR * 0.25f);
+                point.lineTo(cx, cy + r * 0.95f);
+                point.close();
+                left.op(right, Path.Op.UNION);
+                left.op(point, Path.Op.UNION);
+                canvas.drawPath(left, fillPaint);
                 break;
             }
             case ICON_CRESCENT_MOON: {
