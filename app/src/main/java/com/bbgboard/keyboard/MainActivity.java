@@ -1605,16 +1605,21 @@ public class MainActivity extends Activity {
             lpDl.topMargin = dp(14);
             downloadBtn.setLayoutParams(lpDl);
             downloadBtn.setOnClickListener(v -> {
-                // تنزيل مباشر من داخل التطبيق (اتصال HTTP يدوي أو DownloadManager) يفشل بشكل
-                // متكرر بغض النظر عن الشبكة (تأكدنا: يفشل حتى بالواي فاي مع VPN)، بينما نفس
-                // الرابط يشتغل دايماً بالمتصفح — الأرجح إن GitHub يميّز طلبات الأدوات البرمجية
-                // عن متصفح حقيقي. فتح المتصفح هو الطريقة الوحيدة المؤكد أنها تشتغل.
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
-                            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk")));
-                } catch (Exception e) {
-                    AppLogger.log("MainActivity", "openOtpSettingsScreen() download", e);
-                }
+                Toast.makeText(this, tr("جاري تنزيل التحديث...", "Downloading the update..."), Toast.LENGTH_SHORT).show();
+                AppUpdater.downloadAndInstall(getApplicationContext(), success -> {
+                    if (!success) {
+                        Toast.makeText(MainActivity.this,
+                                tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
+                                        "Automatic download failed, opening the link in your browser instead"),
+                                Toast.LENGTH_LONG).show();
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
+                                    "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk")));
+                        } catch (Exception e) {
+                            AppLogger.log("MainActivity", "openOtpSettingsScreen() download fallback", e);
+                        }
+                    }
+                });
             });
             root.addView(downloadBtn);
         }
