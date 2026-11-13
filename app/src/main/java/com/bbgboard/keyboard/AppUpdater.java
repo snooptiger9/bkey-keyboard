@@ -1,97 +1,96 @@
 package com.bbgboard.keyboard;
 
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-/** ينزّل تحديث ميزة OTP (bkey-full-latest.apk) ويفتحه مباشرة بمثبّت الحزم، بدون الحاجة للمتصفح. */
 final class AppUpdater {
     private AppUpdater() {}
 
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "bkey-update-download");
-        t.setDaemon(true);
-        return t;
-    });
-    private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final String UPDATE_URL =
             "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk";
-    // ترويسة متصفح حقيقية — بعض خوادم GitHub ترفض طلبات الأدوات البرمجية (404/403) إذا ما شافت user-agent يشبه متصفح
-    private static final String USER_AGENT =
-            "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
-    private static final int MAX_REDIRECTS = 5;
+    private static final String UPDATE_FILE_NAME = "bkey-update.apk";
 
     interface Callback {
         void onFinished(boolean success);
     }
 
     static void downloadAndInstall(final Context appContext, final Callback cb) {
-        EXECUTOR.execute(() -> {
-            HttpURLConnection conn = null;
-            try {
-                File extDir = appContext.getExternalFilesDir(null);
-                if (extDir == null) throw new IOException("external files dir not available");
-                File dest = new File(extDir, "bkey-update.apk");
-                if (dest.exists()) dest.delete();
-
-                // نتبع إعادة التوجيه يدوياً (github.com/.../raw/ يحول إلى سيرفر المحتوى الفعلي)
-                // بدل الاعتماد على اتباع تلقائي قد لا يشتغل بنفس طريقة المتصفح
-                String currentUrl = UPDATE_URL;
-                int code;
-                for (int i = 0; ; i++) {
-                    if (i > MAX_REDIRECTS) throw new IOException("too many redirects");
-                    URL url = new URL(currentUrl);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setConnectTimeout(15000);
-                    conn.setReadTimeout(30000);
-                    conn.setInstanceFollowRedirects(false);
-                    conn.setRequestProperty("User-Agent", USER_AGENT);
-                    code = conn.getResponseCode();
-                    boolean isRedirect = code == HttpURLConnection.HTTP_MOVED_PERM
-                            || code == HttpURLConnection.HTTP_MOVED_TEMP
-                            || code == HttpURLConnection.HTTP_SEE_OTHER
-                            || code == 307 || code == 308;
-                    if (!isRedirect) break;
-                    String location = conn.getHeaderField("Location");
-                    conn.disconnect();
-                    if (location == null) throw new IOException("redirect with no Location header");
-                    currentUrl = location;
-                }
-                if (code != HttpURLConnection.HTTP_OK) {
-                    throw new IOException("HTTP " + code + " from update server");
-                }
-
-                InputStream in = conn.getInputStream();
-                FileOutputStream out = new FileOutputStream(dest);
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
-                out.close();
-                in.close();
-                MAIN.post(() -> {
-                    boolean installed = tryInstall(appContext, dest);
-                    if (cb != null) cb.onFinished(installed);
-                });
-            } catch (Exception e) {
-                AppLogger.log("AppUpdater", "downloadAndInstall()", e);
-                MAIN.post(() -> {
-                    if (cb != null) cb.onFinished(false);
-                });
-            } finally {
-                if (conn != null) conn.disconnect();
+        try {
+            final DownloadManager dm = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
+            if (dm == null) {
+                if (cb != null) cb.onFinished(false);
+                return;
             }
-        });
+
+            File extDir = appContext.getExternalFilesDir(null);
+            if (extDir != null) {
+                File old = new File(extDir, UPDATE_FILE_NAME);
+                if (old.exists()) old.delete();
+            }
+
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(UPDATE_URL));
+            request.setTitle("bkey");
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setDestinationInExternalFilesDir(appContext, null, UPDATE_FILE_NAME);
+            request.setMimeType("application/vnd.android.package-archive");
+
+            final long downloadId = dm.enqueue(request);
+            final BroadcastReceiver[] receiverHolder = new BroadcastReceiver[1];
+
+            BroadcastReceiver receiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                    if (id != downloadId) return;
+                    try {
+                        appContext.unregisterReceiver(receiverHolder[0]);
+                    } catch (Exception ignore) {
+                    }
+
+                    boolean success = false;
+                    Cursor cursor = null;
+                    try {
+                        cursor = dm.query(new DownloadManager.Query().setFilterById(downloadId));
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                            success = status == DownloadManager.STATUS_SUCCESSFUL;
+                            if (!success) {
+                                int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
+                                AppLogger.log("AppUpdater", "downloadAndInstall()",
+                                        new IOException("DownloadManager status=" + status + " reason=" + reason));
+                            }
+                        }
+                    } finally {
+                        if (cursor != null) cursor.close();
+                    }
+
+                    if (success) {
+                        File dest = new File(appContext.getExternalFilesDir(null), UPDATE_FILE_NAME);
+                        boolean installed = tryInstall(appContext, dest);
+                        if (cb != null) cb.onFinished(installed);
+                    } else {
+                        if (cb != null) cb.onFinished(false);
+                    }
+                }
+            };
+            receiverHolder[0] = receiver;
+
+            ContextCompat.registerReceiver(appContext, receiver,
+                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+                    ContextCompat.RECEIVER_NOT_EXPORTED);
+        } catch (Exception e) {
+            AppLogger.log("AppUpdater", "downloadAndInstall()", e);
+            if (cb != null) cb.onFinished(false);
+        }
     }
 
     private static boolean tryInstall(Context context, File apkFile) {
