@@ -214,6 +214,12 @@ public class BlackBerryKeyboardView extends View {
 
     private int touchDownSuggestionSlot = -1;
     private boolean suggestionLongPressConsumed = false;
+    private long suggestionTouchDownTime = 0L;
+    // A touch landing on the suggestion bar for less than this is treated as the finger
+    // grazing it in transit toward the top key row while typing fast, not a deliberate tap —
+    // it's ignored instead of instantly committing the word. A deliberate tap always rests
+    // on the slot well past this, so it isn't felt as added delay.
+    private static final long MIN_SUGGESTION_TAP_HOLD_MS = 80L;
 
     private String emojiKeySuggestion = null;
 
@@ -425,6 +431,11 @@ public class BlackBerryKeyboardView extends View {
 
     @Override
     protected void onDetachedFromWindow() {
+        // Defensive: if the view is torn down without Android first delivering an
+        // ACTION_CANCEL (which is what normally cancels these), a self-rescheduling
+        // runnable like the backspace-repeat timer could otherwise keep firing after
+        // the view is gone.
+        handler.removeCallbacksAndMessages(null);
         dismissFlyingPopup();
         super.onDetachedFromWindow();
     }
@@ -2317,6 +2328,7 @@ public class BlackBerryKeyboardView extends View {
 
                 if (y <= sugBottom) {
                     touchDownSuggestionSlot = getClickedSuggestionSlot(x);
+                    suggestionTouchDownTime = SystemClock.uptimeMillis();
                     handler.postDelayed(suggestionLongPressRunnable, prefs.getLongPressDelayMs());
                     return true;
                 }
@@ -2503,11 +2515,13 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 if (startY > resizeH && startY <= sugBottom && Math.abs(dx) < 22f * density && Math.abs(dy) < 22f * density) {
-                    int slot = getClickedSuggestionSlot(x);
-                    vibrateTap(false);
-                    soundController.playSwipeUpSound();
-                    launchWordOutsideKeyboard(slot);
-                    if (listener != null) listener.onSwipeUpSuggestion(slot);
+                    if (SystemClock.uptimeMillis() - suggestionTouchDownTime >= MIN_SUGGESTION_TAP_HOLD_MS) {
+                        int slot = getClickedSuggestionSlot(x);
+                        vibrateTap(false);
+                        soundController.playSwipeUpSound();
+                        launchWordOutsideKeyboard(slot);
+                        if (listener != null) listener.onSwipeUpSuggestion(slot);
+                    }
                     return true;
                 }
 
