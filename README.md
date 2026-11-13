@@ -91,9 +91,9 @@
 
 ### 📥 التحميل
 
-**[⬇️ تحميل bkey](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
-
-
+<p>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="تحميل ملف APK" height="72"></a>
+</p>
 
 إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتحميل التحديث الذي يضيف الميزة.
 
@@ -102,14 +102,20 @@
 > تفعيل هذي الميزة يحتاج تحديثاً يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات. بسبب هاتين الصلاحيتين بالذات، نظام حماية جوجل يوقف تثبيت التحديث تلقائياً برسالة تحذيرية. هذا سلوك قياسي من جوجل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات، وليس عيباً ولا فيروساً بالتطبيق.
 >
 > إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم حمّل التحديث من داخل التطبيق نفسه (الإعدادات ← اقتراح رمز التحقق (OTP) ← زر التحديث):
->
-> 1. افتح تطبيق **متجر Google Play**.
-> 2. اضغط صورة حسابك بأعلى يمين الشاشة.
-> 3. اختر **Play Protect**.
-> 4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.
-> 5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?»، اختر **Pause**.
-> 6. رجع لشاشة OTP داخل التطبيق واضغط زر تحميل التحديث، وثبّته.
-> 7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التحديث (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
+
+<details>
+<summary><b>خطوات تعليق فحص Play Protect (اضغط للتفصيل)</b></summary>
+<br>
+
+1. افتح تطبيق **متجر Google Play**.
+2. اضغط صورة حسابك بأعلى يمين الشاشة.
+3. اختر **Play Protect**.
+4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.
+5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?»، اختر **Pause**.
+6. رجع لشاشة OTP داخل التطبيق واضغط زر تحميل التحديث، وثبّته.
+7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التحديث (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
+
+</details>
 
 ### 📩 الدعم
 
@@ -208,9 +214,9 @@ with a carefully tailored experience for each.
 
 ### 📥 Download
 
-**[⬇️ Download bkey](https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk)**
-
-
+<p>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="Get the APK from GitHub" height="72"></a>
+</p>
 
 If you want the OTP feature, turn it on from inside the app: Settings → **Verification code (OTP) suggestions** — that screen explains it and has a button to download the update that adds it.
 
@@ -219,14 +225,20 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 > Turning this on needs an update that adds SMS-read and WhatsApp-notification access. Because of those two specific permissions, Google Play Protect blocks installing that update automatically with a warning screen. This is standard Google behavior for any app installed outside the Play Store that requests these permissions — not a bug or malware flag.
 >
 > If you want the feature, turn off Play Protect scanning, then download the update from inside the app itself (Settings → Verification code (OTP) suggestions → the download button):
->
-> 1. Open the **Google Play Store** app.
-> 2. Tap your profile picture, top right.
-> 3. Tap **Play Protect**.
-> 4. Tap the ⚙️ settings icon, top right.
-> 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
-> 6. Go back to the OTP screen in the app, tap the download button, and install it.
-> 7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after the update (recommended to keep it on for your other apps).
+
+<details>
+<summary><b>Steps to pause Play Protect scanning (tap for details)</b></summary>
+<br>
+
+1. Open the **Google Play Store** app.
+2. Tap your profile picture, top right.
+3. Tap **Play Protect**.
+4. Tap the ⚙️ settings icon, top right.
+5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
+6. Go back to the OTP screen in the app, tap the download button, and install it.
+7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after the update (recommended to keep it on for your other apps).
+
+</details>
 
 ### 📩 Support
 
