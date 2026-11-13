@@ -2464,9 +2464,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         TextView gifTab = new TextView(this);
-        gifTab.setText("KLIPY GIF");
+        gifTab.setText("GIF");
         gifTab.setGravity(Gravity.CENTER);
-        gifTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+        gifTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
         gifTab.setTypeface(Typeface.DEFAULT_BOLD);
         gifTab.setPadding(dp(2), dp(5), dp(2), dp(5));
         LinearLayout.LayoutParams lpGifTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
