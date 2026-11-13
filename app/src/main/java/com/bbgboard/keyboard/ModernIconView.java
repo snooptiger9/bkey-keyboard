@@ -30,6 +30,13 @@ public class ModernIconView extends View {
     public static final int ICON_PUSHPIN = 18;
     public static final int ICON_TRASH = 19;
     public static final int ICON_MIC = 20;
+    public static final int ICON_CLOCK_RECENT = 21;
+    public static final int ICON_HEART = 22;
+    public static final int ICON_CRESCENT_MOON = 23;
+    public static final int ICON_PAW_PRINT = 24;
+    public static final int ICON_CUP_DRINK = 25;
+    public static final int ICON_CAR = 26;
+    public static final int ICON_HASH_SYMBOLS = 27;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -344,6 +351,72 @@ public class ModernIconView extends View {
                 arrowF.lineTo(cx + r * 0.68f, cy);
                 arrowF.lineTo(cx + r * 0.15f, cy + r * 0.52f);
                 canvas.drawPath(arrowF, strokePaint);
+                break;
+            }
+            case ICON_CLOCK_RECENT: {
+                canvas.drawCircle(cx, cy, r * 0.88f, strokePaint);
+                canvas.drawLine(cx, cy, cx, cy - r * 0.52f, strokePaint);
+                canvas.drawLine(cx, cy, cx + r * 0.42f, cy + r * 0.18f, strokePaint);
+                break;
+            }
+            case ICON_HEART: {
+                Path heart = new Path();
+                heart.moveTo(cx, cy + r * 0.75f);
+                heart.cubicTo(cx - r * 1.05f, cy - r * 0.15f, cx - r * 0.55f, cy - r * 0.95f, cx, cy - r * 0.35f);
+                heart.cubicTo(cx + r * 0.55f, cy - r * 0.95f, cx + r * 1.05f, cy - r * 0.15f, cx, cy + r * 0.75f);
+                heart.close();
+                canvas.drawPath(heart, fillPaint);
+                break;
+            }
+            case ICON_CRESCENT_MOON: {
+                Path full = new Path();
+                full.addCircle(cx, cy, r * 0.85f, Path.Direction.CW);
+                Path cut = new Path();
+                cut.addCircle(cx + r * 0.42f, cy - r * 0.30f, r * 0.72f, Path.Direction.CW);
+                full.op(cut, Path.Op.DIFFERENCE);
+                canvas.drawPath(full, fillPaint);
+                break;
+            }
+            case ICON_PAW_PRINT: {
+                RectF pad = new RectF(cx - r * 0.42f, cy - r * 0.05f, cx + r * 0.42f, cy + r * 0.75f);
+                canvas.drawOval(pad, fillPaint);
+                float toeR = r * 0.20f;
+                canvas.drawCircle(cx - r * 0.48f, cy - r * 0.35f, toeR, fillPaint);
+                canvas.drawCircle(cx - r * 0.16f, cy - r * 0.62f, toeR, fillPaint);
+                canvas.drawCircle(cx + r * 0.16f, cy - r * 0.62f, toeR, fillPaint);
+                canvas.drawCircle(cx + r * 0.48f, cy - r * 0.35f, toeR, fillPaint);
+                break;
+            }
+            case ICON_CUP_DRINK: {
+                RectF cup = new RectF(cx - r * 0.58f, cy - r * 0.40f, cx + r * 0.30f, cy + r * 0.80f);
+                canvas.drawRoundRect(cup, 3f * density, 3f * density, strokePaint);
+                RectF handle = new RectF(cx + r * 0.10f, cy - r * 0.05f, cx + r * 0.72f, cy + r * 0.55f);
+                canvas.drawArc(handle, -90f, 180f, false, strokePaint);
+                canvas.drawLine(cx - r * 0.18f, cy - r * 0.95f, cx - r * 0.08f, cy - r * 0.62f, strokePaint);
+                canvas.drawLine(cx + r * 0.12f, cy - r * 0.95f, cx + r * 0.02f, cy - r * 0.62f, strokePaint);
+                break;
+            }
+            case ICON_CAR: {
+                Path body = new Path();
+                body.moveTo(cx - r * 0.85f, cy + r * 0.25f);
+                body.lineTo(cx - r * 0.85f, cy - r * 0.05f);
+                body.lineTo(cx - r * 0.55f, cy - r * 0.45f);
+                body.lineTo(cx + r * 0.35f, cy - r * 0.45f);
+                body.lineTo(cx + r * 0.70f, cy - r * 0.05f);
+                body.lineTo(cx + r * 0.85f, cy - r * 0.05f);
+                body.lineTo(cx + r * 0.85f, cy + r * 0.25f);
+                body.close();
+                canvas.drawPath(body, strokePaint);
+                canvas.drawCircle(cx - r * 0.45f, cy + r * 0.32f, r * 0.20f, strokePaint);
+                canvas.drawCircle(cx + r * 0.45f, cy + r * 0.32f, r * 0.20f, strokePaint);
+                break;
+            }
+            case ICON_HASH_SYMBOLS: {
+                float v = r * 0.32f;
+                canvas.drawLine(cx - v, cy - r * 0.78f, cx - v, cy + r * 0.78f, strokePaint);
+                canvas.drawLine(cx + v, cy - r * 0.78f, cx + v, cy + r * 0.78f, strokePaint);
+                canvas.drawLine(cx - r * 0.78f, cy - v, cx + r * 0.78f, cy - v, strokePaint);
+                canvas.drawLine(cx - r * 0.78f, cy + v, cx + r * 0.78f, cy + v, strokePaint);
                 break;
             }
         }

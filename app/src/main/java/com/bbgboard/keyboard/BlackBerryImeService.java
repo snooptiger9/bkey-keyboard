@@ -91,7 +91,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private LinearLayout emojiSectionsHost;
     private GridLayout emojiRecentGrid;
     private final List<View> emojiSectionHeaders = new ArrayList<>();
-    private final List<TextView> emojiTabViews = new ArrayList<>();
+    private final List<View> emojiTabViews = new ArrayList<>();
     private int activeEmojiCategory = 0;
 
     private boolean suppressEmojiTabScrollSync = true;
@@ -268,8 +268,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return (keyboardView != null && !keyboardView.isArabic()) ? EMOJI_CAT_TITLES_EN : EMOJI_CAT_TITLES;
     }
 
-    private static final String[] EMOJI_CAT_ICONS = new String[]{
-        "🕒", "😀", "❤️", "🌙", "🐱", "☕", "🚗", "🔣"
+    private static final int[] EMOJI_CAT_ICON_TYPES = new int[]{
+        ModernIconView.ICON_CLOCK_RECENT,
+        ModernIconView.ICON_EMOJI_SMILE,
+        ModernIconView.ICON_HEART,
+        ModernIconView.ICON_CRESCENT_MOON,
+        ModernIconView.ICON_PAW_PRINT,
+        ModernIconView.ICON_CUP_DRINK,
+        ModernIconView.ICON_CAR,
+        ModernIconView.ICON_HASH_SYMBOLS
     };
 
     private static final String[][] EMOJI_CATEGORIES = new String[][]{
@@ -2444,13 +2451,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         tabsRow.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         emojiTabViews.clear();
-        for (int i = 0; i < EMOJI_CAT_ICONS.length; i++) {
+        for (int i = 0; i < EMOJI_CAT_ICON_TYPES.length; i++) {
             final int catIdx = i;
-            TextView tab = new TextView(this);
-            tab.setText(EMOJI_CAT_ICONS[i]);
-            tab.setGravity(Gravity.CENTER);
-            tab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
-            tab.setPadding(dp(2), dp(5), dp(2), dp(5));
+            ModernIconView tab = new ModernIconView(this, EMOJI_CAT_ICON_TYPES[i], labelC(), Color.TRANSPARENT);
+            tab.setStyle(0.78f, 2.0f);
             LinearLayout.LayoutParams lpTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
             lpTab.leftMargin = dp(2);
             lpTab.rightMargin = dp(2);
@@ -2716,7 +2720,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifTabView.setAlpha(1.0f);
             gifTabView.setBackground(roundedBg(pressedC(), 8));
         }
-        for (TextView t : emojiTabViews) {
+        for (View t : emojiTabViews) {
             t.setAlpha(0.60f);
             t.setBackgroundColor(Color.TRANSPARENT);
         }
@@ -2978,7 +2982,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void updateEmojiTabHighlight(int index) {
         activeEmojiCategory = index;
         for (int i = 0; i < emojiTabViews.size(); i++) {
-            TextView tab = emojiTabViews.get(i);
+            View tab = emojiTabViews.get(i);
             if (i == index) {
                 tab.setBackground(roundedBg(pressedC(), 8));
                 tab.setAlpha(1.0f);
