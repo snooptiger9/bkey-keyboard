@@ -8,6 +8,7 @@ import android.os.Looper;
 import androidx.core.content.FileProvider;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -24,8 +25,9 @@ final class AppUpdater {
         return t;
     });
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    // رابط مباشر لسيرفر المحتوى (بدون المرور بإعادة التوجيه الوسيطة لصفحة github.com/.../raw/)
     private static final String UPDATE_URL =
-            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk";
+            "https://raw.githubusercontent.com/snooptiger9/bkey-keyboard/main/release/bkey-full-latest.apk";
 
     interface Callback {
         void onFinished(boolean success);
@@ -33,15 +35,26 @@ final class AppUpdater {
 
     static void downloadAndInstall(final Context appContext, final Callback cb) {
         EXECUTOR.execute(() -> {
-            File dest = new File(appContext.getExternalFilesDir(null), "bkey-update.apk");
             HttpURLConnection conn = null;
             try {
+                File extDir = appContext.getExternalFilesDir(null);
+                if (extDir == null) throw new IOException("external files dir not available");
+                File dest = new File(extDir, "bkey-update.apk");
                 if (dest.exists()) dest.delete();
+
                 URL url = new URL(UPDATE_URL);
                 conn = (HttpURLConnection) url.openConnection();
-                conn.setConnectTimeout(10000);
+                conn.setConnectTimeout(15000);
                 conn.setReadTimeout(30000);
                 conn.setInstanceFollowRedirects(true);
+                // بعض خوادم GitHub ترفض الطلبات بدون User-Agent واضح
+                conn.setRequestProperty("User-Agent", "bkey-updater-android");
+
+                int code = conn.getResponseCode();
+                if (code != HttpURLConnection.HTTP_OK) {
+                    throw new IOException("HTTP " + code + " from update server");
+                }
+
                 InputStream in = conn.getInputStream();
                 FileOutputStream out = new FileOutputStream(dest);
                 byte[] buf = new byte[8192];
