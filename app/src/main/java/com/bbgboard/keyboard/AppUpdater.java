@@ -15,7 +15,9 @@ import java.io.IOException;
 final class AppUpdater {
     private AppUpdater() {}
 
-    private static final String UPDATE_URL =
+    private static final String UPDATE_URL_LITE =
+            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk";
+    private static final String UPDATE_URL_FULL =
             "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk";
     private static final String UPDATE_FILE_NAME = "bkey-update.apk";
 
@@ -23,7 +25,17 @@ final class AppUpdater {
         void onFinished(boolean success);
     }
 
+    /**
+     * Always fetches whichever build (lite or full) is currently installed on this device,
+     * so a routine "check for updates" tap can never silently switch flavor and drop the
+     * OTP feature/permissions — only the dedicated OTP-activation button does that on purpose.
+     */
     static void downloadAndInstall(final Context appContext, final Callback cb) {
+        downloadAndInstall(appContext, BuildConfig.OTP_FEATURES_ENABLED, cb);
+    }
+
+    static void downloadAndInstall(final Context appContext, final boolean fetchFullBuild, final Callback cb) {
+        final String updateUrl = fetchFullBuild ? UPDATE_URL_FULL : UPDATE_URL_LITE;
         try {
             final DownloadManager dm = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
             if (dm == null) {
@@ -37,7 +49,7 @@ final class AppUpdater {
                 if (old.exists()) old.delete();
             }
 
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(UPDATE_URL));
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(updateUrl));
             request.setTitle("bkey");
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             request.setDestinationInExternalFilesDir(appContext, null, UPDATE_FILE_NAME);
