@@ -129,7 +129,7 @@ with a carefully tailored experience for each.
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="Get the APK from GitHub" height="72"></a>
 </p>
 
-**Use the button above only for this first install.** After that, always update from inside the app: open the app → Settings → **Update the app**. That one button knows whether your current install has OTP turned on or not, and simply gets you the latest version of the same one. The button above on this page, on the other hand, always gives you the plain version without OTP — so if you download from here again later and you want OTP, just turn it back on from Settings afterward.
+You can update either from inside the app (Settings → **Update the app**) or by tapping the button above again. The in-app button knows whether your current install has OTP turned on or not, and gets you the latest version of the same one. The button above on this page always gives you the plain version without OTP — so if you use it again later and you want OTP, just turn it back on from Settings afterward.
 
 If you want the OTP feature, turn it on from inside the app: Settings → **Suggestions & learning** → scroll down to **Verification code (OTP) suggestions** — that screen explains it and has a button to turn it on.
 
@@ -340,7 +340,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="تحميل ملف APK" height="72"></a>
 </p>
 
-**استخدم الزر بالأعلى فقط للتثبيت الأول.** بعد ذلك، حدّث التطبيق دايماً من داخله: افتح التطبيق ← الإعدادات ← **تحديث التطبيق**. هذا الزر يعرف إذا كانت نسختك الحالية مفعّل فيها OTP أو لا، ويجيبلك آخر إصدار من نفس النوع تلقائياً. أما الزر بالأعلى بهذي الصفحة فدايماً يجيب النسخة العادية بدون OTP — فإذا نزّلت منه مرة ثانية بعدين وتبي OTP، بس فعّلها من جديد من الإعدادات.
+تقدر تحدّث إما من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) أو بالضغط على الزر بالأعلى من جديد. زر التطبيق يعرف إذا كانت نسختك الحالية مفعّل فيها OTP أو لا، ويجيبلك آخر إصدار من نفس النوع تلقائياً. أما الزر بالأعلى بهذي الصفحة فدايماً يجيب النسخة العادية بدون OTP — فإذا استخدمته مرة ثانية بعدين وتبي OTP، بس فعّلها من جديد من الإعدادات.
 
 إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **التصحيح والاقتراحات والتعلّم** ← انزل لتحت لين تلقى **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتفعيلها.
 
