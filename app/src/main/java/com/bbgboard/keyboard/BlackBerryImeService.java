@@ -1705,6 +1705,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public boolean onSwipeLeftDeleteWord() {
+        if (gifSearchFocused) return false;
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
 
@@ -1737,6 +1738,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public boolean onSwipeSelectAll() {
+        if (gifSearchFocused) return false;
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
 
@@ -1757,6 +1759,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public boolean onSwipeDownCopyPaste() {
+        if (gifSearchFocused) return false;
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
         long now = android.os.SystemClock.uptimeMillis();
