@@ -361,24 +361,21 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_HEART: {
-                // Built from two plump round lobes plus a bottom point (like the classic emoji
-                // heart), instead of a single thin bezier outline — reads much bolder at small
-                // sizes and matches the visual weight of the other filled category icons.
-                float lobeR = r * 0.52f;
-                float lobeY = cy - r * 0.30f;
-                float lobeX = r * 0.50f;
-                Path left = new Path();
-                left.addCircle(cx - lobeX, lobeY, lobeR, Path.Direction.CW);
-                Path right = new Path();
-                right.addCircle(cx + lobeX, lobeY, lobeR, Path.Direction.CW);
-                Path point = new Path();
-                point.moveTo(cx - r * 1.02f, lobeY + lobeR * 0.25f);
-                point.lineTo(cx + r * 1.02f, lobeY + lobeR * 0.25f);
-                point.lineTo(cx, cy + r * 0.95f);
-                point.close();
-                left.op(right, Path.Op.UNION);
-                left.op(point, Path.Op.UNION);
-                canvas.drawPath(left, fillPaint);
+                // Same curve proportions as the familiar filled "favorite" heart icon used
+                // across most apps (two round top lobes + two side curves meeting at a bottom
+                // point) — proven not to look thin or odd, unlike a hand-tuned 2-curve outline.
+                Path heart = new Path();
+                heart.moveTo(cx, cy + r * 0.935f);
+                heart.lineTo(cx - r * 0.145f, cy + r * 0.803f);
+                heart.cubicTo(cx - r * 0.66f, cy + r * 0.336f, cx - r * 1.0f, cy + r * 0.028f, cx - r * 1.0f, cy - r * 0.35f);
+                heart.cubicTo(cx - r * 1.0f, cy - r * 0.658f, cx - r * 0.758f, cy - r * 0.9f, cx - r * 0.45f, cy - r * 0.9f);
+                heart.cubicTo(cx - r * 0.276f, cy - r * 0.9f, cx - r * 0.109f, cy - r * 0.819f, cx, cy - r * 0.691f);
+                heart.cubicTo(cx + r * 0.109f, cy - r * 0.819f, cx + r * 0.276f, cy - r * 0.9f, cx + r * 0.45f, cy - r * 0.9f);
+                heart.cubicTo(cx + r * 0.758f, cy - r * 0.9f, cx + r * 1.0f, cy - r * 0.658f, cx + r * 1.0f, cy - r * 0.35f);
+                heart.cubicTo(cx + r * 1.0f, cy + r * 0.028f, cx + r * 0.66f, cy + r * 0.336f, cx + r * 0.145f, cy + r * 0.803f);
+                heart.lineTo(cx, cy + r * 0.935f);
+                heart.close();
+                canvas.drawPath(heart, fillPaint);
                 break;
             }
             case ICON_CRESCENT_MOON: {
