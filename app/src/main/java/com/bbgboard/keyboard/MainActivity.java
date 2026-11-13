@@ -122,6 +122,39 @@ public class MainActivity extends Activity {
         return isDeviceArabic() ? ar : en;
     }
 
+    /**
+     * Maps a light-mode UI-chrome hex color to its dark-mode equivalent when the app's own
+     * dark mode is on (unrelated to the keyboard's own color theme). Hex values that represent
+     * an actual selectable keyboard color (theme swatches, capsule colors, enter-key colors)
+     * are never passed through this — only backgrounds/borders/text of the settings screens.
+     */
+    private String dm(String lightHex) {
+        if (prefs == null || !prefs.isAppDarkMode()) return lightHex;
+        switch (lightHex) {
+            case "#111827": case "#1F2937": case "#1E293B": return "#F1F2F4";
+            case "#374151": return "#D7DAE0";
+            case "#4B5563": return "#B7BBC2";
+            case "#6B7280": case "#5F6368": return "#9AA0AC";
+            case "#9CA3AF": return "#868C97";
+            case "#D1D5DB": return "#3A3B44";
+            case "#E2E8F0": case "#E5E7EB": return "#33343C";
+            case "#FFFFFF": return "#1E1F24";
+            case "#F8FAFC": case "#F9FAFB": return "#1C1D22";
+            case "#F3F4F6": case "#F1F3F5": return "#24252B";
+            case "#F2F4F8": return "#121318";
+            case "#2563EB": return "#3B82F6";
+            case "#DC2626": return "#F87171";
+            case "#FEE2E2": return "#3B1E1E";
+            case "#B91C1C": return "#FCA5A5";
+            case "#059669": case "#047857": return "#34D399";
+            case "#16A34A": return "#4ADE80";
+            case "#E5F0EA": return "#1C2E22";
+            case "#EFF6FF": return "#1B2A3F";
+            case "#78350F": case "#B45309": return "#FBBF24";
+            default: return lightHex;
+        }
+    }
+
     private GradientDrawable roundedCard(String fillHex, int radiusDp) {
         GradientDrawable gd = new GradientDrawable();
         gd.setColor(Color.parseColor(fillHex));
@@ -147,7 +180,7 @@ public class MainActivity extends Activity {
         clipboardRepo = new ClipboardRepository(this);
 
         mainFrame = new FrameLayout(this);
-        mainFrame.setBackgroundColor(Color.parseColor("#F2F4F8"));
+        mainFrame.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
         mainFrame.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -166,10 +199,10 @@ public class MainActivity extends Activity {
     private void addFloatingKeyboardTester(FrameLayout root) {
         floatingTestEdit = new EditText(this);
         floatingTestEdit.setHint(tr("جرّب الكيبورد هنا...", "Try the keyboard here..."));
-        floatingTestEdit.setHintTextColor(Color.parseColor("#9CA3AF"));
-        floatingTestEdit.setTextColor(Color.parseColor("#111827"));
+        floatingTestEdit.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        floatingTestEdit.setTextColor(Color.parseColor(dm("#111827")));
         floatingTestEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-        floatingTestEdit.setBackground(borderedBox("#FFFFFF", "#D1D5DB", 14));
+        floatingTestEdit.setBackground(borderedBox(dm("#FFFFFF"), dm("#D1D5DB"), 14));
         floatingTestEdit.setPadding(dp(14), dp(10), dp(14), dp(10));
         floatingTestEdit.setElevation(dp(6));
         floatingTestEdit.setVisibility(View.GONE);
@@ -181,9 +214,9 @@ public class MainActivity extends Activity {
         root.addView(floatingTestEdit);
 
         FrameLayout fab = new FrameLayout(this);
-        fab.setBackground(roundedCard("#2563EB", 28));
+        fab.setBackground(roundedCard(dm("#2563EB"), 28));
         fab.setElevation(dp(8));
-        ModernIconView fabIcon = new ModernIconView(this, ModernIconView.ICON_BACK_KEYBOARD, Color.WHITE, Color.parseColor("#33FFFFFF"));
+        ModernIconView fabIcon = new ModernIconView(this, ModernIconView.ICON_BACK_KEYBOARD, Color.WHITE, Color.parseColor(dm("#33FFFFFF")));
         fabIcon.setStyle(0.9f, 2.0f);
         FrameLayout.LayoutParams lpFabIcon = new FrameLayout.LayoutParams(dp(26), dp(26));
         lpFabIcon.gravity = Gravity.CENTER;
@@ -293,7 +326,7 @@ public class MainActivity extends Activity {
         mainFrame.removeAllViews();
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Color.parseColor("#F2F4F8"));
+        scroll.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
         scroll.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -305,17 +338,42 @@ public class MainActivity extends Activity {
 
         root.setLayoutDirection(isDeviceArabic() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
 
+        LinearLayout titleRowTop = new LinearLayout(this);
+        titleRowTop.setOrientation(LinearLayout.HORIZONTAL);
+        titleRowTop.setGravity(Gravity.CENTER_VERTICAL);
+        titleRowTop.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
         TextView pageTitle = new TextView(this);
         pageTitle.setText(tr("إعدادات الكيبورد", "Keyboard settings"));
-        pageTitle.setTextColor(Color.parseColor("#1F2937"));
+        pageTitle.setTextColor(Color.parseColor(dm("#1F2937")));
         pageTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f);
         pageTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         pageTitle.setPadding(dp(6), dp(6), dp(6), dp(16));
-        root.addView(pageTitle);
+        pageTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        titleRowTop.addView(pageTitle);
+
+        boolean darkNow = prefs.isAppDarkMode();
+        ModernIconView themeToggleBtn = new ModernIconView(this,
+                darkNow ? ModernIconView.ICON_CRESCENT_MOON : ModernIconView.ICON_SUN,
+                Color.parseColor(dm("#2563EB")), Color.TRANSPARENT);
+        themeToggleBtn.setStyle(0.85f, 2.0f);
+        LinearLayout.LayoutParams lpToggle = new LinearLayout.LayoutParams(dp(40), dp(40));
+        lpToggle.leftMargin = dp(6);
+        lpToggle.rightMargin = dp(6);
+        themeToggleBtn.setLayoutParams(lpToggle);
+        themeToggleBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            prefs.setAppDarkMode(!prefs.isAppDarkMode());
+            showHomeGboardSettingsMenu();
+        });
+        titleRowTop.addView(themeToggleBtn);
+
+        root.addView(titleRowTop);
 
         LinearLayout quickSetupCard = new LinearLayout(this);
         quickSetupCard.setOrientation(LinearLayout.VERTICAL);
-        quickSetupCard.setBackground(roundedCard("#FFFFFF", 20));
+        quickSetupCard.setBackground(roundedCard(dm("#FFFFFF"), 20));
         quickSetupCard.setPadding(dp(16), dp(14), dp(16), dp(14));
         LinearLayout.LayoutParams lpSetup = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -329,7 +387,7 @@ public class MainActivity extends Activity {
 
         if (!imeEnabled) {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_BACK_KEYBOARD, "#059669",
+                    ModernIconView.ICON_BACK_KEYBOARD, dm("#059669"),
                     tr("1. تفعيل الكيبورد", "1. Enable the keyboard"),
                     tr("يفتح إعدادات لوحات المفاتيح في النظام", "Opens the system's keyboard list"),
                     v -> startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
@@ -340,7 +398,7 @@ public class MainActivity extends Activity {
 
         if (imeSelected) {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_SETTINGS_GEAR, "#16A34A",
+                    ModernIconView.ICON_SETTINGS_GEAR, dm("#16A34A"),
                     tr("✓ مفعّل ومختار حالياً", "✓ Enabled and currently selected"),
                     tr("هذا الكيبورد هو المستخدم الآن", "This keyboard is the one in use now"),
                     v -> {
@@ -350,7 +408,7 @@ public class MainActivity extends Activity {
             ));
         } else {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_SETTINGS_GEAR, "#2563EB",
+                    ModernIconView.ICON_SETTINGS_GEAR, dm("#2563EB"),
                     imeEnabled ? tr("اختيار الكيبورد", "Switch to it") : tr("2. اختيار الكيبورد", "2. Switch to it"),
                     tr("يفتح قائمة اختيار لوحة المفاتيح الحالية", "Opens the input method picker"),
                     v -> {
@@ -362,10 +420,10 @@ public class MainActivity extends Activity {
 
         quickTestEdit = new EditText(this);
         quickTestEdit.setHint(tr("اضغط هنا لتجربة الكيبورد والبوب أب وأصوات السحب...", "Tap here to try the keyboard, popups and swipe sounds..."));
-        quickTestEdit.setHintTextColor(Color.parseColor("#9CA3AF"));
-        quickTestEdit.setTextColor(Color.parseColor("#111827"));
+        quickTestEdit.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        quickTestEdit.setTextColor(Color.parseColor(dm("#111827")));
         quickTestEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-        quickTestEdit.setBackground(borderedBox("#F9FAFB", "#E5E7EB", 12));
+        quickTestEdit.setBackground(borderedBox(dm("#F9FAFB"), dm("#E5E7EB"), 12));
         quickTestEdit.setPadding(dp(12), dp(10), dp(12), dp(10));
         LinearLayout.LayoutParams lpQt = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -480,7 +538,7 @@ public class MainActivity extends Activity {
         int copyrightYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
         TextView copyrightTv = new TextView(this);
         copyrightTv.setText("© bkey " + copyrightYear + tr(" — جميع الحقوق محفوظة", " — All rights reserved"));
-        copyrightTv.setTextColor(Color.parseColor("#9CA3AF"));
+        copyrightTv.setTextColor(Color.parseColor(dm("#9CA3AF")));
         copyrightTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
         copyrightTv.setGravity(Gravity.CENTER);
         copyrightTv.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
@@ -522,7 +580,7 @@ public class MainActivity extends Activity {
         row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         row.setOnClickListener(onClick);
 
-        ModernIconView icon = new ModernIconView(this, iconType, Color.WHITE, Color.parseColor("#22FFFFFF"));
+        ModernIconView icon = new ModernIconView(this, iconType, Color.WHITE, Color.parseColor(dm("#22FFFFFF")));
         icon.setStyle(0.85f, 2.0f);
         LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(38), dp(38));
         lpIcon.rightMargin = dp(12);
@@ -541,7 +599,7 @@ public class MainActivity extends Activity {
 
         TextView subTv = new TextView(this);
         subTv.setText(subtitle);
-        subTv.setTextColor(Color.parseColor("#E5F0EA"));
+        subTv.setTextColor(Color.parseColor(dm("#E5F0EA")));
         subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
         subTv.setPadding(0, dp(2), 0, 0);
 
@@ -556,7 +614,7 @@ public class MainActivity extends Activity {
     private LinearLayout createGroupedWhiteCard() {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setBackground(roundedCard("#FFFFFF", 20));
+        card.setBackground(roundedCard(dm("#FFFFFF"), 20));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -575,7 +633,7 @@ public class MainActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(18), dp(16), dp(18), dp(16));
 
-        ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor("#5F6368"), Color.TRANSPARENT);
+        ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor(dm("#5F6368")), Color.TRANSPARENT);
         LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(32), dp(32));
         lpIcon.setMarginStart(0);
         lpIcon.setMarginEnd(dp(10));
@@ -587,12 +645,12 @@ public class MainActivity extends Activity {
 
         TextView titleTv = new TextView(this);
         titleTv.setText(title);
-        titleTv.setTextColor(Color.parseColor("#1F2937"));
+        titleTv.setTextColor(Color.parseColor(dm("#1F2937")));
         titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
 
         TextView subTv = new TextView(this);
         subTv.setText(subtitle);
-        subTv.setTextColor(Color.parseColor("#6B7280"));
+        subTv.setTextColor(Color.parseColor(dm("#6B7280")));
         subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         subTv.setPadding(0, dp(3), 0, 0);
 
@@ -606,7 +664,7 @@ public class MainActivity extends Activity {
 
         if (showBottomDivider) {
             View div = new View(this);
-            div.setBackgroundColor(Color.parseColor("#F1F3F5"));
+            div.setBackgroundColor(Color.parseColor(dm("#F1F3F5")));
             div.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
             wrapper.addView(div);
         }
@@ -624,7 +682,7 @@ public class MainActivity extends Activity {
         mainFrame.removeAllViews();
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Color.parseColor("#F2F4F8"));
+        scroll.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
         scroll.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -642,7 +700,7 @@ public class MainActivity extends Activity {
 
         TextView titleTv = new TextView(this);
         titleTv.setText(screenTitle);
-        titleTv.setTextColor(Color.parseColor("#111827"));
+        titleTv.setTextColor(Color.parseColor(dm("#111827")));
         titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         titleTv.setTypeface(Typeface.DEFAULT_BOLD);
         LinearLayout.LayoutParams lpTitle = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
@@ -669,11 +727,11 @@ public class MainActivity extends Activity {
                 ? tr("ولا خطأ مسجّل لحد الآن 👍", "No errors logged yet 👍")
                 : logText);
         bodyTv.setTextIsSelectable(true);
-        bodyTv.setTextColor(Color.parseColor("#1F2937"));
+        bodyTv.setTextColor(Color.parseColor(dm("#1F2937")));
         bodyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
         bodyTv.setTypeface(Typeface.MONOSPACE);
         bodyTv.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        bodyTv.setBackground(roundedCard("#FFFFFF", 16));
+        bodyTv.setBackground(roundedCard(dm("#FFFFFF"), 16));
         bodyTv.setPadding(dp(14), dp(14), dp(14), dp(14));
         LinearLayout.LayoutParams lpBody = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -690,7 +748,7 @@ public class MainActivity extends Activity {
             shareBtn.setTextColor(Color.WHITE);
             shareBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
             shareBtn.setGravity(Gravity.CENTER);
-            shareBtn.setBackground(roundedCard("#2563EB", 12));
+            shareBtn.setBackground(roundedCard(dm("#2563EB"), 12));
             shareBtn.setPadding(dp(14), dp(12), dp(14), dp(12));
             LinearLayout.LayoutParams lpShare = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             lpShare.setMarginEnd(dp(8));
@@ -714,10 +772,10 @@ public class MainActivity extends Activity {
 
             TextView clearBtn = new TextView(this);
             clearBtn.setText(tr("🗑️ مسح", "🗑️ Clear"));
-            clearBtn.setTextColor(Color.parseColor("#B91C1C"));
+            clearBtn.setTextColor(Color.parseColor(dm("#B91C1C")));
             clearBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
             clearBtn.setGravity(Gravity.CENTER);
-            clearBtn.setBackground(roundedCard("#FEE2E2", 12));
+            clearBtn.setBackground(roundedCard(dm("#FEE2E2"), 12));
             clearBtn.setPadding(dp(14), dp(12), dp(14), dp(12));
             LinearLayout.LayoutParams lpClear = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             lpClear.setMarginStart(dp(8));
@@ -743,7 +801,7 @@ public class MainActivity extends Activity {
                 tr("أسبوعين", "2 weeks"), tr("30 يوماً", "30 days"), tr("بدون حذف تلقائي", "Never")};
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setBackground(roundedCard("#FFFFFF", 16));
+        card.setBackground(roundedCard(dm("#FFFFFF"), 16));
         card.setPadding(dp(16), dp(14), dp(16), dp(14));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -753,12 +811,12 @@ public class MainActivity extends Activity {
         TextView title = new TextView(this);
         title.setText(tr("حذف نصوص الحافظة ولقطة الشاشة تلقائياً", "Auto-delete old clipboard items & screenshot"));
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        title.setTextColor(Color.parseColor("#1F2937"));
+        title.setTextColor(Color.parseColor(dm("#1F2937")));
         card.addView(title);
 
         final TextView value = new TextView(this);
         value.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
-        value.setTextColor(Color.parseColor("#6B7280"));
+        value.setTextColor(Color.parseColor(dm("#6B7280")));
         card.addView(value);
         final Runnable refresh = () -> {
             int cur = prefs.getClipRetentionHours();
@@ -793,7 +851,7 @@ public class MainActivity extends Activity {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
-        card.setBackground(roundedCard("#FFFFFF", 16));
+        card.setBackground(roundedCard(dm("#FFFFFF"), 16));
         card.setPadding(dp(16), dp(14), dp(16), dp(14));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -808,14 +866,14 @@ public class MainActivity extends Activity {
 
         TextView titleTv = new TextView(this);
         titleTv.setText(title);
-        titleTv.setTextColor(Color.parseColor("#1F2937"));
+        titleTv.setTextColor(Color.parseColor(dm("#1F2937")));
         titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         textCol.addView(titleTv);
 
         if (subtitle != null && !subtitle.isEmpty()) {
             TextView sub = new TextView(this);
             sub.setText(subtitle);
-            sub.setTextColor(Color.parseColor("#6B7280"));
+            sub.setTextColor(Color.parseColor(dm("#6B7280")));
             sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
             sub.setPadding(0, dp(4), 0, 0);
             textCol.addView(sub);
@@ -849,7 +907,7 @@ public class MainActivity extends Activity {
             final RadioButton rb = new RadioButton(this);
             rb.setId(View.generateViewId());
             rb.setText(options[i]);
-            rb.setTextColor(Color.parseColor("#1F2937"));
+            rb.setTextColor(Color.parseColor(dm("#1F2937")));
             rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             rb.setPadding(dp(8), dp(10), dp(8), dp(10));
             rb.setChecked(i == selectedIndex);
@@ -889,7 +947,7 @@ public class MainActivity extends Activity {
 
         TextView langModeHeader = new TextView(this);
         langModeHeader.setText(tr("اللغات المفعّلة:", "Enabled languages:"));
-        langModeHeader.setTextColor(Color.parseColor("#111827"));
+        langModeHeader.setTextColor(Color.parseColor(dm("#111827")));
         langModeHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         langModeHeader.setTypeface(Typeface.DEFAULT_BOLD);
         langModeHeader.setPadding(dp(4), 0, dp(4), dp(8));
@@ -901,7 +959,7 @@ public class MainActivity extends Activity {
                         + "لو فعّلت لغة وحدة بس، ما يحتاج تبديل أصلاً فيختفي زر 🌐 ويتعطّل خيار السحب تلقائياً.",
                 "Enable both languages together to choose how you switch between them (space-bar swipe or the 🌐 button). "
                         + "Enable just one language and there's nothing to switch, so the 🌐 button disappears and the swipe option turns off automatically."));
-        langModeNote.setTextColor(Color.parseColor("#6B7280"));
+        langModeNote.setTextColor(Color.parseColor(dm("#6B7280")));
         langModeNote.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
         langModeNote.setPadding(dp(4), 0, dp(4), dp(12));
         root.addView(langModeNote);
@@ -1023,7 +1081,7 @@ public class MainActivity extends Activity {
         oneHandCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView ohHeader = new TextView(this);
         ohHeader.setText(tr("وضع اليد الواحدة:", "One-handed mode:"));
-        ohHeader.setTextColor(Color.parseColor("#111827"));
+        ohHeader.setTextColor(Color.parseColor(dm("#111827")));
         ohHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         ohHeader.setTypeface(Typeface.DEFAULT_BOLD);
         ohHeader.setPadding(0, 0, 0, dp(8));
@@ -1053,7 +1111,7 @@ public class MainActivity extends Activity {
 
         TextView fHeader = new TextView(this);
         fHeader.setText(tr("1. خط الحروف", "1. Letter font"));
-        fHeader.setTextColor(Color.parseColor("#111827"));
+        fHeader.setTextColor(Color.parseColor(dm("#111827")));
         fHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         fHeader.setTypeface(Typeface.DEFAULT_BOLD);
         fHeader.setPadding(0, 0, 0, dp(10));
@@ -1088,7 +1146,7 @@ public class MainActivity extends Activity {
 
         TextView tHeader = new TextView(this);
         tHeader.setText(tr("2. لون السمة", "2. Theme color"));
-        tHeader.setTextColor(Color.parseColor("#111827"));
+        tHeader.setTextColor(Color.parseColor(dm("#111827")));
         tHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         tHeader.setTypeface(Typeface.DEFAULT_BOLD);
         tHeader.setPadding(0, 0, 0, dp(10));
@@ -1112,7 +1170,7 @@ public class MainActivity extends Activity {
 
         TextView sHeader = new TextView(this);
         sHeader.setText(tr("3. شكل أزرار الكيبورد", "3. Key shape"));
-        sHeader.setTextColor(Color.parseColor("#111827"));
+        sHeader.setTextColor(Color.parseColor(dm("#111827")));
         sHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         sHeader.setTypeface(Typeface.DEFAULT_BOLD);
         sHeader.setPadding(0, 0, 0, dp(10));
@@ -1136,7 +1194,7 @@ public class MainActivity extends Activity {
         enterCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView eHeader = new TextView(this);
         eHeader.setText(tr("4. لون زر الإدخال", "4. Enter key color"));
-        eHeader.setTextColor(Color.parseColor("#111827"));
+        eHeader.setTextColor(Color.parseColor(dm("#111827")));
         eHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         eHeader.setTypeface(Typeface.DEFAULT_BOLD);
         eHeader.setPadding(0, 0, 0, dp(10));
@@ -1189,7 +1247,7 @@ public class MainActivity extends Activity {
 
         TextView header = new TextView(this);
         header.setText(title);
-        header.setTextColor(Color.parseColor("#111827"));
+        header.setTextColor(Color.parseColor(dm("#111827")));
         header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         header.setTypeface(Typeface.DEFAULT_BOLD);
         header.setPadding(0, 0, 0, dp(10));
@@ -1198,7 +1256,7 @@ public class MainActivity extends Activity {
         boolean isCustom = currentValue != defaultValue;
 
         final TextView valueLabel = new TextView(this);
-        valueLabel.setTextColor(Color.parseColor("#6B7280"));
+        valueLabel.setTextColor(Color.parseColor(dm("#6B7280")));
         valueLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         valueLabel.setPadding(dp(2), dp(8), 0, dp(2));
         valueLabel.setText(formatter.format(currentValue));
@@ -1264,8 +1322,8 @@ public class MainActivity extends Activity {
         for (int i = 0; i < btns.length; i++) {
             boolean sel = i == selectedIdx;
             btns[i].setTypeface(sel ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-            btns[i].setTextColor(Color.parseColor(sel ? "#FFFFFF" : "#374151"));
-            btns[i].setBackground(roundedCard(sel ? "#2563EB" : "#F3F4F6", 10));
+            btns[i].setTextColor(Color.parseColor(sel ? dm("#FFFFFF") : dm("#374151")));
+            btns[i].setBackground(roundedCard(sel ? dm("#2563EB") : dm("#F3F4F6"), 10));
         }
     }
 
@@ -1276,8 +1334,8 @@ public class MainActivity extends Activity {
         btn.setPadding(dp(10), dp(8), dp(10), dp(8));
         btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         btn.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-        btn.setTextColor(Color.parseColor(selected ? "#FFFFFF" : "#374151"));
-        btn.setBackground(roundedCard(selected ? "#2563EB" : "#F3F4F6", 10));
+        btn.setTextColor(Color.parseColor(selected ? dm("#FFFFFF") : dm("#374151")));
+        btn.setBackground(roundedCard(selected ? dm("#2563EB") : dm("#F3F4F6"), 10));
         return btn;
     }
 
@@ -1297,7 +1355,7 @@ public class MainActivity extends Activity {
             GradientDrawable ring = new GradientDrawable();
             ring.setShape(GradientDrawable.OVAL);
             ring.setColor(Color.TRANSPARENT);
-            ring.setStroke(dp(2), Color.parseColor("#2563EB"));
+            ring.setStroke(dp(2), Color.parseColor(dm("#2563EB")));
             View ringView = new View(this);
             ringView.setBackground(ring);
             FrameLayout.LayoutParams lpRing = new FrameLayout.LayoutParams(holderSize, holderSize);
@@ -1310,7 +1368,7 @@ public class MainActivity extends Activity {
         GradientDrawable swatch = new GradientDrawable();
         swatch.setShape(GradientDrawable.OVAL);
         swatch.setColor(Color.parseColor(colorHex));
-        swatch.setStroke(dp(1), Color.parseColor("#E5E7EB"));
+        swatch.setStroke(dp(1), Color.parseColor(dm("#E5E7EB")));
         circle.setBackground(swatch);
         circle.setElevation(selected ? dp(3) : dp(1));
         FrameLayout.LayoutParams lpCircle = new FrameLayout.LayoutParams(circleSize, circleSize);
@@ -1332,7 +1390,7 @@ public class MainActivity extends Activity {
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
-        labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
+        labelTv.setTextColor(Color.parseColor(selected ? dm("#2563EB") : dm("#374151")));
         labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
         labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         labelTv.setGravity(Gravity.CENTER);
@@ -1352,13 +1410,13 @@ public class MainActivity extends Activity {
 
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(62), dp(54)));
-        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 13));
+        holder.setBackground(roundedCard(selected ? dm("#EFF6FF") : dm("#F3F4F6"), 13));
         holder.setElevation(selected ? dp(3) : dp(1));
 
         TextView sample = new TextView(this);
         sample.setText("أب Ab");
         sample.setTypeface(typeface);
-        sample.setTextColor(Color.parseColor("#111827"));
+        sample.setTextColor(Color.parseColor(dm("#111827")));
         sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         sample.setGravity(Gravity.CENTER);
         holder.addView(sample, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -1366,7 +1424,7 @@ public class MainActivity extends Activity {
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
+        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
         holder.setForeground(frame);
         if (selected) {
             TextView badge = new TextView(this);
@@ -1375,7 +1433,7 @@ public class MainActivity extends Activity {
             badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
             badge.setTypeface(Typeface.DEFAULT_BOLD);
             badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard("#2563EB", 7));
+            badge.setBackground(roundedCard(dm("#2563EB"), 7));
             FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
             lpB.gravity = Gravity.TOP | Gravity.END;
             lpB.topMargin = dp(2);
@@ -1385,7 +1443,7 @@ public class MainActivity extends Activity {
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
-        labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
+        labelTv.setTextColor(Color.parseColor(selected ? dm("#2563EB") : dm("#374151")));
         labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
         labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         labelTv.setGravity(Gravity.CENTER);
@@ -1405,7 +1463,7 @@ public class MainActivity extends Activity {
 
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(72), dp(60)));
-        holder.setBackground(roundedCard(selected ? "#EFF6FF" : "#F3F4F6", 13));
+        holder.setBackground(roundedCard(selected ? dm("#EFF6FF") : dm("#F3F4F6"), 13));
         holder.setElevation(selected ? dp(3) : dp(1));
         holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -1413,7 +1471,7 @@ public class MainActivity extends Activity {
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? "#2563EB" : "#E5E7EB"));
+        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
         holder.setForeground(frame);
         if (selected) {
             TextView badge = new TextView(this);
@@ -1422,7 +1480,7 @@ public class MainActivity extends Activity {
             badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
             badge.setTypeface(Typeface.DEFAULT_BOLD);
             badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard("#2563EB", 7));
+            badge.setBackground(roundedCard(dm("#2563EB"), 7));
             FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
             lpB.gravity = Gravity.TOP | Gravity.END;
             lpB.topMargin = dp(2);
@@ -1432,7 +1490,7 @@ public class MainActivity extends Activity {
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
-        labelTv.setTextColor(Color.parseColor(selected ? "#2563EB" : "#374151"));
+        labelTv.setTextColor(Color.parseColor(selected ? dm("#2563EB") : dm("#374151")));
         labelTv.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
         labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         labelTv.setGravity(Gravity.CENTER);
@@ -1513,9 +1571,9 @@ public class MainActivity extends Activity {
 
         final EditText trainBox = new EditText(this);
         trainBox.setHint(tr("أدخل جملة هنا لتدريب الكيبورد عليها فوراً...", "Type a sentence here to train the keyboard instantly..."));
-        trainBox.setHintTextColor(Color.parseColor("#9CA3AF"));
-        trainBox.setTextColor(Color.parseColor("#111827"));
-        trainBox.setBackground(borderedBox("#F9FAFB", "#D1D5DB", 12));
+        trainBox.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        trainBox.setTextColor(Color.parseColor(dm("#111827")));
+        trainBox.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 12));
         trainBox.setPadding(dp(12), dp(10), dp(12), dp(10));
         trainCard.addView(trainBox);
 
@@ -1523,7 +1581,7 @@ public class MainActivity extends Activity {
         btnTrain.setText(tr("حفظ وتدريب التوقعات على هذه الجملة", "Save & train predictions on this sentence"));
         btnTrain.setAllCaps(false);
         btnTrain.setTextColor(Color.WHITE);
-        btnTrain.setBackground(roundedCard("#2563EB", 12));
+        btnTrain.setBackground(roundedCard(dm("#2563EB"), 12));
         LinearLayout.LayoutParams lpTr = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
         lpTr.topMargin = dp(8);
         btnTrain.setLayoutParams(lpTr);
@@ -1541,7 +1599,7 @@ public class MainActivity extends Activity {
         btnClear.setText(tr("مسح جميع الكلمات المتعلمة", "Clear all learned words"));
         btnClear.setAllCaps(false);
         btnClear.setTextColor(Color.WHITE);
-        btnClear.setBackground(roundedCard("#DC2626", 12));
+        btnClear.setBackground(roundedCard(dm("#DC2626"), 12));
         LinearLayout.LayoutParams lpCl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
         lpCl.topMargin = dp(8);
         btnClear.setLayoutParams(lpCl);
@@ -1595,7 +1653,7 @@ public class MainActivity extends Activity {
         introTv.setText(tr(
                 "يفحص الكيبورد رسالة SMS أو إشعار واتساب الجديد فقط عند وصوله، ويعرض رمز التحقق في منتصف الاقتراحات لمدة 5 دقائق. كل المعالجة محلية على جهازك فقط ولا تُرسل لأي سيرفر",
                 "The keyboard checks only a newly arrived SMS or WhatsApp notification and shows the verification code in the middle suggestion slot for 5 minutes. Everything is processed on your device only — nothing is sent to any server"));
-        introTv.setTextColor(Color.parseColor("#4B5563"));
+        introTv.setTextColor(Color.parseColor(dm("#4B5563")));
         introTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         LinearLayout.LayoutParams lpIntro = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1650,7 +1708,7 @@ public class MainActivity extends Activity {
             warnTitle.setText(reverted
                     ? tr("⚠️ رجعت للنسخة الأساسية بدون هذي الميزة", "⚠️ You're back on the basic build without this feature")
                     : tr("⚠️ هذي الميزة تحتاج تحديث التطبيق", "⚠️ This feature needs an app update"));
-            warnTitle.setTextColor(Color.parseColor("#B45309"));
+            warnTitle.setTextColor(Color.parseColor(dm("#B45309")));
             warnTitle.setTypeface(Typeface.DEFAULT_BOLD);
             warnTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             warnCard.addView(warnTitle);
@@ -1663,7 +1721,7 @@ public class MainActivity extends Activity {
                     : tr(
                         "النسخة المثبّتة عندك الآن لا تطلب صلاحية قراءة الرسائل أو الوصول للإشعارات، فهي تثبّت وتحدّث بدون أي تحذير. تفعيل هذي الميزة يتطلب تحديثاً يضيف هاتين الصلاحيتين، وبسببهما نظام حماية Google Play Protect يوقف التحديث تلقائياً برسالة تحذيرية — هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحيات بالذات، وليس عيباً ولا فيروساً.\n\nإذا تبي الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
                         "The version you have installed now doesn't request SMS or notification-access permission, so it installs and updates with zero warning. Turning this feature on needs an update that adds those two permissions, and because of them Google Play Protect blocks the update automatically with a warning screen — this is standard Google behavior for any app outside the Play Store that requests these specific permissions, not a bug or malware flag.\n\nIf you want the feature, turn off Play Protect scanning with these steps, then download the update:"));
-            warnBody.setTextColor(Color.parseColor("#78350F"));
+            warnBody.setTextColor(Color.parseColor(dm("#78350F")));
             warnBody.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             LinearLayout.LayoutParams lpWarnBody = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1675,7 +1733,7 @@ public class MainActivity extends Activity {
             steps.setText(tr(
                     "1. افتح تطبيق متجر Google Play.\n2. اضغط صورة حسابك بأعلى يمين الشاشة.\n3. اختر Play Protect.\n4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.\n5. أوقف خيار «Scan apps with Play Protect».\n6. حمّل وثبّت التحديث من الزر تحت.\n7. رجّع تشغيل الخيار بعدها (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).",
                     "1. Open the Google Play Store app.\n2. Tap your profile picture, top right.\n3. Tap Play Protect.\n4. Tap the ⚙️ settings icon, top right.\n5. Turn off \"Scan apps with Play Protect\".\n6. Download and install the update from the button below.\n7. Turn the setting back on afterward (recommended to keep it on for your other apps)."));
-            steps.setTextColor(Color.parseColor("#78350F"));
+            steps.setTextColor(Color.parseColor(dm("#78350F")));
             steps.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             LinearLayout.LayoutParams lpSteps = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1689,7 +1747,7 @@ public class MainActivity extends Activity {
             downloadBtn.setText(tr("⬇️ تنزيل التحديث (النسخة الكاملة)", "⬇️ Download the update (full build)"));
             downloadBtn.setAllCaps(false);
             downloadBtn.setTextColor(Color.WHITE);
-            downloadBtn.setBackground(roundedCard("#2563EB", 12));
+            downloadBtn.setBackground(roundedCard(dm("#2563EB"), 12));
             LinearLayout.LayoutParams lpDl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46));
             lpDl.topMargin = dp(14);
             downloadBtn.setLayoutParams(lpDl);
@@ -1723,10 +1781,10 @@ public class MainActivity extends Activity {
         learnedFilter = "";
         final EditText searchBox = new EditText(this);
         searchBox.setHint(tr("ابحث عن كلمة في القائمة...", "Search for a word in the list..."));
-        searchBox.setHintTextColor(Color.parseColor("#9CA3AF"));
-        searchBox.setTextColor(Color.parseColor("#111827"));
+        searchBox.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        searchBox.setTextColor(Color.parseColor(dm("#111827")));
         searchBox.setSingleLine(true);
-        searchBox.setBackground(borderedBox("#F9FAFB", "#D1D5DB", 12));
+        searchBox.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 12));
         searchBox.setPadding(dp(12), dp(10), dp(12), dp(10));
         LinearLayout.LayoutParams lpSearch = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lpSearch.topMargin = 0;
@@ -1762,7 +1820,7 @@ public class MainActivity extends Activity {
         header.setText(q.isEmpty()
                 ? tr("الكلمات المحفوظة (" + entries.size() + ")", "Saved words (" + entries.size() + ")")
                 : tr("نتائج البحث (" + entries.size() + " من " + allEntries.size() + ")", "Search results (" + entries.size() + " of " + allEntries.size() + ")"));
-        header.setTextColor(Color.parseColor("#047857"));
+        header.setTextColor(Color.parseColor(dm("#047857")));
         header.setTypeface(Typeface.DEFAULT_BOLD);
         header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         header.setPadding(0, dp(4), 0, dp(6));
@@ -1773,7 +1831,7 @@ public class MainActivity extends Activity {
             empty.setText(q.isEmpty()
                     ? tr("لا توجد كلمات محفوظة بعد. اكتب جملاً أو درّب الكيبورد من الأعلى لتظهر هنا.", "No saved words yet. Type sentences or train the keyboard above to see them here.")
                     : tr("لا توجد كلمة تطابق بحثك.", "No word matches your search."));
-            empty.setTextColor(Color.parseColor("#6B7280"));
+            empty.setTextColor(Color.parseColor(dm("#6B7280")));
             container.addView(empty);
             return;
         }
@@ -1785,7 +1843,7 @@ public class MainActivity extends Activity {
             LinearLayout wRow = new LinearLayout(this);
             wRow.setOrientation(LinearLayout.HORIZONTAL);
             wRow.setGravity(Gravity.CENTER_VERTICAL);
-            wRow.setBackground(borderedBox("#F8FAFC", "#E2E8F0", 10));
+            wRow.setBackground(borderedBox(dm("#F8FAFC"), dm("#E2E8F0"), 10));
             wRow.setPadding(dp(12), dp(4), dp(4), dp(4));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = dp(5);
@@ -1797,7 +1855,7 @@ public class MainActivity extends Activity {
 
             TextView tv = new TextView(this);
             tv.setText(entry.word + "  (×" + entry.count + ")");
-            tv.setTextColor(Color.parseColor("#111827"));
+            tv.setTextColor(Color.parseColor(dm("#111827")));
             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             tv.setTypeface(Typeface.DEFAULT_BOLD);
             textBox.addView(tv);
@@ -1805,14 +1863,14 @@ public class MainActivity extends Activity {
             if (!entry.nextSummary.isEmpty()) {
                 TextView nx = new TextView(this);
                 nx.setText("← " + entry.nextSummary);
-                nx.setTextColor(Color.parseColor("#6B7280"));
+                nx.setTextColor(Color.parseColor(dm("#6B7280")));
                 nx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
                 nx.setPadding(0, dp(2), 0, 0);
                 textBox.addView(nx);
             }
 
             ModernIconView del = new ModernIconView(this, ModernIconView.ICON_CLOSE,
-                    Color.parseColor("#DC2626"), Color.TRANSPARENT);
+                    Color.parseColor(dm("#DC2626")), Color.TRANSPARENT);
             del.setStyle(0.8f, 1.9f);
             del.setLayoutParams(new LinearLayout.LayoutParams(dp(42), dp(42)));
             del.setOnClickListener(v -> {
@@ -1841,7 +1899,7 @@ public class MainActivity extends Activity {
         sizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         final TextView sizeLabel = new TextView(this);
         sizeLabel.setText(tr("حجم الإيموجي في القائمة: ", "Emoji size in the list: ") + prefs.getEmojiSizeSp());
-        sizeLabel.setTextColor(Color.parseColor("#111827"));
+        sizeLabel.setTextColor(Color.parseColor(dm("#111827")));
         sizeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         sizeLabel.setTypeface(Typeface.DEFAULT_BOLD);
         sizeCard.addView(sizeLabel);
@@ -1875,7 +1933,7 @@ public class MainActivity extends Activity {
         capsuleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView capsuleHeader = new TextView(this);
         capsuleHeader.setText(tr("لون الكبسولات العائمة", "Floating capsules color"));
-        capsuleHeader.setTextColor(Color.parseColor("#111827"));
+        capsuleHeader.setTextColor(Color.parseColor(dm("#111827")));
         capsuleHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         capsuleHeader.setTypeface(Typeface.DEFAULT_BOLD);
         capsuleHeader.setPadding(0, 0, 0, dp(10));
@@ -1884,7 +1942,7 @@ public class MainActivity extends Activity {
         FrameLayout previewHolder = new FrameLayout(this);
         previewHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
         GradientDrawable previewBg = new GradientDrawable();
-        previewBg.setColor(Color.parseColor("#1F2937"));
+        previewBg.setColor(Color.parseColor(dm("#1F2937")));
         previewBg.setCornerRadius(dp(14));
         previewHolder.setBackground(previewBg);
         final TextView previewCapsule = new TextView(this);
@@ -1903,7 +1961,7 @@ public class MainActivity extends Activity {
         capsuleCard.addView(previewHolder);
 
         boolean darkThemeNow = prefs.getThemeMode() != KeyboardPreferences.THEME_GBOARD_WHITE;
-        final String followBackHex = darkThemeNow ? "#F8FAFC" : "#1E293B";
+        final String followBackHex = darkThemeNow ? dm("#F8FAFC") : dm("#1E293B");
         String[] capsuleNames = tr(
                 new String[]{"أسود", "أبيض", "رمادي فاتح"},
                 new String[]{"Black", "White", "Light gray"});
@@ -1923,7 +1981,7 @@ public class MainActivity extends Activity {
 
         final TextView opacityLabel = new TextView(this);
         opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + prefs.getFloatingCapsuleOpacity() + "%");
-        opacityLabel.setTextColor(Color.parseColor("#111827"));
+        opacityLabel.setTextColor(Color.parseColor(dm("#111827")));
         opacityLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
         opacityLabel.setTypeface(Typeface.DEFAULT_BOLD);
         opacityLabel.setPadding(0, dp(12), 0, 0);
@@ -1961,7 +2019,7 @@ public class MainActivity extends Activity {
         clearCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView clearBtn = new TextView(this);
         clearBtn.setText(tr("مسح قسم «مستخدم حديثاً»", "Clear \"Recently used\" section"));
-        clearBtn.setTextColor(Color.parseColor("#DC2626"));
+        clearBtn.setTextColor(Color.parseColor(dm("#DC2626")));
         clearBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         clearBtn.setTypeface(Typeface.DEFAULT_BOLD);
         clearBtn.setGravity(Gravity.CENTER);
@@ -2020,7 +2078,7 @@ public class MainActivity extends Activity {
         dirCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         TextView dirHeader = new TextView(this);
         dirHeader.setText(tr("اتجاه السحب للمسح:", "Swipe-to-delete direction:"));
-        dirHeader.setTextColor(Color.parseColor("#111827"));
+        dirHeader.setTextColor(Color.parseColor(dm("#111827")));
         dirHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         dirHeader.setTypeface(Typeface.DEFAULT_BOLD);
         dirHeader.setPadding(0, 0, 0, dp(8));
@@ -2034,7 +2092,7 @@ public class MainActivity extends Activity {
         TextView dirNote = new TextView(this);
         dirNote.setText(tr("سحبة تحديد الكل تاخذ تلقائياً الاتجاه المعاكس لهذا الاختيار",
                 "The select-all swipe automatically takes the opposite direction of this choice"));
-        dirNote.setTextColor(Color.parseColor("#6B7280"));
+        dirNote.setTextColor(Color.parseColor(dm("#6B7280")));
         dirNote.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
         dirNote.setPadding(0, dp(8), 0, 0);
         dirCard.addView(dirNote);
@@ -2083,7 +2141,7 @@ public class MainActivity extends Activity {
         volCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         final TextView volLabel = new TextView(this);
         volLabel.setText(tr("قوة ومستوى الصوت: ", "Sound volume: ") + prefs.getSoundVolume() + "%");
-        volLabel.setTextColor(Color.parseColor("#111827"));
+        volLabel.setTextColor(Color.parseColor(dm("#111827")));
         volLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         volLabel.setTypeface(Typeface.DEFAULT_BOLD);
         volCard.addView(volLabel);
@@ -2111,7 +2169,7 @@ public class MainActivity extends Activity {
         swipeVolCard.setPadding(dp(16), dp(16), dp(16), dp(16));
         final TextView swipeVolLabel = new TextView(this);
         swipeVolLabel.setText(tr("مستوى صوت السحب والمسح (مستقل): ", "Swipe/delete sound level (independent): ") + prefs.getSwipeSoundVolume() + "%");
-        swipeVolLabel.setTextColor(Color.parseColor("#111827"));
+        swipeVolLabel.setTextColor(Color.parseColor(dm("#111827")));
         swipeVolLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         swipeVolLabel.setTypeface(Typeface.DEFAULT_BOLD);
         swipeVolCard.addView(swipeVolLabel);
@@ -2140,7 +2198,7 @@ public class MainActivity extends Activity {
 
         TextView pHeader = new TextView(this);
         pHeader.setText(tr("1. اختر نغمة صوت الكتابة على الحروف (اضغط للتجربة):", "1. Choose the typing-tone profile (tap to preview):"));
-        pHeader.setTextColor(Color.parseColor("#111827"));
+        pHeader.setTextColor(Color.parseColor(dm("#111827")));
         pHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         pHeader.setTypeface(Typeface.DEFAULT_BOLD);
         pHeader.setPadding(0, 0, 0, dp(8));
@@ -2164,7 +2222,7 @@ public class MainActivity extends Activity {
 
         TextView swHeader = new TextView(this);
         swHeader.setText(tr("2. اختر نغمة صوت السحب والمسح (اضغط للتجربة):", "2. Choose the swipe/delete-tone profile (tap to preview):"));
-        swHeader.setTextColor(Color.parseColor("#111827"));
+        swHeader.setTextColor(Color.parseColor(dm("#111827")));
         swHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         swHeader.setTypeface(Typeface.DEFAULT_BOLD);
         swHeader.setPadding(0, 0, 0, dp(8));
@@ -2215,9 +2273,9 @@ public class MainActivity extends Activity {
 
         final EditText newClipBox = new EditText(this);
         newClipBox.setHint(tr("أضف نصاً أو عبارة لتثبيتها في الحافظة...", "Add text or a phrase to pin in the clipboard..."));
-        newClipBox.setHintTextColor(Color.parseColor("#9CA3AF"));
-        newClipBox.setTextColor(Color.parseColor("#111827"));
-        newClipBox.setBackground(borderedBox("#F9FAFB", "#D1D5DB", 12));
+        newClipBox.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        newClipBox.setTextColor(Color.parseColor(dm("#111827")));
+        newClipBox.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 12));
         newClipBox.setPadding(dp(12), dp(10), dp(12), dp(10));
         card.addView(newClipBox);
 
@@ -2229,7 +2287,7 @@ public class MainActivity extends Activity {
         btnAdd.setText(tr("+ إضافة وتثبيت في الحافظة", "+ Add & pin to clipboard"));
         btnAdd.setAllCaps(false);
         btnAdd.setTextColor(Color.WHITE);
-        btnAdd.setBackground(roundedCard("#059669", 12));
+        btnAdd.setBackground(roundedCard(dm("#059669"), 12));
         LinearLayout.LayoutParams lpAdd = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
         lpAdd.topMargin = dp(8);
         btnAdd.setLayoutParams(lpAdd);
@@ -2254,7 +2312,7 @@ public class MainActivity extends Activity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackground(borderedBox("#F8FAFC", "#E2E8F0", 10));
+            row.setBackground(borderedBox(dm("#F8FAFC"), dm("#E2E8F0"), 10));
             row.setPadding(dp(10), dp(8), dp(10), dp(8));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = dp(6);
@@ -2272,14 +2330,14 @@ public class MainActivity extends Activity {
 
             TextView tv = new TextView(this);
             tv.setText(clip.text);
-            tv.setTextColor(Color.parseColor("#1F2937"));
+            tv.setTextColor(Color.parseColor(dm("#1F2937")));
             tv.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
             tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView del = new TextView(this);
             del.setText("✕");
             del.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-            del.setTextColor(Color.parseColor("#DC2626"));
+            del.setTextColor(Color.parseColor(dm("#DC2626")));
             del.setPadding(dp(10), dp(4), dp(8), dp(4));
             del.setOnClickListener(v -> {
                 clipboardRepo.removeClip(clip.text);
@@ -2308,17 +2366,17 @@ public class MainActivity extends Activity {
 
         final EditText shortInput = new EditText(this);
         shortInput.setHint(tr("الاختصار (مثال: سع)", "Shortcut (e.g. omw)"));
-        shortInput.setHintTextColor(Color.parseColor("#9CA3AF"));
-        shortInput.setTextColor(Color.parseColor("#111827"));
-        shortInput.setBackground(borderedBox("#F9FAFB", "#D1D5DB", 10));
+        shortInput.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        shortInput.setTextColor(Color.parseColor(dm("#111827")));
+        shortInput.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 10));
         shortInput.setPadding(dp(12), dp(10), dp(12), dp(10));
         card.addView(shortInput);
 
         final EditText phraseInput = new EditText(this);
         phraseInput.setHint(tr("العبارة الكاملة (مثال: السلام عليكم ورحمة الله وبركاته)", "Full phrase (e.g. on my way)"));
-        phraseInput.setHintTextColor(Color.parseColor("#9CA3AF"));
-        phraseInput.setTextColor(Color.parseColor("#111827"));
-        phraseInput.setBackground(borderedBox("#F9FAFB", "#D1D5DB", 10));
+        phraseInput.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        phraseInput.setTextColor(Color.parseColor(dm("#111827")));
+        phraseInput.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 10));
         phraseInput.setPadding(dp(12), dp(10), dp(12), dp(10));
         LinearLayout.LayoutParams lpPh = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lpPh.topMargin = dp(8);
@@ -2333,7 +2391,7 @@ public class MainActivity extends Activity {
         btnSaveSc.setText(tr("+ حفظ الاختصار", "+ Save shortcut"));
         btnSaveSc.setAllCaps(false);
         btnSaveSc.setTextColor(Color.WHITE);
-        btnSaveSc.setBackground(roundedCard("#059669", 10));
+        btnSaveSc.setBackground(roundedCard(dm("#059669"), 10));
         LinearLayout.LayoutParams lpBtn = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
         lpBtn.topMargin = dp(8);
         btnSaveSc.setLayoutParams(lpBtn);
@@ -2359,7 +2417,7 @@ public class MainActivity extends Activity {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackground(borderedBox("#F8FAFC", "#E2E8F0", 10));
+            row.setBackground(borderedBox(dm("#F8FAFC"), dm("#E2E8F0"), 10));
             row.setPadding(dp(12), dp(8), dp(12), dp(8));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = dp(6);
@@ -2367,12 +2425,12 @@ public class MainActivity extends Activity {
 
             TextView tv = new TextView(this);
             tv.setText("«" + e.getKey() + "»  ⬅  " + e.getValue());
-            tv.setTextColor(Color.parseColor("#1F2937"));
+            tv.setTextColor(Color.parseColor(dm("#1F2937")));
             tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView del = new TextView(this);
             del.setText("✕");
-            del.setTextColor(Color.parseColor("#DC2626"));
+            del.setTextColor(Color.parseColor(dm("#DC2626")));
             del.setPadding(dp(8), dp(4), dp(8), dp(4));
             LinearLayout.LayoutParams lpDel = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

@@ -577,6 +577,15 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("incognito_mode", enabled).apply();
     }
 
+    /** Dark/light mode for the app's own settings screens (not the keyboard's color theme). */
+    public boolean isAppDarkMode() {
+        return prefs.getBoolean("app_dark_mode", false);
+    }
+
+    public void setAppDarkMode(boolean enabled) {
+        prefs.edit().putBoolean("app_dark_mode", enabled).apply();
+    }
+
     public int getOneHandedMode() {
         return prefs.getInt("one_handed_mode", 0);
     }

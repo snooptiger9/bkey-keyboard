@@ -37,6 +37,7 @@ public class ModernIconView extends View {
     public static final int ICON_CUP_DRINK = 25;
     public static final int ICON_CAR = 26;
     public static final int ICON_HASH_SYMBOLS = 27;
+    public static final int ICON_SUN = 28;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -417,6 +418,20 @@ public class ModernIconView extends View {
                 canvas.drawLine(cx + v, cy - r * 0.78f, cx + v, cy + r * 0.78f, strokePaint);
                 canvas.drawLine(cx - r * 0.78f, cy - v, cx + r * 0.78f, cy - v, strokePaint);
                 canvas.drawLine(cx - r * 0.78f, cy + v, cx + r * 0.78f, cy + v, strokePaint);
+                break;
+            }
+            case ICON_SUN: {
+                canvas.drawCircle(cx, cy, r * 0.46f, strokePaint);
+                float rayInner = r * 0.72f;
+                float rayOuter = r * 0.98f;
+                for (int i = 0; i < 8; i++) {
+                    double a = Math.toRadians(i * 45.0);
+                    float x1 = cx + (float) Math.cos(a) * rayInner;
+                    float y1 = cy + (float) Math.sin(a) * rayInner;
+                    float x2 = cx + (float) Math.cos(a) * rayOuter;
+                    float y2 = cy + (float) Math.sin(a) * rayOuter;
+                    canvas.drawLine(x1, y1, x2, y2, strokePaint);
+                }
                 break;
             }
         }
