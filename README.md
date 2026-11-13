@@ -27,6 +27,7 @@ with a carefully tailored experience for each.
 <br>
 
 <a id="en-features"></a>
+
 ### 🚀 Features
 
 **✋ Gestures**
@@ -109,27 +110,17 @@ with a carefully tailored experience for each.
 <br>
 
 <a id="en-privacy"></a>
+
 ### 🔒 Privacy & security
 
 - No network access except for the GIF (KLIPY) and voice-typing features, and both are **fully
   optional** — you can simply never use them, and the keyboard runs with zero internet connection
   at all.
+
 - Verification-code (OTP) suggestions **don't exist at all** in the base install — no SMS or
   notification permission whatsoever, and the keyboard can't read any message. It's only added if
   you specifically ask for it and download its update from inside the app, and even then everything
   is processed on-device only, never sent to any server.
-
-
-<br>
-
-<a id="en-download"></a>
-### 📥 Download
-
-<p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="Get the APK from GitHub" height="72"></a>
-</p>
-
-You can update either from inside the app (Settings → **Update the app**) or by tapping the button above again. The in-app button knows whether your current install has OTP turned on or not, and gets you the latest version of the same one. The button above on this page always gives you the plain version without OTP — so if you use it again later and you want OTP, just turn it back on from Settings afterward.
 
 If you want the OTP feature, turn it on from inside the app: Settings → **Suggestions & learning** → scroll down to **Verification code (OTP) suggestions** — that screen explains it and has a button to turn it on.
 
@@ -143,6 +134,7 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Sugg
 
 <details>
 <summary><b>Steps to pause Play Protect scanning (tap for details)</b></summary>
+
 <br>
 
 1. Open the **Google Play Store** app.
@@ -154,6 +146,18 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Sugg
 7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after the update (recommended to keep it on for your other apps).
 
 </details>
+
+<br>
+
+<a id="en-download"></a>
+
+### 📥 Download
+
+<p>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="Get the APK from GitHub" height="72"></a>
+</p>
+
+You can update either from inside the app (Settings → **Update the app**) or by tapping the button above again. The in-app button knows whether your current install has OTP turned on or not, and gets you the latest version of the same one. The button above on this page always gives you the plain version without OTP — so if you use it again later and you want OTP, just turn it back on from Settings afterward.
 
 <br>
 
@@ -175,7 +179,7 @@ No, never. All learning, correction and prediction happen locally on your device
 <summary><b>Why does Google Play Protect warn me when I download the OTP update?</b></summary>
 <br>
 
-Because that update adds SMS-read and notification-access permissions, and Google automatically blocks any app installed outside the Play Store that requests those specific permissions — standard behavior, not malware. Steps to pause the warning temporarily are in the [Download](#en-download) section.
+Because that update adds SMS-read and notification-access permissions, and Google automatically blocks any app installed outside the Play Store that requests those specific permissions — standard behavior, not malware. Steps to pause the warning temporarily are in the [Privacy & security](#en-privacy) section.
 
 </details>
 
@@ -202,6 +206,7 @@ No, the keyboard is lightweight and runs fully on-device. Only the GIF and voice
 <br>
 
 <a id="en-community"></a>
+
 ### 🤝 Community & bug reports
 
 - **Ran into a bug or crash?** Settings → **Error log** → **"📧 Email developer"** opens your mail app with the error details, sent straight to **lvl60me@gmail.com**.
@@ -211,6 +216,7 @@ No, the keyboard is lightweight and runs fully on-device. Only the GIF and voice
 <br>
 
 <a id="en-support"></a>
+
 ### 📩 Support
 
 If you like the project and want to support it, you can send a tip via PayPal:
@@ -232,6 +238,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <br>
 
 <a id="ar-features"></a>
+
 ### 🚀 المميزات
 
 <div dir="rtl">
@@ -319,28 +326,17 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <br>
 
 <a id="ar-privacy"></a>
+
 ### 🔒 الخصوصية والأمان
 
 <div dir="rtl">
 
 ‏• لا يوجد اتصال بالإنترنت إلا لميزتي GIF (KLIPY) والكتابة بالصوت، وكلاهما **اختياري بالكامل** —
   تقدر ما تستخدمهما إطلاقاً، ويبقى الكيبورد شغّال بدون أي اتصال بالإنترنت نهائياً.
+
 ‏• اقتراح أكواد التحقق (OTP) **غير موجودة أصلاً** بالتثبيت الأساسي — ما فيه صلاحية رسائل ولا إشعارات إطلاقاً،
   والكيبورد ما يقدر يقرأ أي رسالة نهائياً. تضاف فقط إذا المستخدم نفسه طلبها ونزّل تحديثها من داخل التطبيق،
   وحتى بعدها كل المعالجة على الجهاز فقط ولا تُرسل لأي سيرفر خارجي.
-
-</div>
-
-<br>
-
-<a id="ar-download"></a>
-### 📥 التحميل
-
-<p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="تحميل ملف APK" height="72"></a>
-</p>
-
-تقدر تحدّث إما من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) أو بالضغط على الزر بالأعلى من جديد. زر التطبيق يعرف إذا كانت نسختك الحالية مفعّل فيها OTP أو لا، ويجيبلك آخر إصدار من نفس النوع تلقائياً. أما الزر بالأعلى بهذي الصفحة فدايماً يجيب النسخة العادية بدون OTP — فإذا استخدمته مرة ثانية بعدين وتبي OTP، بس فعّلها من جديد من الإعدادات.
 
 إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **التصحيح والاقتراحات والتعلّم** ← انزل لتحت لين تلقى **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتفعيلها.
 
@@ -354,6 +350,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 <details>
 <summary><b>خطوات تعليق فحص Play Protect (اضغط للتفصيل)</b></summary>
+
 <br>
 
 <div dir="rtl">
@@ -369,6 +366,18 @@ If you like the project and want to support it, you can send a tip via PayPal:
 </div>
 
 </details>
+
+<br>
+
+<a id="ar-download"></a>
+
+### 📥 التحميل
+
+<p>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="تحميل ملف APK" height="72"></a>
+</p>
+
+تقدر تحدّث إما من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) أو بالضغط على الزر بالأعلى من جديد. زر التطبيق يعرف إذا كانت نسختك الحالية مفعّل فيها OTP أو لا، ويجيبلك آخر إصدار من نفس النوع تلقائياً. أما الزر بالأعلى بهذي الصفحة فدايماً يجيب النسخة العادية بدون OTP — فإذا استخدمته مرة ثانية بعدين وتبي OTP، بس فعّلها من جديد من الإعدادات.
 
 <br>
 
@@ -392,7 +401,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <summary><b>ليش قوقل بروتكت يحذّرني عند تحميل تحديث ميزة OTP؟</b></summary>
 <br>
 
-لأن التحديث يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات، وقوقل توقف تلقائياً أي تطبيق من خارج المتجر يطلب هذي الصلاحيات بالذات — سلوك قياسي ومو فيروس. خطوات تعليق التحذير مؤقتاً موجودة بقسم [التحميل](#ar-download).
+لأن التحديث يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات، وقوقل توقف تلقائياً أي تطبيق من خارج المتجر يطلب هذي الصلاحيات بالذات — سلوك قياسي ومو فيروس. خطوات تعليق التحذير مؤقتاً موجودة بقسم [الخصوصية والأمان](#ar-privacy).
 
 </details>
 
@@ -421,6 +430,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <br>
 
 <a id="ar-community"></a>
+
 ### 🤝 المجتمع والإبلاغ عن الأخطاء
 
 <div dir="rtl">
@@ -434,6 +444,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <br>
 
 <a id="ar-support"></a>
+
 ### 📩 الدعم
 
 إذا عجبك المشروع وتبي تدعمه، تقدر ترسل عبر PayPal:
