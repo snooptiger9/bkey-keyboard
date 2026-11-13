@@ -2465,6 +2465,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 TextView emojiTab = new TextView(this);
                 emojiTab.setText(emoji);
                 emojiTab.setGravity(Gravity.CENTER);
+                emojiTab.setIncludeFontPadding(false);
                 emojiTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
                 emojiTab.setPadding(dp(2), dp(5), dp(2), dp(5));
                 tab = emojiTab;
@@ -2488,6 +2489,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         TextView gifTab = new TextView(this);
         gifTab.setText("GIF");
         gifTab.setGravity(Gravity.CENTER);
+        gifTab.setIncludeFontPadding(false);
         gifTab.setTextColor(labelC());
         gifTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
         gifTab.setTypeface(Typeface.DEFAULT_BOLD);
