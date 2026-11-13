@@ -17,8 +17,8 @@ android {
         minSdk 24
         targetSdk 34
 
-        versionCode 205
-        versionName "205.0"
+        versionCode 207
+        versionName "207.0"
     }
 
     buildFeatures {
