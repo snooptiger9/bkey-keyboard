@@ -1535,6 +1535,8 @@ public class MainActivity extends Activity {
         root.addView(introTv);
 
         if (BuildConfig.OTP_FEATURES_ENABLED) {
+            prefs.setOtpFullBuildEverInstalled(true);
+
             root.addView(createSwitchTile(
                     tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
                     tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 5 دقائق فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 5 minutes. Needs SMS permission"),
@@ -1569,20 +1571,28 @@ public class MainActivity extends Activity {
                     }
             ));
         } else {
+            boolean reverted = prefs.wasOtpFullBuildEverInstalled();
+
             LinearLayout warnCard = createGroupedWhiteCard();
             warnCard.setPadding(dp(16), dp(16), dp(16), dp(16));
 
             TextView warnTitle = new TextView(this);
-            warnTitle.setText(tr("⚠️ هذي الميزة تحتاج تحديث التطبيق", "⚠️ This feature needs an app update"));
+            warnTitle.setText(reverted
+                    ? tr("⚠️ رجعت للنسخة الأساسية بدون هذي الميزة", "⚠️ You're back on the basic build without this feature")
+                    : tr("⚠️ هذي الميزة تحتاج تحديث التطبيق", "⚠️ This feature needs an app update"));
             warnTitle.setTextColor(Color.parseColor("#B45309"));
             warnTitle.setTypeface(Typeface.DEFAULT_BOLD);
             warnTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             warnCard.addView(warnTitle);
 
             TextView warnBody = new TextView(this);
-            warnBody.setText(tr(
-                    "النسخة المثبّتة عندك الآن لا تطلب صلاحية قراءة الرسائل أو الوصول للإشعارات، فهي تثبّت وتحدّث بدون أي تحذير. تفعيل هذي الميزة يتطلب تحديثاً يضيف هاتين الصلاحيتين، وبسببهما نظام حماية Google Play Protect يوقف التحديث تلقائياً برسالة تحذيرية — هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحيات بالذات، وليس عيباً ولا فيروساً.\n\nإذا تبي الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
-                    "The version you have installed now doesn't request SMS or notification-access permission, so it installs and updates with zero warning. Turning this feature on needs an update that adds those two permissions, and because of them Google Play Protect blocks the update automatically with a warning screen — this is standard Google behavior for any app outside the Play Store that requests these specific permissions, not a bug or malware flag.\n\nIf you want the feature, turn off Play Protect scanning with these steps, then download the update:"));
+            warnBody.setText(reverted
+                    ? tr(
+                        "كنت مفعّلها من قبل، وسبب رجوعها هو أنك حمّلت آخر تحديث من زر «📥 تحميل» الرئيسي في صفحة المشروع، وهذا الزر ينزّل النسخة الأساسية بدون OTP دوماً (لتجنّب تحذير Play Protect لمن لا يحتاج الميزة). تثبيت هذي النسخة فوق نسختك يستبدلها ويسحب صلاحيتي الرسائل والإشعارات بدون أي تنبيه من أندرويد — ذاك هو سبب رجوعها «كأنها ماتفعلت».\n\nالحل: لا تستخدم زر التحميل الرئيسي في الصفحة لتحديث التطبيق إذا تبي تحتفظ بهذي الميزة؛ استخدم زر التحديث بالأسفل في هذي الشاشة فقط، فهو دايماً يجيب النسخة الكاملة. فعّل الميزة الآن من جديد:",
+                        "You had it on before. It came back off because the last update you installed was from the main \"📥 Download\" button on the project page — that button always gives the basic build without OTP (so people who don't want the feature never see the Play Protect warning). Installing that over your current app silently replaces it and drops the SMS and notification permissions, with no warning from Android — that's why it reverted \"as if it was never turned on\".\n\nFix: don't use the main download button on the page to update if you want to keep this feature; only use the update button below on this screen — it always fetches the full build. Turn the feature back on now:")
+                    : tr(
+                        "النسخة المثبّتة عندك الآن لا تطلب صلاحية قراءة الرسائل أو الوصول للإشعارات، فهي تثبّت وتحدّث بدون أي تحذير. تفعيل هذي الميزة يتطلب تحديثاً يضيف هاتين الصلاحيتين، وبسببهما نظام حماية Google Play Protect يوقف التحديث تلقائياً برسالة تحذيرية — هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحيات بالذات، وليس عيباً ولا فيروساً.\n\nإذا تبي الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
+                        "The version you have installed now doesn't request SMS or notification-access permission, so it installs and updates with zero warning. Turning this feature on needs an update that adds those two permissions, and because of them Google Play Protect blocks the update automatically with a warning screen — this is standard Google behavior for any app outside the Play Store that requests these specific permissions, not a bug or malware flag.\n\nIf you want the feature, turn off Play Protect scanning with these steps, then download the update:"));
             warnBody.setTextColor(Color.parseColor("#78350F"));
             warnBody.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             LinearLayout.LayoutParams lpWarnBody = new LinearLayout.LayoutParams(
