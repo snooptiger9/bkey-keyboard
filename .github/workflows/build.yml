@@ -81,9 +81,11 @@ jobs:
           mkdir -p release
           cp app/build/outputs/apk/lite/release/*.apk release/bkey-latest.apk
           cp app/build/outputs/apk/full/release/*.apk release/bkey-full-latest.apk
+          grep -oP 'versionCode\s+\K[0-9]+' app/build.gradle > release/bkey-latest.version
+          cp release/bkey-latest.version release/bkey-full-latest.version
           git config user.name "bkey-ci"
           git config user.email "ci@bkey.local"
-          git add release/bkey-latest.apk release/bkey-full-latest.apk
+          git add release/bkey-latest.apk release/bkey-full-latest.apk release/bkey-latest.version release/bkey-full-latest.version
           if ! git diff --cached --quiet; then
             git commit -m "ci: update built APKs [skip ci]"
             git push

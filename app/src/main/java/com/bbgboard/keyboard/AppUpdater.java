@@ -7,10 +7,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 final class AppUpdater {
     private AppUpdater() {}
@@ -19,10 +26,46 @@ final class AppUpdater {
             "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk";
     private static final String UPDATE_URL_FULL =
             "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk";
+    private static final String VERSION_URL_LITE =
+            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.version";
+    private static final String VERSION_URL_FULL =
+            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.version";
     private static final String UPDATE_FILE_NAME = "bkey-update.apk";
 
     interface Callback {
         void onFinished(boolean success);
+    }
+
+    interface VersionCheckCallback {
+        /** remoteVersionCode is null if the check itself failed (e.g. no network). */
+        void onChecked(Integer remoteVersionCode);
+    }
+
+    /** Reads the tiny .version file published alongside the APK matching the currently installed flavor. */
+    static void fetchRemoteVersionCode(final VersionCheckCallback cb) {
+        final String versionUrl = BuildConfig.OTP_FEATURES_ENABLED ? VERSION_URL_FULL : VERSION_URL_LITE;
+        new Thread(() -> {
+            Integer result = null;
+            HttpURLConnection conn = null;
+            try {
+                conn = (HttpURLConnection) new URL(versionUrl).openConnection();
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+                String line = reader.readLine();
+                reader.close();
+                if (line != null) {
+                    result = Integer.parseInt(line.trim());
+                }
+            } catch (Exception e) {
+                AppLogger.log("AppUpdater", "fetchRemoteVersionCode()", e);
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+            final Integer finalResult = result;
+            new Handler(Looper.getMainLooper()).post(() -> cb.onChecked(finalResult));
+        }).start();
     }
 
     /**

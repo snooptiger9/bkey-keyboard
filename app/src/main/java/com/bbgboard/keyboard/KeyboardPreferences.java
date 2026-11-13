@@ -103,6 +103,14 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("whatsapp_otp_suggest_enabled", enabled).apply();
     }
 
+    public boolean isPendingReturnToOtpScreen() {
+        return prefs.getBoolean("pending_return_to_otp_screen", false);
+    }
+
+    public void setPendingReturnToOtpScreen(boolean value) {
+        prefs.edit().putBoolean("pending_return_to_otp_screen", value).apply();
+    }
+
     public boolean wasOtpFullBuildEverInstalled() {
         return prefs.getBoolean("otp_full_build_ever_installed", false);
     }
