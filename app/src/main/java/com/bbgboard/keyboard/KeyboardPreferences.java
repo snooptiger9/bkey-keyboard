@@ -393,8 +393,10 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("sound_enabled", enabled).apply();
     }
 
+    public static final int SOUND_PROFILE_ORIGINAL_RECORDED = 10;
+
     public int getSoundProfile() {
-        return prefs.getInt("sound_profile", SOUND_PROFILE_BB_CLASSIC);
+        return prefs.getInt("sound_profile", SOUND_PROFILE_ORIGINAL_RECORDED);
     }
 
     public void setSoundProfile(int profile) {
@@ -409,8 +411,10 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_sound_enabled", enabled).apply();
     }
 
+    public static final int SWIPE_SOUND_ORIGINAL_RECORDED = 10;
+
     public int getSwipeSoundProfile() {
-        return prefs.getInt("swipe_sound_profile", SWIPE_SOUND_BB_AIR_FLICK);
+        return prefs.getInt("swipe_sound_profile", SWIPE_SOUND_ORIGINAL_RECORDED);
     }
 
     public void setSwipeSoundProfile(int profile) {
@@ -418,7 +422,7 @@ public class KeyboardPreferences {
     }
 
     public int getSoundVolume() {
-        return prefs.getInt("sound_volume", 75);
+        return prefs.getInt("sound_volume", 35);
     }
 
     public void setSoundVolume(int volume) {
@@ -427,7 +431,7 @@ public class KeyboardPreferences {
     }
 
     public int getSwipeSoundVolume() {
-        return prefs.getInt("swipe_sound_volume", 50);
+        return prefs.getInt("swipe_sound_volume", 35);
     }
 
     public void setSwipeSoundVolume(int volume) {
