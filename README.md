@@ -24,6 +24,8 @@ modern gesture twist: swipe up on any suggestion to accept it instantly, and swi
 letter row for quick deletion instead of repeated backspace taps. Fully supports Arabic and English
 with a carefully tailored experience for each.
 
+<br>
+
 <a id="en-features"></a>
 ### 🚀 Features
 
@@ -104,6 +106,8 @@ with a carefully tailored experience for each.
 - **Privacy-first**: Incognito mode disables learning and clipboard saving entirely; passwords,
   emails and links are never learned from, even outside Incognito mode.
 
+<br>
+
 <a id="en-privacy"></a>
 ### 🔒 Privacy & security
 
@@ -115,6 +119,8 @@ with a carefully tailored experience for each.
   you specifically ask for it and download its update from inside the app, and even then everything
   is processed on-device only, never sent to any server.
 
+
+<br>
 
 <a id="en-download"></a>
 ### 📥 Download
@@ -145,6 +151,8 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Veri
 
 </details>
 
+<br>
+
 <a id="en-faq"></a>
 
 ### ❓ FAQ
@@ -157,6 +165,8 @@ No, never. All learning, correction and prediction happen locally on your device
 
 </details>
 
+<br>
+
 <details>
 <summary><b>Why does Google Play Protect warn me when I download the OTP update?</b></summary>
 <br>
@@ -164,6 +174,8 @@ No, never. All learning, correction and prediction happen locally on your device
 Because that update adds SMS-read and notification-access permissions, and Google automatically blocks any app installed outside the Play Store that requests those specific permissions — standard behavior, not malware. Steps to pause the warning temporarily are in the [Download](#en-download) section.
 
 </details>
+
+<br>
 
 <details>
 <summary><b>Where are my learned words stored, and how do I wipe them?</b></summary>
@@ -173,6 +185,8 @@ They're stored locally on your device only. In the app's settings, under the pre
 
 </details>
 
+<br>
+
 <details>
 <summary><b>Does it use a lot of battery or memory?</b></summary>
 <br>
@@ -181,12 +195,16 @@ No, the keyboard is lightweight and runs fully on-device. Only the GIF and voice
 
 </details>
 
+<br>
+
 <a id="en-community"></a>
 ### 🤝 Community & bug reports
 
 - **Ran into a bug or crash?** Settings → **Error log** → **"📧 Email developer"** opens your mail app with the error details, sent straight to **lvl60me@gmail.com**.
 - You can email the same address with suggestions, feature ideas, or general feedback.
 - The repo is currently private, so emailing directly is the only way to reach the developer.
+
+<br>
 
 <a id="en-support"></a>
 ### 📩 Support
@@ -206,6 +224,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 **bkey** كيبورد أندرويد (IME) مستوحى من أزرار بلاك بيري الفيزيائية الكلاسيكية، لكن بتفاعل حديث:
 اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب لليسار على صف الحروف للحذف بدل الضغط المتكرر
 على الباكسبيس. يدعم العربية والإنجليزية بالكامل مع تجربة مخصصة بعناية لكل لغة.
+
+<br>
 
 <a id="ar-features"></a>
 ### 🚀 المميزات
@@ -292,6 +312,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 </div>
 
+<br>
+
 <a id="ar-privacy"></a>
 ### 🔒 الخصوصية والأمان
 
@@ -304,6 +326,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
   وحتى بعدها كل المعالجة على الجهاز فقط ولا تُرسل لأي سيرفر خارجي.
 
 </div>
+
+<br>
 
 <a id="ar-download"></a>
 ### 📥 التحميل
@@ -338,6 +362,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 </details>
 
+<br>
+
 <a id="ar-faq"></a>
 
 ### ❓ الأسئلة الشائعة
@@ -352,6 +378,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 </details>
 
+<br>
+
 <details>
 <summary><b>ليش قوقل بروتكت يحذّرني عند تحميل تحديث ميزة OTP؟</b></summary>
 <br>
@@ -360,6 +388,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 </details>
 
+<br>
+
 <details>
 <summary><b>وين تتحفظ الكلمات اللي يتعلمها الكيبورد، وكيف أمسحها؟</b></summary>
 <br>
@@ -367,6 +397,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 تنحفظ محلياً على جهازك فقط. من إعدادات التطبيق قسم تدريب التوقعات، زر **"مسح جميع الكلمات المتعلمة"** يمسحها كلها فوراً.
 
 </details>
+
+<br>
 
 <details>
 <summary><b>هل يستهلك الكيبورد بطارية أو ذاكرة كثير؟</b></summary>
@@ -378,6 +410,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 </div>
 
+<br>
+
 <a id="ar-community"></a>
 ### 🤝 المجتمع والإبلاغ عن الأخطاء
 
@@ -388,6 +422,8 @@ If you like the project and want to support it, you can send a tip via PayPal:
 ‏• الريبو حالياً خاص، فالتواصل المباشر عبر الإيميل هو الطريقة الوحيدة للتبليغ أو التواصل مع المطوّر.
 
 </div>
+
+<br>
 
 <a id="ar-support"></a>
 ### 📩 الدعم
