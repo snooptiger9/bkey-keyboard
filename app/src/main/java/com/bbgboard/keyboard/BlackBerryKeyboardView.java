@@ -1448,13 +1448,10 @@ public class BlackBerryKeyboardView extends View {
                     drawShiftKeyIcon(canvas, k.rect);
                 } else if (k.type == KeyType.LANGUAGE && emojiKeySuggestion == null) {
                     drawGlobeIcon(canvas, k.rect);
-                } else if (k.type == KeyType.EMOJI && emojiKeySuggestion == null) {
-
-                    drawEmojiIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
 
                     float prevSize = mainTextPaint.getTextSize();
-                    String glyph = k.main;
+                    String glyph = (k.type == KeyType.EMOJI) ? "🙂" : k.main;
 
                     if (emojiKeySuggestion != null) glyph = emojiKeySuggestion;
                     mainTextPaint.setTextSize(15.5f * scaledDensity);
