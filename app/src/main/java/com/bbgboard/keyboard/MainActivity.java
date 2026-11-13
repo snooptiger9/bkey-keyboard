@@ -429,6 +429,14 @@ public class MainActivity extends Activity {
         LinearLayout group4 = createGroupedWhiteCard();
         group4.addView(createMenuRow(
                 ModernIconView.ICON_SETTINGS_GEAR,
+                tr("تحديث التطبيق", "Update the app"),
+                tr("الإصدار " + BuildConfig.VERSION_NAME + " • اضغط لتنزيل أي تحديث جديد (يحافظ تلقائياً على ميزة OTP إذا كانت مفعّلة)",
+                        "Version " + BuildConfig.VERSION_NAME + " • tap to download the latest update (automatically keeps OTP on if it's already active)"),
+                true,
+                this::checkForAppUpdate
+        ));
+        group4.addView(createMenuRow(
+                ModernIconView.ICON_SETTINGS_GEAR,
                 tr("سجل الأخطاء", "Error log"),
                 tr("لعرض أي خطأ صار بالتطبيق وإرساله مباشرة لإيميل المطوّر",
                         "View any error the app ran into and send it straight to the developer's email"),
@@ -1519,6 +1527,26 @@ public class MainActivity extends Activity {
                 this::openLearnedWordsScreen));
     }
 
+    private void checkForAppUpdate() {
+        Toast.makeText(this, tr("جاري تنزيل التحديث...", "Downloading the update..."), Toast.LENGTH_SHORT).show();
+        AppUpdater.downloadAndInstall(getApplicationContext(), success -> {
+            if (!success) {
+                Toast.makeText(MainActivity.this,
+                        tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
+                                "Automatic download failed, opening the link in your browser instead"),
+                        Toast.LENGTH_LONG).show();
+                try {
+                    String url = BuildConfig.OTP_FEATURES_ENABLED
+                            ? "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"
+                            : "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk";
+                    startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)));
+                } catch (Exception e) {
+                    AppLogger.log("MainActivity", "checkForAppUpdate() download fallback", e);
+                }
+            }
+        });
+    }
+
     private void openOtpSettingsScreen() {
         LinearLayout root = createSubScreenTemplate(tr("اقتراح رمز التحقق (OTP)", "Verification code (OTP) suggestions"), this::openCorrectionsAndMemoryScreen);
 
@@ -1588,8 +1616,8 @@ public class MainActivity extends Activity {
             TextView warnBody = new TextView(this);
             warnBody.setText(reverted
                     ? tr(
-                        "كنت مفعّلها من قبل، وسبب رجوعها هو أنك حمّلت آخر تحديث من زر «📥 تحميل» الرئيسي في صفحة المشروع، وهذا الزر ينزّل النسخة الأساسية بدون OTP دوماً (لتجنّب تحذير Play Protect لمن لا يحتاج الميزة). تثبيت هذي النسخة فوق نسختك يستبدلها ويسحب صلاحيتي الرسائل والإشعارات بدون أي تنبيه من أندرويد — ذاك هو سبب رجوعها «كأنها ماتفعلت».\n\nالحل: لا تستخدم زر التحميل الرئيسي في الصفحة لتحديث التطبيق إذا تبي تحتفظ بهذي الميزة؛ استخدم زر التحديث بالأسفل في هذي الشاشة فقط، فهو دايماً يجيب النسخة الكاملة. فعّل الميزة الآن من جديد:",
-                        "You had it on before. It came back off because the last update you installed was from the main \"📥 Download\" button on the project page — that button always gives the basic build without OTP (so people who don't want the feature never see the Play Protect warning). Installing that over your current app silently replaces it and drops the SMS and notification permissions, with no warning from Android — that's why it reverted \"as if it was never turned on\".\n\nFix: don't use the main download button on the page to update if you want to keep this feature; only use the update button below on this screen — it always fetches the full build. Turn the feature back on now:")
+                        "كنت مفعّلها من قبل، وسبب رجوعها هو أنك حمّلت تحديث من رابط صفحة المشروع على GitHub (مباشرة أو من المتصفح) بدل زر «تحديث التطبيق» الموجود بالإعدادات الرئيسية. رابط الصفحة ينزّل دايماً النسخة الأساسية بدون OTP، فتثبيته فوق نسختك يستبدلها ويسحب الصلاحيتين بدون أي تنبيه — ذاك سبب رجوعها «كأنها ماتفعلت».\n\nمن الآن: حدّث التطبيق فقط من زر «تحديث التطبيق» بالقائمة الرئيسية للإعدادات — هو زر واحد يحفظ هذي الميزة تلقائياً كل مرة. فعّلها الآن من جديد من هنا:",
+                        "You had it on before. It came back off because you installed an update from the project's GitHub page link (directly or via the browser) instead of the \"Update the app\" button in the main Settings menu. The page link always gives the basic build without OTP, so installing it over your current app silently replaces it and drops both permissions — that's why it reverted \"as if it was never turned on\".\n\nFrom now on: only update the app from the \"Update the app\" button in the main Settings menu — that single button always keeps this feature on automatically. Turn it back on now from here:")
                     : tr(
                         "النسخة المثبّتة عندك الآن لا تطلب صلاحية قراءة الرسائل أو الوصول للإشعارات، فهي تثبّت وتحدّث بدون أي تحذير. تفعيل هذي الميزة يتطلب تحديثاً يضيف هاتين الصلاحيتين، وبسببهما نظام حماية Google Play Protect يوقف التحديث تلقائياً برسالة تحذيرية — هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحيات بالذات، وليس عيباً ولا فيروساً.\n\nإذا تبي الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
                         "The version you have installed now doesn't request SMS or notification-access permission, so it installs and updates with zero warning. Turning this feature on needs an update that adds those two permissions, and because of them Google Play Protect blocks the update automatically with a warning screen — this is standard Google behavior for any app outside the Play Store that requests these specific permissions, not a bug or malware flag.\n\nIf you want the feature, turn off Play Protect scanning with these steps, then download the update:"));
@@ -1625,7 +1653,7 @@ public class MainActivity extends Activity {
             downloadBtn.setLayoutParams(lpDl);
             downloadBtn.setOnClickListener(v -> {
                 Toast.makeText(this, tr("جاري تنزيل التحديث...", "Downloading the update..."), Toast.LENGTH_SHORT).show();
-                AppUpdater.downloadAndInstall(getApplicationContext(), success -> {
+                AppUpdater.downloadAndInstall(getApplicationContext(), true, success -> {
                     if (!success) {
                         Toast.makeText(MainActivity.this,
                                 tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",

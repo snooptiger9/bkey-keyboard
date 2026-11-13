@@ -129,15 +129,17 @@ with a carefully tailored experience for each.
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="Get the APK from GitHub" height="72"></a>
 </p>
 
-If you want the OTP feature, turn it on from inside the app: Settings → **Verification code (OTP) suggestions** — that screen explains it and has a button to download the update that adds it.
+**Use the button above only for this first install.** After that, always update from inside the app: open the app → Settings → **Update the app**. That one button always checks for the newest version and never changes anything else about your setup.
+
+If you want the OTP feature, turn it on from inside the app: Settings → **Verification code (OTP) suggestions** — that screen explains it and has a button to turn it on.
 
 > ⚠️ **About the OTP feature**
 >
 > Turning this on needs an update that adds SMS-read and WhatsApp-notification access. Because of those two specific permissions, Google Play Protect blocks installing that update automatically with a warning screen. This is standard Google behavior for any app installed outside the Play Store that requests these permissions — not a bug or malware flag.
 >
-> If you want the feature, turn off Play Protect scanning, then download the update from inside the app itself (Settings → Verification code (OTP) suggestions → the download button):
+> If you want the feature, turn off Play Protect scanning, then turn it on from inside the app itself (Settings → Verification code (OTP) suggestions → the button there):
 >
-> **Once you've turned it on, never update the app again from the main 📥 Download button above** — that button always installs the basic build without OTP, and since it's the same app, installing it silently removes the feature and its permissions with no warning. Always update from that same in-app button instead; it always fetches the full build and keeps the feature on.
+> **After that, keep using the same "Update the app" button in Settings for every future update** — it automatically remembers you turned OTP on and keeps fetching the matching build. Just never download from this GitHub page again once the app is installed; always update from inside the app.
 
 <details>
 <summary><b>Steps to pause Play Protect scanning (tap for details)</b></summary>
@@ -338,15 +340,17 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="تحميل ملف APK" height="72"></a>
 </p>
 
-إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتحميل التحديث الذي يضيف الميزة.
+**استخدم الزر بالأعلى فقط للتثبيت الأول.** بعد ذلك، حدّث التطبيق دايماً من داخله: افتح التطبيق ← الإعدادات ← **تحديث التطبيق**. هذا الزر وحده يتحقق من آخر إصدار كل مرة وما يغيّر أي شي آخر بإعداداتك.
+
+إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتفعيلها.
 
 > ⚠️ **ملاحظة عن ميزة رمز التحقق (OTP)**
 >
 > تفعيل هذي الميزة يحتاج تحديثاً يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات. بسبب هاتين الصلاحيتين بالذات، نظام حماية قوقل يوقف تثبيت التحديث تلقائياً برسالة تحذيرية. هذا سلوك قياسي من قوقل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات، وليس عيباً ولا فيروساً بالتطبيق.
 >
-> إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم حمّل التحديث من داخل التطبيق نفسه (الإعدادات ← اقتراح رمز التحقق (OTP) ← زر التحديث):
+> إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم فعّلها من داخل التطبيق نفسه (الإعدادات ← اقتراح رمز التحقق (OTP) ← الزر هناك):
 >
-> **بعد ما تفعّلها، لا تحدّث التطبيق مرة ثانية من زر «📥 التحميل» الرئيسي بالأعلى** — هذا الزر ينزّل دايماً النسخة الأساسية بدون OTP، وبما إنه نفس التطبيق فتثبيته يحذف الميزة وصلاحياتها بدون أي تحذير. دايماً حدّث من نفس زر التحديث داخل التطبيق، فهو يجيب النسخة الكاملة ويحافظ على الميزة مفعّلة.
+> **بعد ذلك، استمر تستخدم نفس زر «تحديث التطبيق» بالإعدادات لكل تحديث قادم** — هو يتذكر تلقائياً أنك فعّلت OTP وبيستمر يجيب نفس النسخة. فقط لا ترجع تحمّل من صفحة GitHub هذي أبداً بعد التثبيت الأول — حدّث دايماً من داخل التطبيق.
 
 <details>
 <summary><b>خطوات تعليق فحص Play Protect (اضغط للتفصيل)</b></summary>
