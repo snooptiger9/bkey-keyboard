@@ -113,9 +113,10 @@ with a carefully tailored experience for each.
 
 ### 🔒 Privacy & security
 
-- No network access except for the GIF (KLIPY) and voice-typing features, and both are **fully
-  optional** — you can simply never use them, and the keyboard runs with zero internet connection
-  at all.
+- No network access except for the GIF (KLIPY) and voice-typing features. Voice typing is fully
+  optional and can be turned off entirely. The GIF tab has no on/off toggle, but it only ever
+  reaches the network when you actually open it to search — if you simply never use it, no GIF
+  traffic happens either.
 
 - Verification-code (OTP) suggestions **don't exist at all** in the base install — no SMS or
   notification permission whatsoever, and the keyboard can't read any message. It's only added if
@@ -169,7 +170,7 @@ You can update either from inside the app (Settings → **Update the app**) or b
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
 <br>
 
-No, never. All learning, correction and prediction happen locally on your device. The only network access is for the optional GIF and voice-typing features, and you can turn both off and run the keyboard with zero internet connection at all. Details in [Privacy & security](#en-privacy).
+No, never. All learning, correction and prediction happen locally on your device. The only network access is for the GIF and voice-typing features, and both only reach the network while you're actively using them — voice typing can also be turned off entirely in Settings. Details in [Privacy & security](#en-privacy).
 
 </details>
 
@@ -331,8 +332,9 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 <div dir="rtl">
 
-‏• لا يوجد اتصال بالإنترنت إلا لميزتي GIF (KLIPY) والكتابة بالصوت، وكلاهما **اختياري بالكامل** —
-  تقدر ما تستخدمهما إطلاقاً، ويبقى الكيبورد شغّال بدون أي اتصال بالإنترنت نهائياً.
+‏• لا يوجد اتصال بالإنترنت إلا لميزتي GIF (KLIPY) والكتابة بالصوت. الكتابة بالصوت اختيارية بالكامل
+  وتقدر توقفها نهائياً. أما تبويب GIF فما فيه زر تشغيل/إيقاف، لكنه ما يتصل بالإنترنت إلا لحظة ما
+  تفتحه وتبحث فيه فعلياً — إذا ما استخدمته أصلاً، ما فيه أي اتصال بسببه.
 
 ‏• اقتراح أكواد التحقق (OTP) **غير موجودة أصلاً** بالتثبيت الأساسي — ما فيه صلاحية رسائل ولا إشعارات إطلاقاً،
   والكيبورد ما يقدر يقرأ أي رسالة نهائياً. تضاف فقط إذا المستخدم نفسه طلبها ونزّل تحديثها من داخل التطبيق،
@@ -391,7 +393,7 @@ If you like the project and want to support it, you can send a tip via PayPal:
 <summary><b>هل الكيبورد يرسل أي بيانات أو كلمات أكتبها للإنترنت؟</b></summary>
 <br>
 
-لا إطلاقاً. كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك فقط. الاتصال بالإنترنت الوحيد هو لميزتي GIF والكتابة بالصوت الاختياريتين، وتقدر توقفهما وتستخدم الكيبورد بدون أي اتصال نهائياً. التفاصيل بقسم [الخصوصية والأمان](#ar-privacy).
+لا إطلاقاً. كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك فقط. الاتصال بالإنترنت الوحيد هو لميزتي GIF والكتابة بالصوت، وكلاهما ما يتصل بالإنترنت إلا وقت استخدامهم الفعلي — والكتابة بالصوت تقدر توقفها نهائياً من الإعدادات. التفاصيل بقسم [الخصوصية والأمان](#ar-privacy).
 
 </details>
 
