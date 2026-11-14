@@ -1462,6 +1462,8 @@ public class BlackBerryKeyboardView extends View {
                     float prevSize = mainTextPaint.getTextSize();
                     if (k.type == KeyType.SYMBOLS) {
                         mainTextPaint.setTextSize(15f * scaledDensity);
+                    } else if (k.type == KeyType.BACKSPACE) {
+                        mainTextPaint.setTextSize(prevSize * 0.9f);
                     }
                     String displayLabel = k.main;
                     if (!isArabic && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
@@ -1950,9 +1952,12 @@ public class BlackBerryKeyboardView extends View {
         // Tiny drawn face in the corner hints that a long-press on this key opens the emoji panel
         // — a small drawing like the key's other corner marks, not a real emoji character.
         // Placed in the top-right corner, well inside the key's edges so it never pokes outside it.
-        float badgeR = 3.0f * density;
-        float bcx = rect.right - badgeR - 3.2f * density;
-        float bcy = rect.top + badgeR + 3.2f * density;
+        // rect is the key's raw layout cell, before the per-style gap/inset that's actually drawn
+        // as the visible key surface — so the margin here has to clear that inset too, not just
+        // the badge's own radius, or the badge ends up drawn above/outside the visible key.
+        float badgeR = 2.6f * density;
+        float bcx = rect.right - badgeR - 6.5f * density;
+        float bcy = rect.top + badgeR + 7.5f * density;
         float prevBadgeW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevBadgeStyle = iconStrokePaint.getStyle();
         iconStrokePaint.setStrokeWidth(1.1f * density);

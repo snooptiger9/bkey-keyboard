@@ -2517,6 +2517,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         menuLp.leftMargin = clampedLeft;
         menuLp.topMargin = anchorBottom + dp(4);
         menu.setLayoutParams(menuLp);
+        // Hidden until its final position below is settled, so it never flashes at this
+        // placeholder spot (below the anchor) for a frame before jumping to where it actually
+        // belongs — that one-frame jump was the "flicker" between the two positions.
+        menu.setVisibility(View.INVISIBLE);
 
         overlay.addView(menu);
         rootContainer.addView(overlay);
@@ -2531,6 +2535,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 lp.topMargin = Math.max(dp(4), anchorTop - menuH - dp(4));
                 menu.setLayoutParams(lp);
             }
+            menu.setVisibility(View.VISIBLE);
         });
     }
 
