@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BlackBerryGboardKeyboard"
+rootProject.name = "bkey"
 include ':app'
