@@ -1893,6 +1893,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int labelC()     { return keyboardView != null ? keyboardView.getKeyLabelColor() : Color.WHITE; }
     private int subC()       { return (labelC() & 0x00FFFFFF) | 0xA0000000; }
     private int pillC()      { return (labelC() & 0x00FFFFFF) | 0x33000000; }
+    private int pillCLight() { return (labelC() & 0x00FFFFFF) | 0x18000000; }
 
     private int floatingPillC() {
         int rgb = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleColor() : 0x000000;
@@ -2016,8 +2017,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
             delWrap.setBackground(buildFloatingCapsuleDrawable());
 
-            ModernIconView delIcon = new ModernIconView(this, ModernIconView.ICON_BACKSPACE, labelColor, Color.TRANSPARENT);
-            delIcon.setStyle(0.95f, 1.8f);
+            TextView delIcon = new TextView(this);
+            delIcon.setText("⌫");
+            delIcon.setTextColor(labelColor);
+            delIcon.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+            delIcon.setGravity(Gravity.CENTER);
             delIcon.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             delWrap.addView(delIcon);
             delWrap.setOnClickListener(v -> {
@@ -2163,7 +2167,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         titleBox.addView(titleRow);
 
         ModernIconView settingsIconBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR,
-                labelC(), pillC());
+                labelC(), pillCLight());
         settingsIconBtn.setStyle(0.72f, 1.9f);
         LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(46), dp(46));
         lpSet.leftMargin = dp(10);
@@ -2175,7 +2179,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         ModernIconView micIconBtn = new ModernIconView(this, ModernIconView.ICON_MIC,
-                labelC(), pillC());
+                labelC(), pillCLight());
         micIconBtn.setStyle(0.72f, 1.9f);
         LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(46), dp(46));
         lpMic.leftMargin = dp(10);
@@ -2188,7 +2192,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
-                labelC(), pillC());
+                labelC(), pillCLight());
         resizeIconBtn.setStyle(0.72f, 1.9f);
         LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(46), dp(46));
         lpRes.leftMargin = dp(10);

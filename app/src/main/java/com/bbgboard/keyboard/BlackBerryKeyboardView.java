@@ -1448,8 +1448,6 @@ public class BlackBerryKeyboardView extends View {
                     drawShiftKeyIcon(canvas, k.rect);
                 } else if (k.type == KeyType.LANGUAGE && emojiKeySuggestion == null) {
                     drawGlobeIcon(canvas, k.rect);
-                } else if (k.type == KeyType.BACKSPACE) {
-                    drawBackspaceIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
 
                     float prevSize = mainTextPaint.getTextSize();
