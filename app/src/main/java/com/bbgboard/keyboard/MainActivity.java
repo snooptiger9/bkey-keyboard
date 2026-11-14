@@ -554,10 +554,10 @@ public class MainActivity extends Activity {
                 tr("تحديث التطبيق", "Update the app"),
                 tr("الإصدار " + BuildConfig.VERSION_NAME
                                 + (BuildConfig.OTP_FEATURES_ENABLED ? " • نسخة كاملة (OTP مفعّلة)" : " • نسخة عادية (بدون OTP)")
-                                + " • اضغط لتنزيل أي تحديث جديد",
+                                + "\nاضغط لتنزيل أي تحديث جديد",
                         "Version " + BuildConfig.VERSION_NAME
                                 + (BuildConfig.OTP_FEATURES_ENABLED ? " • Full build (OTP enabled)" : " • Basic build (no OTP)")
-                                + " • tap to download the latest update"),
+                                + "\ntap to download the latest update"),
                 true,
                 this::checkForAppUpdate
         ));
