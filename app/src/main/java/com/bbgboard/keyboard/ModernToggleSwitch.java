@@ -115,8 +115,8 @@ public class ModernToggleSwitch extends View {
         super.onDraw(canvas);
         float w = getWidth();
         float h = getHeight();
-        float pad = 2.4f * density;
-        trackRect.set(pad, h * 0.20f, w - pad, h * 0.80f);
+        float pad = 1.5f * density;
+        trackRect.set(pad, h * 0.08f, w - pad, h * 0.92f);
 
         int trackColor = blendColor(trackOffColor, trackOnColor, thumbPos);
         trackPaint.setColor(trackColor);
@@ -124,10 +124,13 @@ public class ModernToggleSwitch extends View {
         float trackRadius = trackRect.height() / 2f;
         canvas.drawRoundRect(trackRect, trackRadius, trackRadius, trackPaint);
 
+        // Keep the thumb strictly inside the track (same inset on every side at both ends),
+        // so its rounded edge never pokes past the track's own rounded cap.
         boolean rtl = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
-        float thumbRadius = h * 0.40f;
-        float travel = w - pad * 2f - thumbRadius * 2f;
-        float startX = pad + thumbRadius;
+        float thumbInset = 2.2f * density;
+        float thumbRadius = trackRadius - thumbInset;
+        float travel = trackRect.width() - thumbInset * 2f - thumbRadius * 2f;
+        float startX = trackRect.left + thumbInset + thumbRadius;
         float logicalX = startX + travel * thumbPos;
         float thumbCx = rtl ? (w - logicalX) : logicalX;
         float thumbCy = h / 2f;
