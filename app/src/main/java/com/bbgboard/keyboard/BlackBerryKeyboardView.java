@@ -1949,9 +1949,10 @@ public class BlackBerryKeyboardView extends View {
 
         // Tiny drawn face in the corner hints that a long-press on this key opens the emoji panel
         // — a small drawing like the key's other corner marks, not a real emoji character.
-        float badgeR = 3.3f * density;
-        float bcx = rect.right - badgeR - 2.2f * density;
-        float bcy = rect.bottom - badgeR - 2.2f * density;
+        // Placed in the top-right corner, well inside the key's edges so it never pokes outside it.
+        float badgeR = 3.0f * density;
+        float bcx = rect.right - badgeR - 3.2f * density;
+        float bcy = rect.top + badgeR + 3.2f * density;
         float prevBadgeW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevBadgeStyle = iconStrokePaint.getStyle();
         iconStrokePaint.setStrokeWidth(1.1f * density);
