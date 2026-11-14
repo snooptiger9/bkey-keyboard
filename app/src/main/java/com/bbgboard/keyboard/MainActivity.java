@@ -165,7 +165,22 @@ public class MainActivity extends Activity {
      * screens. Overriding it at runtime keeps that gap the same color as the current mode.
      */
     private void applyWindowBackground() {
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor(dm("#F2F4F8"))));
+        int color = Color.parseColor(dm("#F2F4F8"));
+        getWindow().setBackgroundDrawable(new ColorDrawable(color));
+
+        // The system navigation bar (gesture/button bar) at the very bottom of the screen is
+        // drawn by the Window itself, outside our view hierarchy, so it stays its default light
+        // color unless we color it to match -- otherwise it shows as a bright strip under dark
+        // mode. Same fix already applied to the keyboard's own window in applyNavigationBarColor().
+        getWindow().setNavigationBarColor(color);
+        View decor = getWindow().getDecorView();
+        int flags = decor.getSystemUiVisibility();
+        if (prefs.isAppDarkMode()) {
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        } else {
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        }
+        decor.setSystemUiVisibility(flags);
     }
 
     private GradientDrawable roundedCard(String fillHex, int radiusDp) {
