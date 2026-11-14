@@ -21,10 +21,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -179,6 +177,24 @@ public class MainActivity extends Activity {
         gd.setCornerRadius(dp(radiusDp));
         gd.setStroke(dp(1), Color.parseColor(borderHex));
         return gd;
+    }
+
+    /** Flat, rounded, ripple-feedback button background — the one consistent button look across every settings screen. */
+    private android.graphics.drawable.Drawable rippleRounded(String fillHex, int radiusDp) {
+        GradientDrawable base = roundedCard(fillHex, radiusDp);
+        android.content.res.ColorStateList rippleColor =
+                android.content.res.ColorStateList.valueOf(Color.argb(55, 255, 255, 255));
+        return new android.graphics.drawable.RippleDrawable(rippleColor, base, base);
+    }
+
+    /** Applies the app's single modern flat-button style (no shadow, ripple feedback, consistent radius/typeface). */
+    private void styleModernButton(Button btn, String fillHex) {
+        btn.setBackground(rippleRounded(fillHex, 14));
+        btn.setAllCaps(false);
+        btn.setTextColor(Color.WHITE);
+        btn.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        btn.setStateListAnimator(null);
+        btn.setElevation(0f);
     }
 
     @Override
@@ -357,7 +373,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         TextView pageTitle = new TextView(this);
-        pageTitle.setText(tr("إعدادات الكيبورد", "Keyboard settings"));
+        pageTitle.setText(tr("الإعدادات", "Settings"));
         pageTitle.setTextColor(Color.parseColor(dm("#1F2937")));
         pageTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f);
         pageTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
@@ -367,10 +383,11 @@ public class MainActivity extends Activity {
 
         boolean darkNow = prefs.isAppDarkMode();
         ModernIconView themeToggleBtn = new ModernIconView(this,
-                darkNow ? ModernIconView.ICON_CRESCENT_MOON : ModernIconView.ICON_SUN,
-                Color.parseColor(dm("#2563EB")), Color.TRANSPARENT);
-        themeToggleBtn.setStyle(0.85f, 2.0f);
-        LinearLayout.LayoutParams lpToggle = new LinearLayout.LayoutParams(dp(40), dp(40));
+                ModernIconView.ICON_CRESCENT_MOON,
+                Color.parseColor(dm("#2563EB")), Color.parseColor(dm("#EFF6FF")));
+        themeToggleBtn.setFilled(darkNow);
+        themeToggleBtn.setStyle(0.78f, 2.0f);
+        LinearLayout.LayoutParams lpToggle = new LinearLayout.LayoutParams(dp(42), dp(42));
         lpToggle.leftMargin = dp(6);
         lpToggle.rightMargin = dp(6);
         themeToggleBtn.setLayoutParams(lpToggle);
@@ -893,10 +910,13 @@ public class MainActivity extends Activity {
             textCol.addView(sub);
         }
 
-        Switch sw = new Switch(this);
+        ModernToggleSwitch sw = new ModernToggleSwitch(this);
+        sw.setColors(
+                Color.parseColor(dm("#2563EB")), Color.parseColor(dm("#D1D5DB")),
+                Color.parseColor(dm("#2563EB")), Color.parseColor(dm("#9CA3AF")));
         sw.setChecked(checked);
         sw.setEnabled(enabled);
-        sw.setOnCheckedChangeListener((buttonView, isChecked) -> listener.onToggle(isChecked));
+        sw.setOnToggleListener(listener::onToggle);
         LinearLayout.LayoutParams lpSw = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lpSw.leftMargin = dp(10);
         sw.setLayoutParams(lpSw);
@@ -911,32 +931,78 @@ public class MainActivity extends Activity {
         void onSelected(int index);
     }
 
+    /** Modern selectable-card list (highlighted card + check-circle) — replaces plain radio buttons everywhere they were used. */
     private LinearLayout createExclusiveRadioList(String[] options, int selectedIndex, final SingleChoiceCallback callback) {
         LinearLayout listLayout = new LinearLayout(this);
         listLayout.setOrientation(LinearLayout.VERTICAL);
-        final List<RadioButton> buttons = new ArrayList<>();
+        final List<LinearLayout> rows = new ArrayList<>();
+        final List<TextView> labels = new ArrayList<>();
+        final List<TextView> checks = new ArrayList<>();
 
         for (int i = 0; i < options.length; i++) {
             final int idx = i;
-            final RadioButton rb = new RadioButton(this);
-            rb.setId(View.generateViewId());
-            rb.setText(options[i]);
-            rb.setTextColor(Color.parseColor(dm("#1F2937")));
-            rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-            rb.setPadding(dp(8), dp(10), dp(8), dp(10));
-            rb.setChecked(i == selectedIndex);
+            boolean sel = (i == selectedIndex);
 
-            rb.setOnClickListener(v -> {
-                for (int j = 0; j < buttons.size(); j++) {
-                    buttons.get(j).setChecked(j == idx);
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setBackground(roundedCard(sel ? dm("#EFF6FF") : dm("#FFFFFF"), 12));
+            row.setPadding(dp(14), dp(12), dp(14), dp(12));
+            LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lpRow.bottomMargin = dp(8);
+            row.setLayoutParams(lpRow);
+
+            TextView label = new TextView(this);
+            label.setText(options[i]);
+            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+            label.setTextColor(Color.parseColor(sel ? dm("#2563EB") : dm("#1F2937")));
+            label.setTypeface(sel ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+            label.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            row.addView(label);
+
+            TextView check = new TextView(this);
+            check.setText(sel ? "✓" : "");
+            check.setTextColor(Color.WHITE);
+            check.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+            check.setGravity(Gravity.CENTER);
+            check.setTypeface(Typeface.DEFAULT_BOLD);
+            check.setBackground(circleIndicator(sel));
+            LinearLayout.LayoutParams lpCheck = new LinearLayout.LayoutParams(dp(22), dp(22));
+            lpCheck.leftMargin = dp(10);
+            check.setLayoutParams(lpCheck);
+            row.addView(check);
+
+            row.setOnClickListener(v -> {
+                for (int j = 0; j < rows.size(); j++) {
+                    boolean s = (j == idx);
+                    rows.get(j).setBackground(roundedCard(s ? dm("#EFF6FF") : dm("#FFFFFF"), 12));
+                    labels.get(j).setTextColor(Color.parseColor(s ? dm("#2563EB") : dm("#1F2937")));
+                    labels.get(j).setTypeface(s ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+                    checks.get(j).setText(s ? "✓" : "");
+                    checks.get(j).setBackground(circleIndicator(s));
                 }
                 callback.onSelected(idx);
             });
 
-            buttons.add(rb);
-            listLayout.addView(rb);
+            rows.add(row);
+            labels.add(label);
+            checks.add(check);
+            listLayout.addView(row);
         }
         return listLayout;
+    }
+
+    private GradientDrawable circleIndicator(boolean selected) {
+        GradientDrawable gd = new GradientDrawable();
+        gd.setShape(GradientDrawable.OVAL);
+        if (selected) {
+            gd.setColor(Color.parseColor(dm("#2563EB")));
+        } else {
+            gd.setColor(Color.TRANSPARENT);
+            gd.setStroke(dp(1), Color.parseColor(dm("#D1D5DB")));
+        }
+        return gd;
     }
 
     private void setLanguagesEnabled(boolean arabicOn, boolean englishOn) {
@@ -958,14 +1024,6 @@ public class MainActivity extends Activity {
     }
 
     private void fillLanguagesScreen(final LinearLayout root) {
-
-        TextView langModeHeader = new TextView(this);
-        langModeHeader.setText(tr("اللغات المفعّلة:", "Enabled languages:"));
-        langModeHeader.setTextColor(Color.parseColor(dm("#111827")));
-        langModeHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        langModeHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        langModeHeader.setPadding(dp(4), 0, dp(4), dp(8));
-        root.addView(langModeHeader);
 
         TextView langModeNote = new TextView(this);
         langModeNote.setText(tr(
@@ -1593,9 +1651,7 @@ public class MainActivity extends Activity {
 
         Button btnTrain = new Button(this);
         btnTrain.setText(tr("حفظ وتدريب التوقعات على هذه الجملة", "Save & train predictions on this sentence"));
-        btnTrain.setAllCaps(false);
-        btnTrain.setTextColor(Color.WHITE);
-        btnTrain.setBackground(roundedCard(dm("#2563EB"), 12));
+        styleModernButton(btnTrain, dm("#2563EB"));
         LinearLayout.LayoutParams lpTr = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
         lpTr.topMargin = dp(8);
         btnTrain.setLayoutParams(lpTr);
@@ -1611,9 +1667,7 @@ public class MainActivity extends Activity {
 
         Button btnClear = new Button(this);
         btnClear.setText(tr("مسح جميع الكلمات المتعلمة", "Clear all learned words"));
-        btnClear.setAllCaps(false);
-        btnClear.setTextColor(Color.WHITE);
-        btnClear.setBackground(roundedCard(dm("#DC2626"), 12));
+        styleModernButton(btnClear, dm("#DC2626"));
         LinearLayout.LayoutParams lpCl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
         lpCl.topMargin = dp(8);
         btnClear.setLayoutParams(lpCl);
@@ -1759,9 +1813,7 @@ public class MainActivity extends Activity {
 
             Button downloadBtn = new Button(this);
             downloadBtn.setText(tr("⬇️ تنزيل التحديث (النسخة الكاملة)", "⬇️ Download the update (full build)"));
-            downloadBtn.setAllCaps(false);
-            downloadBtn.setTextColor(Color.WHITE);
-            downloadBtn.setBackground(roundedCard(dm("#2563EB"), 12));
+            styleModernButton(downloadBtn, dm("#2563EB"));
             LinearLayout.LayoutParams lpDl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46));
             lpDl.topMargin = dp(14);
             downloadBtn.setLayoutParams(lpDl);
@@ -2299,9 +2351,7 @@ public class MainActivity extends Activity {
 
         Button btnAdd = new Button(this);
         btnAdd.setText(tr("+ إضافة وتثبيت في الحافظة", "+ Add & pin to clipboard"));
-        btnAdd.setAllCaps(false);
-        btnAdd.setTextColor(Color.WHITE);
-        btnAdd.setBackground(roundedCard(dm("#059669"), 12));
+        styleModernButton(btnAdd, dm("#059669"));
         LinearLayout.LayoutParams lpAdd = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
         lpAdd.topMargin = dp(8);
         btnAdd.setLayoutParams(lpAdd);
@@ -2403,9 +2453,7 @@ public class MainActivity extends Activity {
 
         Button btnSaveSc = new Button(this);
         btnSaveSc.setText(tr("+ حفظ الاختصار", "+ Save shortcut"));
-        btnSaveSc.setAllCaps(false);
-        btnSaveSc.setTextColor(Color.WHITE);
-        btnSaveSc.setBackground(roundedCard(dm("#059669"), 10));
+        styleModernButton(btnSaveSc, dm("#059669"));
         LinearLayout.LayoutParams lpBtn = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
         lpBtn.topMargin = dp(8);
         btnSaveSc.setLayoutParams(lpBtn);
