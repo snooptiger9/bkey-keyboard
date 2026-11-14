@@ -2224,9 +2224,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         header.addView(titleBox);
-        header.addView(micIconBtn);
         header.addView(settingsIconBtn);
         header.addView(resizeIconBtn);
+        header.addView(micIconBtn);
         header.addView(backIconBtn);
         container.addView(header);
 
