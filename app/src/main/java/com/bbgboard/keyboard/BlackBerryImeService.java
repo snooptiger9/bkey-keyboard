@@ -2152,9 +2152,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         titleRow.setGravity(Gravity.CENTER_VERTICAL);
         titleRow.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
 
+        // Slightly dimmed from full brightness (its stroke was also noticeably thicker/
+        // bolder-looking than the other icons here), but kept clearly more opaque than the
+        // mic/settings/resize icons' own dimmed color, so it still reads as the primary icon.
+        int clipIconC = (labelC() & 0x00FFFFFF) | 0xCC000000;
         ModernIconView clipTitleIcon = new ModernIconView(this, ModernIconView.ICON_CLIPBOARD_PAD,
-                labelC(), Color.TRANSPARENT);
-        LinearLayout.LayoutParams lpClipIcon = new LinearLayout.LayoutParams(dp(28), dp(28));
+                clipIconC, Color.TRANSPARENT);
+        clipTitleIcon.setStyle(1f, 1.6f);
+        LinearLayout.LayoutParams lpClipIcon = new LinearLayout.LayoutParams(dp(32), dp(32));
         lpClipIcon.rightMargin = dp(6);
         clipTitleIcon.setLayoutParams(lpClipIcon);
         titleRow.addView(clipTitleIcon);
