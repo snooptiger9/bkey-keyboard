@@ -1448,6 +1448,8 @@ public class BlackBerryKeyboardView extends View {
                     drawShiftKeyIcon(canvas, k.rect);
                 } else if (k.type == KeyType.LANGUAGE && emojiKeySuggestion == null) {
                     drawGlobeIcon(canvas, k.rect);
+                } else if (k.type == KeyType.BACKSPACE) {
+                    drawBackspaceIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
 
                     float prevSize = mainTextPaint.getTextSize();
@@ -1462,10 +1464,6 @@ public class BlackBerryKeyboardView extends View {
                     float prevSize = mainTextPaint.getTextSize();
                     if (k.type == KeyType.SYMBOLS) {
                         mainTextPaint.setTextSize(15f * scaledDensity);
-                    } else if (k.type == KeyType.BACKSPACE) {
-                        // The ⌫ glyph's built-in "x" mark scales with the whole character —
-                        // a smaller size here keeps that x small and neat instead of oversized.
-                        mainTextPaint.setTextSize(17f * scaledDensity);
                     }
                     String displayLabel = k.main;
                     if (!isArabic && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
@@ -1959,6 +1957,38 @@ public class BlackBerryKeyboardView extends View {
         canvas.drawText("😀", rect.right - 3f * density, rect.bottom - 2.5f * density, mainTextPaint);
         mainTextPaint.setTextSize(prevMainSize);
         mainTextPaint.setTextAlign(prevAlign);
+    }
+
+    /**
+     * Drawn arrow-box + small "x" instead of the plain ⌫ glyph, so the box stays full key size
+     * while only the x mark (a fixed small fraction of it) stays small — the two can't be sized
+     * independently when it's a single rendered character.
+     */
+    private void drawBackspaceIcon(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+        float r = 8.6f * density;
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.8f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+
+        Path body = new Path();
+        body.moveTo(cx + r * 0.72f, cy - r * 0.55f);
+        body.lineTo(cx - r * 0.05f, cy - r * 0.55f);
+        body.lineTo(cx - r * 0.75f, cy);
+        body.lineTo(cx - r * 0.05f, cy + r * 0.55f);
+        body.lineTo(cx + r * 0.72f, cy + r * 0.55f);
+        body.close();
+        canvas.drawPath(body, iconStrokePaint);
+
+        float k = r * 0.22f;
+        float xc = cx + r * 0.18f;
+        canvas.drawLine(xc - k, cy - k, xc + k, cy + k, iconStrokePaint);
+        canvas.drawLine(xc - k, cy + k, xc + k, cy - k, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
     }
 
     private void drawEmojiIcon(Canvas canvas, RectF rect) {
