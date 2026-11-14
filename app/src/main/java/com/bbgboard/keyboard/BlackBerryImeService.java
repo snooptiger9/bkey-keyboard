@@ -668,31 +668,58 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             curSelEnd = info.initialSelEnd;
         }
         updateLearningPolicy(info);
-        if (keyboardView != null) {
-            keyboardView.reloadAppearanceFromPrefs();
-            int actionId = info != null ? (info.imeOptions & EditorInfo.IME_MASK_ACTION) : EditorInfo.IME_ACTION_NONE;
-            boolean noEnterAction = info != null && (info.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0;
-            keyboardView.setEnterActionIcon(noEnterAction ? EditorInfo.IME_ACTION_NONE : actionId);
+        try {
+            if (keyboardView != null) {
+                keyboardView.reloadAppearanceFromPrefs();
+                int actionId = info != null ? (info.imeOptions & EditorInfo.IME_MASK_ACTION) : EditorInfo.IME_ACTION_NONE;
+                boolean noEnterAction = info != null && (info.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0;
+                keyboardView.setEnterActionIcon(noEnterAction ? EditorInfo.IME_ACTION_NONE : actionId);
+            }
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onStartInputView() appearance/enterIcon", e);
         }
 
         if (soundController != null) soundController.ensureLoaded();
-        rebuildDrawersIfThemeChanged();
-        applyNavigationBarColor();
-        applyOneHandedMode();
+
+        // Everything below rebuilds or re-colors views every single time the keyboard is shown
+        // again (closing a drawer, switching apps, coming back from background) -- this is the
+        // path that runs on EVERY reopen, so any uncaught exception here is exactly what leaves
+        // the keyboard window stuck on a blank/black surface with nothing in the error log,
+        // since onStartInputView() itself wasn't wrapped before. Each step now fails on its own
+        // without taking the rest of the reopen sequence down with it.
+        try {
+            rebuildDrawersIfThemeChanged();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onStartInputView() rebuildDrawersIfThemeChanged()", e);
+        }
+        try {
+            applyNavigationBarColor();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onStartInputView() applyNavigationBarColor()", e);
+        }
+        try {
+            applyOneHandedMode();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onStartInputView() applyOneHandedMode()", e);
+        }
         showKeyboardMain();
-        if (keyboardPrefs.isOtpSuggestEnabled()) {
-            registerOtpReceiverIfNeeded();
-        } else {
-            unregisterOtpReceiverIfNeeded();
-            pendingOtpCode = null;
+        try {
+            if (keyboardPrefs.isOtpSuggestEnabled()) {
+                registerOtpReceiverIfNeeded();
+            } else {
+                unregisterOtpReceiverIfNeeded();
+                pendingOtpCode = null;
+            }
+            if (!keyboardPrefs.isWhatsAppOtpSuggestEnabled()) {
+                keyboardPrefs.clearPendingWhatsAppOtp();
+            }
+            refreshPredictions();
+            registerShotObserverIfNeeded();
+            tryCaptureScreenshotClip(false);
+            setExtractViewShown(false);
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onStartInputView() tail", e);
         }
-        if (!keyboardPrefs.isWhatsAppOtpSuggestEnabled()) {
-            keyboardPrefs.clearPendingWhatsAppOtp();
-        }
-        refreshPredictions();
-        registerShotObserverIfNeeded();
-        tryCaptureScreenshotClip(false);
-        setExtractViewShown(false);
     }
 
     private VoiceInputController voiceController;
