@@ -172,26 +172,31 @@ public class ModernIconView extends View {
                 float ar = r * 0.82f;
                 RectF arcRect = new RectF(cx - ar, cy - ar, cx + ar, cy + ar);
                 float startAngle = -200f;
-                float sweep = 280f;
+                float sweep = 250f;
                 canvas.drawArc(arcRect, startAngle, sweep, false, strokePaint);
 
+                // The triangle's flat base straddles the exact point the arc stroke ends
+                // at (not behind it), and its point extends further out past the curve in
+                // the direction of travel -- a base placed behind the arc's end (as before)
+                // let the triangle overlap back onto the stroke itself, so the head read as
+                // a blurry blob instead of a clean, distinct arrowhead.
                 float endAngle = startAngle + sweep;
                 double endRad = Math.toRadians(endAngle);
-                float tipX = cx + (float) Math.cos(endRad) * ar;
-                float tipY = cy + (float) Math.sin(endRad) * ar;
+                float baseCx = cx + (float) Math.cos(endRad) * ar;
+                float baseCy = cy + (float) Math.sin(endRad) * ar;
                 double tangentRad = Math.toRadians(endAngle + 90f);
                 float dirX = (float) Math.cos(tangentRad);
                 float dirY = (float) Math.sin(tangentRad);
                 float perpX = -dirY;
                 float perpY = dirX;
-                float headLen = r * 0.46f;
-                float headWidth = r * 0.36f;
-                float baseX = tipX - dirX * headLen;
-                float baseY = tipY - dirY * headLen;
+                float headLen = r * 0.62f;
+                float headWidth = r * 0.44f;
+                float tipX = baseCx + dirX * headLen;
+                float tipY = baseCy + dirY * headLen;
                 Path arrowHead = new Path();
                 arrowHead.moveTo(tipX, tipY);
-                arrowHead.lineTo(baseX + perpX * headWidth, baseY + perpY * headWidth);
-                arrowHead.lineTo(baseX - perpX * headWidth, baseY - perpY * headWidth);
+                arrowHead.lineTo(baseCx + perpX * headWidth, baseCy + perpY * headWidth);
+                arrowHead.lineTo(baseCx - perpX * headWidth, baseCy - perpY * headWidth);
                 arrowHead.close();
                 canvas.drawPath(arrowHead, fillPaint);
                 break;
@@ -325,28 +330,31 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_TRASH: {
+                // Lid + body as ONE continuous path (corners are joins, not separate caps),
+                // and the handle floats with a small gap above the lid instead of touching
+                // it. Two separate stroked shapes meeting at the exact same point each get
+                // their own round end-cap stacked on the other's, which is what made this
+                // look like it was drawn twice before -- a single path has no such seam.
+                float lidY = cy - r * 0.5f;
+                float bodyBottomY = cy + r * 0.9f;
+                Path can = new Path();
+                can.moveTo(cx - r * 0.62f, bodyBottomY);
+                can.lineTo(cx - r * 0.85f, lidY);
+                can.lineTo(cx + r * 0.85f, lidY);
+                can.lineTo(cx + r * 0.62f, bodyBottomY);
+                canvas.drawPath(can, strokePaint);
 
-                float top = cy - r * 0.5f;
-                // Drawn as two separate lid segments (left + right of the handle), not one
-                // full-width line, so the handle's own verticals don't land exactly on top
-                // of an already-drawn stroke -- that coincident overlap at small icon sizes
-                // is what made the lid+handle corner look like it was drawn twice.
-                canvas.drawLine(cx - r * 0.85f, top, cx - r * 0.3f, top, strokePaint);
-                canvas.drawLine(cx + r * 0.3f, top, cx + r * 0.85f, top, strokePaint);
+                float handleGap = r * 0.14f;
+                float handleTopY = cy - r * 0.95f;
                 Path handle = new Path();
-                handle.moveTo(cx - r * 0.3f, top);
-                handle.lineTo(cx - r * 0.3f, cy - r * 0.85f);
-                handle.lineTo(cx + r * 0.3f, cy - r * 0.85f);
-                handle.lineTo(cx + r * 0.3f, top);
+                handle.moveTo(cx - r * 0.28f, lidY - handleGap);
+                handle.lineTo(cx - r * 0.28f, handleTopY);
+                handle.lineTo(cx + r * 0.28f, handleTopY);
+                handle.lineTo(cx + r * 0.28f, lidY - handleGap);
                 canvas.drawPath(handle, strokePaint);
-                Path body = new Path();
-                body.moveTo(cx - r * 0.62f, top);
-                body.lineTo(cx - r * 0.52f, cy + r * 0.9f);
-                body.lineTo(cx + r * 0.52f, cy + r * 0.9f);
-                body.lineTo(cx + r * 0.62f, top);
-                canvas.drawPath(body, strokePaint);
-                canvas.drawLine(cx - r * 0.2f, cy - r * 0.15f, cx - r * 0.2f, cy + r * 0.55f, strokePaint);
-                canvas.drawLine(cx + r * 0.2f, cy - r * 0.15f, cx + r * 0.2f, cy + r * 0.55f, strokePaint);
+
+                canvas.drawLine(cx - r * 0.2f, cy - r * 0.1f, cx - r * 0.2f, cy + r * 0.55f, strokePaint);
+                canvas.drawLine(cx + r * 0.2f, cy - r * 0.1f, cx + r * 0.2f, cy + r * 0.55f, strokePaint);
                 break;
             }
             case ICON_CLOSE: {

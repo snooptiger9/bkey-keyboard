@@ -395,7 +395,7 @@ public class MainActivity extends Activity {
         lpToggle.leftMargin = dp(6);
         lpToggle.rightMargin = dp(6);
         themeToggleBtn.setLayoutParams(lpToggle);
-        themeToggleBtn.setTranslationY(-dp(3));
+        themeToggleBtn.setTranslationY(-dp(8));
         themeToggleBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             prefs.setAppDarkMode(!prefs.isAppDarkMode());
@@ -2423,8 +2423,8 @@ public class MainActivity extends Activity {
             tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             ModernIconView del = new ModernIconView(this, ModernIconView.ICON_TRASH,
-                    Color.parseColor(dm("#DC2626")), Color.TRANSPARENT);
-            del.setStyle(0.85f, 1.9f);
+                    Color.parseColor(dm("#9CA3AF")), Color.TRANSPARENT);
+            del.setStyle(0.85f, 1.5f);
             LinearLayout.LayoutParams lpDel = new LinearLayout.LayoutParams(dp(20), dp(20));
             lpDel.leftMargin = dp(16);
             del.setLayoutParams(lpDel);
