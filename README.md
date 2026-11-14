@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="docs/images/banner.png" alt="bkey — BlackBerry-style Android keyboard, English and Arabic layouts" width="100%">
+  <img src="docs/images/banner.png" alt="bkey — Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures, English and Arabic layouts" width="100%">
 </p>
 
 # bkey ⌨️
 
-**A BlackBerry-style Android keyboard — swipe up to pick a suggestion, swipe left to delete.**
+**An Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures — swipe up to pick a suggestion, swipe left to delete.**
 
 ![Build](https://github.com/snooptiger9/bkey-keyboard/actions/workflows/build.yml/badge.svg)
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
@@ -19,10 +19,10 @@
 
 ### ✨ Overview
 
-**bkey** is an Android keyboard (IME) inspired by the classic BlackBerry physical keyboard, with a
-modern gesture twist: swipe up on any suggestion to accept it instantly, and swipe left across the
-letter row for quick deletion instead of repeated backspace taps. Fully supports Arabic and English
-with a carefully tailored experience for each.
+**bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
+Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
+instantly, and swipe left across the letter row for quick deletion instead of repeated backspace
+taps. Fully supports Arabic and English with a carefully tailored experience for each.
 
 <br>
 
@@ -232,9 +232,9 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 ### ✨ الوصف
 
-**bkey** كيبورد أندرويد (IME) مستوحى من أزرار بلاك بيري الفيزيائية الكلاسيكية، لكن بتفاعل حديث:
-اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب لليسار على صف الحروف للحذف بدل الضغط المتكرر
-على الباكسبيس. يدعم العربية والإنجليزية بالكامل مع تجربة مخصصة بعناية لكل لغة.
+**bkey** كيبورد أندرويد (IME) مبني على إيماءات السحب في تطبيق **BlackBerry Keyboard - Classic**،
+بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب لليسار على صف الحروف للحذف
+بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية بالكامل مع تجربة مخصصة بعناية لكل لغة.
 
 <br>
 
