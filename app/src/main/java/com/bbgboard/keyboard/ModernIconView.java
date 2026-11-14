@@ -264,12 +264,15 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_MIC: {
-                RectF body = new RectF(cx - r * 0.32f, cy - r * 0.92f, cx + r * 0.32f, cy + r * 0.20f);
-                canvas.drawRoundRect(body, r * 0.32f, r * 0.32f, strokePaint);
-                RectF cup = new RectF(cx - r * 0.62f, cy - r * 0.30f, cx + r * 0.62f, cy + r * 0.42f);
+                // Same exact proportions (in dp, not scaled by r) as the mic icon drawn on
+                // the main keyboard's suggestion bar, so this button reads as the same mic
+                // rather than a slightly different-looking generic one.
+                RectF body = new RectF(cx - 3.5f * density, cy - 9.2f * density, cx + 3.5f * density, cy + 2.6f * density);
+                canvas.drawRoundRect(body, 3.5f * density, 3.5f * density, strokePaint);
+                RectF cup = new RectF(cx - 6.8f * density, cy - 5.4f * density, cx + 6.8f * density, cy + 8.0f * density);
                 canvas.drawArc(cup, 0f, 180f, false, strokePaint);
-                canvas.drawLine(cx, cy + r * 0.42f, cx, cy + r * 0.92f, strokePaint);
-                canvas.drawLine(cx - r * 0.38f, cy + r * 0.92f, cx + r * 0.38f, cy + r * 0.92f, strokePaint);
+                canvas.drawLine(cx, cy + 8.0f * density, cx, cy + 9.8f * density, strokePaint);
+                canvas.drawLine(cx - 3.6f * density, cy + 9.8f * density, cx + 3.6f * density, cy + 9.8f * density, strokePaint);
                 break;
             }
             case ICON_EMOJI_SMILE: {

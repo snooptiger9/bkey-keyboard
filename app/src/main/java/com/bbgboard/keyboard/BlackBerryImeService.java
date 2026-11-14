@@ -2168,10 +2168,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         titleBox.addView(titleRow);
 
+        // Half-bright instead of the fully-opaque label color -- these three are
+        // secondary actions next to the clipboard title, not the main focus.
+        int dimIconC = (labelC() & 0x00FFFFFF) | 0x80000000;
+
         ModernIconView settingsIconBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR,
-                labelC(), pillCLight());
-        settingsIconBtn.setStyle(0.72f, 1.9f);
-        LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(46), dp(46));
+                dimIconC, pillCLight());
+        settingsIconBtn.setStyle(0.64f, 1.7f);
+        LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(40), dp(40));
         lpSet.leftMargin = dp(10);
         lpSet.rightMargin = dp(10);
         settingsIconBtn.setLayoutParams(lpSet);
@@ -2181,9 +2185,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         ModernIconView micIconBtn = new ModernIconView(this, ModernIconView.ICON_MIC,
-                labelC(), pillCLight());
-        micIconBtn.setStyle(0.72f, 1.9f);
-        LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(46), dp(46));
+                dimIconC, pillCLight());
+        micIconBtn.setStyle(0.64f, 1.7f);
+        LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(40), dp(40));
         lpMic.leftMargin = dp(10);
         lpMic.rightMargin = dp(10);
         micIconBtn.setLayoutParams(lpMic);
@@ -2194,9 +2198,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
-                labelC(), pillCLight());
-        resizeIconBtn.setStyle(0.72f, 1.9f);
-        LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(46), dp(46));
+                dimIconC, pillCLight());
+        resizeIconBtn.setStyle(0.64f, 1.7f);
+        LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(40), dp(40));
         lpRes.leftMargin = dp(10);
         lpRes.rightMargin = dp(10);
         resizeIconBtn.setLayoutParams(lpRes);
@@ -2220,8 +2224,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         header.addView(titleBox);
-        header.addView(settingsIconBtn);
         header.addView(micIconBtn);
+        header.addView(settingsIconBtn);
         header.addView(resizeIconBtn);
         header.addView(backIconBtn);
         container.addView(header);
