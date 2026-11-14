@@ -1998,6 +1998,19 @@ public class MainActivity extends Activity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
         sizeCard.addView(sizeSeek);
+
+        TextView clearBtn = new TextView(this);
+        clearBtn.setText(tr("مسح قسم «مستخدم حديثاً»", "Clear \"Recently used\" section"));
+        clearBtn.setTextColor(Color.parseColor(dm("#DC2626")));
+        clearBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        clearBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        clearBtn.setGravity(Gravity.CENTER);
+        clearBtn.setPadding(0, dp(14), 0, dp(4));
+        clearBtn.setOnClickListener(v -> {
+            prefs.clearRecentEmojis();
+            android.widget.Toast.makeText(this, tr("تم مسح الإيموجي الأخيرة", "Recent emojis cleared"), android.widget.Toast.LENGTH_SHORT).show();
+        });
+        sizeCard.addView(clearBtn);
         root.addView(sizeCard);
 
         LinearLayout capsuleCard = createGroupedWhiteCard();
@@ -2048,15 +2061,6 @@ public class MainActivity extends Activity {
                     v -> { prefs.setFloatingCapsuleColor(color); refreshEmojiScreen(root); }));
         }
         addTileGrid(capsuleCard, capsuleTiles, 2);
-
-        // Fixed at 28% now -- no more slider to change it.
-        final TextView opacityLabel = new TextView(this);
-        opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + prefs.getFloatingCapsuleOpacity() + "%");
-        opacityLabel.setTextColor(Color.parseColor(dm("#111827")));
-        opacityLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-        opacityLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        opacityLabel.setPadding(0, dp(12), 0, 0);
-        capsuleCard.addView(opacityLabel);
         root.addView(capsuleCard);
 
         updatePreviewRef[0] = () -> {
@@ -2068,22 +2072,6 @@ public class MainActivity extends Activity {
             previewPill.setColor((rgb) | (alpha << 24));
         };
         updatePreviewRef[0].run();
-
-        LinearLayout clearCard = createGroupedWhiteCard();
-        clearCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        TextView clearBtn = new TextView(this);
-        clearBtn.setText(tr("مسح قسم «مستخدم حديثاً»", "Clear \"Recently used\" section"));
-        clearBtn.setTextColor(Color.parseColor(dm("#DC2626")));
-        clearBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        clearBtn.setTypeface(Typeface.DEFAULT_BOLD);
-        clearBtn.setGravity(Gravity.CENTER);
-        clearBtn.setPadding(0, dp(8), 0, dp(8));
-        clearBtn.setOnClickListener(v -> {
-            prefs.clearRecentEmojis();
-            android.widget.Toast.makeText(this, tr("تم مسح الإيموجي الأخيرة", "Recent emojis cleared"), android.widget.Toast.LENGTH_SHORT).show();
-        });
-        clearCard.addView(clearBtn);
-        root.addView(clearCard);
     }
 
     private void openGesturesScreen() {
