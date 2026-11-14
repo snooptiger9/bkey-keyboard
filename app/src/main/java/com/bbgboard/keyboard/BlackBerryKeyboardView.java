@@ -205,6 +205,21 @@ public class BlackBerryKeyboardView extends View {
     private boolean isResizingDrag = false;
     private boolean longPressConsumed = false;
 
+    // Tracks the single finger that is allowed to drive the tap/swipe gesture state
+    // (startX/startY/touchDownKey/isDragging...). When a second finger touches down
+    // while the first is still on the screen -- which happens when typing fast with
+    // two keys in the same row, the touches briefly overlapping -- both touches are
+    // resolved as independent taps right away and multiTouchResolved is set so every
+    // further move/lift from either finger is ignored until a fresh single-finger
+    // press begins. Without this, Android can reassign pointer index 0 from the
+    // finger that lifted to the finger still down, and the raw event.getX()/getY()
+    // (no pointer index) used everywhere below would then jump from one key's
+    // position to the other key's position with no matching ACTION_DOWN in between --
+    // which reads exactly like one long swipe across the row, misfiring swipe-delete-
+    // word or swipe-select-all and causing the random delete/selection.
+    private int activePointerId = -1;
+    private boolean multiTouchResolved = false;
+
     private KeyDef touchDownKey = null;
     private KeyDef visualPressedKey = null;
 
@@ -1971,7 +1986,7 @@ public class BlackBerryKeyboardView extends View {
         // that the visible key surface actually draws with — several styles (Pill, Glass, Outline,
         // Soft raised, Circles) round that corner enough that just clearing the straight edges
         // isn't enough; badgeCornerPos() follows the corner's own curve instead.
-        float badgeR = 2.6f * density;
+        float badgeR = 3.0f * density;
         float marginIn = 1.6f * density;
         float visLeft, visTop, visRight, visBottom, cornerR;
         if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
@@ -1994,6 +2009,10 @@ public class BlackBerryKeyboardView extends View {
         float bcx = badgePos[0], bcy = badgePos[1];
         float prevBadgeW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevBadgeStyle = iconStrokePaint.getStyle();
+        int prevBadgeColor = iconStrokePaint.getColor();
+        // Colored like the small alt-character hint (k.sub) instead of the main key-glyph
+        // color, so this badge reads as a subtle hint mark rather than a full icon.
+        iconStrokePaint.setColor(subTextPaint.getColor());
         iconStrokePaint.setStrokeWidth(1.1f * density);
         iconStrokePaint.setStyle(Paint.Style.STROKE);
         canvas.drawCircle(bcx, bcy, badgeR, iconStrokePaint);
@@ -2012,6 +2031,7 @@ public class BlackBerryKeyboardView extends View {
 
         iconStrokePaint.setStrokeWidth(prevBadgeW);
         iconStrokePaint.setStyle(prevBadgeStyle);
+        iconStrokePaint.setColor(prevBadgeColor);
     }
 
     /**
@@ -2420,6 +2440,9 @@ public class BlackBerryKeyboardView extends View {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
 
+                activePointerId = event.getPointerId(0);
+                multiTouchResolved = false;
+
                 if (isLongPressPopupVisible && longPressAwaitingTap) {
                     if (longPressPopupBoxRect.contains(x, y)) {
                         int idx = findLongPressOptionIndexAtX(x);
@@ -2517,7 +2540,70 @@ public class BlackBerryKeyboardView extends View {
                 }
                 return true;
 
+            case MotionEvent.ACTION_POINTER_DOWN: {
+                if (multiTouchResolved || isResizingDrag || isResizeDragMode) {
+                    return true;
+                }
+
+                handler.removeCallbacks(longPressRunnable);
+                handler.removeCallbacks(repeatBackspaceRunnable);
+                handler.removeCallbacks(suggestionLongPressRunnable);
+                handler.removeCallbacks(spaceCursorHoldRunnable);
+
+                if (isLongPressPopupVisible) {
+                    isLongPressPopupVisible = false;
+                    longPressAwaitingTap = false;
+                } else if (touchDownKey != null && !isDragging && !longPressConsumed) {
+                    KeyDef primaryKey = touchDownKey;
+                    vibrateTap(false);
+                    if (primaryKey.type == KeyType.BACKSPACE) {
+                        soundController.playBackspaceClick();
+                    } else {
+                        soundController.playKeyClick();
+                    }
+                    handleKeyTap(primaryKey);
+                }
+
+                touchDownKey = null;
+                visualPressedKey = null;
+                activePreviewKey = null;
+                isDragging = false;
+                spaceCursorModeActive = false;
+
+                int secondaryIndex = event.getActionIndex();
+                float sx = event.getX(secondaryIndex);
+                float sy = event.getY(secondaryIndex);
+                if (sy > sugBottom) {
+                    KeyDef secondaryKey = findKeyAt(sx, sy);
+                    if (secondaryKey != null) {
+                        bounceKey = secondaryKey;
+                        bounceStartTime = SystemClock.uptimeMillis();
+                        vibrateTap(false);
+                        if (secondaryKey.type == KeyType.BACKSPACE) {
+                            soundController.playBackspaceClick();
+                        } else {
+                            soundController.playKeyClick();
+                        }
+                        handleKeyTap(secondaryKey);
+                    }
+                }
+
+                multiTouchResolved = true;
+                invalidate();
+                return true;
+            }
+
+            case MotionEvent.ACTION_POINTER_UP:
+                // The lifted finger was already resolved as its own tap the moment the
+                // overlap was first detected (ACTION_POINTER_DOWN above); there is
+                // nothing left to do for it now, and reading its position here would
+                // risk the same pointer-index mixup this is meant to avoid.
+                return true;
+
             case MotionEvent.ACTION_MOVE:
+                if (multiTouchResolved) {
+                    return true;
+                }
                 lastTouchX = x;
                 float dxMove = x - startX;
                 float dyMove = y - startY;
@@ -2582,6 +2668,23 @@ public class BlackBerryKeyboardView extends View {
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (multiTouchResolved) {
+                    // Both touches of the overlap were already committed as their own
+                    // taps in ACTION_POINTER_DOWN. This final lift (now the only pointer
+                    // left) carries no gesture info we can trust -- its x/y may belong to
+                    // whichever finger Android kept, not to a matching ACTION_DOWN -- so
+                    // it is swallowed here instead of being run through the swipe checks.
+                    multiTouchResolved = false;
+                    touchDownKey = null;
+                    visualPressedKey = null;
+                    activePreviewKey = null;
+                    isDragging = false;
+                    isResizingDrag = false;
+                    resizeDoneButtonPressed = false;
+                    spaceCursorModeActive = false;
+                    invalidate();
+                    return true;
+                }
                 handler.removeCallbacks(longPressRunnable);
                 handler.removeCallbacks(repeatBackspaceRunnable);
                 handler.removeCallbacks(suggestionLongPressRunnable);
