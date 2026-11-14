@@ -1953,11 +1953,34 @@ public class BlackBerryKeyboardView extends View {
         // — a small drawing like the key's other corner marks, not a real emoji character.
         // Placed in the top-right corner, well inside the key's edges so it never pokes outside it.
         // rect is the key's raw layout cell, before the per-style gap/inset that's actually drawn
-        // as the visible key surface — so the margin here has to clear that inset too, not just
-        // the badge's own radius, or the badge ends up drawn above/outside the visible key.
+        // as the visible key surface, and that surface's shape differs per keyboard style (a plain
+        // inset rounded-rect for most styles, but an actual circle/pill for STYLE_CIRCLES) — so the
+        // badge position has to be computed per style, not as one fixed offset from the raw corner.
         float badgeR = 2.6f * density;
-        float bcx = rect.right - badgeR - 6.5f * density;
-        float bcy = rect.top + badgeR + 7.5f * density;
+        float marginIn = 1.6f * density;
+        float bcx, bcy;
+        if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
+            float w = rect.width(), h = rect.height();
+            float d = Math.min(w, h) - 6f * density;
+            if (w <= h * 1.1f) {
+                float radius = d / 2f;
+                double theta = Math.toRadians(50);
+                float dist = Math.max(0f, radius - badgeR - marginIn);
+                bcx = cx + dist * (float) Math.sin(theta);
+                bcy = cy - dist * (float) Math.cos(theta);
+            } else {
+                float dHalf = d / 2f;
+                float hpad = 3f * density;
+                float flatRight = rect.right - hpad - dHalf;
+                float flatTop = cy - dHalf;
+                bcx = flatRight - badgeR - marginIn;
+                bcy = flatTop + badgeR + marginIn;
+            }
+        } else {
+            float[] inset = keyVisibleInsetTopRight(KeyType.LANGUAGE);
+            bcx = rect.right - inset[0] - badgeR - marginIn;
+            bcy = rect.top + inset[1] + badgeR + marginIn;
+        }
         float prevBadgeW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevBadgeStyle = iconStrokePaint.getStyle();
         iconStrokePaint.setStrokeWidth(1.1f * density);
@@ -2055,6 +2078,40 @@ public class BlackBerryKeyboardView extends View {
         if (soft) return 4.0f;
         boolean letterRowKey = type == KeyType.CHAR || type == KeyType.SHIFT || type == KeyType.BACKSPACE;
         return letterRowKey ? 5.9f : 4.0f;
+    }
+
+    /**
+     * How far the key's actually-drawn surface sits inside its raw layout cell for the current
+     * keyboard style, as {horizontalInset, topInset} — mirrors the per-style insets used in
+     * drawStyledKeyCell(). Used to keep the globe key's corner badge inside the visible key
+     * regardless of which style is active. Not valid for STYLE_CIRCLES, whose visible shape is a
+     * circle/pill rather than an inset rect — that style is handled separately by its caller.
+     */
+    private float[] keyVisibleInsetTopRight(KeyType type) {
+        final float gx = tabletKeyGapX;
+        final float gy = tabletKeyGapY + (isNumericFieldMode ? -1.9f * density : 0f);
+        switch (keyboardStyle) {
+            case KeyboardPreferences.STYLE_GBOARD_MATERIAL:
+                return new float[]{2.0f * density + gx, materialTopInsetDp(type, false) * density + gy};
+            case KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND:
+                return new float[]{2.6f * density + gx, materialTopInsetDp(type, true) * density + gy};
+            case KeyboardPreferences.STYLE_GBOARD_BORDERLESS:
+                return new float[]{3.0f * density + gx, 4.5f * density + gy};
+            case KeyboardPreferences.STYLE_OUTLINED:
+                return new float[]{3.2f * density + gx, 4.2f * density + gy};
+            case KeyboardPreferences.STYLE_KEYCAP_3D:
+                return new float[]{2.8f * density + gx, 3.2f * density + gy};
+            case KeyboardPreferences.STYLE_SOFT_RAISED:
+                return new float[]{2.6f * density + gx, 3.6f * density + gy};
+            case KeyboardPreferences.STYLE_GLASS:
+                return new float[]{2.8f * density + gx, 3.8f * density + gy};
+            case KeyboardPreferences.STYLE_GBOARD_ROUNDED:
+                return new float[]{2.6f * density + gx, 3.6f * density + gy};
+            case KeyboardPreferences.STYLE_MODERN_PILL:
+                return new float[]{3.2f * density + gx, 4.5f * density + gy};
+            default:
+                return new float[]{0f, 0f};
+        }
     }
 
     public void setVoiceListening(boolean listening) {
