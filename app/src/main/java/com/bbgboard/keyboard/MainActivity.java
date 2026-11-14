@@ -2272,6 +2272,9 @@ public class MainActivity extends Activity {
             prefs.setSoundProfile(soundOrder[idx]);
             soundController.playKeyClick();
         }));
+        // Closer to the swipe-tone card right below it than the default card spacing --
+        // the two belong together (steps 1 and 2 of the same "pick your tones" task).
+        ((LinearLayout.LayoutParams) keySoundCard.getLayoutParams()).bottomMargin = dp(6);
         root.addView(keySoundCard);
 
         LinearLayout swipeSoundCard = createGroupedWhiteCard();
