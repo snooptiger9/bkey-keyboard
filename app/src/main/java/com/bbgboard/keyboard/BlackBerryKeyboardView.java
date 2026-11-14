@@ -1462,6 +1462,10 @@ public class BlackBerryKeyboardView extends View {
                     float prevSize = mainTextPaint.getTextSize();
                     if (k.type == KeyType.SYMBOLS) {
                         mainTextPaint.setTextSize(15f * scaledDensity);
+                    } else if (k.type == KeyType.BACKSPACE) {
+                        // The ⌫ glyph's built-in "x" mark scales with the whole character —
+                        // a smaller size here keeps that x small and neat instead of oversized.
+                        mainTextPaint.setTextSize(17f * scaledDensity);
                     }
                     String displayLabel = k.main;
                     if (!isArabic && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
@@ -1946,6 +1950,15 @@ public class BlackBerryKeyboardView extends View {
 
         iconStrokePaint.setStrokeWidth(prevW);
         iconStrokePaint.setStyle(prevStyle);
+
+        // Small emoji badge in the corner hints that a long-press on this key opens the emoji panel.
+        float prevMainSize = mainTextPaint.getTextSize();
+        Paint.Align prevAlign = mainTextPaint.getTextAlign();
+        mainTextPaint.setTextSize(9f * scaledDensity);
+        mainTextPaint.setTextAlign(Paint.Align.RIGHT);
+        canvas.drawText("😀", rect.right - 3f * density, rect.bottom - 2.5f * density, mainTextPaint);
+        mainTextPaint.setTextSize(prevMainSize);
+        mainTextPaint.setTextAlign(prevAlign);
     }
 
     private void drawEmojiIcon(Canvas canvas, RectF rect) {
