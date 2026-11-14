@@ -384,7 +384,8 @@ public class ModernIconView extends View {
                 Path cut = new Path();
                 cut.addCircle(cx + r * 0.42f, cy - r * 0.30f, r * 0.72f, Path.Direction.CW);
                 full.op(cut, Path.Op.DIFFERENCE);
-                canvas.drawPath(full, fillPaint);
+                // Outline-only in light mode, solid in dark mode — same crescent either way.
+                canvas.drawPath(full, filled ? fillPaint : strokePaint);
                 break;
             }
             case ICON_PAW_PRINT: {
