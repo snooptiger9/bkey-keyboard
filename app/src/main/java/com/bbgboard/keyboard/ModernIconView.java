@@ -38,6 +38,7 @@ public class ModernIconView extends View {
     public static final int ICON_CAR = 26;
     public static final int ICON_HASH_SYMBOLS = 27;
     public static final int ICON_SUN = 28;
+    public static final int ICON_REFRESH_UPDATE = 29;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -161,6 +162,38 @@ public class ModernIconView extends View {
                 gear.close();
                 canvas.drawPath(gear, strokePaint);
                 canvas.drawCircle(cx, cy, r * 0.30f, strokePaint);
+                break;
+            }
+            case ICON_REFRESH_UPDATE: {
+                // Classic "update/refresh" mark: a circular arrow, most of the way around
+                // a circle with an open gap, finished off with a small triangular arrowhead
+                // -- not the gear used for other settings rows, since this one is specifically
+                // about fetching a newer version, not configuring something.
+                float ar = r * 0.82f;
+                RectF arcRect = new RectF(cx - ar, cy - ar, cx + ar, cy + ar);
+                float startAngle = -200f;
+                float sweep = 280f;
+                canvas.drawArc(arcRect, startAngle, sweep, false, strokePaint);
+
+                float endAngle = startAngle + sweep;
+                double endRad = Math.toRadians(endAngle);
+                float tipX = cx + (float) Math.cos(endRad) * ar;
+                float tipY = cy + (float) Math.sin(endRad) * ar;
+                double tangentRad = Math.toRadians(endAngle + 90f);
+                float dirX = (float) Math.cos(tangentRad);
+                float dirY = (float) Math.sin(tangentRad);
+                float perpX = -dirY;
+                float perpY = dirX;
+                float headLen = r * 0.46f;
+                float headWidth = r * 0.36f;
+                float baseX = tipX - dirX * headLen;
+                float baseY = tipY - dirY * headLen;
+                Path arrowHead = new Path();
+                arrowHead.moveTo(tipX, tipY);
+                arrowHead.lineTo(baseX + perpX * headWidth, baseY + perpY * headWidth);
+                arrowHead.lineTo(baseX - perpX * headWidth, baseY - perpY * headWidth);
+                arrowHead.close();
+                canvas.drawPath(arrowHead, fillPaint);
                 break;
             }
             case ICON_THEME_PALETTE: {
@@ -294,7 +327,12 @@ public class ModernIconView extends View {
             case ICON_TRASH: {
 
                 float top = cy - r * 0.5f;
-                canvas.drawLine(cx - r * 0.85f, top, cx + r * 0.85f, top, strokePaint);
+                // Drawn as two separate lid segments (left + right of the handle), not one
+                // full-width line, so the handle's own verticals don't land exactly on top
+                // of an already-drawn stroke -- that coincident overlap at small icon sizes
+                // is what made the lid+handle corner look like it was drawn twice.
+                canvas.drawLine(cx - r * 0.85f, top, cx - r * 0.3f, top, strokePaint);
+                canvas.drawLine(cx + r * 0.3f, top, cx + r * 0.85f, top, strokePaint);
                 Path handle = new Path();
                 handle.moveTo(cx - r * 0.3f, top);
                 handle.lineTo(cx - r * 0.3f, cy - r * 0.85f);

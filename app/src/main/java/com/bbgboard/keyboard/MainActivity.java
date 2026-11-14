@@ -395,6 +395,7 @@ public class MainActivity extends Activity {
         lpToggle.leftMargin = dp(6);
         lpToggle.rightMargin = dp(6);
         themeToggleBtn.setLayoutParams(lpToggle);
+        themeToggleBtn.setTranslationY(-dp(3));
         themeToggleBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             prefs.setAppDarkMode(!prefs.isAppDarkMode());
@@ -549,7 +550,7 @@ public class MainActivity extends Activity {
 
         LinearLayout group4 = createGroupedWhiteCard();
         group4.addView(createMenuRow(
-                ModernIconView.ICON_SETTINGS_GEAR,
+                ModernIconView.ICON_REFRESH_UPDATE,
                 tr("تحديث التطبيق", "Update the app"),
                 tr("الإصدار " + BuildConfig.VERSION_NAME
                                 + (BuildConfig.OTP_FEATURES_ENABLED ? " • نسخة كاملة (OTP مفعّلة)" : " • نسخة عادية (بدون OTP)")
@@ -759,7 +760,7 @@ public class MainActivity extends Activity {
 
         TextView bodyTv = new TextView(this);
         bodyTv.setText(empty
-                ? tr("ولا خطأ مسجّل لحد الآن 👍", "No errors logged yet 👍")
+                ? tr("ولا خطأ مسجّل لحد الآن", "No errors logged yet")
                 : logText);
         bodyTv.setTextIsSelectable(true);
         bodyTv.setTextColor(Color.parseColor(dm("#1F2937")));
