@@ -1145,15 +1145,27 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void showKeyboardMain() {
         if (keyboardView == null) return;
-        if (gifSearchFocused) closeGifSearchKeyboard(false);
-        if (gifPanelShown) hideGifPanel();
-        boolean wasDrawer = clipboardDrawerView.getVisibility() == View.VISIBLE || emojiDrawerView.getVisibility() == View.VISIBLE;
-        keyboardView.setVisibility(View.VISIBLE);
-        clipboardDrawerView.setVisibility(View.GONE);
-        emojiDrawerView.setVisibility(View.GONE);
-        if (wasDrawer) fadeIn(keyboardView, 0);
-        updateInlineStripVisibility();
-        updateOneHandedSwitchButton();
+        try {
+            if (gifSearchFocused) closeGifSearchKeyboard(false);
+            if (gifPanelShown) hideGifPanel();
+            boolean wasDrawer = clipboardDrawerView.getVisibility() == View.VISIBLE || emojiDrawerView.getVisibility() == View.VISIBLE;
+            keyboardView.setVisibility(View.VISIBLE);
+            clipboardDrawerView.setVisibility(View.GONE);
+            emojiDrawerView.setVisibility(View.GONE);
+            if (wasDrawer) fadeIn(keyboardView, 0);
+            updateInlineStripVisibility();
+            updateOneHandedSwitchButton();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "showKeyboardMain()", e);
+            // Whatever failed above, never leave the keyboard surface blank/black for the user --
+            // force the main keyboard visible as a last resort so there's always something drawn.
+            try {
+                keyboardView.setVisibility(View.VISIBLE);
+                clipboardDrawerView.setVisibility(View.GONE);
+                emojiDrawerView.setVisibility(View.GONE);
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     private void openAppSettingsActivity() {
@@ -1169,20 +1181,27 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onToggleClipboardMenu() {
-        if (gifSearchFocused) closeGifSearchKeyboard(false);
-        if (gifPanelShown) hideGifPanel();
+        try {
+            if (gifSearchFocused) closeGifSearchKeyboard(false);
+            if (gifPanelShown) hideGifPanel();
 
-        updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
-        refreshClipboardDrawerList();
-        matchDrawerHeightToKeyboard(clipboardDrawerView);
-        refreshBottomBarGeometry();
-        keyboardView.setVisibility(View.GONE);
-        emojiDrawerView.setVisibility(View.GONE);
-        clipboardDrawerView.setVisibility(View.VISIBLE);
-        fadeIn(clipboardDrawerView, 10);
-        updateInlineStripVisibility();
-        updateOneHandedSwitchButton();
-        tryCaptureScreenshotClip(true);
+            updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
+            refreshClipboardDrawerList();
+            matchDrawerHeightToKeyboard(clipboardDrawerView);
+            refreshBottomBarGeometry();
+            keyboardView.setVisibility(View.GONE);
+            emojiDrawerView.setVisibility(View.GONE);
+            clipboardDrawerView.setVisibility(View.VISIBLE);
+            fadeIn(clipboardDrawerView, 10);
+            updateInlineStripVisibility();
+            updateOneHandedSwitchButton();
+            tryCaptureScreenshotClip(true);
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onToggleClipboardMenu()", e);
+            // Don't leave the keyboard stuck mid-transition (blank/black) -- fall back to the
+            // normal keyboard view, which is now its own crash-safe path too.
+            showKeyboardMain();
+        }
     }
 
     private boolean shotObserverRegistered = false;
@@ -2199,7 +2218,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         micIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             showKeyboardMain();
-            onVoiceInputRequested();
+            try {
+                onVoiceInputRequested();
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryImeService", "micIconBtn.onClick()", e);
+            }
         });
 
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
@@ -2212,7 +2235,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         resizeIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             showKeyboardMain();
-            keyboardView.setResizeDragMode(!keyboardView.isResizeDragMode());
+            try {
+                keyboardView.setResizeDragMode(!keyboardView.isResizeDragMode());
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryImeService", "resizeIconBtn.onClick()", e);
+            }
         });
 
         ModernIconView backIconBtn = new ModernIconView(this, ModernIconView.ICON_FORWARD_ARROW,
