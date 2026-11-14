@@ -2015,11 +2015,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
             delWrap.setBackground(buildFloatingCapsuleDrawable());
 
-            TextView delIcon = new TextView(this);
-            delIcon.setText("⌫");
-            delIcon.setTextColor(labelColor);
-            delIcon.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
-            delIcon.setGravity(Gravity.CENTER);
+            ModernIconView delIcon = new ModernIconView(this, ModernIconView.ICON_BACKSPACE, labelColor, Color.TRANSPARENT);
+            delIcon.setStyle(0.95f, 1.8f);
             delIcon.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             delWrap.addView(delIcon);
             delWrap.setOnClickListener(v -> {
