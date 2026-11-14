@@ -1314,7 +1314,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         row.setOnClickListener(v -> useScreenshotClip());
-        row.setHapticFeedbackEnabled(false);
         row.setOnLongClickListener(v -> {
             showThemedMenu(v, buildMenuItemView(ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete", () -> {
                 ScreenshotClip.clear(this);
@@ -2309,7 +2308,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     subC(), Color.TRANSPARENT);
             emptyIcon.setLayoutParams(new LinearLayout.LayoutParams(dp(54), dp(54)));
 
+            TextView emptyTv = new TextView(this);
+            emptyTv.setText(arabicUi ? "ما فيه شي منسوخ بعد" : "Nothing copied yet");
+            emptyTv.setTextColor(subC());
+            emptyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+            emptyTv.setGravity(Gravity.CENTER);
+            emptyTv.setPadding(0, dp(6), 0, 0);
+
             empty.addView(emptyIcon);
+            empty.addView(emptyTv);
             clipsListContainer.addView(empty);
             return;
         }
@@ -2441,6 +2448,30 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         activeClipMenuOverlay = null;
     }
 
+    /**
+     * A view's offset relative to rootContainer, walking up the parent chain and accounting for
+     * any scrollable ancestor (the clip list sits in a ScrollView) — unlike getLocationOnScreen(),
+     * this never depends on the IME window's own position, which the system can still be animating
+     * (resizing/sliding into place) right when a long-press fires. Using screen coordinates there
+     * was the cause of the menu sometimes landing below, sometimes above, and sometimes stuck
+     * pinned to the very top of the keyboard: the window's on-screen position was briefly stale.
+     */
+    private int[] offsetWithinRoot(View v) {
+        int x = 0, y = 0;
+        View cur = v;
+        while (cur != null && cur != rootContainer) {
+            x += cur.getLeft();
+            y += cur.getTop();
+            android.view.ViewParent parentObj = cur.getParent();
+            if (!(parentObj instanceof View)) break;
+            View parent = (View) parentObj;
+            x -= parent.getScrollX();
+            y -= parent.getScrollY();
+            cur = parent;
+        }
+        return new int[]{x, y};
+    }
+
     private void showThemedMenu(final View anchor, View... items) {
         if (rootContainer == null) return;
         dismissClipMenu();
@@ -2466,13 +2497,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         overlay.setClickable(true);
         overlay.setOnClickListener(v -> dismissClipMenu());
 
-        int[] anchorLoc = new int[2];
-        anchor.getLocationOnScreen(anchorLoc);
-        int[] rootLoc = new int[2];
-        rootContainer.getLocationOnScreen(rootLoc);
-        final int anchorTop = anchorLoc[1] - rootLoc[1];
+        int[] anchorOff = offsetWithinRoot(anchor);
+        final int anchorTop = anchorOff[1];
         final int anchorBottom = anchorTop + anchor.getHeight();
-        int anchorLeft = anchorLoc[0] - rootLoc[0];
+        int anchorLeft = anchorOff[0];
 
         int menuWidth = dp(176);
         int maxLeft = Math.max(dp(6), rootContainer.getWidth() - menuWidth - dp(6));
