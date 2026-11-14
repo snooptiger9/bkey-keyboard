@@ -1947,14 +1947,31 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStrokeWidth(prevW);
         iconStrokePaint.setStyle(prevStyle);
 
-        // Small emoji badge in the corner hints that a long-press on this key opens the emoji panel.
-        float prevMainSize = mainTextPaint.getTextSize();
-        Paint.Align prevAlign = mainTextPaint.getTextAlign();
-        mainTextPaint.setTextSize(9f * scaledDensity);
-        mainTextPaint.setTextAlign(Paint.Align.RIGHT);
-        canvas.drawText("😀", rect.right - 3f * density, rect.bottom - 2.5f * density, mainTextPaint);
-        mainTextPaint.setTextSize(prevMainSize);
-        mainTextPaint.setTextAlign(prevAlign);
+        // Tiny drawn face in the corner hints that a long-press on this key opens the emoji panel
+        // — a small drawing like the key's other corner marks, not a real emoji character.
+        float badgeR = 3.3f * density;
+        float bcx = rect.right - badgeR - 2.2f * density;
+        float bcy = rect.bottom - badgeR - 2.2f * density;
+        float prevBadgeW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevBadgeStyle = iconStrokePaint.getStyle();
+        iconStrokePaint.setStrokeWidth(1.1f * density);
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+        canvas.drawCircle(bcx, bcy, badgeR, iconStrokePaint);
+
+        iconStrokePaint.setStyle(Paint.Style.FILL);
+        float eyeR = 0.45f * density;
+        float eyeOffX = badgeR * 0.38f;
+        float eyeOffY = badgeR * 0.22f;
+        canvas.drawCircle(bcx - eyeOffX, bcy - eyeOffY, eyeR, iconStrokePaint);
+        canvas.drawCircle(bcx + eyeOffX, bcy - eyeOffY, eyeR, iconStrokePaint);
+
+        RectF smileRect = drawRectA;
+        float smR = badgeR * 0.6f;
+        smileRect.set(bcx - smR, bcy - smR * 0.2f, bcx + smR, bcy + smR * 1.1f);
+        canvas.drawArc(smileRect, 20f, 140f, false, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevBadgeW);
+        iconStrokePaint.setStyle(prevBadgeStyle);
     }
 
     /**
