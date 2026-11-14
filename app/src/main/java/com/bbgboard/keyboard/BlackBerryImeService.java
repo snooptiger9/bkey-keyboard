@@ -37,6 +37,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -1306,10 +1307,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         row.setLayoutParams(lp);
 
         ImageView thumb = new ImageView(this);
-        int side = dp(52);
+        int side = dp(84);
         thumb.setLayoutParams(new LinearLayout.LayoutParams(side, side));
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        thumb.setBackground(roundedBg(shellC(), 10));
+        thumb.setBackground(roundedBg(shellC(), 12));
+        thumb.setClipToOutline(true);
         try {
             Bitmap bmp = BitmapFactory.decodeFile(ScreenshotClip.file(this).getAbsolutePath());
             if (bmp != null) thumb.setImageBitmap(bmp);
@@ -1330,27 +1332,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         t1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
         t1.setTypeface(Typeface.DEFAULT_BOLD);
 
-        TextView t2 = new TextView(this);
-        t2.setText(arabicUi ? "اضغط للنسخ والإرسال" : "Tap to copy and send");
-        t2.setTextColor(subC());
-        t2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
-
         textBox.addView(t1);
-        textBox.addView(t2);
-
-        ModernIconView delBtn = new ModernIconView(this, ModernIconView.ICON_CLOSE,
-                Color.parseColor("#F87171"), Color.TRANSPARENT);
-        delBtn.setStyle(0.85f, 2.0f);
-        delBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
-        delBtn.setOnClickListener(v -> {
-            ScreenshotClip.clear(this);
-            refreshClipboardDrawerList();
-        });
 
         row.setOnClickListener(v -> useScreenshotClip());
+        row.setOnLongClickListener(v -> {
+            showSingleActionPopup(v, ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete", () -> {
+                ScreenshotClip.clear(this);
+                refreshClipboardDrawerList();
+            });
+            return true;
+        });
         row.addView(thumb);
         row.addView(textBox);
-        row.addView(delBtn);
         return row;
     }
 
@@ -2195,7 +2188,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         titleBox.addView(titleRow);
 
         ModernIconView settingsIconBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR,
-                labelC(), Color.TRANSPARENT);
+                labelC(), pillC());
         settingsIconBtn.setStyle(0.9f, 2.0f);
         LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(42), dp(42));
         lpSet.leftMargin = dp(10);
@@ -2207,7 +2200,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         ModernIconView micIconBtn = new ModernIconView(this, ModernIconView.ICON_MIC,
-                labelC(), Color.TRANSPARENT);
+                labelC(), pillC());
         micIconBtn.setStyle(0.9f, 2.0f);
         LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(42), dp(42));
         lpMic.leftMargin = dp(10);
@@ -2220,7 +2213,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
-                labelC(), Color.TRANSPARENT);
+                labelC(), pillC());
         resizeIconBtn.setStyle(0.9f, 2.0f);
         LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(42), dp(42));
         lpRes.leftMargin = dp(10);
@@ -2395,16 +2388,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         row.setBackground(cardBg);
         row.setPadding(dp(4), dp(4), dp(4), dp(4));
 
-        ModernIconView pinBtn = new ModernIconView(this, ModernIconView.ICON_PUSHPIN,
-                clip.pinned ? Color.parseColor("#60A5FA") : subC(), Color.TRANSPARENT);
-        pinBtn.setFilled(clip.pinned);
-        pinBtn.setStyle(0.8f, 1.9f);
-        pinBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(32), dp(32)));
-        pinBtn.setOnClickListener(v -> {
-            clipboardRepo.togglePin(clip.text);
-            refreshClipboardDrawerList();
-        });
-
         TextView textTv = new TextView(this);
         textTv.setText(clip.text);
         textTv.setTextColor(labelC());
@@ -2413,28 +2396,99 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         textTv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
         textTv.setMaxLines(3);
         textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        textTv.setPadding(dp(4), dp(6), dp(6), dp(6));
-        textTv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        textTv.setPadding(dp(10), dp(10), dp(10), dp(10));
+        textTv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textTv.setOnClickListener(v -> {
             InputConnection ic = getCurrentInputConnection();
             if (ic != null) ic.commitText(clip.text + " ", 1);
             soundController.playKeyClick();
             showKeyboardMain();
         });
-
-        ModernIconView delBtn = new ModernIconView(this, ModernIconView.ICON_CLOSE,
-                Color.parseColor("#F87171"), Color.TRANSPARENT);
-        delBtn.setStyle(0.8f, 1.9f);
-        delBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(32), dp(32)));
-        delBtn.setOnClickListener(v -> {
-            clipboardRepo.removeClip(clip.text);
-            refreshClipboardDrawerList();
+        textTv.setOnLongClickListener(v -> {
+            showPinDeletePopup(v, clip);
+            return true;
         });
 
-        row.addView(pinBtn);
         row.addView(textTv);
-        row.addView(delBtn);
         return row;
+    }
+
+    /** Long-press menu for a clipboard item: Pin/Unpin + Delete, same card style and icons for every clip. */
+    private void showPinDeletePopup(View anchor, final ClipboardRepository.ClipEntry clip) {
+        final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
+        LinearLayout menu = new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setBackground(roundedBg(Color.WHITE, 14));
+        menu.setElevation(dp(6));
+
+        final PopupWindow popup = new PopupWindow(menu, dp(176), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popup.setOutsideTouchable(true);
+        popup.setElevation(dp(6));
+
+        boolean pinned = clip.pinned;
+        menu.addView(buildPopupMenuItem(
+                ModernIconView.ICON_PUSHPIN,
+                pinned ? (arabicUi ? "إلغاء التثبيت" : "Unpin") : (arabicUi ? "تثبيت" : "Pin"),
+                () -> {
+                    clipboardRepo.togglePin(clip.text);
+                    refreshClipboardDrawerList();
+                }, popup));
+
+        View divider = new View(this);
+        divider.setBackgroundColor(Color.parseColor("#E5E7EB"));
+        divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
+        menu.addView(divider);
+
+        menu.addView(buildPopupMenuItem(
+                ModernIconView.ICON_TRASH,
+                arabicUi ? "حذف" : "Delete",
+                () -> {
+                    clipboardRepo.removeClip(clip.text);
+                    refreshClipboardDrawerList();
+                }, popup));
+
+        popup.showAsDropDown(anchor, 0, -anchor.getHeight());
+    }
+
+    /** Single-item long-press menu (used for the screenshot card, which only supports Delete). */
+    private void showSingleActionPopup(View anchor, int iconType, String label, final Runnable action) {
+        LinearLayout menu = new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setBackground(roundedBg(Color.WHITE, 14));
+        menu.setElevation(dp(6));
+
+        final PopupWindow popup = new PopupWindow(menu, dp(176), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popup.setOutsideTouchable(true);
+        popup.setElevation(dp(6));
+
+        menu.addView(buildPopupMenuItem(iconType, label, action, popup));
+        popup.showAsDropDown(anchor, 0, -anchor.getHeight());
+    }
+
+    private View buildPopupMenuItem(int iconType, String label, final Runnable action, final PopupWindow popup) {
+        LinearLayout item = new LinearLayout(this);
+        item.setOrientation(LinearLayout.HORIZONTAL);
+        item.setGravity(Gravity.CENTER_VERTICAL);
+        item.setPadding(dp(14), dp(12), dp(16), dp(12));
+
+        ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor("#374151"), Color.TRANSPARENT);
+        icon.setStyle(0.85f, 1.9f);
+        LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(22), dp(22));
+        lpIcon.rightMargin = dp(12);
+        icon.setLayoutParams(lpIcon);
+        item.addView(icon);
+
+        TextView tv = new TextView(this);
+        tv.setText(label);
+        tv.setTextColor(Color.parseColor("#1F2937"));
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
+        item.addView(tv);
+
+        item.setOnClickListener(v -> {
+            action.run();
+            popup.dismiss();
+        });
+        return item;
     }
 
     private LinearLayout buildCategorizedEmojiDrawer() {
