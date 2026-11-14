@@ -220,9 +220,9 @@ No, the keyboard is lightweight and runs fully on-device. Only the GIF and voice
 
 ### 📩 Support
 
-If you like the project and want to support it, you can send a tip via PayPal:
+If you like the project and want to support it, you can buy me a coffee on Ko-fi:
 
-**[💛 Support the project on PayPal](https://paypal.me/algahmdi)**
+[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
 ---
 
@@ -449,9 +449,9 @@ If you like the project and want to support it, you can send a tip via PayPal:
 
 ### 📩 الدعم
 
-إذا عجبك المشروع وتبي تدعمه، تقدر ترسل عبر PayPal:
+إذا عجبك المشروع وتبي تدعمه، تقدر تدعمني عبر Ko-fi:
 
-**[💛 ادعم المشروع عبر PayPal](https://paypal.me/algahmdi)**
+[![ادعمني عبر Ko-fi](https://img.shields.io/badge/Ko--fi-ادعم_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
 ---
 
