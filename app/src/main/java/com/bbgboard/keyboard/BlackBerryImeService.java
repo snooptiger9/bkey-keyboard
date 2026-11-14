@@ -2492,8 +2492,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             }
         }
 
+        // Fixed to the keyboard's CURRENT measured size rather than MATCH_PARENT: a match_parent
+        // child added to a wrap_content FrameLayout forces a second measure pass that can briefly
+        // resolve to a different height than the content actually needs, which is what made the
+        // keyboard window's own height flicker (quickly resize then snap back) right as the menu
+        // appeared. A fixed, already-known size never changes what rootContainer resolves to.
+        int rootW = rootContainer.getWidth();
+        int rootH0 = rootContainer.getHeight();
         final FrameLayout overlay = new FrameLayout(this);
-        overlay.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        overlay.setLayoutParams(new FrameLayout.LayoutParams(rootW, rootH0));
         overlay.setClickable(true);
         overlay.setOnClickListener(v -> dismissClipMenu());
 
