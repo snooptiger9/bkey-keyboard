@@ -1314,10 +1314,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         row.setOnClickListener(v -> useScreenshotClip());
+        row.setHapticFeedbackEnabled(false);
         row.setOnLongClickListener(v -> {
             showThemedMenu(v, buildMenuItemView(ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete", () -> {
                 ScreenshotClip.clear(this);
+                clearClipChip();
                 refreshClipboardDrawerList();
+                refreshPredictions();
             }));
             return true;
         });
@@ -2306,17 +2309,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     subC(), Color.TRANSPARENT);
             emptyIcon.setLayoutParams(new LinearLayout.LayoutParams(dp(54), dp(54)));
 
-            TextView emptyTv = new TextView(this);
-            emptyTv.setText(arabicUi
-                    ? "ما فيه شي منسوخ بعد\nأي شي تنسخه بيظهر هنا"
-                    : "Nothing copied yet\nAnything you copy will show up here");
-            emptyTv.setTextColor(subC());
-            emptyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-            emptyTv.setGravity(Gravity.CENTER);
-            emptyTv.setPadding(0, dp(6), 0, 0);
-
             empty.addView(emptyIcon);
-            empty.addView(emptyTv);
             clipsListContainer.addView(empty);
             return;
         }
