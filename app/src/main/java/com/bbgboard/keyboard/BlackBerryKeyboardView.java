@@ -1312,17 +1312,29 @@ public class BlackBerryKeyboardView extends View {
             float pillRadius = resizeDragHandlePillRect.height() / 2f;
             canvas.drawRoundRect(resizeDragHandlePillRect, pillRadius, pillRadius, resizePillPaint);
 
-            String label = (isArabic ? "↕ اسحب لأعلى أو لأسفل (" : "↕ Drag up or down (")
+            String label = (isArabic ? "اسحب لأعلى أو لأسفل (" : "Drag up or down (")
                     + Math.round(keyboardScale * 100) + "%)";
-            sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
             int prevColor = sugPrimaryTextPaint.getColor();
             Paint.Align prevAlign = sugPrimaryTextPaint.getTextAlign();
             sugPrimaryTextPaint.setColor(Color.WHITE);
             sugPrimaryTextPaint.setTextAlign(Paint.Align.LEFT);
+
+            // Draw the up/down arrow on its own, bigger and vertically centered on the
+            // whole bar, so it reads as a clear "drag this" icon instead of a small
+            // character squeezed inline with the label text.
+            sugPrimaryTextPaint.setTextSize(20f * scaledDensity);
+            float arrowX = 14f * density;
+            float arrowY = resizeHandleBarRect.centerY()
+                    - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
+            canvas.drawText("↕", arrowX, arrowY, sugPrimaryTextPaint);
+            float arrowWidth = sugPrimaryTextPaint.measureText("↕");
+
+            sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
+            float labelX = arrowX + arrowWidth + 8f * density;
             float labelY = resizeDragHandlePillRect.bottom
                     + (resizeHandleBarRect.bottom - resizeDragHandlePillRect.bottom
                             - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent())) / 2f;
-            canvas.drawText(label, 14f * density, labelY, sugPrimaryTextPaint);
+            canvas.drawText(label, labelX, labelY, sugPrimaryTextPaint);
 
             float doneRadius = resizeDoneButtonRect.height() / 2f;
             canvas.drawRoundRect(resizeDoneButtonRect, doneRadius, doneRadius,
@@ -2612,8 +2624,13 @@ public class BlackBerryKeyboardView extends View {
                     float deltaScale = -dyMove / (220f * density);
                     float updatedScale = Math.max(0.70f, Math.min(1.45f, resizeStartScale + deltaScale));
                     if (Math.abs(updatedScale - keyboardScale) > 0.01f) {
+                        // Only update the in-memory scale and redraw while dragging --
+                        // writing to SharedPreferences here too (as before) fired on
+                        // every tiny finger movement, dozens of times per second during
+                        // a fast drag, which on top of the layout/bounds recompute below
+                        // is what made the whole keyboard visibly judder while resizing.
+                        // The final value is persisted once in ACTION_UP/ACTION_CANCEL.
                         keyboardScale = updatedScale;
-                        prefs.setKeyboardScale(keyboardScale);
                         requestLayout();
                         computeKeyBounds(getWidth());
                         invalidate();
@@ -2674,6 +2691,9 @@ public class BlackBerryKeyboardView extends View {
                     // left) carries no gesture info we can trust -- its x/y may belong to
                     // whichever finger Android kept, not to a matching ACTION_DOWN -- so
                     // it is swallowed here instead of being run through the swipe checks.
+                    if (isResizingDrag) {
+                        prefs.setKeyboardScale(keyboardScale);
+                    }
                     multiTouchResolved = false;
                     touchDownKey = null;
                     visualPressedKey = null;
@@ -2729,6 +2749,12 @@ public class BlackBerryKeyboardView extends View {
                 boolean wasMicPressed = micButtonPressed;
                 boolean wasResizing = isResizingDrag;
                 boolean wasDoneButtonPressed = resizeDoneButtonPressed;
+
+                if (wasResizing) {
+                    // Persist the final size once the finger lifts, now that ACTION_MOVE
+                    // no longer writes to SharedPreferences on every drag step.
+                    prefs.setKeyboardScale(keyboardScale);
+                }
 
                 touchDownKey = null;
                 visualPressedKey = null;
