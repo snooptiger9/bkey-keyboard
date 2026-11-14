@@ -1,20 +1,18 @@
 package com.bbgboard.keyboard;
 
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -77,75 +75,60 @@ final class AppUpdater {
         downloadAndInstall(appContext, BuildConfig.OTP_FEATURES_ENABLED, cb);
     }
 
+    // Downloads the APK ourselves on a plain background thread instead of handing it to
+    // DownloadManager. DownloadManager's own ACTION_DOWNLOAD_COMPLETE broadcast used to be
+    // the trigger for opening the installer automatically, but Android 10+ silently blocks
+    // starting an activity from inside a BroadcastReceiver once the app isn't guaranteed to
+    // be in the foreground at the exact moment the broadcast arrives -- no crash, no log,
+    // the installer just never opens, which is exactly why it only ever worked after
+    // manually tapping the "download finished" system notification. Downloading in-process
+    // and calling tryInstall() straight from the main-thread completion callback, while the
+    // settings screen that started this is still the one open on screen, opens the
+    // installer every time with nothing left to tap.
     static void downloadAndInstall(final Context appContext, final boolean fetchFullBuild, final Callback cb) {
         final String updateUrl = fetchFullBuild ? UPDATE_URL_FULL : UPDATE_URL_LITE;
-        try {
-            final DownloadManager dm = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
-            if (dm == null) {
-                if (cb != null) cb.onFinished(false);
-                return;
-            }
+        final Handler mainHandler = new Handler(Looper.getMainLooper());
+        new Thread(() -> {
+            boolean success = false;
+            HttpURLConnection conn = null;
+            try {
+                File extDir = appContext.getExternalFilesDir(null);
+                if (extDir == null) throw new IOException("no external files dir");
+                File dest = new File(extDir, UPDATE_FILE_NAME);
+                if (dest.exists()) dest.delete();
 
-            File extDir = appContext.getExternalFilesDir(null);
-            if (extDir != null) {
-                File old = new File(extDir, UPDATE_FILE_NAME);
-                if (old.exists()) old.delete();
-            }
+                conn = (HttpURLConnection) new URL(updateUrl).openConnection();
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(30000);
+                conn.setInstanceFollowRedirects(true);
 
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(updateUrl));
-            request.setTitle("bkey");
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            request.setDestinationInExternalFilesDir(appContext, null, UPDATE_FILE_NAME);
-            request.setMimeType("application/vnd.android.package-archive");
-
-            final long downloadId = dm.enqueue(request);
-            final BroadcastReceiver[] receiverHolder = new BroadcastReceiver[1];
-
-            BroadcastReceiver receiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                    if (id != downloadId) return;
-                    try {
-                        appContext.unregisterReceiver(receiverHolder[0]);
-                    } catch (Exception ignore) {
-                    }
-
-                    boolean success = false;
-                    Cursor cursor = null;
-                    try {
-                        cursor = dm.query(new DownloadManager.Query().setFilterById(downloadId));
-                        if (cursor != null && cursor.moveToFirst()) {
-                            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                            success = status == DownloadManager.STATUS_SUCCESSFUL;
-                            if (!success) {
-                                int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-                                AppLogger.log("AppUpdater", "downloadAndInstall()",
-                                        new IOException("DownloadManager status=" + status + " reason=" + reason));
-                            }
-                        }
-                    } finally {
-                        if (cursor != null) cursor.close();
-                    }
-
-                    if (success) {
-                        File dest = new File(appContext.getExternalFilesDir(null), UPDATE_FILE_NAME);
-                        boolean installed = tryInstall(appContext, dest);
-                        if (cb != null) cb.onFinished(installed);
-                    } else {
-                        if (cb != null) cb.onFinished(false);
+                try (InputStream in = conn.getInputStream();
+                     OutputStream out = new FileOutputStream(dest)) {
+                    byte[] buf = new byte[8192];
+                    int n;
+                    while ((n = in.read(buf)) != -1) {
+                        out.write(buf, 0, n);
                     }
                 }
-            };
-            receiverHolder[0] = receiver;
+                success = dest.length() > 0;
+            } catch (Exception e) {
+                AppLogger.log("AppUpdater", "downloadAndInstall()", e);
+                success = false;
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
 
-            ContextCompat.registerReceiver(appContext, receiver,
-                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                    ContextCompat.RECEIVER_NOT_EXPORTED);
-        } catch (Exception e) {
-            AppLogger.log("AppUpdater", "downloadAndInstall()", e);
-            if (cb != null) cb.onFinished(false);
-        }
+            final boolean finalSuccess = success;
+            mainHandler.post(() -> {
+                if (finalSuccess) {
+                    File dest = new File(appContext.getExternalFilesDir(null), UPDATE_FILE_NAME);
+                    boolean installed = tryInstall(appContext, dest);
+                    if (cb != null) cb.onFinished(installed);
+                } else {
+                    if (cb != null) cb.onFinished(false);
+                }
+            });
+        }).start();
     }
 
     private static boolean tryInstall(Context context, File apkFile) {
