@@ -2333,86 +2333,6 @@ public class MainActivity extends Activity {
         ));
 
         root.addView(createClipRetentionTile());
-
-        LinearLayout card = createGroupedWhiteCard();
-        card.setPadding(dp(16), dp(16), dp(16), dp(16));
-
-        final EditText newClipBox = new EditText(this);
-        newClipBox.setHint(tr("أضف نصاً أو عبارة لتثبيتها في الحافظة...", "Add text or a phrase to pin in the clipboard..."));
-        newClipBox.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
-        newClipBox.setTextColor(Color.parseColor(dm("#111827")));
-        newClipBox.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 12));
-        newClipBox.setPadding(dp(12), dp(10), dp(12), dp(10));
-        card.addView(newClipBox);
-
-        final LinearLayout listMount = new LinearLayout(this);
-        listMount.setOrientation(LinearLayout.VERTICAL);
-        listMount.setPadding(0, dp(12), 0, 0);
-
-        Button btnAdd = new Button(this);
-        btnAdd.setText(tr("+ إضافة وتثبيت في الحافظة", "+ Add & pin to clipboard"));
-        styleModernButton(btnAdd, dm("#059669"));
-        LinearLayout.LayoutParams lpAdd = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
-        lpAdd.topMargin = dp(8);
-        btnAdd.setLayoutParams(lpAdd);
-        btnAdd.setOnClickListener(v -> {
-            String t = newClipBox.getText().toString().trim();
-            if (!t.isEmpty()) {
-                clipboardRepo.addClip(t, true);
-                newClipBox.setText("");
-                populateClipsSettingsList(listMount);
-            }
-        });
-        card.addView(btnAdd);
-        populateClipsSettingsList(listMount);
-        card.addView(listMount);
-        root.addView(card);
-    }
-
-    private void populateClipsSettingsList(final LinearLayout container) {
-        container.removeAllViews();
-        for (final ClipboardRepository.ClipEntry clip : clipboardRepo.getClips()) {
-            LinearLayout row = new LinearLayout(this);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackground(borderedBox(dm("#F8FAFC"), dm("#E2E8F0"), 10));
-            row.setPadding(dp(10), dp(8), dp(10), dp(8));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = dp(6);
-            row.setLayoutParams(lp);
-
-            TextView pinBtn = new TextView(this);
-            pinBtn.setText("📌");
-            pinBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-            pinBtn.setAlpha(clip.pinned ? 1.0f : 0.35f);
-            pinBtn.setPadding(dp(8), dp(4), dp(10), dp(4));
-            pinBtn.setOnClickListener(v -> {
-                clipboardRepo.togglePin(clip.text);
-                populateClipsSettingsList(container);
-            });
-
-            TextView tv = new TextView(this);
-            tv.setText(clip.text);
-            tv.setTextColor(Color.parseColor(dm("#1F2937")));
-            tv.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-            tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-            TextView del = new TextView(this);
-            del.setText("✕");
-            del.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-            del.setTextColor(Color.parseColor(dm("#DC2626")));
-            del.setPadding(dp(10), dp(4), dp(8), dp(4));
-            del.setOnClickListener(v -> {
-                clipboardRepo.removeClip(clip.text);
-                populateClipsSettingsList(container);
-            });
-
-            row.addView(pinBtn);
-            row.addView(tv);
-            row.addView(del);
-            container.addView(row);
-        }
     }
 
     private void openShortcutsScreen() {
@@ -2490,12 +2410,10 @@ public class MainActivity extends Activity {
             tv.setTextColor(Color.parseColor(dm("#1F2937")));
             tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-            TextView del = new TextView(this);
-            del.setText("✕");
-            del.setTextColor(Color.parseColor(dm("#DC2626")));
-            del.setPadding(dp(8), dp(4), dp(8), dp(4));
-            LinearLayout.LayoutParams lpDel = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ModernIconView del = new ModernIconView(this, ModernIconView.ICON_TRASH,
+                    Color.parseColor(dm("#DC2626")), Color.TRANSPARENT);
+            del.setStyle(0.85f, 1.9f);
+            LinearLayout.LayoutParams lpDel = new LinearLayout.LayoutParams(dp(20), dp(20));
             lpDel.leftMargin = dp(16);
             del.setLayoutParams(lpDel);
             del.setOnClickListener(v -> {
