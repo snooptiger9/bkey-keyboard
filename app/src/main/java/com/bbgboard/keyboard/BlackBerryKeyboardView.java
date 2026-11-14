@@ -1411,30 +1411,45 @@ public class BlackBerryKeyboardView extends View {
                 drawStyledKeyCell(canvas, k, bg);
 
                 if (!k.sub.isEmpty()) {
-                    if (keyboardStyle == KeyboardPreferences.STYLE_GBOARD_MATERIAL
-                            || keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND) {
-
-                        boolean softSub = keyboardStyle == KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND;
-                        float cornerRadius = (softSub ? 17.0f : 9.5f) * density;
-                        float hInsetPx = (softSub ? 2.6f : 2.1f) * density + tabletKeyGapX;
-                        float topInsetPx = materialTopInsetDp(k.type, softSub) * density + tabletKeyGapY;
-
-                        float safeMargin = cornerRadius * 0.38f + 1.0f * density;
-                        float visibleRight = k.rect.right - hInsetPx;
-                        float visibleTop = k.rect.top + topInsetPx;
-
-                        subTextPaint.getTextBounds(k.sub, 0, k.sub.length(), scratchSubBounds);
-                        float desiredInkRight = visibleRight - safeMargin;
-                        float desiredInkTop = visibleTop + safeMargin;
-                        float x = desiredInkRight - scratchSubBounds.right;
-                        float baselineY = desiredInkTop - scratchSubBounds.top;
-                        Paint.Align prevAlign = subTextPaint.getTextAlign();
-                        subTextPaint.setTextAlign(Paint.Align.LEFT);
-                        canvas.drawText(k.sub, x, baselineY, subTextPaint);
-                        subTextPaint.setTextAlign(prevAlign);
+                    // Same style-aware corner math as the globe key's badge: the old fallback for
+                    // every style except Material/Soft-round just offset from the RAW cell corner,
+                    // ignoring each style's own inset and corner rounding — so on Pill, Glass,
+                    // Outline, Soft raised, Circles and the rest, this little alt-char hint was
+                    // drawn outside the key's actual visible edge almost every time.
+                    float visLeft, visTop, visRight, visBottom, cornerRadius;
+                    if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
+                        float w = k.rect.width(), h = k.rect.height();
+                        float d = Math.min(w, h) - 6f * density;
+                        cornerRadius = d / 2f;
+                        float cx2 = k.rect.centerX(), cy2 = k.rect.centerY();
+                        if (w <= h * 1.1f) {
+                            visLeft = cx2 - d / 2f; visTop = cy2 - d / 2f;
+                            visRight = cx2 + d / 2f; visBottom = cy2 + d / 2f;
+                        } else {
+                            float hpad = 3f * density;
+                            visLeft = k.rect.left + hpad; visTop = cy2 - d / 2f;
+                            visRight = k.rect.right - hpad; visBottom = cy2 + d / 2f;
+                        }
                     } else {
-                        canvas.drawText(k.sub, k.rect.right - 5.5f * density, k.rect.top + 13.5f * density, subTextPaint);
+                        float[] inset = keyVisibleInsetTopRight(k.type);
+                        visLeft = k.rect.left + inset[0]; visTop = k.rect.top + inset[1];
+                        visRight = k.rect.right - inset[0]; visBottom = k.rect.bottom - inset[1];
+                        cornerRadius = inset[2];
                     }
+
+                    float safeMargin = cornerRadius * 0.38f + 1.0f * density;
+                    float visibleRight = visRight;
+                    float visibleTop = visTop;
+
+                    subTextPaint.getTextBounds(k.sub, 0, k.sub.length(), scratchSubBounds);
+                    float desiredInkRight = visibleRight - safeMargin;
+                    float desiredInkTop = visibleTop + safeMargin;
+                    float x = desiredInkRight - scratchSubBounds.right;
+                    float baselineY = desiredInkTop - scratchSubBounds.top;
+                    Paint.Align prevAlign = subTextPaint.getTextAlign();
+                    subTextPaint.setTextAlign(Paint.Align.LEFT);
+                    canvas.drawText(k.sub, x, baselineY, subTextPaint);
+                    subTextPaint.setTextAlign(prevAlign);
                 }
 
                 if (k.type == KeyType.SPACE) {
