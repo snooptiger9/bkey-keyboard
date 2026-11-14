@@ -308,13 +308,9 @@ public class KeyboardPreferences {
         prefs.edit().putInt("floating_capsule_color", rgb).apply();
     }
 
+    /** Fixed at 28% -- no longer user-adjustable, so this ignores whatever was stored before. */
     public int getFloatingCapsuleOpacity() {
-        return prefs.getInt("floating_capsule_opacity", 85);
-    }
-
-    public void setFloatingCapsuleOpacity(int percent) {
-        int clamped = Math.max(10, Math.min(100, percent));
-        prefs.edit().putInt("floating_capsule_opacity", clamped).apply();
+        return 28;
     }
 
     public void setKeyboardStyle(int style) {
