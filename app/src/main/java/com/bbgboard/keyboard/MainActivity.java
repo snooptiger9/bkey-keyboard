@@ -5,6 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -2406,7 +2410,14 @@ public class MainActivity extends Activity {
             row.setLayoutParams(lp);
 
             TextView tv = new TextView(this);
-            tv.setText("«" + e.getKey() + "»  ⬅  " + e.getValue());
+            SpannableString shortcutSpan = new SpannableString(e.getKey());
+            shortcutSpan.setSpan(new ForegroundColorSpan(Color.parseColor(dm("#6B7280"))),
+                    0, shortcutSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            SpannableStringBuilder rowText = new SpannableStringBuilder();
+            rowText.append(shortcutSpan);
+            rowText.append("   ");
+            rowText.append(e.getValue());
+            tv.setText(rowText);
             tv.setTextColor(Color.parseColor(dm("#1F2937")));
             tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
