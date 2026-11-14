@@ -1952,35 +1952,31 @@ public class BlackBerryKeyboardView extends View {
         // Tiny drawn face in the corner hints that a long-press on this key opens the emoji panel
         // — a small drawing like the key's other corner marks, not a real emoji character.
         // Placed in the top-right corner, well inside the key's edges so it never pokes outside it.
-        // rect is the key's raw layout cell, before the per-style gap/inset that's actually drawn
-        // as the visible key surface, and that surface's shape differs per keyboard style (a plain
-        // inset rounded-rect for most styles, but an actual circle/pill for STYLE_CIRCLES) — so the
-        // badge position has to be computed per style, not as one fixed offset from the raw corner.
+        // rect is the key's raw layout cell, before the per-style gap/inset AND corner rounding
+        // that the visible key surface actually draws with — several styles (Pill, Glass, Outline,
+        // Soft raised, Circles) round that corner enough that just clearing the straight edges
+        // isn't enough; badgeCornerPos() follows the corner's own curve instead.
         float badgeR = 2.6f * density;
         float marginIn = 1.6f * density;
-        float bcx, bcy;
+        float visLeft, visTop, visRight, visBottom, cornerR;
         if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
             float w = rect.width(), h = rect.height();
             float d = Math.min(w, h) - 6f * density;
+            cornerR = d / 2f;
             if (w <= h * 1.1f) {
-                float radius = d / 2f;
-                double theta = Math.toRadians(50);
-                float dist = Math.max(0f, radius - badgeR - marginIn);
-                bcx = cx + dist * (float) Math.sin(theta);
-                bcy = cy - dist * (float) Math.cos(theta);
+                visLeft = cx - d / 2f; visTop = cy - d / 2f; visRight = cx + d / 2f; visBottom = cy + d / 2f;
             } else {
-                float dHalf = d / 2f;
                 float hpad = 3f * density;
-                float flatRight = rect.right - hpad - dHalf;
-                float flatTop = cy - dHalf;
-                bcx = flatRight - badgeR - marginIn;
-                bcy = flatTop + badgeR + marginIn;
+                visLeft = rect.left + hpad; visTop = cy - d / 2f; visRight = rect.right - hpad; visBottom = cy + d / 2f;
             }
         } else {
             float[] inset = keyVisibleInsetTopRight(KeyType.LANGUAGE);
-            bcx = rect.right - inset[0] - badgeR - marginIn;
-            bcy = rect.top + inset[1] + badgeR + marginIn;
+            visLeft = rect.left + inset[0]; visTop = rect.top + inset[1];
+            visRight = rect.right - inset[0]; visBottom = rect.bottom - inset[1];
+            cornerR = inset[2];
         }
+        float[] badgePos = badgeCornerPos(visLeft, visTop, visRight, visBottom, cornerR, badgeR, marginIn);
+        float bcx = badgePos[0], bcy = badgePos[1];
         float prevBadgeW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevBadgeStyle = iconStrokePaint.getStyle();
         iconStrokePaint.setStrokeWidth(1.1f * density);
@@ -2082,36 +2078,63 @@ public class BlackBerryKeyboardView extends View {
 
     /**
      * How far the key's actually-drawn surface sits inside its raw layout cell for the current
-     * keyboard style, as {horizontalInset, topInset} — mirrors the per-style insets used in
-     * drawStyledKeyCell(). Used to keep the globe key's corner badge inside the visible key
-     * regardless of which style is active. Not valid for STYLE_CIRCLES, whose visible shape is a
-     * circle/pill rather than an inset rect — that style is handled separately by its caller.
+     * keyboard style, as {horizontalInset, topInset, cornerRadius} — mirrors the per-style insets
+     * AND corner radius used in drawStyledKeyCell(). The radius matters on its own: several styles
+     * (Pill, Glass, Outline, Soft raised) round their corners enough that a badge sitting just
+     * inside the straight inset bounds can still fall outside the actual curved corner, since the
+     * visible surface cuts inward near the corner by more than the plain edge margin. Not valid
+     * for STYLE_CIRCLES, whose visible shape is a circle/pill rather than an inset rect — that
+     * style is handled separately by its caller.
      */
     private float[] keyVisibleInsetTopRight(KeyType type) {
         final float gx = tabletKeyGapX;
         final float gy = tabletKeyGapY + (isNumericFieldMode ? -1.9f * density : 0f);
         switch (keyboardStyle) {
             case KeyboardPreferences.STYLE_GBOARD_MATERIAL:
-                return new float[]{2.0f * density + gx, materialTopInsetDp(type, false) * density + gy};
+                return new float[]{2.0f * density + gx, materialTopInsetDp(type, false) * density + gy, 9.5f * density};
             case KeyboardPreferences.STYLE_GBOARD_SOFT_ROUND:
-                return new float[]{2.6f * density + gx, materialTopInsetDp(type, true) * density + gy};
+                return new float[]{2.6f * density + gx, materialTopInsetDp(type, true) * density + gy, 17f * density};
             case KeyboardPreferences.STYLE_GBOARD_BORDERLESS:
-                return new float[]{3.0f * density + gx, 4.5f * density + gy};
+                return new float[]{3.0f * density + gx, 4.5f * density + gy, 13f * density};
             case KeyboardPreferences.STYLE_OUTLINED:
-                return new float[]{3.2f * density + gx, 4.2f * density + gy};
+                return new float[]{3.2f * density + gx, 4.2f * density + gy, 11f * density};
             case KeyboardPreferences.STYLE_KEYCAP_3D:
-                return new float[]{2.8f * density + gx, 3.2f * density + gy};
+                return new float[]{2.8f * density + gx, 3.2f * density + gy, 7.5f * density};
             case KeyboardPreferences.STYLE_SOFT_RAISED:
-                return new float[]{2.6f * density + gx, 3.6f * density + gy};
+                return new float[]{2.6f * density + gx, 3.6f * density + gy, 12f * density};
             case KeyboardPreferences.STYLE_GLASS:
-                return new float[]{2.8f * density + gx, 3.8f * density + gy};
+                return new float[]{2.8f * density + gx, 3.8f * density + gy, 10f * density};
             case KeyboardPreferences.STYLE_GBOARD_ROUNDED:
-                return new float[]{2.6f * density + gx, 3.6f * density + gy};
+                return new float[]{2.6f * density + gx, 3.6f * density + gy, 6.5f * density};
             case KeyboardPreferences.STYLE_MODERN_PILL:
-                return new float[]{3.2f * density + gx, 4.5f * density + gy};
+                return new float[]{3.2f * density + gx, 4.5f * density + gy, 14f * density};
             default:
-                return new float[]{0f, 0f};
+                return new float[]{0f, 0f, 0f};
         }
+    }
+
+    /**
+     * Where to center a circular badge of radius badgeR so it sits just inside the top-right
+     * corner of a rounded rect [visLeft,visTop,visRight,visBottom] with corner radius cornerR —
+     * following the corner's own curve (via its arc center) rather than just the straight edges,
+     * so it works whether the corner is barely rounded or the shape is almost a full circle.
+     */
+    private float[] badgeCornerPos(float visLeft, float visTop, float visRight, float visBottom,
+                                    float cornerR, float badgeR, float marginIn) {
+        float visW = visRight - visLeft, visH = visBottom - visTop;
+        float r = Math.min(cornerR, Math.min(visW, visH) / 2f);
+        float bx, by;
+        if (r <= badgeR + marginIn) {
+            bx = visRight - badgeR - marginIn;
+            by = visTop + badgeR + marginIn;
+        } else {
+            float arcCx = visRight - r, arcCy = visTop + r;
+            float dist = r - badgeR - marginIn;
+            float k = 0.70710678f; // sin(45°) == cos(45°)
+            bx = arcCx + dist * k;
+            by = arcCy - dist * k;
+        }
+        return new float[]{bx, by};
     }
 
     public void setVoiceListening(boolean listening) {
