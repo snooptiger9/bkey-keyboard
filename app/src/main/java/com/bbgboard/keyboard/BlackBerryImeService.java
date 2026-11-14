@@ -37,7 +37,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -1290,25 +1289,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         showKeyboardMain();
     }
 
+    /** Just the screenshot preview itself — no title/subtitle text, sized by whatever slot the caller gives it. */
     private View buildScreenshotThumbRow() {
+        final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
-        row.setLayoutDirection(arabicUi ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setGravity(Gravity.CENTER);
         GradientDrawable cardBg = roundedBg(keyBgC(), 14);
         cardBg.setStroke(dp(1), keyDividerC());
         row.setBackground(cardBg);
-
         row.setPadding(dp(4), dp(4), dp(4), dp(4));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.bottomMargin = dp(9);
-        row.setLayoutParams(lp);
 
         ImageView thumb = new ImageView(this);
-        int side = dp(84);
-        thumb.setLayoutParams(new LinearLayout.LayoutParams(side, side));
+        thumb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(84)));
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
         thumb.setBackground(roundedBg(shellC(), 12));
         thumb.setClipToOutline(true);
@@ -1319,31 +1312,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             AppLogger.log("BlackBerryImeService", "buildScreenshotThumbRow()", e);
         }
 
-        LinearLayout textBox = new LinearLayout(this);
-        textBox.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams lpText = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        lpText.leftMargin = dp(10);
-        lpText.rightMargin = dp(10);
-        textBox.setLayoutParams(lpText);
-
-        TextView t1 = new TextView(this);
-        t1.setText(arabicUi ? "آخر لقطة شاشة" : "Last screenshot");
-        t1.setTextColor(labelC());
-        t1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
-        t1.setTypeface(Typeface.DEFAULT_BOLD);
-
-        textBox.addView(t1);
-
         row.setOnClickListener(v -> useScreenshotClip());
         row.setOnLongClickListener(v -> {
-            showSingleActionPopup(v, ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete", () -> {
+            showThemedMenu(v, buildMenuItemView(ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete", () -> {
                 ScreenshotClip.clear(this);
                 refreshClipboardDrawerList();
-            });
+            }));
             return true;
         });
         row.addView(thumb);
-        row.addView(textBox);
         return row;
     }
 
@@ -2306,9 +2283,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         ScreenshotClip.pruneIfOld(this, keyboardPrefs.getClipRetentionHours() * 3600L * 1000L);
         boolean hasShotThumb = keyboardPrefs.isScreenshotClipEnabled() && ScreenshotClip.exists(this);
-        if (hasShotThumb) {
-            clipsListContainer.addView(buildScreenshotThumbRow());
-        }
 
         List<ClipboardRepository.ClipEntry> clips = clipboardRepo.getClips();
         if (clipCountTv != null) {
@@ -2320,8 +2294,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                         : clips.size() + (clips.size() == 1 ? " item" : " items"));
             }
         }
-        if (clips.isEmpty()) {
-            if (hasShotThumb) return;
+        if (clips.isEmpty() && !hasShotThumb) {
             LinearLayout empty = new LinearLayout(this);
             empty.setOrientation(LinearLayout.VERTICAL);
             empty.setGravity(Gravity.CENTER);
@@ -2346,7 +2319,41 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        for (int i = 0; i < clips.size(); i += 2) {
+        // When a screenshot preview exists, pair it in one row with the most recent copied text
+        // (screenshot on the right, text on the left — fixed regardless of UI language). With no
+        // screenshot, copied texts go back to the plain two-per-row grid below.
+        int startIdx = 0;
+        if (hasShotThumb) {
+            LinearLayout combinedRow = new LinearLayout(this);
+            combinedRow.setOrientation(LinearLayout.HORIZONTAL);
+            combinedRow.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+            LinearLayout.LayoutParams combinedLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            combinedLp.bottomMargin = dp(7);
+            combinedRow.setLayoutParams(combinedLp);
+
+            if (!clips.isEmpty()) {
+                View textCard = buildClipCard(clips.get(0));
+                LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                textLp.rightMargin = dp(10);
+                textCard.setLayoutParams(textLp);
+                combinedRow.addView(textCard);
+                startIdx = 1;
+
+                View shotCard = buildScreenshotThumbRow();
+                shotCard.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                combinedRow.addView(shotCard);
+            } else {
+                View shotCard = buildScreenshotThumbRow();
+                shotCard.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                combinedRow.addView(shotCard);
+            }
+
+            clipsListContainer.addView(combinedRow);
+        }
+
+        for (int i = startIdx; i < clips.size(); i += 2) {
             LinearLayout pairRow = new LinearLayout(this);
             pairRow.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams pairLp = new LinearLayout.LayoutParams(
@@ -2405,7 +2412,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             showKeyboardMain();
         });
         textTv.setOnLongClickListener(v -> {
-            showPinDeletePopup(v, clip);
+            final boolean pinned = clip.pinned;
+            showThemedMenu(v,
+                    buildMenuItemView(ModernIconView.ICON_PUSHPIN,
+                            pinned ? (arabicUi ? "إلغاء التثبيت" : "Unpin") : (arabicUi ? "تثبيت" : "Pin"),
+                            () -> {
+                                clipboardRepo.togglePin(clip.text);
+                                refreshClipboardDrawerList();
+                            }),
+                    buildMenuItemView(ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete",
+                            () -> {
+                                clipboardRepo.removeClip(clip.text);
+                                refreshClipboardDrawerList();
+                            }));
             return true;
         });
 
@@ -2413,65 +2432,85 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return row;
     }
 
-    /** Long-press menu for a clipboard item: Pin/Unpin + Delete, same card style and icons for every clip. */
-    private void showPinDeletePopup(View anchor, final ClipboardRepository.ClipEntry clip) {
-        final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
-        LinearLayout menu = new LinearLayout(this);
-        menu.setOrientation(LinearLayout.VERTICAL);
-        menu.setBackground(roundedBg(Color.WHITE, 14));
-        menu.setElevation(dp(6));
+    /**
+     * Themed long-press menu added directly into the keyboard's own window (rootContainer)
+     * instead of a separate PopupWindow — a focusable popup window was briefly stealing the
+     * input window's focus and making the keyboard glitch/disappear on long-press.
+     */
+    private FrameLayout activeClipMenuOverlay;
 
-        final PopupWindow popup = new PopupWindow(menu, dp(176), ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popup.setOutsideTouchable(true);
-        popup.setElevation(dp(6));
-
-        boolean pinned = clip.pinned;
-        menu.addView(buildPopupMenuItem(
-                ModernIconView.ICON_PUSHPIN,
-                pinned ? (arabicUi ? "إلغاء التثبيت" : "Unpin") : (arabicUi ? "تثبيت" : "Pin"),
-                () -> {
-                    clipboardRepo.togglePin(clip.text);
-                    refreshClipboardDrawerList();
-                }, popup));
-
-        View divider = new View(this);
-        divider.setBackgroundColor(Color.parseColor("#E5E7EB"));
-        divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
-        menu.addView(divider);
-
-        menu.addView(buildPopupMenuItem(
-                ModernIconView.ICON_TRASH,
-                arabicUi ? "حذف" : "Delete",
-                () -> {
-                    clipboardRepo.removeClip(clip.text);
-                    refreshClipboardDrawerList();
-                }, popup));
-
-        popup.showAsDropDown(anchor, 0, -anchor.getHeight());
+    private void dismissClipMenu() {
+        if (activeClipMenuOverlay != null && rootContainer != null) {
+            rootContainer.removeView(activeClipMenuOverlay);
+        }
+        activeClipMenuOverlay = null;
     }
 
-    /** Single-item long-press menu (used for the screenshot card, which only supports Delete). */
-    private void showSingleActionPopup(View anchor, int iconType, String label, final Runnable action) {
-        LinearLayout menu = new LinearLayout(this);
+    private void showThemedMenu(final View anchor, View... items) {
+        if (rootContainer == null) return;
+        dismissClipMenu();
+
+        final LinearLayout menu = new LinearLayout(this);
         menu.setOrientation(LinearLayout.VERTICAL);
-        menu.setBackground(roundedBg(Color.WHITE, 14));
+        GradientDrawable menuBg = roundedBg(keyBgC(), 14);
+        menuBg.setStroke(dp(1), keyDividerC());
+        menu.setBackground(menuBg);
         menu.setElevation(dp(6));
+        for (int i = 0; i < items.length; i++) {
+            menu.addView(items[i]);
+            if (i < items.length - 1) {
+                View divider = new View(this);
+                divider.setBackgroundColor(keyDividerC());
+                divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
+                menu.addView(divider);
+            }
+        }
 
-        final PopupWindow popup = new PopupWindow(menu, dp(176), ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popup.setOutsideTouchable(true);
-        popup.setElevation(dp(6));
+        final FrameLayout overlay = new FrameLayout(this);
+        overlay.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        overlay.setClickable(true);
+        overlay.setOnClickListener(v -> dismissClipMenu());
 
-        menu.addView(buildPopupMenuItem(iconType, label, action, popup));
-        popup.showAsDropDown(anchor, 0, -anchor.getHeight());
+        int[] anchorLoc = new int[2];
+        anchor.getLocationOnScreen(anchorLoc);
+        int[] rootLoc = new int[2];
+        rootContainer.getLocationOnScreen(rootLoc);
+        final int anchorTop = anchorLoc[1] - rootLoc[1];
+        final int anchorBottom = anchorTop + anchor.getHeight();
+        int anchorLeft = anchorLoc[0] - rootLoc[0];
+
+        int menuWidth = dp(176);
+        int maxLeft = Math.max(dp(6), rootContainer.getWidth() - menuWidth - dp(6));
+        int clampedLeft = Math.max(dp(6), Math.min(anchorLeft, maxLeft));
+
+        FrameLayout.LayoutParams menuLp = new FrameLayout.LayoutParams(menuWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+        menuLp.leftMargin = clampedLeft;
+        menuLp.topMargin = anchorBottom + dp(4);
+        menu.setLayoutParams(menuLp);
+
+        overlay.addView(menu);
+        rootContainer.addView(overlay);
+        activeClipMenuOverlay = overlay;
+
+        menu.post(() -> {
+            if (activeClipMenuOverlay != overlay) return;
+            int rootH = rootContainer.getHeight();
+            int menuH = menu.getHeight();
+            if (anchorBottom + dp(4) + menuH > rootH - dp(4)) {
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) menu.getLayoutParams();
+                lp.topMargin = Math.max(dp(4), anchorTop - menuH - dp(4));
+                menu.setLayoutParams(lp);
+            }
+        });
     }
 
-    private View buildPopupMenuItem(int iconType, String label, final Runnable action, final PopupWindow popup) {
+    private View buildMenuItemView(int iconType, String label, final Runnable action) {
         LinearLayout item = new LinearLayout(this);
         item.setOrientation(LinearLayout.HORIZONTAL);
         item.setGravity(Gravity.CENTER_VERTICAL);
         item.setPadding(dp(14), dp(12), dp(16), dp(12));
 
-        ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor("#374151"), Color.TRANSPARENT);
+        ModernIconView icon = new ModernIconView(this, iconType, labelC(), Color.TRANSPARENT);
         icon.setStyle(0.85f, 1.9f);
         LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(22), dp(22));
         lpIcon.rightMargin = dp(12);
@@ -2480,13 +2519,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         TextView tv = new TextView(this);
         tv.setText(label);
-        tv.setTextColor(Color.parseColor("#1F2937"));
+        tv.setTextColor(labelC());
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
         item.addView(tv);
 
         item.setOnClickListener(v -> {
             action.run();
-            popup.dismiss();
+            dismissClipMenu();
         });
         return item;
     }
