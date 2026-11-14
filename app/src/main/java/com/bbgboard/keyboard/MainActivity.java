@@ -2012,10 +2012,9 @@ public class MainActivity extends Activity {
 
         FrameLayout previewHolder = new FrameLayout(this);
         previewHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
-        GradientDrawable previewBg = new GradientDrawable();
-        previewBg.setColor(Color.parseColor(dm("#1F2937")));
-        previewBg.setCornerRadius(dp(14));
-        previewHolder.setBackground(previewBg);
+        // No background box behind the preview anymore -- it sits directly on the card's
+        // own background, so the pill's real transparency shows live as the color/opacity
+        // change, instead of always being shown against one fixed dark backdrop.
         final TextView previewCapsule = new TextView(this);
         previewCapsule.setText(tr("أبجد", "ABC"));
         previewCapsule.setTextColor(Color.WHITE);
@@ -2034,10 +2033,10 @@ public class MainActivity extends Activity {
         boolean darkThemeNow = prefs.getThemeMode() != KeyboardPreferences.THEME_GBOARD_WHITE;
         final String followBackHex = darkThemeNow ? dm("#F8FAFC") : dm("#1E293B");
         String[] capsuleNames = tr(
-                new String[]{"أسود", "أبيض", "رمادي فاتح"},
-                new String[]{"Black", "White", "Light gray"});
+                new String[]{"أسود", "رمادي فاتح"},
+                new String[]{"Black", "Light gray"});
 
-        String[] capsuleHex = {"#000000", "#FFFFFF", "#9CA3AF"};
+        String[] capsuleHex = {"#000000", "#9CA3AF"};
         final int FOLLOW_BACK = KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL;
         List<View> capsuleTiles = new ArrayList<>();
         final Runnable[] updatePreviewRef = new Runnable[1];
@@ -2048,8 +2047,9 @@ public class MainActivity extends Activity {
             capsuleTiles.add(createPreviewTile(capsuleNames[i], capsuleHex[i], selected,
                     v -> { prefs.setFloatingCapsuleColor(color); refreshEmojiScreen(root); }));
         }
-        addTileGrid(capsuleCard, capsuleTiles, 3);
+        addTileGrid(capsuleCard, capsuleTiles, 2);
 
+        // Fixed at 28% now -- no more slider to change it.
         final TextView opacityLabel = new TextView(this);
         opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + prefs.getFloatingCapsuleOpacity() + "%");
         opacityLabel.setTextColor(Color.parseColor(dm("#111827")));
@@ -2057,23 +2057,6 @@ public class MainActivity extends Activity {
         opacityLabel.setTypeface(Typeface.DEFAULT_BOLD);
         opacityLabel.setPadding(0, dp(12), 0, 0);
         capsuleCard.addView(opacityLabel);
-
-        SeekBar opacitySeek = new SeekBar(this);
-        opacitySeek.setMax(90);
-        opacitySeek.setProgress(prefs.getFloatingCapsuleOpacity() - 10);
-        opacitySeek.setPadding(dp(14), dp(10), dp(14), dp(4));
-        opacitySeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int percent = 10 + progress;
-                prefs.setFloatingCapsuleOpacity(percent);
-                opacityLabel.setText(tr("مستوى الشفافية: ", "Opacity: ") + percent + "%");
-                updatePreviewRef[0].run();
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        capsuleCard.addView(opacitySeek);
         root.addView(capsuleCard);
 
         updatePreviewRef[0] = () -> {
