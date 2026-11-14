@@ -1301,7 +1301,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         row.setPadding(dp(4), dp(4), dp(4), dp(4));
 
         ImageView thumb = new ImageView(this);
-        thumb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(84)));
+        // Taller than wide, like the portrait screenshot it's previewing — not a flat landscape strip.
+        thumb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(150)));
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
         thumb.setBackground(roundedBg(shellC(), 12));
         thumb.setClipToOutline(true);
@@ -2163,8 +2164,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         ModernIconView settingsIconBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR,
                 labelC(), pillC());
-        settingsIconBtn.setStyle(0.9f, 2.0f);
-        LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(42), dp(42));
+        settingsIconBtn.setStyle(0.72f, 1.9f);
+        LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(46), dp(46));
         lpSet.leftMargin = dp(10);
         lpSet.rightMargin = dp(10);
         settingsIconBtn.setLayoutParams(lpSet);
@@ -2175,8 +2176,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         ModernIconView micIconBtn = new ModernIconView(this, ModernIconView.ICON_MIC,
                 labelC(), pillC());
-        micIconBtn.setStyle(0.9f, 2.0f);
-        LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(42), dp(42));
+        micIconBtn.setStyle(0.72f, 1.9f);
+        LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(46), dp(46));
         lpMic.leftMargin = dp(10);
         lpMic.rightMargin = dp(10);
         micIconBtn.setLayoutParams(lpMic);
@@ -2188,8 +2189,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
                 labelC(), pillC());
-        resizeIconBtn.setStyle(0.9f, 2.0f);
-        LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(42), dp(42));
+        resizeIconBtn.setStyle(0.72f, 1.9f);
+        LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(46), dp(46));
         lpRes.leftMargin = dp(10);
         lpRes.rightMargin = dp(10);
         resizeIconBtn.setLayoutParams(lpRes);
@@ -2341,9 +2342,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 shotCard.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
                 combinedRow.addView(shotCard);
             } else {
+                combinedRow.setGravity(Gravity.CENTER_HORIZONTAL);
                 View shotCard = buildScreenshotThumbRow();
-                shotCard.setLayoutParams(new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                shotCard.setLayoutParams(new LinearLayout.LayoutParams(dp(170), ViewGroup.LayoutParams.WRAP_CONTENT));
                 combinedRow.addView(shotCard);
             }
 
