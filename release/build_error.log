@@ -31,44 +31,58 @@ Warning: SDK processing. This version only understands SDK XML versions up to 3 
 > Task :app:extractProguardFiles
 > Task :app:mergeFullReleaseJniLibFolders
 > Task :app:mergeFullReleaseNativeLibs NO-SOURCE
-> Task :app:processFullReleaseManifestForPackage
 > Task :app:stripFullReleaseDebugSymbols NO-SOURCE
 > Task :app:extractFullReleaseNativeSymbolTables NO-SOURCE
 > Task :app:mergeFullReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:processFullReleaseManifestForPackage
+> Task :app:checkFullReleaseDuplicateClasses
+> Task :app:desugarFullReleaseFileDependencies
 > Task :app:processFullReleaseResources
-> Task :app:checkFullReleaseDuplicateClasses FAILED
+> Task :app:mergeExtDexFullRelease
 
 > Task :app:compileFullReleaseJavaWithJavac
 Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
+> Task :app:generateFullReleaseLintVitalReportModel
+> Task :app:dexBuilderFullRelease
+> Task :app:mergeFullReleaseArtProfile
+> Task :app:mergeFullReleaseGlobalSynthetics
+> Task :app:mergeFullReleaseShaders
+> Task :app:compileFullReleaseShaders NO-SOURCE
+> Task :app:generateFullReleaseAssets UP-TO-DATE
+> Task :app:mergeFullReleaseAssets
+> Task :app:processFullReleaseJavaRes NO-SOURCE
+> Task :app:compressFullReleaseAssets
+> Task :app:mergeFullReleaseJavaResource
+> Task :app:collectFullReleaseDependencies
+> Task :app:sdkFullReleaseDependencyData
+> Task :app:validateSigningFullRelease
+> Task :app:writeFullReleaseAppMetadata
+> Task :app:optimizeFullReleaseResources
+> Task :app:writeFullReleaseSigningConfigVersions
+> Task :app:preLiteReleaseBuild UP-TO-DATE
+> Task :app:generateLiteReleaseBuildConfig
+> Task :app:javaPreCompileLiteRelease
+> Task :app:generateLiteReleaseResValues
+> Task :app:checkLiteReleaseAarMetadata
+> Task :app:mapLiteReleaseSourceSetPaths
+> Task :app:generateLiteReleaseResources
+> Task :app:packageLiteReleaseResources
+> Task :app:parseLiteReleaseLocalResources
+> Task :app:mergeDexFullRelease
+> Task :app:createLiteReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksLiteRelease
+> Task :app:processLiteReleaseMainManifest FAILED
+> Task :app:mergeLiteReleaseResources
+> Task :app:compileFullReleaseArtProfile
+> Task :app:lintVitalAnalyzeFullRelease
+
 FAILURE: Build failed with an exception.
 
 * What went wrong:
-Execution failed for task ':app:checkFullReleaseDuplicateClasses'.
-> A failure occurred while executing com.android.build.gradle.internal.tasks.CheckDuplicatesRunnable
-   > Duplicate class kotlin.collections.jdk8.CollectionsJDK8Kt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.internal.jdk7.JDK7PlatformImplementations found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.internal.jdk7.JDK7PlatformImplementations$ReflectSdkVersion found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.internal.jdk8.JDK8PlatformImplementations found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.internal.jdk8.JDK8PlatformImplementations$ReflectSdkVersion found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.io.path.ExperimentalPathApi found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.io.path.PathRelativizer found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.io.path.PathsKt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.io.path.PathsKt__PathReadWriteKt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.io.path.PathsKt__PathUtilsKt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.jdk7.AutoCloseableKt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk7-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21)
-     Duplicate class kotlin.jvm.jdk8.JvmRepeatableKt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.random.jdk8.PlatformThreadLocalRandom found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.streams.jdk8.StreamsKt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$1 found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$2 found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$3 found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$4 found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.text.jdk8.RegexExtensionsJDK8Kt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     Duplicate class kotlin.time.jdk8.DurationConversionsJDK8Kt found in modules kotlin-stdlib-1.8.22 (org.jetbrains.kotlin:kotlin-stdlib:1.8.22) and kotlin-stdlib-jdk8-1.6.21 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21)
-     
-     Go to the documentation to learn how to <a href="d.android.com/r/tools/classpath-sync-errors">Fix dependency resolution errors</a>.
+Execution failed for task ':app:processLiteReleaseMainManifest'.
+> com.android.manifmerger.ManifestMerger2$MergeFailureException: Error parsing /home/runner/work/bkey-keyboard/bkey-keyboard/app/src/lite/AndroidManifest.xml
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
@@ -76,5 +90,5 @@ Execution failed for task ':app:checkFullReleaseDuplicateClasses'.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 47s
-18 actionable tasks: 18 executed
+BUILD FAILED in 1m 14s
+48 actionable tasks: 48 executed
