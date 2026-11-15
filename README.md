@@ -4,7 +4,7 @@
 
 # bkey ⌨️
 
-**An Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures — swipe up to pick a suggestion, swipe left to delete.**
+**An Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures — swipe up to pick a suggestion, swipe sideways to delete (direction configurable).**
 
 ![Build](https://github.com/snooptiger9/bkey-keyboard/actions/workflows/build.yml/badge.svg)
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
@@ -21,8 +21,9 @@
 
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
-instantly, and swipe left across the letter row for quick deletion instead of repeated backspace
-taps. Fully supports Arabic and English with a carefully tailored experience for each.
+instantly, and swipe sideways across the letter row (direction configurable) for quick deletion
+instead of repeated backspace taps. Fully supports Arabic and English with a carefully tailored
+experience for each.
 
 <br>
 
@@ -34,7 +35,7 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 - Swipe up on any suggestion: accept it instantly.
 
   ![Swipe up to accept a suggestion](docs/gifs/swipe_up_suggestion.gif)
-- Swipe sideways over the keys: delete the last whole word at once.
+- Swipe sideways over the keys: delete the last whole word at once (pick the swipe direction in settings).
 
   ![Swipe sideways to delete the last word](docs/gifs/swipe_delete_word.gif)
 - Swipe in the exact opposite direction: select all typed text at once.
@@ -238,8 +239,9 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 ### ✨ الوصف
 
 **bkey** كيبورد أندرويد (IME) مبني على إيماءات السحب في تطبيق **BlackBerry Keyboard - Classic**،
-بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب لليسار على صف الحروف للحذف
-بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية بالكامل مع تجربة مخصصة بعناية لكل لغة.
+بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب جانبياً على صف الحروف (الاتجاه
+قابل للتخصيص) للحذف بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية بالكامل مع تجربة
+مخصصة بعناية لكل لغة.
 
 <br>
 
@@ -254,7 +256,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ![سحب للأعلى لقبول الاقتراح](docs/gifs/swipe_up_suggestion.gif)
 
-‏• سحب أفقي فوق الحروف: حذف آخر كلمة كاملة دفعة واحدة‏.
+‏• سحب أفقي فوق الحروف: حذف آخر كلمة كاملة دفعة واحدة (تقدر تختار اتجاه السحب من الإعدادات)‏.
 
 ![سحب جانبي لحذف آخر كلمة](docs/gifs/swipe_delete_word.gif)
 
