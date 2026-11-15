@@ -185,9 +185,6 @@ Two builds — pick the one that fits you:
 No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what Clean and Plus can each access.
 
 </details>
-
-<br>
-
 <details>
 <summary><b>Why does Google Play Protect warn me when I install Plus?</b></summary>
 <br>
@@ -195,9 +192,6 @@ No, never — all learning, correction and prediction happen locally on your dev
 Internet and photo access together trigger it for any sideloaded app — expected, not malware. See [Privacy & security](#en-privacy) for why, or to pause the scan.
 
 </details>
-
-<br>
-
 <details>
 <summary><b>Where are my learned words stored, and how do I wipe them?</b></summary>
 <br>
@@ -205,9 +199,6 @@ Internet and photo access together trigger it for any sideloaded app — expecte
 They're stored locally on your device only. In the app's settings, under the predictions-training section, the **"Clear all learned words"** button wipes them instantly.
 
 </details>
-
-<br>
-
 <details>
 <summary><b>Does it use a lot of battery or memory?</b></summary>
 <br>
@@ -425,9 +416,6 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 لا إطلاقاً — كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك. شوف [الخصوصية والأمان](#ar-privacy) لتفاصيل اللي تقدر النسخة النظيفة ونسخة بلس يوصلون له بالضبط.
 
 </details>
-
-<br>
-
 <details>
 <summary><b>ليش قوقل بروتكت يحذّرني عند تثبيت نسخة بلس؟</b></summary>
 <br>
@@ -435,9 +423,6 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 لأن الإنترنت وصلاحية الصور مع بعض يفعّلون التحذير لأي تطبيق مُثبّت من خارج المتجر — سلوك متوقع، مو فيروس. شوف [الخصوصية والأمان](#ar-privacy) للتفاصيل أو لتعليق الفحص.
 
 </details>
-
-<br>
-
 <details>
 <summary><b>وين تتحفظ الكلمات اللي يتعلمها الكيبورد، وكيف أمسحها؟</b></summary>
 <br>
@@ -445,9 +430,6 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 تنحفظ محلياً على جهازك فقط. من إعدادات التطبيق قسم تدريب التوقعات، زر **"مسح جميع الكلمات المتعلمة"** يمسحها كلها فوراً.
 
 </details>
-
-<br>
-
 <details>
 <summary><b>هل يستهلك الكيبورد بطارية أو ذاكرة كثير؟</b></summary>
 <br>
