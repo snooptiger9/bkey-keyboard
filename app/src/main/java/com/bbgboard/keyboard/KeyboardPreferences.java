@@ -303,6 +303,18 @@ public class KeyboardPreferences {
     // nearly invisible on the dark themes, so it's now fixed per theme directly in
     // BlackBerryImeService.floatingPillC() instead of read from a preference.
 
+    /** "lite" or "full" -- whichever build was last known to be installed, so MainActivity can
+     *  tell when the user has switched builds (Clean sideloaded over Plus or vice versa) and
+     *  show a one-time reassurance that their settings/data were kept, not lost. Null the very
+     *  first time the app ever runs. */
+    public String getLastKnownFlavor() {
+        return prefs.getString("last_known_flavor", null);
+    }
+
+    public void setLastKnownFlavor(String flavor) {
+        prefs.edit().putString("last_known_flavor", flavor).apply();
+    }
+
     public void setKeyboardStyle(int style) {
         prefs.edit().putInt("keyboard_style", style).apply();
     }

@@ -224,6 +224,7 @@ public class MainActivity extends Activity {
         soundController = new SoundController(this, prefs);
         predictionEngine = new PredictionEngine(this, prefs);
         clipboardRepo = new ClipboardRepository(this);
+        checkFlavorSwitch();
         applyWindowBackground();
 
         mainFrame = new FrameLayout(this);
@@ -241,6 +242,25 @@ public class MainActivity extends Activity {
         rootContainer.addView(mainFrame);
         addFloatingKeyboardTester(rootContainer);
         setContentView(rootContainer);
+    }
+
+    /** Clean and Plus share one applicationId, so sideloading one over the other replaces the
+     *  same installed app rather than adding a second one -- settings/learned words/clipboard
+     *  are kept across that replace, but a user doing it might not realize that happened on
+     *  purpose. If the build just changed since last launch, say so once. */
+    private void checkFlavorSwitch() {
+        String currentFlavor = BuildConfig.OTP_FEATURES_ENABLED ? "full" : "lite";
+        String lastFlavor = prefs.getLastKnownFlavor();
+        if (lastFlavor != null && !lastFlavor.equals(currentFlavor)) {
+            String switchedToName = BuildConfig.OTP_FEATURES_ENABLED
+                    ? tr("بلس", "Plus")
+                    : tr("النظيفة", "Clean");
+            android.widget.Toast.makeText(this,
+                    tr("✅ تحوّلت إلى " + switchedToName + " — إعداداتك وكلماتك المتعلمة محفوظة",
+                            "✅ Switched to " + switchedToName + " — your settings and learned words were kept"),
+                    android.widget.Toast.LENGTH_LONG).show();
+        }
+        prefs.setLastKnownFlavor(currentFlavor);
     }
 
     private void addFloatingKeyboardTester(FrameLayout root) {

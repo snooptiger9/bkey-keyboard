@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Overlay applied only to the "full" flavor (the "Plus" build): gives it a distinct app name
+    and keyboard-list name so a user who has switched between Clean and Plus can always tell,
+    from the launcher or the "choose keyboard" list, which one is currently installed -- both
+    builds share the same applicationId, so only one can be installed at a time and they'd
+    otherwise both show up as plain "bkey".
+-->
+<resources>
+    <string name="app_name">bkey Plus</string>
+    <string name="ime_name">bkey Plus</string>
+</resources>
