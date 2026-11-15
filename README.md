@@ -388,9 +388,9 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 </div>
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="docs/images/download_clean_ar.png" alt="تحميل النسخة النظيفة" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="docs/images/download_clean_ar.png" alt="تثبيت النسخة النظيفة" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="docs/images/download_plus_ar.png" alt="تحميل نسخة بلس" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="docs/images/download_plus_ar.png" alt="تثبيت نسخة بلس" width="300" height="50"></a>
 </p>
 
 **النسخة النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور.
