@@ -298,20 +298,10 @@ public class KeyboardPreferences {
         prefs.edit().putInt("enter_color", color).apply();
     }
 
-    public static final int FLOATING_CAPSULE_FOLLOW_LABEL = -1;
-
-    public int getFloatingCapsuleColor() {
-        return prefs.getInt("floating_capsule_color", 0x000000);
-    }
-
-    public void setFloatingCapsuleColor(int rgb) {
-        prefs.edit().putInt("floating_capsule_color", rgb).apply();
-    }
-
-    /** Fixed at 28% -- no longer user-adjustable, so this ignores whatever was stored before. */
-    public int getFloatingCapsuleOpacity() {
-        return 28;
-    }
+    // The floating ABC/Delete capsule color used to be user-pickable here (stored as
+    // "floating_capsule_color"/a fixed-85%-then-28% opacity), but its black default was
+    // nearly invisible on the dark themes, so it's now fixed per theme directly in
+    // BlackBerryImeService.floatingPillC() instead of read from a preference.
 
     public void setKeyboardStyle(int style) {
         prefs.edit().putInt("keyboard_style", style).apply();

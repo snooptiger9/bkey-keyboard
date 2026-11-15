@@ -1944,29 +1944,28 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int pillCLight() { return (labelC() & 0x00FFFFFF) | 0x18000000; }
 
     private int floatingPillC() {
-        int rgb = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleColor() : 0x000000;
-        if (rgb == KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL) rgb = labelC() & 0x00FFFFFF;
-        int percent = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleOpacity() : 85;
-        int alpha = Math.round(255 * percent / 100f);
-        return (rgb & 0x00FFFFFF) | (alpha << 24);
+        // Fixed per theme instead of a user-picked color: the old default (black) was
+        // nearly invisible against the Matte Black/Midnight Slate themes' own dark
+        // background once the extra dark base layer below was added on top of it too.
+        int theme = keyboardPrefs != null ? keyboardPrefs.getThemeMode() : KeyboardPreferences.THEME_GBOARD_WHITE;
+        if (theme == KeyboardPreferences.THEME_GBOARD_WHITE) {
+            // White theme: match the exact pill style used by the back-arrow buttons in
+            // the clipboard/emoji drawers (pillC()) instead of the old black-tinted look.
+            return pillC();
+        }
+        int alpha = Math.round(255 * 28 / 100f);
+        return (0x9CA3AF) | (alpha << 24);
     }
 
     private android.graphics.drawable.Drawable buildFloatingCapsuleDrawable() {
-        int percent = keyboardPrefs != null ? keyboardPrefs.getFloatingCapsuleOpacity() : 85;
-        int colorAlpha = Math.round(255 * percent / 100f);
-        int blackAlpha = 255 - colorAlpha;
-
-        android.graphics.drawable.GradientDrawable blackLayer = new android.graphics.drawable.GradientDrawable();
-        blackLayer.setColor((0x000000) | (blackAlpha << 24));
-        blackLayer.setCornerRadius(dp(40));
-
-        android.graphics.drawable.GradientDrawable colorLayer = new android.graphics.drawable.GradientDrawable();
-        colorLayer.setColor(floatingPillC());
-        colorLayer.setCornerRadius(dp(40));
-
-        android.graphics.drawable.LayerDrawable layers = new android.graphics.drawable.LayerDrawable(
-                new android.graphics.drawable.Drawable[]{blackLayer, colorLayer});
-        return new android.graphics.drawable.InsetDrawable(layers, dp(3), dp(6), dp(3), dp(6));
+        // A single solid pill now -- the previous version layered this color over an
+        // always-present, mostly-opaque black base, which is what made the capsule read
+        // as plain black (and vanish into a dark keyboard background) regardless of the
+        // color chosen above it.
+        android.graphics.drawable.GradientDrawable pill = new android.graphics.drawable.GradientDrawable();
+        pill.setColor(floatingPillC());
+        pill.setCornerRadius(dp(40));
+        return new android.graphics.drawable.InsetDrawable(pill, dp(3), dp(6), dp(3), dp(6));
     }
     private int pressedC()    { return keyboardView != null ? keyboardView.getKeyPressedColor() : Color.parseColor("#323846"); }
     private int keyDividerC() { return keyboardView != null ? keyboardView.getKeyDividerColor() : Color.parseColor("#363636"); }

@@ -2041,66 +2041,13 @@ public class MainActivity extends Activity {
         });
         sizeCard.addView(clearBtn);
         root.addView(sizeCard);
-
-        LinearLayout capsuleCard = createGroupedWhiteCard();
-        capsuleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        TextView capsuleHeader = new TextView(this);
-        capsuleHeader.setText(tr("لون الكبسولات العائمة", "Floating capsules color"));
-        capsuleHeader.setTextColor(Color.parseColor(dm("#111827")));
-        capsuleHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        capsuleHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        capsuleHeader.setPadding(0, 0, 0, dp(10));
-        capsuleCard.addView(capsuleHeader);
-
-        FrameLayout previewHolder = new FrameLayout(this);
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
-        // No background box behind the preview anymore -- it sits directly on the card's
-        // own background, so the pill's real transparency shows live as the color/opacity
-        // change, instead of always being shown against one fixed dark backdrop.
-        final TextView previewCapsule = new TextView(this);
-        previewCapsule.setText(tr("أبجد", "ABC"));
-        previewCapsule.setTextColor(Color.WHITE);
-        previewCapsule.setTypeface(Typeface.DEFAULT_BOLD);
-        previewCapsule.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        previewCapsule.setGravity(Gravity.CENTER);
-        GradientDrawable previewPill = new GradientDrawable();
-        previewPill.setCornerRadius(dp(40));
-        previewCapsule.setBackground(previewPill);
-        FrameLayout.LayoutParams pillLp = new FrameLayout.LayoutParams(dp(90), dp(42));
-        pillLp.gravity = Gravity.CENTER;
-        previewCapsule.setLayoutParams(pillLp);
-        previewHolder.addView(previewCapsule);
-        capsuleCard.addView(previewHolder);
-
-        boolean darkThemeNow = prefs.getThemeMode() != KeyboardPreferences.THEME_GBOARD_WHITE;
-        final String followBackHex = darkThemeNow ? dm("#F8FAFC") : dm("#1E293B");
-        String[] capsuleNames = tr(
-                new String[]{"أسود", "رمادي فاتح"},
-                new String[]{"Black", "Light gray"});
-
-        String[] capsuleHex = {"#000000", "#9CA3AF"};
-        final int FOLLOW_BACK = KeyboardPreferences.FLOATING_CAPSULE_FOLLOW_LABEL;
-        List<View> capsuleTiles = new ArrayList<>();
-        final Runnable[] updatePreviewRef = new Runnable[1];
-        for (int i = 0; i < capsuleNames.length; i++) {
-            final int color = Color.parseColor(capsuleHex[i]) & 0x00FFFFFF;
-            boolean selected = (prefs.getFloatingCapsuleColor() & 0x00FFFFFF) == color
-                    && prefs.getFloatingCapsuleColor() != FOLLOW_BACK;
-            capsuleTiles.add(createPreviewTile(capsuleNames[i], capsuleHex[i], selected,
-                    v -> { prefs.setFloatingCapsuleColor(color); refreshEmojiScreen(root); }));
-        }
-        addTileGrid(capsuleCard, capsuleTiles, 2);
-        root.addView(capsuleCard);
-
-        updatePreviewRef[0] = () -> {
-            int storedColor = prefs.getFloatingCapsuleColor();
-            int rgb = storedColor == FOLLOW_BACK
-                    ? (Color.parseColor(followBackHex) & 0x00FFFFFF)
-                    : (storedColor & 0x00FFFFFF);
-            int alpha = Math.round(255 * prefs.getFloatingCapsuleOpacity() / 100f);
-            previewPill.setColor((rgb) | (alpha << 24));
-        };
-        updatePreviewRef[0].run();
+        // The old "Floating capsules color" picker (Black / Light gray) used to live here.
+        // Its default (black) was nearly invisible on the Matte Black and Midnight Slate
+        // themes' own dark background, so the floating ABC/Delete capsules now use a fixed
+        // color automatically chosen per theme instead of a user-picked one (see
+        // floatingPillC() in BlackBerryImeService.java): a fixed light gray on the two dark
+        // themes, and the same style as the back-arrow buttons in the clipboard/emoji
+        // drawers on the white theme.
     }
 
     private void openGesturesScreen() {
