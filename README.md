@@ -114,24 +114,24 @@ experience for each.
 
 ### 🔒 Privacy & security
 
-- **Clean** has no network access and can't read SMS, notifications, photos or storage — those
+- **Clean** version has no network access and can't read SMS, notifications, photos or storage — those
   permissions aren't in the app. Voice typing still works, handled entirely by your device's own
   speech-recognition service.
 
-- **Plus** adds GIF search, image/sticker pasting, OTP suggestions, and the in-app updater. OTP
+- **Plus** version adds GIF search, image/sticker pasting, OTP suggestions, and the in-app updater. OTP
   suggestions are off by default and only read a newly-arrived SMS/WhatsApp notification — never
   your message history — all processed on-device, never sent to any server.
 
-> ⚠️ **About the Play Protect warning on Plus**
+> ⚠️ **About the Play Protect warning on the Plus version**
 >
 > Internet or photo access alone installs cleanly — only their *combination* triggers Google Play
 > Protect's "Harmful app" flag, confirmed by our own testing. GIF search and image-pasting need
-> both, so Plus can't avoid it without losing them. We've appealed the false positive with Google;
+> both, so the Plus version can't avoid it without losing them. We've appealed the false positive with Google;
 > until resolved, this is expected behavior for a sideloaded app with these permissions, not
-> malware. Prefer not to see it? Install Clean instead.
+> malware. Prefer not to see it? Install the Clean version instead.
 
 <details>
-<summary><b>Steps to pause Play Protect scanning, if you still want to install Plus (tap for details)</b></summary>
+<summary><b>Steps to pause Play Protect scanning, if you still want to install the Plus version (tap for details)</b></summary>
 
 <br>
 
@@ -140,7 +140,7 @@ experience for each.
 3. Tap **Play Protect**.
 4. Tap the ⚙️ settings icon, top right.
 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
-6. Install the Plus APK.
+6. Install the Plus version's APK.
 7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after installing (recommended to keep it on for your other apps).
 
 </details>
@@ -153,7 +153,7 @@ experience for each.
 
 Two builds — pick the one that fits you:
 
-| | 🟢 Clean (recommended) | 🔵 Plus |
+| | 🟢 Clean version (recommended) | 🔵 Plus version |
 |---|:---:|:---:|
 | Installs with no Play Protect warning | ✅ | ⚠️ see note below |
 | GIF search & image/sticker pasting | — | ✅ |
@@ -168,13 +168,13 @@ Two builds — pick the one that fits you:
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v289.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
 </p>
 
-**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
+**Clean** version requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
 
-**Plus** has everything, but installing it triggers a Google Play Protect warning (expected, not a real problem — see [Privacy & security](#en-privacy) for why).
+**Plus** version has everything, but installing it triggers a Google Play Protect warning (expected, not a real problem — see [Privacy & security](#en-privacy) for why).
 
 > [!CAUTION]
-> - **Updating Clean:** only from this page.
-> - **Updating Plus:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on Plus, never Clean.
+> - **Updating the Clean version:** only from this page.
+> - **Updating the Plus version:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on the Plus version, never the Clean version.
 
 <br>
 
@@ -186,11 +186,11 @@ Two builds — pick the one that fits you:
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
 <br>
 
-No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what Clean and Plus can each access.
+No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what the Clean and Plus versions can each access.
 
 </details>
 <details>
-<summary><b>Why does Google Play Protect warn me when I install Plus?</b></summary>
+<summary><b>Why does Google Play Protect warn me when I install the Plus version?</b></summary>
 <br>
 
 Internet and photo access together trigger it for any sideloaded app — expected, not malware. See [Privacy & security](#en-privacy) for why, or to pause the scan.
