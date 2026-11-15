@@ -155,6 +155,7 @@ public class MainActivity extends Activity {
             case "#16A34A": return "#4ADE80";
             case "#E5F0EA": return "#1C2E22";
             case "#EFF6FF": return "#1B2A3F";
+            case "#DBEAFE": return "#24406B";
             case "#78350F": case "#B45309": return "#FBBF24";
             default: return lightHex;
         }
@@ -436,9 +437,12 @@ public class MainActivity extends Activity {
         titleRowTop.addView(pageTitle);
 
         boolean darkNow = prefs.isAppDarkMode();
+        // A more saturated chip background than the very-pale "#EFF6FF" used for selection
+        // highlights elsewhere -- that tint barely differed from the page's own light-gray
+        // background, so this button didn't read as a tappable chip at all in light mode.
         ModernIconView themeToggleBtn = new ModernIconView(this,
                 ModernIconView.ICON_CRESCENT_MOON,
-                Color.parseColor(dm("#2563EB")), Color.parseColor(dm("#EFF6FF")));
+                Color.parseColor(dm("#2563EB")), Color.parseColor(dm("#DBEAFE")));
         themeToggleBtn.setFilled(darkNow);
         themeToggleBtn.setStyle(0.78f, 2.0f);
         LinearLayout.LayoutParams lpToggle = new LinearLayout.LayoutParams(dp(42), dp(42));
@@ -954,7 +958,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        lp.bottomMargin = dp(10);
+        lp.bottomMargin = dp(6);
         card.setLayoutParams(lp);
 
         LinearLayout textCol = new LinearLayout(this);
@@ -1093,10 +1097,8 @@ public class MainActivity extends Activity {
 
         TextView langModeNote = new TextView(this);
         langModeNote.setText(tr(
-                "لو فعّلت اللغتين سوا، تقدر تختار طريقة التبديل بينهم (سحب المسافة أو زر 🌐). "
-                        + "لو فعّلت لغة وحدة بس، ما يحتاج تبديل أصلاً فيختفي زر 🌐 ويتعطّل خيار السحب تلقائياً.",
-                "Enable both languages together to choose how you switch between them (space-bar swipe or the 🌐 button). "
-                        + "Enable just one language and there's nothing to switch, so the 🌐 button disappears and the swipe option turns off automatically."));
+                "فعّل اللغتين للتبديل بسحب المسافة أو زر 🌐. لغة وحدة = بدون تبديل، فيختفي الزر ويتعطّل السحب.",
+                "Enable both languages to switch via space-bar swipe or the 🌐 button. One language = nothing to switch, so the button hides and swipe turns off."));
         langModeNote.setTextColor(Color.parseColor(dm("#6B7280")));
         langModeNote.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
         langModeNote.setPadding(dp(4), 0, dp(4), dp(12));
@@ -1489,11 +1491,21 @@ public class MainActivity extends Activity {
         swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(holderSize, holderSize));
 
         if (selected) {
+            // A dark swatch (e.g. the near-black "Matte black" theme) sitting right next to a
+            // plain blue ring gave almost no sense of "this one is selected" -- the ring was
+            // there, but nothing about it stood out against a dark circle the way it does
+            // against a light one. Checking the swatch's own brightness and switching to a
+            // lighter, higher-contrast ring color for dark swatches fixes that without changing
+            // how light/colorful swatches look.
+            int swatchRgb = Color.parseColor(colorHex);
+            double luminance = (0.299 * Color.red(swatchRgb) + 0.587 * Color.green(swatchRgb) + 0.114 * Color.blue(swatchRgb)) / 255.0;
+            boolean darkSwatch = luminance < 0.35;
+            String ringColorHex = darkSwatch ? "#93C5FD" : dm("#2563EB");
 
             GradientDrawable ring = new GradientDrawable();
             ring.setShape(GradientDrawable.OVAL);
             ring.setColor(Color.TRANSPARENT);
-            ring.setStroke(dp(2), Color.parseColor(dm("#2563EB")));
+            ring.setStroke(dp(darkSwatch ? 3 : 2), Color.parseColor(ringColorHex));
             View ringView = new View(this);
             ringView.setBackground(ring);
             FrameLayout.LayoutParams lpRing = new FrameLayout.LayoutParams(holderSize, holderSize);
@@ -1599,6 +1611,14 @@ public class MainActivity extends Activity {
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
         tile.setOnClickListener(onClick);
 
+        // Every tile's mock preview renders in whatever keyboard theme is currently active --
+        // against a near-black "Matte black"/"Midnight slate" preview, the usual plain blue
+        // selection border and checkmark badge barely stood out. Boosting both to a lighter,
+        // higher-contrast blue specifically while a dark theme is selected fixes that without
+        // changing how it looks on the light theme.
+        boolean darkThemeNow = prefs.getThemeMode() != 1;
+        String selectionColorHex = darkThemeNow ? "#93C5FD" : dm("#2563EB");
+
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(72), dp(60)));
         holder.setBackground(roundedCard(selected ? dm("#EFF6FF") : dm("#F3F4F6"), 13));
@@ -1609,16 +1629,17 @@ public class MainActivity extends Activity {
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
+        frame.setStroke(dp(selected && darkThemeNow ? 3 : selected ? 2 : 1),
+                Color.parseColor(selected ? selectionColorHex : dm("#E5E7EB")));
         holder.setForeground(frame);
         if (selected) {
             TextView badge = new TextView(this);
             badge.setText("✓");
-            badge.setTextColor(Color.WHITE);
+            badge.setTextColor(darkThemeNow ? Color.parseColor("#1E293B") : Color.WHITE);
             badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
             badge.setTypeface(Typeface.DEFAULT_BOLD);
             badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard(dm("#2563EB"), 7));
+            badge.setBackground(roundedCard(selectionColorHex, 7));
             FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
             lpB.gravity = Gravity.TOP | Gravity.END;
             lpB.topMargin = dp(2);
