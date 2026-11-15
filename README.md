@@ -187,7 +187,7 @@ No, never — all learning, correction and prediction happen locally on your dev
 <summary><b>Why does Google Play Protect warn me when I install Plus?</b></summary>
 <br>
 
-Because Plus needs internet and photo access together, and Google flags that exact combination for sideloaded apps — confirmed by our own testing, not a guess. Standard behavior, not malware. Install Clean to skip the warning entirely, or see [Privacy & security](#en-privacy) to pause it temporarily.
+Internet and photo access together trigger it for any sideloaded app — expected, not malware. See [Privacy & security](#en-privacy) for why, or to pause the scan.
 
 </details>
 
@@ -422,7 +422,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <summary><b>ليش قوقل بروتكت يحذّرني عند تثبيت نسخة بلس؟</b></summary>
 <br>
 
-لأن بلس تحتاج الإنترنت وصلاحية الصور مع بعض، وقوقل يصنّف هذي التركيبة بالذات لأي تطبيق يُثبّت من خارج المتجر — تأكدنا بالتجربة، مو تخمين. سلوك قياسي ومو فيروس. ثبّت النظيفة لتتجنب التحذير خالص، أو شوف [الخصوصية والأمان](#ar-privacy) لتعليقه مؤقتاً.
+لأن الإنترنت وصلاحية الصور مع بعض يفعّلون التحذير لأي تطبيق مُثبّت من خارج المتجر — سلوك متوقع، مو فيروس. شوف [الخصوصية والأمان](#ar-privacy) للتفاصيل أو لتعليق الفحص.
 
 </details>
 
