@@ -864,7 +864,12 @@ public class MainActivity extends Activity {
         card.setLayoutParams(lp);
 
         TextView title = new TextView(this);
-        title.setText(tr("حذف نصوص الحافظة ولقطة الشاشة تلقائياً", "Auto-delete old clipboard items & screenshot"));
+        // The screenshot-to-clipboard feature doesn't exist at all in the
+        // Clean (lite) build (no photos/storage permission there), so its
+        // retention-settings title shouldn't mention it either.
+        title.setText(BuildConfig.OTP_FEATURES_ENABLED
+                ? tr("حذف نصوص الحافظة ولقطة الشاشة تلقائياً", "Auto-delete old clipboard items & screenshot")
+                : tr("حذف نصوص الحافظة تلقائياً", "Auto-delete old clipboard items"));
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         title.setTextColor(Color.parseColor(dm("#1F2937")));
         card.addView(title);
@@ -887,7 +892,9 @@ public class MainActivity extends Activity {
             int sel = 4;
             for (int i = 0; i < values.length; i++) if (values[i] == cur) sel = i;
             new android.app.AlertDialog.Builder(this)
-                    .setTitle(tr("حذف النصوص ولقطة الشاشة القديمة", "Auto-delete old items & screenshot"))
+                    .setTitle(BuildConfig.OTP_FEATURES_ENABLED
+                            ? tr("حذف النصوص ولقطة الشاشة القديمة", "Auto-delete old items & screenshot")
+                            : tr("حذف النصوص القديمة", "Auto-delete old items"))
                     .setSingleChoiceItems(labels, sel, (d, which) -> {
                         prefs.setClipRetentionHours(values[which]);
                         refresh.run();
