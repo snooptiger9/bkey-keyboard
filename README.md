@@ -164,9 +164,12 @@ Two builds — pick the one that fits you:
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
 </p>
 
-**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access. Updates manually from this page only.
+**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
 
-**Plus** has everything, but internet and photo access together trigger Google Play Protect's "Harmful app" warning on install (expected, not a real problem — details in [Privacy & security](#en-privacy)). Update it from this page or its in-app updater (Settings → **Update the app**); either way it stays on Plus, never Clean.
+**Plus** has everything, but internet and photo access together trigger Google Play Protect's "Harmful app" warning on install (expected, not a real problem — details in [Privacy & security](#en-privacy)).
+
+- Updating Clean: only from this page.
+- Updating Plus: from this page, or from inside the app (Settings → **Update the app**) — either way it stays on Plus, never Clean.
 
 <br>
 
@@ -398,9 +401,12 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="docs/images/download_plus_ar.png" alt="تحميل نسخة بلس" width="300" height="50"></a>
 </p>
 
-**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور. تحديثها يدوي بس من هذي الصفحة.
+**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور.
 
-**بلس** فيها كل شي، بس جمع الإنترنت مع صلاحية الصور يسبب تحذير "Harmful app" من Google Play Protect عند التثبيت (متوقع، مو مشكلة حقيقية — التفاصيل بقسم [الخصوصية والأمان](#ar-privacy)). حدّثها من هذي الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل بلس، ما تتحول للنظيفة.
+**بلس** فيها كل شي، بس جمع الإنترنت مع صلاحية الصور يسبب تحذير "Harmful app" من Google Play Protect عند التثبيت (متوقع، مو مشكلة حقيقية — التفاصيل بقسم [الخصوصية والأمان](#ar-privacy)).
+
+- تحديث تطبيق النسخة النظيفة: من هذه الصفحة فقط.
+- تحديث تطبيق النسخة بلس: من هذه الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل بلس، ما تتحول للنظيفة.
 
 <br>
 
