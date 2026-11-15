@@ -11,10 +11,13 @@
     a build with neither installed as "This app looks safe". So this flavor
     removes every permission that isn't strictly needed for a keyboard to
     type with: RECEIVE_SMS, the WhatsApp notification-listener service,
-    INTERNET, and photo/storage access. That means GIF search, image/sticker
-    pasting, the in-app update checker and OTP suggestions all need the
-    Plus (full) build instead; their settings rows are hidden here too
-    (see BuildConfig.OTP_FEATURES_ENABLED in MainActivity.java).
+    INTERNET, photo/storage access, and the package-install permission (the
+    in-app update checker needs INTERNET to fetch the new APK in the first
+    place, so it cannot run here either, and keeping this permission without
+    INTERNET would be a dead, pointless grant). That means GIF search,
+    image/sticker pasting, the in-app update checker and OTP suggestions all
+    need the Plus (full) build instead; their settings rows are hidden here
+    too (see BuildConfig.OTP_FEATURES_ENABLED in MainActivity.java).
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
@@ -23,6 +26,7 @@
     <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" tools:node="remove" />
 
     <application>
         <service
