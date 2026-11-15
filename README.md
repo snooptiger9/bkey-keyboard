@@ -69,7 +69,7 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 - A full clipboard drawer: pin, delete, and auto-delete old items after a duration you choose
   (from 1 hour to 30 days, or never).
 - Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(Plus only)*
-- The last copied text shows right in the middle suggestion slot for a quick re-paste. *(Plus only)*
+- The last copied text shows right in the middle suggestion slot for a quick re-paste.
 
   ![Tapping the clipboard suggestion chip to paste](docs/gifs/paste_chip.gif)
 
@@ -161,7 +161,8 @@ Two builds — pick the one that fits you:
 | GIF search & image/sticker pasting | — | ✅ |
 | In-app update checker | — | ✅ |
 | Verification-code (OTP) suggestions | — | ✅ (optional, off by default) |
-| Screenshot-to-clipboard & clipboard-text suggestion | — | ✅ |
+| Screenshot-to-clipboard | — | ✅ |
+| Copied-text suggestion | ✅ | ✅ |
 
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download-Clean-22C55E?style=for-the-badge" alt="Download Clean"></a>
@@ -298,7 +299,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 **📋 الحافظة الذكية**
 ‏• درج حافظة كامل: تثبيت، حذف، وحذف تلقائي للعناصر القديمة بعد مدة تختارها (من ساعة إلى 30 يوماً، أو بدون حذف)‏.  
 ‏• حفظ آخر لقطة شاشة تلقائياً (مصغّرة واحدة تحل محل القديمة) *(نسخة Plus فقط)*‏.  
-‏• آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة *(نسخة Plus فقط)*‏.
+‏• آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة‏.
 
 ![الضغط على نص الحافظة بالاقتراحات للصقه](docs/gifs/paste_chip.gif)
 
@@ -395,7 +396,8 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 | بحث GIF ولصق الصور/الستيكرات | — | ✅ |
 | تحديث تلقائي من داخل التطبيق | — | ✅ |
 | اقتراح رمز التحقق (OTP) | — | ✅ (اختياري، معطّل افتراضياً) |
-| حفظ لقطة الشاشة بالحافظة + اقتراح آخر نص منسوخ | — | ✅ |
+| حفظ لقطة الشاشة بالحافظة | — | ✅ |
+| اقتراح آخر نص منسوخ | ✅ | ✅ |
 
 </div>
 

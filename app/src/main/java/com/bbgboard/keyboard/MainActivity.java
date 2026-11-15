@@ -2320,11 +2320,9 @@ public class MainActivity extends Activity {
         LinearLayout root = createSubScreenTemplate(tr("الحافظة الذكية (Clipboard)", "Smart Clipboard"));
 
         if (BuildConfig.OTP_FEATURES_ENABLED) {
-            // Both suggestion options below are hidden in the Clean (lite)
-            // build: the screenshot one needs photos/storage permission the
-            // Clean build doesn't request, and the clipboard-text one is kept
-            // alongside it so Clean stays limited to the plain clipboard
-            // drawer with no suggestion surfacing at all.
+            // Screenshot-to-clipboard needs photos/storage permission, which
+            // the Clean (lite) build intentionally doesn't request -- so this
+            // one stays Plus-only.
             root.addView(createSwitchTile(
                     tr("حفظ آخر لقطة شاشة في الحافظة", "Save last screenshot to clipboard"),
                     tr("تظهر مصغّرة واحدة فقط في قائمة الحافظة، وكل لقطة جديدة تحل محل السابقة. تحتاج إذن الوصول للصور", "Shows a single thumbnail in the clipboard list; each new screenshot replaces the last. Needs photos permission"),
@@ -2338,14 +2336,17 @@ public class MainActivity extends Activity {
                         }
                     }
             ));
-
-            root.addView(createSwitchTile(
-                    tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
-                    tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
-                    prefs.isClipChipEnabled(),
-                    checked -> prefs.setClipChipEnabled(checked)
-            ));
         }
+
+        // The copied-text suggestion chip only reads the system clipboard
+        // (ClipboardManager), which needs no special permission -- so unlike
+        // the screenshot one above, it's available in Clean too.
+        root.addView(createSwitchTile(
+                tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
+                tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
+                prefs.isClipChipEnabled(),
+                checked -> prefs.setClipChipEnabled(checked)
+        ));
 
         root.addView(createClipRetentionTile());
     }

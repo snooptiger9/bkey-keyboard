@@ -552,10 +552,9 @@ public class KeyboardPreferences {
     }
 
     public boolean isClipChipEnabled() {
-        // Hidden in the Clean (lite) build's settings UI, so force it off
-        // there too instead of leaving it on by default with no way to turn
-        // it off.
-        if (!BuildConfig.OTP_FEATURES_ENABLED) return false;
+        // Needs no special permission (just the system clipboard listener),
+        // so unlike screenshot-to-clipboard this works the same in both the
+        // Clean (lite) and Plus (full) builds.
         return prefs.getBoolean("clip_chip_enabled", true);
     }
 
