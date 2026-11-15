@@ -183,7 +183,7 @@ Two builds — pick the one that fits you:
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
 <br>
 
-No, never. All learning, correction and prediction happen locally on your device. Clean has no network access at all. In Plus, only the GIF feature reaches the network, and only while you're actively using it. Details in [Privacy & security](#en-privacy).
+No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what Clean and Plus can each access.
 
 </details>
 
@@ -193,7 +193,7 @@ No, never. All learning, correction and prediction happen locally on your device
 <summary><b>Why does Google Play Protect warn me when I install Plus?</b></summary>
 <br>
 
-Because Plus needs internet and photo/storage access together, and Google flags that exact combination for sideloaded apps — confirmed by our own testing, not a guess. Standard behavior, not malware. Prefer no warning at all? Install Clean; it has neither permission. Steps to pause the warning temporarily are in [Privacy & security](#en-privacy).
+Because Plus needs internet and photo access together, and Google flags that exact combination for sideloaded apps — confirmed by our own testing, not a guess. Standard behavior, not malware. Install Clean to skip the warning entirely, or see [Privacy & security](#en-privacy) to pause it temporarily.
 
 </details>
 
@@ -213,7 +213,7 @@ They're stored locally on your device only. In the app's settings, under the pre
 <summary><b>Does it use a lot of battery or memory?</b></summary>
 <br>
 
-No, the keyboard is lightweight and runs fully on-device. Clean has no network access at all; in Plus, only the GIF feature uses the network, and only while you're actively using it.
+No — it's lightweight and runs fully on-device, with no background cloud processing.
 
 </details>
 
@@ -425,7 +425,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <summary><b>هل الكيبورد يرسل أي بيانات أو كلمات أكتبها للإنترنت؟</b></summary>
 <br>
 
-لا إطلاقاً. كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك فقط. النظيفة ما فيها أي اتصال إنترنت إطلاقاً. وبنسخة بلس، بس ميزة GIF تتصل بالإنترنت، وبس وقت استخدامها الفعلي. التفاصيل بقسم [الخصوصية والأمان](#ar-privacy).
+لا إطلاقاً — كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك. شوف [الخصوصية والأمان](#ar-privacy) لتفاصيل اللي تقدر النظيفة وبلس يوصلون له بالضبط.
 
 </details>
 
@@ -435,7 +435,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <summary><b>ليش قوقل بروتكت يحذّرني عند تثبيت نسخة بلس؟</b></summary>
 <br>
 
-لأن بلس تحتاج الإنترنت وصلاحية الصور/التخزين مع بعض، وقوقل يصنّف هذي التركيبة بالذات لأي تطبيق يُثبّت من خارج المتجر — تأكدنا بالتجربة، مو تخمين. سلوك قياسي ومو فيروس. ما تبي تشوف التحذير؟ ثبّت النظيفة؛ ما فيها ولا وحدة من الصلاحيتين. خطوات تعليق التحذير مؤقتاً بقسم [الخصوصية والأمان](#ar-privacy).
+لأن بلس تحتاج الإنترنت وصلاحية الصور مع بعض، وقوقل يصنّف هذي التركيبة بالذات لأي تطبيق يُثبّت من خارج المتجر — تأكدنا بالتجربة، مو تخمين. سلوك قياسي ومو فيروس. ثبّت النظيفة لتتجنب التحذير خالص، أو شوف [الخصوصية والأمان](#ar-privacy) لتعليقه مؤقتاً.
 
 </details>
 
@@ -455,7 +455,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <summary><b>هل يستهلك الكيبورد بطارية أو ذاكرة كثير؟</b></summary>
 <br>
 
-لا، الكيبورد خفيف ويشتغل محلياً بدون أي معالجة بالسحابة. النظيفة ما فيها أي اتصال إنترنت إطلاقاً؛ وبنسخة بلس، بس ميزة GIF تحتاج إنترنت وقت استخدامها الفعلي.
+لا — خفيف ويشتغل بالكامل محلياً بدون أي معالجة بالسحابة.
 
 </details>
 
