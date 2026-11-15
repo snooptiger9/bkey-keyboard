@@ -1,0 +1,16 @@
+bkey is a keyboard (IME) built around the swipe gestures of the old BlackBerry Keyboard - Classic app, brought to a modern Android keyboard with more customization.
+
+Gestures:
+
+* Swipe up on any suggestion to accept it instantly
+* Swipe sideways across the letter row to delete the last whole word at once (direction configurable in settings)
+* Swipe down over the keys to copy selected text -- the same gesture turns into paste for one minute afterward
+* Press-and-hold and drag the space bar to move the cursor character by character
+
+Other features:
+
+* Full Arabic and English support, each tailored separately
+* Smart clipboard with pin, delete, and auto-delete
+* Emoji panel, a persistent number row, custom themes, and key sounds
+
+This is the Clean build: it has no network access at all, and does not request SMS, notification, photo, or storage permissions -- it only does what a keyboard needs to type.
