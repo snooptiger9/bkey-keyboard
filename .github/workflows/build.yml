@@ -76,6 +76,22 @@ jobs:
             app/build/outputs/apk/lite/release/*.apk
             app/build/outputs/apk/full/release/*.apk
 
+      - name: Check whether the app version changed
+        id: verdiff
+        run: |
+          OLD_VERSION=""
+          if [ -f release/bkey-latest.version ]; then
+            OLD_VERSION=$(cat release/bkey-latest.version)
+          fi
+          NEW_VERSION=$(grep -oP 'versionCode\s+\K[0-9]+' app/build.gradle)
+          echo "old=$OLD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "new=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit built APKs into the repo
         run: |
           mkdir -p release
@@ -92,3 +108,25 @@ jobs:
           else
             echo "No APK changes to commit."
           fi
+
+      - name: Read app version name
+        id: appver
+        run: echo "name=$(grep -oP 'versionName\s+"\K[^"]+' app/build.gradle)" >> "$GITHUB_OUTPUT"
+
+      # Only cuts a new GitHub Release when versionCode actually changed, so the
+      # per-asset download counters build up over time instead of resetting on
+      # every ordinary commit (uploading new assets to an existing release would
+      # reset their counts to zero).
+      - name: Publish a new versioned GitHub Release
+        if: steps.verdiff.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ steps.appver.outputs.name }}"
+          name: "v${{ steps.appver.outputs.name }}"
+          body: "Automated build from commit ${{ github.sha }}."
+          make_latest: true
+          files: |
+            release/bkey-latest.apk
+            release/bkey-full-latest.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
