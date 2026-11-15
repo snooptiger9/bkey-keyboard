@@ -86,7 +86,7 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 - 3 color themes, 9 key shapes, multiple fonts (System/Tajawal).
 - Full size control: key letter size, keyboard height, suggestion bar height, and suggestion
   text size.
-- Enter-key color, plus color and opacity for the floating capsules in the symbols/clipboard panels.
+- Enter-key color; the floating ABC/Delete capsules match your theme automatically.
 - Key-bounce animation and the suggestion-accept flying-word animation — each toggleable on its own.
 
 <br>
@@ -124,13 +124,12 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 
 > ⚠️ **About the Play Protect warning on Plus**
 >
-> We tested this directly: a build with internet access alone, or photo access alone, installed
-> with no warning — only the *combination* of internet + photo/storage access gets flagged as
-> "Harmful app" by Google Play Protect. That combination is exactly what GIF search and
-> image-pasting need, so Plus can't avoid it without losing those features. We've filed a false-positive
-> appeal with Google; until (or unless) that changes anything, this is standard, expected behavior
-> for any app installed outside the Play Store with that permission combination — not a sign of
-> malware. If you'd rather not see it at all, install Clean instead.
+> We tested this directly: internet alone, or photo access alone, installs with no warning — only
+> the *combination* of the two triggers Google Play Protect's "Harmful app" flag. GIF search and
+> image-pasting need exactly that combination, so Plus can't avoid it without losing them. We've
+> filed a false-positive appeal with Google; until that changes anything, this is standard, expected
+> behavior for a sideloaded app with these permissions — not malware. Prefer not to see it at all?
+> Install Clean instead.
 
 <details>
 <summary><b>Steps to pause Play Protect scanning, if you still want to install Plus (tap for details)</b></summary>
@@ -170,9 +169,9 @@ Two builds — pick the one that fits you:
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
 </p>
 
-**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — everything else on that list above (GIF search, the update checker, OTP suggestions, screenshot-to-clipboard) needs internet or photo access it doesn't have, except the copied-text suggestion, which works there too. It updates manually from this page.
+**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — everything else above (GIF search, the update checker, OTP suggestions, screenshot-to-clipboard) needs internet or photo access it doesn't have, except the copied-text suggestion, which works there too. It only updates manually, from this page.
 
-**Plus** has everything, but because it needs internet together with photo access, Google Play Protect shows a "Harmful app" warning on install (see below — it's expected, not a sign of a real problem). It has its own in-app updater (Settings → **Update the app**) and always updates itself, never switches to Clean.
+**Plus** has everything, but because it needs internet together with photo access, Google Play Protect shows a "Harmful app" warning on install (see below — it's expected, not a real problem). Update it either from this page or from its own in-app updater (Settings → **Update the app**) — either way it stays on Plus and never switches to Clean.
 
 <br>
 
@@ -194,7 +193,7 @@ No, never. All learning, correction and prediction happen locally on your device
 <summary><b>Why does Google Play Protect warn me when I install Plus?</b></summary>
 <br>
 
-Because Plus needs internet together with photo/storage access, and Google automatically flags that specific combination for apps installed outside the Play Store — we confirmed by testing that it's the combination, not any single permission. Standard behavior, not malware. If you'd rather avoid the warning entirely, install Clean instead; it has neither permission. Steps to pause the warning temporarily are in the [Privacy & security](#en-privacy) section.
+Because Plus needs internet and photo/storage access together, and Google flags that exact combination for sideloaded apps — confirmed by our own testing, not a guess. Standard behavior, not malware. Prefer no warning at all? Install Clean; it has neither permission. Steps to pause the warning temporarily are in [Privacy & security](#en-privacy).
 
 </details>
 
@@ -316,7 +315,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 **🎨 التخصيص الكامل**
 ‏• 3 ثيمات ألوان، 9 أشكال لأزرار الكيبورد، خطوط متعددة (افتراضي/Tajawal)‏.  
 ‏• تحكم كامل بالحجم: حجم حروف المفاتيح، ارتفاع الكيبورد، ارتفاع شريط الاقتراحات، وحجم خط الاقتراحات‏.  
-‏• لون زر الإدخال، ولون وشفافية الكبسولات العائمة بنافذتي الرموز والحافظة‏.  
+‏• لون زر الإدخال؛ كبسولات أبجد/الحذف العائمة تتبع لون الثيم تلقائياً‏.  
 ‏• أنميشن ارتداد المفاتيح وأنميشن طيران الكلمة عند القبول — كل منهما قابل للإيقاف لحاله‏.
 
 <br>
@@ -356,12 +355,13 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 > ⚠️ **ملاحظة عن تحذير Play Protect بنسخة بلس**
 >
-> جربنا بأنفسنا: نسخة فيها الإنترنت بس، أو الصور بس، تثبت بدون أي تحذير — بس **الجمع بين صلاحية
-> الإنترنت وصلاحية الصور/التخزين مع بعض** هو اللي يخلي Google Play Protect يصنفها "Harmful app".
-> وهذي بالضبط التركيبة اللي تحتاجها ميزتا بحث GIF ولصق الصور، فنسخة بلس ما تقدر تتجنب التحذير
-> بدون ما تفقد هالميزتين. قدّمنا استئناف رسمي لجوجل بخصوص هذا التصنيف الخاطئ؛ إلى أن يتغير شي، هذا
-> سلوك متوقع وقياسي لأي تطبيق يُثبّت من خارج المتجر بهذي التركيبة من الصلاحيات، وليس فيروساً أو
-> مشكلة حقيقية. إذا ما تبي تشوف التحذير إطلاقاً، ثبّت النسخة النظيفة بدالها.
+> جربنا بأنفسنا: نسخة فيها الإنترنت بس، أو الصور بس، تثبت بدون تحذير — بس **جمع صلاحية الإنترنت
+> مع الصور/التخزين** هو اللي يخلي Google Play Protect يصنفها "Harmful app". وهذي بالضبط التركيبة
+> اللي يحتاجها بحث GIF ولصق الصور، فبلس ما تقدر تتجنب التحذير بدون ما تفقد الميزتين. قدّمنا استئناف
+> رسمي لجوجل بهذا التصنيف الخاطئ؛ لحد الآن هذا سلوك متوقع وقياسي لأي تطبيق مُثبّت من خارج المتجر
+> بهذي الصلاحيات، مو فيروس أو مشكلة حقيقية. ما تبي تشوفه؟ ثبّت النظيفة بدالها.
+
+</div>
 
 <details>
 <summary><b>خطوات تعليق فحص Play Protect، لو تبي تثبت بلس برضه (اضغط للتفصيل)</b></summary>
@@ -409,9 +409,9 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/تحميل_بلس-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="تحميل نسخة بلس" width="300" height="50"></a>
 </p>
 
-**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — باقي ميزات الجدول أعلاه (بحث GIF، التحديث الداخلي، اقتراح OTP، حفظ لقطة الشاشة بالحافظة) تحتاج إنترنت أو صلاحية صور مو متوفرة فيها، ما عدا اقتراح آخر نص منسوخ فهو شغال فيها برضه. تتحدث يدوياً من هذي الصفحة.
+**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — باقي ميزات الجدول أعلاه (بحث GIF، التحديث الداخلي، اقتراح OTP، حفظ لقطة الشاشة بالحافظة) تحتاج إنترنت أو صلاحية صور مو متوفرة فيها، ما عدا اقتراح آخر نص منسوخ فهو شغال فيها برضه. تحديثها يدوي بس، من هذي الصفحة.
 
-**بلس** فيها كل شي، لكن لأنها تحتاج الإنترنت مع صلاحية الصور مع بعض، Google Play Protect يطلع فيها تحذير "Harmful app" عند التثبيت (التفاصيل تحت — هذا متوقع، مو مشكلة حقيقية). عندها تحديث داخلي خاص فيها (الإعدادات ← **تحديث التطبيق**) ودايماً تحدّث نفسها، ما تتحول للنظيفة أبداً.
+**بلس** فيها كل شي، لكن لأنها تحتاج الإنترنت مع صلاحية الصور مع بعض، Google Play Protect يطلع فيها تحذير "Harmful app" عند التثبيت (التفاصيل تحت — هذا متوقع، مو مشكلة حقيقية). حدّثها إما من هذي الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل بلس، ما تتحول للنظيفة أبداً.
 
 <br>
 
@@ -435,7 +435,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <summary><b>ليش قوقل بروتكت يحذّرني عند تثبيت نسخة بلس؟</b></summary>
 <br>
 
-لأن بلس تحتاج الإنترنت مع صلاحية الصور/التخزين مع بعض، وقوقل يصنّف تلقائياً هذي التركيبة بالذات لأي تطبيق يُثبّت من خارج المتجر — تأكدنا بالتجربة الفعلية إنه التركيبة هي السبب، مو أي صلاحية لحالها. سلوك قياسي ومو فيروس. إذا ما تبي تشوف التحذير إطلاقاً، ثبّت النسخة النظيفة بدالها — ما فيها ولا وحدة من الصلاحيتين. خطوات تعليق التحذير مؤقتاً موجودة بقسم [الخصوصية والأمان](#ar-privacy).
+لأن بلس تحتاج الإنترنت وصلاحية الصور/التخزين مع بعض، وقوقل يصنّف هذي التركيبة بالذات لأي تطبيق يُثبّت من خارج المتجر — تأكدنا بالتجربة، مو تخمين. سلوك قياسي ومو فيروس. ما تبي تشوف التحذير؟ ثبّت النظيفة؛ ما فيها ولا وحدة من الصلاحيتين. خطوات تعليق التحذير مؤقتاً بقسم [الخصوصية والأمان](#ar-privacy).
 
 </details>
 
