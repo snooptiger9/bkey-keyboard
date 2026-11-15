@@ -158,8 +158,8 @@ jobs:
       - name: Create version-named copies of the APKs for this release
         if: steps.verdiff.outputs.changed == 'true'
         run: |
-          cp release/bkey-latest.apk "release/bkey-v${{ steps.verdiff.outputs.new }}.apk"
-          cp release/bkey-full-latest.apk "release/bkey-full-v${{ steps.verdiff.outputs.new }}.apk"
+          cp release/bkey-latest.apk "release/bkey-clean-v${{ steps.verdiff.outputs.new }}.apk"
+          cp release/bkey-full-latest.apk "release/bkey-plus-v${{ steps.verdiff.outputs.new }}.apk"
 
       # Only cuts a new GitHub Release when versionCode actually changed, so the
       # per-asset download counters build up over time instead of resetting on
@@ -176,7 +176,7 @@ jobs:
           files: |
             release/bkey-latest.apk
             release/bkey-full-latest.apk
-            release/bkey-v${{ steps.verdiff.outputs.new }}.apk
-            release/bkey-full-v${{ steps.verdiff.outputs.new }}.apk
+            release/bkey-clean-v${{ steps.verdiff.outputs.new }}.apk
+            release/bkey-plus-v${{ steps.verdiff.outputs.new }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
