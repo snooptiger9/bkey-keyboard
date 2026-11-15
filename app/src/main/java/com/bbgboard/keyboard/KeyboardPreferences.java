@@ -524,6 +524,10 @@ public class KeyboardPreferences {
     }
 
     public boolean isScreenshotClipEnabled() {
+        // Clean (lite) build never requests photos/storage access, so this
+        // stays off there even if the pref was left on from before an update
+        // (the setting UI for it is hidden in that build too).
+        if (!BuildConfig.OTP_FEATURES_ENABLED) return false;
         return prefs.getBoolean("screenshot_clip_enabled", false);
     }
 
@@ -548,6 +552,10 @@ public class KeyboardPreferences {
     }
 
     public boolean isClipChipEnabled() {
+        // Hidden in the Clean (lite) build's settings UI, so force it off
+        // there too instead of leaving it on by default with no way to turn
+        // it off.
+        if (!BuildConfig.OTP_FEATURES_ENABLED) return false;
         return prefs.getBoolean("clip_chip_enabled", true);
     }
 

@@ -61,15 +61,15 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for an automatic period + space.
 - Auto-capitalize the first letter of each sentence (English).
-- Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device.
+- Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(Plus only)*
 
 <br>
 
 **📋 Smart clipboard**
 - A full clipboard drawer: pin, delete, and auto-delete old items after a duration you choose
   (from 1 hour to 30 days, or never).
-- Automatically saves the last screenshot (a single thumbnail that replaces the previous one).
-- The last copied text shows right in the middle suggestion slot for a quick re-paste.
+- Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(Plus only)*
+- The last copied text shows right in the middle suggestion slot for a quick re-paste. *(Plus only)*
 
   ![Tapping the clipboard suggestion chip to paste](docs/gifs/paste_chip.gif)
 
@@ -78,7 +78,7 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 **😀 Emoji & GIF**
 - Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
   remove a single emoji).
-- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs.
+- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs. *(Plus only)*
 
 <br>
 
@@ -113,28 +113,27 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 
 ### 🔒 Privacy & security
 
-- No network access except for the GIF (KLIPY) and voice-typing features. Voice typing is fully
-  optional and can be turned off entirely. The GIF tab has no on/off toggle, but it only ever
-  reaches the network when you actually open it to search — if you simply never use it, no GIF
-  traffic happens either.
+- **Clean** has no network access at all, and can't read SMS, notifications, photos or storage —
+  those permissions aren't even in the app. Voice typing still works (it's handled by your
+  device's own speech-recognition service, not by bkey directly).
 
-- Verification-code (OTP) suggestions **don't exist at all** in the base install — no SMS or
-  notification permission whatsoever, and the keyboard can't read any message. It's only added if
-  you specifically ask for it and download its update from inside the app, and even then everything
-  is processed on-device only, never sent to any server.
+- **Plus** adds GIF search, image/sticker pasting, verification-code (OTP) suggestions, and the
+  in-app updater. OTP suggestions are off by default even in Plus and only read a newly-arrived
+  SMS or WhatsApp notification — never your message history — and everything is processed
+  on-device, never sent to any server.
 
-If you want the OTP feature, turn it on from inside the app: Settings → **Suggestions & learning** → scroll down to **Verification code (OTP) suggestions** — that screen explains it and has a button to turn it on.
-
-> ⚠️ **About the OTP feature**
+> ⚠️ **About the Play Protect warning on Plus**
 >
-> Turning this on needs an update that adds SMS-read and WhatsApp-notification access. Because of those two specific permissions, Google Play Protect blocks installing that update automatically with a warning screen. This is standard Google behavior for any app installed outside the Play Store that requests these permissions — not a bug or malware flag.
->
-> If you want the feature, turn off Play Protect scanning, then turn it on from inside the app itself (Settings → Suggestions & learning → Verification code (OTP) suggestions → the button there):
->
-> If you ever update the app from this GitHub page instead of the in-app button, just turn the feature back on from that same screen.
+> We tested this directly: a build with internet access alone, or photo access alone, installed
+> with no warning — only the *combination* of internet + photo/storage access gets flagged as
+> "Harmful app" by Google Play Protect. That combination is exactly what GIF search and
+> image-pasting need, so Plus can't avoid it without losing those features. We've filed a false-positive
+> appeal with Google; until (or unless) that changes anything, this is standard, expected behavior
+> for any app installed outside the Play Store with that permission combination — not a sign of
+> malware. If you'd rather not see it at all, install Clean instead.
 
 <details>
-<summary><b>Steps to pause Play Protect scanning (tap for details)</b></summary>
+<summary><b>Steps to pause Play Protect scanning, if you still want to install Plus (tap for details)</b></summary>
 
 <br>
 
@@ -143,8 +142,8 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Sugg
 3. Tap **Play Protect**.
 4. Tap the ⚙️ settings icon, top right.
 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
-6. Go back to the OTP screen in the app, tap the download button, and install it.
-7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after the update (recommended to keep it on for your other apps).
+6. Install the Plus APK.
+7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after installing (recommended to keep it on for your other apps).
 
 </details>
 
@@ -154,11 +153,23 @@ If you want the OTP feature, turn it on from inside the app: Settings → **Sugg
 
 ### 📥 Download
 
+Two builds — pick the one that fits you:
+
+| | 🟢 Clean (recommended) | 🔵 Plus |
+|---|:---:|:---:|
+| Installs with no Play Protect warning | ✅ | ⚠️ see note below |
+| GIF search & image/sticker pasting | — | ✅ |
+| In-app update checker | — | ✅ |
+| Verification-code (OTP) suggestions | — | ✅ (optional, off by default) |
+| Screenshot-to-clipboard & clipboard-text suggestion | — | ✅ |
+
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="Get the APK from GitHub" height="72"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download-Clean-22C55E?style=for-the-badge" alt="Download Clean"></a>
+&nbsp;
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download-Plus-3B82F6?style=for-the-badge" alt="Download Plus"></a>
 </p>
 
-You can update either from inside the app (Settings → **Update the app**) or by tapping the button above again. The in-app button knows whether your current install has OTP turned on or not, and gets you the latest version of the same one. The button above on this page always gives you the plain version without OTP — so if you use it again later and you want OTP, just turn it back on from Settings afterward.
+**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing on that list above, including GIF search, is available in it. **Plus** has everything, but because it needs internet together with photo access, Google Play Protect shows a "Harmful app" warning on install (see below — it's expected, not a sign of a real problem). Clean updates manually from this page; Plus has its own in-app updater (Settings → **Update the app**) and always updates itself, never switches to Clean.
 
 <br>
 
@@ -170,17 +181,17 @@ You can update either from inside the app (Settings → **Update the app**) or b
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
 <br>
 
-No, never. All learning, correction and prediction happen locally on your device. The only network access is for the GIF and voice-typing features, and both only reach the network while you're actively using them — voice typing can also be turned off entirely in Settings. Details in [Privacy & security](#en-privacy).
+No, never. All learning, correction and prediction happen locally on your device. Clean has no network access at all. In Plus, only the GIF feature reaches the network, and only while you're actively using it. Details in [Privacy & security](#en-privacy).
 
 </details>
 
 <br>
 
 <details>
-<summary><b>Why does Google Play Protect warn me when I download the OTP update?</b></summary>
+<summary><b>Why does Google Play Protect warn me when I install Plus?</b></summary>
 <br>
 
-Because that update adds SMS-read and notification-access permissions, and Google automatically blocks any app installed outside the Play Store that requests those specific permissions — standard behavior, not malware. Steps to pause the warning temporarily are in the [Privacy & security](#en-privacy) section.
+Because Plus needs internet together with photo/storage access, and Google automatically flags that specific combination for apps installed outside the Play Store — we confirmed by testing that it's the combination, not any single permission. Standard behavior, not malware. If you'd rather avoid the warning entirely, install Clean instead; it has neither permission. Steps to pause the warning temporarily are in the [Privacy & security](#en-privacy) section.
 
 </details>
 
@@ -200,7 +211,7 @@ They're stored locally on your device only. In the app's settings, under the pre
 <summary><b>Does it use a lot of battery or memory?</b></summary>
 <br>
 
-No, the keyboard is lightweight and runs fully on-device. Only the GIF and voice-typing features use the network, and only while you're actively using them — otherwise there's zero network activity.
+No, the keyboard is lightweight and runs fully on-device. Clean has no network access at all; in Plus, only the GIF feature uses the network, and only while you're actively using it.
 
 </details>
 
@@ -280,14 +291,14 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 ‏• اختصارات نصية: اكتب اختصار (مثل "سع") ويتحول تلقائياً لعبارة كاملة عند المسافة‏.  
 ‏• نقطة ومسافة تلقائية بضغطتين متتاليتين على زر المسافة‏.  
 ‏• أحرف كبيرة تلقائياً في بداية كل جملة (بالإنجليزي)‏.  
-‏• اقتراح أكواد التحقق (OTP) تلقائياً من الرسائل أو واتساب — كل المعالجة محلية على الجهاز‏.
+‏• اقتراح أكواد التحقق (OTP) تلقائياً من الرسائل أو واتساب — كل المعالجة محلية على الجهاز *(نسخة Plus فقط)*‏.
 
 <br>
 
 **📋 الحافظة الذكية**
 ‏• درج حافظة كامل: تثبيت، حذف، وحذف تلقائي للعناصر القديمة بعد مدة تختارها (من ساعة إلى 30 يوماً، أو بدون حذف)‏.  
-‏• حفظ آخر لقطة شاشة تلقائياً (مصغّرة واحدة تحل محل القديمة)‏.  
-‏• آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة‏.
+‏• حفظ آخر لقطة شاشة تلقائياً (مصغّرة واحدة تحل محل القديمة) *(نسخة Plus فقط)*‏.  
+‏• آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة *(نسخة Plus فقط)*‏.
 
 ![الضغط على نص الحافظة بالاقتراحات للصقه](docs/gifs/paste_chip.gif)
 
@@ -295,7 +306,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 **😀 إيموجي و GIF**
 ‏• لوحة إيموجي ورموز كاملة، مع قسم "مستخدم حديثاً" (قابل للحذف أو حذف عنصر واحد بالضغط المطول)‏.  
-‏• تبويب GIF في لوحة الإيموجي مدعوم بـ KLIPY GIF — بحث ومعاينة صور GIF متحركة‏.
+‏• تبويب GIF في لوحة الإيموجي مدعوم بـ KLIPY GIF — بحث ومعاينة صور GIF متحركة *(نسخة Plus فقط)*‏.
 
 <br>
 
@@ -332,26 +343,25 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 <div dir="rtl">
 
-‏• لا يوجد اتصال بالإنترنت إلا لميزتي GIF (KLIPY) والكتابة بالصوت. الكتابة بالصوت اختيارية بالكامل
-  وتقدر توقفها نهائياً. أما تبويب GIF فما فيه زر تشغيل/إيقاف، لكنه ما يتصل بالإنترنت إلا لحظة ما
-  تفتحه وتبحث فيه فعلياً — إذا ما استخدمته أصلاً، ما فيه أي اتصال بسببه.
+‏• **النسخة النظيفة (Clean)** ما فيها أي اتصال إنترنت إطلاقاً، وما تقدر تقرأ رسائل ولا إشعارات ولا
+  صور ولا تخزين — هذي الصلاحيات غير موجودة بالتطبيق أصلاً. الكتابة بالصوت تشتغل برضه (تمر عبر
+  خدمة التعرف على الصوت بجهازك، مو عبر bkey مباشرة).
 
-‏• اقتراح أكواد التحقق (OTP) **غير موجودة أصلاً** بالتثبيت الأساسي — ما فيه صلاحية رسائل ولا إشعارات إطلاقاً،
-  والكيبورد ما يقدر يقرأ أي رسالة نهائياً. تضاف فقط إذا المستخدم نفسه طلبها ونزّل تحديثها من داخل التطبيق،
-  وحتى بعدها كل المعالجة على الجهاز فقط ولا تُرسل لأي سيرفر خارجي.
+‏• **نسخة Plus** فيها إضافة بحث GIF، لصق الصور/الستيكرات، اقتراح رمز التحقق (OTP)، والتحديث
+  التلقائي من داخل التطبيق. اقتراح OTP معطّل افتراضياً حتى في Plus، ويفحص بس الرسالة أو إشعار
+  واتساب الجديد اللحظي — أبداً صندوق الرسائل القديم — وكل المعالجة على الجهاز فقط.
 
-إذا احتجت ميزة رمز التحقق، تقدر تفعّلها من داخل التطبيق: الإعدادات ← **التصحيح والاقتراحات والتعلّم** ← انزل لتحت لين تلقى **اقتراح رمز التحقق (OTP)**، وهناك شرح وزر لتفعيلها.
-
-> ⚠️ **ملاحظة عن ميزة رمز التحقق (OTP)**
+> ⚠️ **ملاحظة عن تحذير Play Protect بنسخة Plus**
 >
-> تفعيل هذي الميزة يحتاج تحديثاً يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات. بسبب هاتين الصلاحيتين بالذات، نظام حماية قوقل يوقف تثبيت التحديث تلقائياً برسالة تحذيرية. هذا سلوك قياسي من قوقل لأي تطبيق يُحمّل من خارج المتجر ويطلب هذي الصلاحيات، وليس عيباً ولا فيروساً بالتطبيق.
->
-> إذا تبي الميزة، عطّل فحص الحماية مؤقتاً ثم فعّلها من داخل التطبيق نفسه (الإعدادات ← التصحيح والاقتراحات والتعلّم ← اقتراح رمز التحقق (OTP) ← الزر هناك):
->
-> إذا صار وحدّثت التطبيق من صفحة GitHub هذي بدل الزر اللي بالتطبيق، بس فعّل الميزة من نفس الشاشة مرة ثانية.
+> جربنا بأنفسنا: نسخة فيها الإنترنت بس، أو الصور بس، تثبت بدون أي تحذير — بس **الجمع بين صلاحية
+> الإنترنت وصلاحية الصور/التخزين مع بعض** هو اللي يخلي Google Play Protect يصنفها "Harmful app".
+> وهذي بالضبط التركيبة اللي تحتاجها ميزتا بحث GIF ولصق الصور، فنسخة Plus ما تقدر تتجنب التحذير
+> بدون ما تفقد هالميزتين. قدّمنا استئناف رسمي لجوجل بخصوص هذا التصنيف الخاطئ؛ إلى أن يتغير شي، هذا
+> سلوك متوقع وقياسي لأي تطبيق يُثبّت من خارج المتجر بهذي التركيبة من الصلاحيات، وليس فيروساً أو
+> مشكلة حقيقية. إذا ما تبي تشوف التحذير إطلاقاً، ثبّت النسخة النظيفة بدالها.
 
 <details>
-<summary><b>خطوات تعليق فحص Play Protect (اضغط للتفصيل)</b></summary>
+<summary><b>خطوات تعليق فحص Play Protect، لو تبي تثبت Plus برضه (اضغط للتفصيل)</b></summary>
 
 <br>
 
@@ -362,8 +372,8 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 ‏3. اختر **Play Protect**.  
 ‏4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.  
 ‏5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?»، اختر **Pause**.  
-‏6. ارجع لشاشة OTP داخل التطبيق واضغط زر تحميل التحديث، وثبّته.  
-‏7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التحديث (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
+‏6. ثبّت ملف Plus.  
+‏7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التثبيت (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
 
 </div>
 
@@ -375,11 +385,27 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ### 📥 التحميل
 
+نسختين — اختر اللي تناسبك:
+
+<div dir="rtl">
+
+| | 🟢 النظيفة (موصى بها) | 🔵 Plus |
+|---|:---:|:---:|
+| تتثبت بدون أي تحذير من Play Protect | ✅ | ⚠️ شوف الملاحظة تحت |
+| بحث GIF ولصق الصور/الستيكرات | — | ✅ |
+| تحديث تلقائي من داخل التطبيق | — | ✅ |
+| اقتراح رمز التحقق (OTP) | — | ✅ (اختياري، معطّل افتراضياً) |
+| حفظ لقطة الشاشة بالحافظة + اقتراح آخر نص منسوخ | — | ✅ |
+
+</div>
+
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="تحميل ملف APK" height="72"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://img.shields.io/badge/⬇️_تحميل-النظيفة-22C55E?style=for-the-badge" alt="تحميل النسخة النظيفة"></a>
+&nbsp;
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_تحميل-Plus-3B82F6?style=for-the-badge" alt="تحميل نسخة Plus"></a>
 </p>
 
-تقدر تحدّث إما من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) أو بالضغط على الزر بالأعلى من جديد. زر التطبيق يعرف إذا كانت نسختك الحالية مفعّل فيها OTP أو لا، ويجيبلك آخر إصدار من نفس النوع تلقائياً. أما الزر بالأعلى بهذي الصفحة فدايماً يجيب النسخة العادية بدون OTP — فإذا استخدمته مرة ثانية بعدين وتبي OTP، بس فعّلها من جديد من الإعدادات.
+**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — ولا شي من الجدول أعلاه موجود فيها، حتى بحث GIF. **Plus** فيها كل شي، لكن لأنها تحتاج الإنترنت مع صلاحية الصور مع بعض، Google Play Protect يطلع فيها تحذير "Harmful app" عند التثبيت (التفاصيل تحت — هذا متوقع، مو مشكلة حقيقية). النظيفة تتحدث يدوياً من هذي الصفحة؛ Plus عندها تحديث داخلي خاص فيها (الإعدادات ← **تحديث التطبيق**) ودايماً تحدّث نفسها، ما تتحول للنظيفة أبداً.
 
 <br>
 
@@ -393,17 +419,17 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <summary><b>هل الكيبورد يرسل أي بيانات أو كلمات أكتبها للإنترنت؟</b></summary>
 <br>
 
-لا إطلاقاً. كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك فقط. الاتصال بالإنترنت الوحيد هو لميزتي GIF والكتابة بالصوت، وكلاهما ما يتصل بالإنترنت إلا وقت استخدامهم الفعلي — والكتابة بالصوت تقدر توقفها نهائياً من الإعدادات. التفاصيل بقسم [الخصوصية والأمان](#ar-privacy).
+لا إطلاقاً. كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك فقط. النظيفة ما فيها أي اتصال إنترنت إطلاقاً. وبنسخة Plus، بس ميزة GIF تتصل بالإنترنت، وبس وقت استخدامها الفعلي. التفاصيل بقسم [الخصوصية والأمان](#ar-privacy).
 
 </details>
 
 <br>
 
 <details>
-<summary><b>ليش قوقل بروتكت يحذّرني عند تحميل تحديث ميزة OTP؟</b></summary>
+<summary><b>ليش قوقل بروتكت يحذّرني عند تثبيت نسخة Plus؟</b></summary>
 <br>
 
-لأن التحديث يضيف صلاحية قراءة الرسائل وصلاحية الوصول للإشعارات، وقوقل توقف تلقائياً أي تطبيق من خارج المتجر يطلب هذي الصلاحيات بالذات — سلوك قياسي ومو فيروس. خطوات تعليق التحذير مؤقتاً موجودة بقسم [الخصوصية والأمان](#ar-privacy).
+لأن Plus تحتاج الإنترنت مع صلاحية الصور/التخزين مع بعض، وقوقل يصنّف تلقائياً هذي التركيبة بالذات لأي تطبيق يُثبّت من خارج المتجر — تأكدنا بالتجربة الفعلية إنه التركيبة هي السبب، مو أي صلاحية لحالها. سلوك قياسي ومو فيروس. إذا ما تبي تشوف التحذير إطلاقاً، ثبّت النسخة النظيفة بدالها — ما فيها ولا وحدة من الصلاحيتين. خطوات تعليق التحذير مؤقتاً موجودة بقسم [الخصوصية والأمان](#ar-privacy).
 
 </details>
 
@@ -423,7 +449,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <summary><b>هل يستهلك الكيبورد بطارية أو ذاكرة كثير؟</b></summary>
 <br>
 
-لا، الكيبورد خفيف ويشتغل محلياً بدون أي معالجة بالسحابة. ميزتي GIF والكتابة بالصوت فقط هما اللي يحتاجون إنترنت وقت استخدامهم الفعلي، وباقي الوقت ما فيه أي نشاط شبكة.
+لا، الكيبورد خفيف ويشتغل محلياً بدون أي معالجة بالسحابة. النظيفة ما فيها أي اتصال إنترنت إطلاقاً؛ وبنسخة Plus، بس ميزة GIF تحتاج إنترنت وقت استخدامها الفعلي.
 
 </details>
 

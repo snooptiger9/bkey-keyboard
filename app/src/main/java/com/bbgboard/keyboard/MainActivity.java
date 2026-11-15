@@ -564,18 +564,22 @@ public class MainActivity extends Activity {
         root.addView(group3);
 
         LinearLayout group4 = createGroupedWhiteCard();
-        group4.addView(createMenuRow(
-                ModernIconView.ICON_REFRESH_UPDATE,
-                tr("تحديث التطبيق", "Update the app"),
-                tr("الإصدار " + BuildConfig.VERSION_NAME
-                                + (BuildConfig.OTP_FEATURES_ENABLED ? " • نسخة كاملة (OTP مفعّلة)" : " • نسخة عادية (بدون OTP)")
-                                + "\nاضغط لتنزيل أي تحديث جديد",
-                        "Version " + BuildConfig.VERSION_NAME
-                                + (BuildConfig.OTP_FEATURES_ENABLED ? " • Full build (OTP enabled)" : " • Basic build (no OTP)")
-                                + "\ntap to download the latest update"),
-                true,
-                this::checkForAppUpdate
-        ));
+        if (BuildConfig.OTP_FEATURES_ENABLED) {
+            // The in-app updater needs INTERNET, which the Clean (lite) build
+            // intentionally doesn't request -- so this row would just be a
+            // button that can never work there. Shown in Plus (full) only;
+            // Clean is updated manually from GitHub.
+            group4.addView(createMenuRow(
+                    ModernIconView.ICON_REFRESH_UPDATE,
+                    tr("تحديث التطبيق", "Update the app"),
+                    tr("الإصدار " + BuildConfig.VERSION_NAME + " • نسخة Plus"
+                                    + "\nاضغط لتنزيل أي تحديث جديد",
+                            "Version " + BuildConfig.VERSION_NAME + " • Plus build"
+                                    + "\ntap to download the latest update"),
+                    true,
+                    this::checkForAppUpdate
+            ));
+        }
         group4.addView(createMenuRow(
                 ModernIconView.ICON_SETTINGS_GEAR,
                 tr("سجل الأخطاء", "Error log"),
@@ -1646,17 +1650,20 @@ public class MainActivity extends Activity {
                 checked -> prefs.setVoiceButtonEnabled(checked)
         ));
 
-        LinearLayout otpEntryCard = createGroupedWhiteCard();
-        otpEntryCard.addView(createMenuRow(
-                ModernIconView.ICON_TEXT_CORRECTION,
-                tr("اقتراح رمز التحقق (OTP)", "Verification code (OTP) suggestions"),
-                BuildConfig.OTP_FEATURES_ENABLED
-                        ? tr("من الرسائل وواتساب", "From SMS & WhatsApp")
-                        : tr("ميزة إضافية — تحتاج تحديث", "Extra feature — needs an update"),
-                false,
-                this::openOtpSettingsScreen
-        ));
-        root.addView(otpEntryCard);
+        if (BuildConfig.OTP_FEATURES_ENABLED) {
+            // OTP suggestions need SMS/notification-listener access, which the
+            // Clean (lite) build doesn't request at all -- hidden entirely
+            // there instead of showing a row that leads nowhere.
+            LinearLayout otpEntryCard = createGroupedWhiteCard();
+            otpEntryCard.addView(createMenuRow(
+                    ModernIconView.ICON_TEXT_CORRECTION,
+                    tr("اقتراح رمز التحقق (OTP)", "Verification code (OTP) suggestions"),
+                    tr("من الرسائل وواتساب", "From SMS & WhatsApp"),
+                    false,
+                    this::openOtpSettingsScreen
+            ));
+            root.addView(otpEntryCard);
+        }
 
         LinearLayout trainCard = createGroupedWhiteCard();
         trainCard.setPadding(dp(16), dp(16), dp(16), dp(16));
@@ -2305,26 +2312,33 @@ public class MainActivity extends Activity {
     private void openClipboardScreen() {
         LinearLayout root = createSubScreenTemplate(tr("الحافظة الذكية (Clipboard)", "Smart Clipboard"));
 
-        root.addView(createSwitchTile(
-                tr("حفظ آخر لقطة شاشة في الحافظة", "Save last screenshot to clipboard"),
-                tr("تظهر مصغّرة واحدة فقط في قائمة الحافظة، وكل لقطة جديدة تحل محل السابقة. تحتاج إذن الوصول للصور", "Shows a single thumbnail in the clipboard list; each new screenshot replaces the last. Needs photos permission"),
-                prefs.isScreenshotClipEnabled(),
-                checked -> {
-                    prefs.setScreenshotClipEnabled(checked);
-                    if (!checked) {
-                        ScreenshotClip.clear(this);
-                    } else if (!ScreenshotClip.hasPermission(this)) {
-                        requestPermissions(new String[]{ScreenshotClip.neededPermission()}, 77);
+        if (BuildConfig.OTP_FEATURES_ENABLED) {
+            // Both suggestion options below are hidden in the Clean (lite)
+            // build: the screenshot one needs photos/storage permission the
+            // Clean build doesn't request, and the clipboard-text one is kept
+            // alongside it so Clean stays limited to the plain clipboard
+            // drawer with no suggestion surfacing at all.
+            root.addView(createSwitchTile(
+                    tr("حفظ آخر لقطة شاشة في الحافظة", "Save last screenshot to clipboard"),
+                    tr("تظهر مصغّرة واحدة فقط في قائمة الحافظة، وكل لقطة جديدة تحل محل السابقة. تحتاج إذن الوصول للصور", "Shows a single thumbnail in the clipboard list; each new screenshot replaces the last. Needs photos permission"),
+                    prefs.isScreenshotClipEnabled(),
+                    checked -> {
+                        prefs.setScreenshotClipEnabled(checked);
+                        if (!checked) {
+                            ScreenshotClip.clear(this);
+                        } else if (!ScreenshotClip.hasPermission(this)) {
+                            requestPermissions(new String[]{ScreenshotClip.neededPermission()}, 77);
+                        }
                     }
-                }
-        ));
+            ));
 
-        root.addView(createSwitchTile(
-                tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
-                tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
-                prefs.isClipChipEnabled(),
-                checked -> prefs.setClipChipEnabled(checked)
-        ));
+            root.addView(createSwitchTile(
+                    tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
+                    tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
+                    prefs.isClipChipEnabled(),
+                    checked -> prefs.setClipChipEnabled(checked)
+            ));
+        }
 
         root.addView(createClipRetentionTile());
     }

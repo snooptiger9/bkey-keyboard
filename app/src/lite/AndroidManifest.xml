@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Overlay applied only to the "lite" flavor (manifest merger combines this
-    with app/src/main/AndroidManifest.xml). It removes the two permissions
-    Google Play Protect hard-blocks on sideloaded APKs (RECEIVE_SMS and the
-    WhatsApp notification-listener service), so this flavor installs with
-    no warning. The OTP settings UI is hidden in this flavor too
+    Overlay applied only to the "lite" flavor -- this is the "Clean" build
+    (manifest merger combines this with app/src/main/AndroidManifest.xml).
+
+    Confirmed by direct testing (installing real signed builds and checking
+    Google Play Protect's verdict on each one) that Play Protect's "Harmful
+    app blocked" classification on this app tracks the combination of
+    INTERNET with photo/storage access, not any single permission alone --
+    a build with INTERNET but no photo/storage access still got flagged, and
+    a build with neither installed as "This app looks safe". So this flavor
+    removes every permission that isn't strictly needed for a keyboard to
+    type with: RECEIVE_SMS, the WhatsApp notification-listener service,
+    INTERNET, and photo/storage access. That means GIF search, image/sticker
+    pasting, the in-app update checker and OTP suggestions all need the
+    Plus (full) build instead -- their settings rows are hidden here too
     (see BuildConfig.OTP_FEATURES_ENABLED in MainActivity.java).
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
 
     <application>
         <service
