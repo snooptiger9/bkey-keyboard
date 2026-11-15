@@ -170,7 +170,9 @@ Two builds — pick the one that fits you:
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download-Plus-3B82F6?style=for-the-badge" alt="Download Plus"></a>
 </p>
 
-**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing on that list above, including GIF search, is available in it. **Plus** has everything, but because it needs internet together with photo access, Google Play Protect shows a "Harmful app" warning on install (see below — it's expected, not a sign of a real problem). Clean updates manually from this page; Plus has its own in-app updater (Settings → **Update the app**) and always updates itself, never switches to Clean.
+**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing on that list above, including GIF search, is available in it. It updates manually from this page.
+
+**Plus** has everything, but because it needs internet together with photo access, Google Play Protect shows a "Harmful app" warning on install (see below — it's expected, not a sign of a real problem). It has its own in-app updater (Settings → **Update the app**) and always updates itself, never switches to Clean.
 
 <br>
 
@@ -407,7 +409,9 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_تحميل-Plus-3B82F6?style=for-the-badge" alt="تحميل نسخة Plus"></a>
 </p>
 
-**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — ولا شي من الجدول أعلاه موجود فيها، حتى بحث GIF. **Plus** فيها كل شي، لكن لأنها تحتاج الإنترنت مع صلاحية الصور مع بعض، Google Play Protect يطلع فيها تحذير "Harmful app" عند التثبيت (التفاصيل تحت — هذا متوقع، مو مشكلة حقيقية). النظيفة تتحدث يدوياً من هذي الصفحة؛ Plus عندها تحديث داخلي خاص فيها (الإعدادات ← **تحديث التطبيق**) ودايماً تحدّث نفسها، ما تتحول للنظيفة أبداً.
+**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — ولا شي من الجدول أعلاه موجود فيها، حتى بحث GIF مو متوفر فيها. تتحدث يدوياً من هذي الصفحة.
+
+**Plus** فيها كل شي، لكن لأنها تحتاج الإنترنت مع صلاحية الصور مع بعض، Google Play Protect يطلع فيها تحذير "Harmful app" عند التثبيت (التفاصيل تحت — هذا متوقع، مو مشكلة حقيقية). عندها تحديث داخلي خاص فيها (الإعدادات ← **تحديث التطبيق**) ودايماً تحدّث نفسها، ما تتحول للنظيفة أبداً.
 
 <br>
 
