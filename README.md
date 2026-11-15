@@ -124,11 +124,13 @@ experience for each.
 
 > ⚠️ **About the Play Protect warning on the Plus version**
 >
-> Internet or photo access alone installs cleanly — only their *combination* triggers Google Play
-> Protect's "Harmful app" flag, confirmed by our own testing. GIF search and image-pasting need
-> both, so the Plus version can't avoid it without losing them. We've appealed the false positive with Google;
-> until resolved, this is expected behavior for a sideloaded app with these permissions, not
-> malware. Prefer not to see it? Install the Clean version instead.
+> Internet access alone (used for GIF search and the in-app update checker), or photo access alone
+> (used for image-pasting and the screenshot-to-clipboard suggestion), each installs cleanly on its
+> own — only *having both in the same app* triggers Google Play Protect's "Harmful app" flag,
+> confirmed by our own testing. The Plus version can't avoid it without dropping one of these
+> features. We've appealed the false positive with Google; until resolved, this is expected behavior
+> for a sideloaded app with these permissions, not malware. Prefer not to see it? Install the Clean
+> version instead.
 
 <details>
 <summary><b>Steps to pause Play Protect scanning, if you still want to install the Plus version (tap for details)</b></summary>
@@ -344,10 +346,12 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 > ⚠️ **ملاحظة عن تحذير Play Protect بنسخة بلس**
 >
-> الإنترنت لحاله أو الصور لحالها تثبت بدون تحذير — بس **جمعهم مع بعض** هو اللي يخلي Google Play
-> Protect يصنفها "Harmful app"، تأكدنا بالتجربة. بحث GIF ولصق الصور يحتاجون الصلاحيتين مع بعض،
-> فنسخة بلس ما تقدر تتجنب التحذير بدونهم. قدّمنا استئناف لجوجل بهذا التصنيف؛ لحد الحين هذا سلوك متوقع
-> لأي تطبيق مُثبّت من خارج المتجر بهذي الصلاحيات، مو فيروس. ما تبي تشوفه؟ ثبّت النسخة النظيفة بدالها‏.
+> صلاحية الإنترنت لحالها (تستخدمها ميزة بحث GIF والتحديث من داخل التطبيق)، أو صلاحية الوصول للصور
+> لحالها (تستخدمها ميزتا لصق الصور واقتراح لقطة الشاشة)، كل وحدة فيهم تثبت بدون تحذير — بس
+> **وجودهم مع بعض بنفس التطبيق** هو اللي يخلي Google Play Protect يصنفه "Harmful app"، تأكدنا
+> بالتجربة. فنسخة بلس ما تقدر تتجنب التحذير إلا لو تخلت عن إحدى هالميزات. قدّمنا استئناف لجوجل بهذا
+> التصنيف؛ لحد الحين هذا سلوك متوقع لأي تطبيق مُثبّت من خارج المتجر بهذي الصلاحيات، مو فيروس. ما تبي
+> تشوفه؟ ثبّت النسخة النظيفة بدالها‏.
 
 </div>
 
