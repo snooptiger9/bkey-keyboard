@@ -30,7 +30,10 @@ final class KeyStylePreviewView extends View {
             shell = col("#0B1120"); keyBg = col("#1E293B"); special = col("#151F32");
             shadow = col("#090D16"); divider = col("#172236"); outline = col("#475569"); label = Color.WHITE;
         } else {
-            shell = col("#111111"); keyBg = col("#262626"); special = col("#181818");
+            // Kept in sync with BlackBerryKeyboardView's "Matte black" colors, which use the
+            // same lighter #333333/#252525 so this settings preview matches what the real
+            // keyboard actually looks like.
+            shell = col("#111111"); keyBg = col("#333333"); special = col("#252525");
             shadow = col("#090909"); divider = col("#363636"); outline = col("#525B6C"); label = Color.WHITE;
         }
     }

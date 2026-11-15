@@ -562,10 +562,15 @@ public class BlackBerryKeyboardView extends View {
             sugBarPaint.setColor(Color.parseColor("#171717"));
             sugCenterHighlightPaint.setColor(Color.parseColor("#20232A"));
             sugFlashPaint.setColor(Color.parseColor("#2E2E2E"));
-            keyBgPaint.setColor(Color.parseColor("#262626"));
+            // Regular and special keys were only barely lighter than the shell background
+            // (#262626/#181818 vs #111111), so a key's actual shape was hard to make out on
+            // this theme -- not just its selection state in the settings preview. Both are now
+            // clearly lighter than the shell, with the special keys (shift/backspace/space/
+            // default enter) kept a step darker than the regular letter keys like before.
+            keyBgPaint.setColor(Color.parseColor("#333333"));
             keyShadowPaint.setColor(Color.parseColor("#090909"));
-            keySpecialBgPaint.setColor(Color.parseColor("#181818"));
-            keyPressedPaint.setColor(Color.parseColor("#3A3A3A"));
+            keySpecialBgPaint.setColor(Color.parseColor("#252525"));
+            keyPressedPaint.setColor(Color.parseColor("#454545"));
             fretLinePaint.setColor(Color.parseColor("#3B3B3B"));
             keyDividerPaint.setColor(Color.parseColor("#363636"));
             mainTextPaint.setColor(Color.WHITE);
