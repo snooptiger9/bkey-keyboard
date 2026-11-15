@@ -11,6 +11,9 @@
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
 ![Languages](https://img.shields.io/badge/Bilingual-AR%20%7C%20EN-blue)
+![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
+![Stars](https://img.shields.io/github/stars/snooptiger9/bkey-keyboard)
+![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 
 ---
 
