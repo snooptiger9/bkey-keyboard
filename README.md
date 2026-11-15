@@ -168,8 +168,9 @@ Two builds — pick the one that fits you:
 
 **Plus** has everything, but installing it triggers a Google Play Protect warning (expected, not a real problem — see [Privacy & security](#en-privacy) for why).
 
-- Updating Clean: only from this page.
-- Updating Plus: from this page, or from inside the app (Settings → **Update the app**) — either way it stays on Plus, never Clean.
+> [!CAUTION]
+> - **Updating Clean:** only from this page.
+> - **Updating Plus:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on Plus, never Clean.
 
 <br>
 
@@ -405,8 +406,9 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 **نسخة بلس** فيها كل شي، بس تثبيتها يسبب تحذير من Google Play Protect (متوقع، مو مشكلة حقيقية — شوف [الخصوصية والأمان](#ar-privacy) ليش).
 
-- تحديث تطبيق النسخة النظيفة: من هذه الصفحة فقط.
-- تحديث تطبيق النسخة بلس: من هذه الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل نسخة بلس، ما تتحول للنسخة النظيفة.
+> [!CAUTION]
+> - **تحديث تطبيق النسخة النظيفة:** من هذه الصفحة فقط.
+> - **تحديث تطبيق النسخة بلس:** من هذه الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل نسخة بلس، ما تتحول للنسخة النظيفة.
 
 <br>
 
