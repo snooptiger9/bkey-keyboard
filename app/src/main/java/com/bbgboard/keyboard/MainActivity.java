@@ -709,6 +709,9 @@ public class MainActivity extends Activity {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setBackground(roundedCard(dm("#FFFFFF"), 20));
+        // Clips each row's press ripple to the card's own rounded corners
+        // (so the first/last row's highlight doesn't stick out past them).
+        card.setClipToOutline(true);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -753,6 +756,11 @@ public class MainActivity extends Activity {
 
         row.addView(icon);
         row.addView(textCol);
+        row.setClickable(true);
+        row.setFocusable(true);
+        TypedValue ripple = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackground, ripple, true);
+        row.setBackgroundResource(ripple.resourceId);
         row.setOnClickListener(v -> onClick.run());
         wrapper.addView(row);
 
