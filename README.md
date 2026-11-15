@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/banner.png" alt="bkey — Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures, English and Arabic layouts" width="100%">
+  <img src="docs/images/banner.png" alt="bkey — a BlackBerry-style Android keyboard, swipe up to accept a suggestion and swipe sideways to delete" width="100%">
 </p>
 
 # bkey ⌨️
