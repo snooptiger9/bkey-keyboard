@@ -149,12 +149,12 @@ jobs:
             echo "CHANGELOG_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      # bkey-latest.apk / bkey-full-latest.apk keep their fixed names so the
-      # README's "releases/latest/download/..." links and the in-app updater
-      # never need to change. These version-named copies are uploaded
-      # alongside them on the Release page only, so a specific release's
-      # assets are never confused with another version's (not committed into
-      # the repo -- generated fresh for this run only).
+      # release/bkey-latest.apk and release/bkey-full-latest.apk (committed in
+      # the step above) stay as fixed-name raw files purely for the in-app
+      # updater, which downloads them straight from the repo rather than from
+      # a Release. The Release page itself only ever ships these two
+      # version-named copies -- never both a fixed-name AND a versioned copy
+      # of the same APK, which was confusing to look at.
       - name: Create version-named copies of the APKs for this release
         if: steps.verdiff.outputs.changed == 'true'
         run: |
@@ -174,9 +174,28 @@ jobs:
           body: ${{ steps.changelog.outputs.body }}
           make_latest: true
           files: |
-            release/bkey-latest.apk
-            release/bkey-full-latest.apk
             release/bkey-clean-v${{ steps.verdiff.outputs.new }}.apk
             release/bkey-plus-v${{ steps.verdiff.outputs.new }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Since the Release no longer ships a fixed-name asset, the README's
+      # download buttons have to be repointed at THIS release's exact
+      # versioned filename every time -- otherwise "releases/latest/
+      # download/bkey-clean-v<old>.apk" would 404 the moment a newer release
+      # replaces "latest" with different filenames.
+      - name: Point README download links at this release
+        if: steps.verdiff.outputs.changed == 'true'
+        run: |
+          NEW_VERSION="${{ steps.verdiff.outputs.new }}"
+          sed -i -E "s#releases/latest/download/bkey-clean-v[0-9]+\.apk#releases/latest/download/bkey-clean-v${NEW_VERSION}.apk#g" README.md
+          sed -i -E "s#releases/latest/download/bkey-plus-v[0-9]+\.apk#releases/latest/download/bkey-plus-v${NEW_VERSION}.apk#g" README.md
+          git config user.name "bkey-ci"
+          git config user.email "ci@bkey.local"
+          git add README.md
+          if ! git diff --cached --quiet; then
+            git commit -m "ci: point README download links to v${NEW_VERSION} [skip ci]"
+            git push
+          else
+            echo "No README link changes to commit."
+          fi
