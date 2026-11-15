@@ -115,31 +115,51 @@ jobs:
         id: appver
         run: echo "name=$(grep -oP 'versionName\s+"\K[^"]+' app/build.gradle)" >> "$GITHUB_OUTPUT"
 
-      # Lists what actually changed since the previous release (real commit
-      # messages, not just "automated build from commit <sha>"), so people
-      # reading the Release page can see what's new instead of a placeholder.
+      # Lists what actually changed in the APP since the previous release, so
+      # people reading the Release page see what's new for them to use --
+      # not every commit in the repo. Only commits that touched app/ (real
+      # source code) are listed; commits that only touched README.md, docs,
+      # the CI workflow itself, etc. never affected the installed app, so
+      # they'd just be noise here even though they're legitimate commits.
       # Needs the full git history (fetch-depth: 0 above) to find the
-      # previous "v*" tag and everything committed after it. The noisy,
-      # automated "[skip ci]" commits (built APKs, build-error logs) are
-      # filtered out so only real changes show up.
+      # previous "v*" tag and everything committed after it.
       - name: Build changelog since the previous release
         id: changelog
         if: steps.verdiff.outputs.changed == 'true'
         run: |
           PREV_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          RANGE="HEAD"
           if [ -n "$PREV_TAG" ]; then
-            LOG=$(git log "$PREV_TAG"..HEAD --no-merges --pretty=format:'%s' | grep -v '\[skip ci\]' | sed 's/^/- /')
-          else
-            LOG=$(git log --no-merges --pretty=format:'%s' | grep -v '\[skip ci\]' | sed 's/^/- /')
+            RANGE="$PREV_TAG..HEAD"
           fi
+
+          LOG=""
+          while IFS= read -r sha; do
+            if git diff-tree --no-commit-id --name-only -r "$sha" | grep -q '^app/'; then
+              subject=$(git log -1 --pretty=format:'%s' "$sha")
+              LOG="${LOG}- ${subject}"$'\n'
+            fi
+          done < <(git log $RANGE --no-merges --pretty=format:'%H')
           if [ -z "$LOG" ]; then
             LOG="- Minor fixes and improvements"
           fi
           {
             echo "body<<CHANGELOG_EOF"
-            echo "$LOG"
+            printf '%s' "$LOG"
             echo "CHANGELOG_EOF"
           } >> "$GITHUB_OUTPUT"
+
+      # bkey-latest.apk / bkey-full-latest.apk keep their fixed names so the
+      # README's "releases/latest/download/..." links and the in-app updater
+      # never need to change. These version-named copies are uploaded
+      # alongside them on the Release page only, so a specific release's
+      # assets are never confused with another version's (not committed into
+      # the repo -- generated fresh for this run only).
+      - name: Create version-named copies of the APKs for this release
+        if: steps.verdiff.outputs.changed == 'true'
+        run: |
+          cp release/bkey-latest.apk "release/bkey-v${{ steps.verdiff.outputs.new }}.apk"
+          cp release/bkey-full-latest.apk "release/bkey-full-v${{ steps.verdiff.outputs.new }}.apk"
 
       # Only cuts a new GitHub Release when versionCode actually changed, so the
       # per-asset download counters build up over time instead of resetting on
@@ -156,5 +176,7 @@ jobs:
           files: |
             release/bkey-latest.apk
             release/bkey-full-latest.apk
+            release/bkey-v${{ steps.verdiff.outputs.new }}.apk
+            release/bkey-full-v${{ steps.verdiff.outputs.new }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
