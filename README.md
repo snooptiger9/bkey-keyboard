@@ -165,9 +165,9 @@ Two builds — pick the one that fits you:
 | Copied-text suggestion | ✅ | ✅ |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download-Clean-22C55E?style=for-the-badge" alt="Download Clean"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download_Clean_(.apk)-22C55E?style=for-the-badge" alt="Download Clean" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download-Plus-3B82F6?style=for-the-badge" alt="Download Plus"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_Download_Plus_(.apk)-3B82F6?style=for-the-badge" alt="Download Plus" width="300" height="50"></a>
 </p>
 
 **Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — everything else on that list above (GIF search, the update checker, OTP suggestions, screenshot-to-clipboard) needs internet or photo access it doesn't have, except the copied-text suggestion, which works there too. It updates manually from this page.
@@ -404,9 +404,9 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 </div>
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://img.shields.io/badge/⬇️_تحميل-النظيفة-22C55E?style=for-the-badge" alt="تحميل النسخة النظيفة"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk"><img src="https://img.shields.io/badge/⬇️_تحميل_النسخة_النظيفة-22C55E?style=for-the-badge" alt="تحميل النسخة النظيفة" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_تحميل-Plus-3B82F6?style=for-the-badge" alt="تحميل نسخة Plus"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/⬇️_تحميل_نسخة_Plus-3B82F6?style=for-the-badge" alt="تحميل نسخة Plus" width="300" height="50"></a>
 </p>
 
 **النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — باقي ميزات الجدول أعلاه (بحث GIF، التحديث الداخلي، اقتراح OTP، حفظ لقطة الشاشة بالحافظة) تحتاج إنترنت أو صلاحية صور مو متوفرة فيها، ما عدا اقتراح آخر نص منسوخ فهو شغال فيها برضه. تتحدث يدوياً من هذي الصفحة.
