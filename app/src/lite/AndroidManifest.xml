@@ -12,6 +12,13 @@
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />
 
+    <!-- TEMPORARY EXPERIMENT ONLY, branch experiment/lite-no-internet:
+         isolating which permission triggers Play Protect. This run keeps
+         INTERNET but strips the image/storage permissions, to test them
+         apart from INTERNET instead of all three together. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+
     <application>
         <service
             android:name=".WhatsAppOtpListenerService"

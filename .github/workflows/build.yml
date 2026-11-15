@@ -2,7 +2,7 @@ name: Build signed APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "experiment/lite-no-internet" ]
   workflow_dispatch: {}
 
 permissions:
