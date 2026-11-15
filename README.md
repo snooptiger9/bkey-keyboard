@@ -171,7 +171,7 @@ Two builds — pick the one that fits you:
 
 **Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access. Updates manually from this page only.
 
-**Plus** has everything, but internet and photo access together trigger Google Play Protect's "Harmful app" warning on install (see below — expected, not a real problem). Update it from this page or its in-app updater (Settings → **Update the app**); either way it stays on Plus, never Clean.
+**Plus** has everything, but internet and photo access together trigger Google Play Protect's "Harmful app" warning on install (expected, not a real problem — details in [Privacy & security](#en-privacy)). Update it from this page or its in-app updater (Settings → **Update the app**); either way it stays on Plus, never Clean.
 
 <br>
 
@@ -411,7 +411,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 **النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور. تحديثها يدوي بس من هذي الصفحة.
 
-**بلس** فيها كل شي، بس جمع الإنترنت مع صلاحية الصور يسبب تحذير "Harmful app" من Google Play Protect عند التثبيت (التفاصيل تحت — متوقع، مو مشكلة حقيقية). حدّثها من هذي الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل بلس، ما تتحول للنظيفة.
+**بلس** فيها كل شي، بس جمع الإنترنت مع صلاحية الصور يسبب تحذير "Harmful app" من Google Play Protect عند التثبيت (متوقع، مو مشكلة حقيقية — التفاصيل بقسم [الخصوصية والأمان](#ar-privacy)). حدّثها من هذي الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل بلس، ما تتحول للنظيفة.
 
 <br>
 
