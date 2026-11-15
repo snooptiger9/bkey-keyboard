@@ -109,23 +109,21 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
 
 ### 🔒 Privacy & security
 
-- **Clean** has no network access at all, and can't read SMS, notifications, photos or storage —
-  those permissions aren't even in the app. Voice typing still works (it's handled by your
-  device's own speech-recognition service, not by bkey directly).
+- **Clean** has no network access and can't read SMS, notifications, photos or storage — those
+  permissions aren't in the app. Voice typing still works, handled entirely by your device's own
+  speech-recognition service.
 
-- **Plus** adds GIF search, image/sticker pasting, verification-code (OTP) suggestions, and the
-  in-app updater. OTP suggestions are off by default even in Plus and only read a newly-arrived
-  SMS or WhatsApp notification — never your message history — and everything is processed
-  on-device, never sent to any server.
+- **Plus** adds GIF search, image/sticker pasting, OTP suggestions, and the in-app updater. OTP
+  suggestions are off by default and only read a newly-arrived SMS/WhatsApp notification — never
+  your message history — all processed on-device, never sent to any server.
 
 > ⚠️ **About the Play Protect warning on Plus**
 >
-> We tested this directly: internet alone, or photo access alone, installs with no warning — only
-> the *combination* of the two triggers Google Play Protect's "Harmful app" flag. GIF search and
-> image-pasting need exactly that combination, so Plus can't avoid it without losing them. We've
-> filed a false-positive appeal with Google; until that changes anything, this is standard, expected
-> behavior for a sideloaded app with these permissions — not malware. Prefer not to see it at all?
-> Install Clean instead.
+> Internet or photo access alone installs cleanly — only their *combination* triggers Google Play
+> Protect's "Harmful app" flag, confirmed by our own testing. GIF search and image-pasting need
+> both, so Plus can't avoid it without losing them. We've appealed the false positive with Google;
+> until resolved, this is expected behavior for a sideloaded app with these permissions, not
+> malware. Prefer not to see it? Install Clean instead.
 
 <details>
 <summary><b>Steps to pause Play Protect scanning, if you still want to install Plus (tap for details)</b></summary>
@@ -335,21 +333,20 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 <div dir="rtl">
 
-‏• **النسخة النظيفة (Clean)** ما فيها أي اتصال إنترنت إطلاقاً، وما تقدر تقرأ رسائل ولا إشعارات ولا
-  صور ولا تخزين — هذي الصلاحيات غير موجودة بالتطبيق أصلاً. الكتابة بالصوت تشتغل برضه (تمر عبر
-  خدمة التعرف على الصوت بجهازك، مو عبر bkey مباشرة).
+‏• **النظيفة** ما فيها اتصال إنترنت، وما تقدر تقرأ رسائل ولا إشعارات ولا صور ولا تخزين — هذي
+  الصلاحيات غير موجودة بالتطبيق. الكتابة بالصوت تشتغل برضه، عبر خدمة التعرف على الصوت بجهازك
+  مباشرة‏.
 
-‏• **نسخة بلس** فيها إضافة بحث GIF، لصق الصور/الستيكرات، اقتراح رمز التحقق (OTP)، والتحديث
-  التلقائي من داخل التطبيق. اقتراح OTP معطّل افتراضياً حتى في بلس، ويفحص بس الرسالة أو إشعار
-  واتساب الجديد اللحظي — أبداً صندوق الرسائل القديم — وكل المعالجة على الجهاز فقط.
+‏• **بلس** فيها بحث GIF، لصق الصور/الستيكرات، اقتراح رمز التحقق (OTP)، والتحديث التلقائي من داخل
+  التطبيق. اقتراح OTP معطّل افتراضياً ويفحص بس إشعار الرسالة أو واتساب الجديد اللحظي — أبداً
+  الرسائل القديمة — وكل المعالجة على الجهاز فقط‏.
 
 > ⚠️ **ملاحظة عن تحذير Play Protect بنسخة بلس**
 >
-> جربنا بأنفسنا: نسخة فيها الإنترنت بس، أو الصور بس، تثبت بدون تحذير — بس **جمع صلاحية الإنترنت
-> مع الصور/التخزين** هو اللي يخلي Google Play Protect يصنفها "Harmful app". وهذي بالضبط التركيبة
-> اللي يحتاجها بحث GIF ولصق الصور، فبلس ما تقدر تتجنب التحذير بدون ما تفقد الميزتين. قدّمنا استئناف
-> رسمي لجوجل بهذا التصنيف الخاطئ؛ لحد الآن هذا سلوك متوقع وقياسي لأي تطبيق مُثبّت من خارج المتجر
-> بهذي الصلاحيات، مو فيروس أو مشكلة حقيقية. ما تبي تشوفه؟ ثبّت النظيفة بدالها.
+> الإنترنت لحاله أو الصور لحالها تثبت بدون تحذير — بس **جمعهم مع بعض** هو اللي يخلي Google Play
+> Protect يصنفها "Harmful app"، تأكدنا بالتجربة. بحث GIF ولصق الصور يحتاجون الصلاحيتين مع بعض،
+> فبلس ما تقدر تتجنب التحذير بدونهم. قدّمنا استئناف لجوجل بهذا التصنيف؛ لحد الحين هذا سلوك متوقع
+> لأي تطبيق مُثبّت من خارج المتجر بهذي الصلاحيات، مو فيروس. ما تبي تشوفه؟ ثبّت النظيفة بدالها‏.
 
 </div>
 
