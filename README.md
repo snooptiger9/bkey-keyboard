@@ -42,8 +42,6 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
   ![Swipe the opposite direction to select all](docs/gifs/swipe_select_all.gif)
 - Swipe down over the keys: copy selected text — the same gesture turns into paste for one minute
   afterward.
-
-  ![Swipe down to copy](docs/gifs/swipe_copy.gif)
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif)
@@ -70,8 +68,6 @@ taps. Fully supports Arabic and English with a carefully tailored experience for
   (from 1 hour to 30 days, or never).
 - Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(Plus only)*
 - The last copied text shows right in the middle suggestion slot for a quick re-paste.
-
-  ![Tapping the clipboard suggestion chip to paste](docs/gifs/paste_chip.gif)
 
 <br>
 
@@ -223,9 +219,7 @@ No — it's lightweight and runs fully on-device, with no background cloud proce
 
 ### 🤝 Community & bug reports
 
-- **Ran into a bug or crash?** Settings → **Error log** → **"📧 Email developer"** opens your mail app with the error details, sent straight to **lvl60me@gmail.com**.
-- You can email the same address with suggestions, feature ideas, or general feedback.
-- Emailing directly is the only way to reach the developer.
+Settings → **Error log** → **"📧 Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
 
 <br>
 
@@ -272,8 +266,6 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ‏• سحب للأسفل فوق الحروف: نسخ النص المحدد، وتتحول نفس السحبة تلقائياً للصق لمدة دقيقة بعد النسخ‏.
 
-![سحب للأسفل للنسخ](docs/gifs/swipe_copy.gif)
-
 ‏• ضغط مطوّل + سحب على زر المسافة: تحريك المؤشر حرفاً حرفاً‏.
 
 ![ضغط مطوّل وسحب زر المسافة لتحريك المؤشر](docs/gifs/cursor_move.gif)
@@ -301,8 +293,6 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 ‏• درج حافظة كامل: تثبيت، حذف، وحذف تلقائي للعناصر القديمة بعد مدة تختارها (من ساعة إلى 30 يوماً، أو بدون حذف)‏.  
 ‏• حفظ آخر لقطة شاشة تلقائياً (مصغّرة واحدة تحل محل القديمة) *(نسخة بلس فقط)*‏.  
 ‏• آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة‏.
-
-![الضغط على نص الحافظة بالاقتراحات للصقه](docs/gifs/paste_chip.gif)
 
 <br>
 
@@ -469,9 +459,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 <div dir="rtl">
 
-‏• **واجهت خطأ أو تعطّل بالتطبيق؟** من الإعدادات ← **سجل الأخطاء** ← **"📧 إرسال للمطوّر"**، وبيفتح تطبيق الإيميل عندك جاهز برسالة فيها تفاصيل الخطأ، مرسلة مباشرة لـ **lvl60me@gmail.com**.  
-‏• تقدر ترسل لنفس الإيميل أي اقتراح، فكرة ميزة جديدة، أو ملاحظة عامة عن التطبيق.  
-‏• التواصل المباشر عبر الإيميل هو الطريقة الوحيدة للتبليغ أو التواصل مع المطوّر.
+من الإعدادات ← **سجل الأخطاء** ← **"📧 إرسال للمطوّر"** يرسل تفاصيل أي خطأ مباشرة لـ **lvl60me@gmail.com** — نفس الإيميل للاقتراحات والملاحظات، وهو الطريقة الوحيدة للتواصل مع المطوّر.
 
 </div>
 
