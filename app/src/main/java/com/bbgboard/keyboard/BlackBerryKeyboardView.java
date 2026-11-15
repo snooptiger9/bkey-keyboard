@@ -1319,18 +1319,29 @@ public class BlackBerryKeyboardView extends View {
             sugPrimaryTextPaint.setColor(Color.WHITE);
             sugPrimaryTextPaint.setTextAlign(Paint.Align.LEFT);
 
-            // Draw the up/down arrow on its own, bigger and vertically centered on the
-            // whole bar, so it reads as a clear "drag this" icon instead of a small
-            // character squeezed inline with the label text.
-            sugPrimaryTextPaint.setTextSize(20f * scaledDensity);
-            float arrowX = 14f * density;
+            // The arrow + label are centered within the bar (excluding the "Done"
+            // button's reserved space on the right) instead of pinned to the far-left
+            // edge -- centered reads more like a deliberate instruction rather than a
+            // stray icon stuck in the corner. The arrow itself is also a bit bigger
+            // now, so it reads clearly as a "drag this" icon on its own.
+            sugPrimaryTextPaint.setTextSize(24f * scaledDensity);
+            float arrowWidth = sugPrimaryTextPaint.measureText("↕");
+            float arrowGap = 8f * density;
+
+            sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
+            float labelWidth = sugPrimaryTextPaint.measureText(label);
+
+            float availRight = resizeDoneButtonRect.left - 8f * density;
+            float groupWidth = arrowWidth + arrowGap + labelWidth;
+            float arrowX = Math.max(8f * density, (availRight - groupWidth) / 2f);
+
+            sugPrimaryTextPaint.setTextSize(24f * scaledDensity);
             float arrowY = resizeHandleBarRect.centerY()
                     - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
             canvas.drawText("↕", arrowX, arrowY, sugPrimaryTextPaint);
-            float arrowWidth = sugPrimaryTextPaint.measureText("↕");
 
             sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
-            float labelX = arrowX + arrowWidth + 8f * density;
+            float labelX = arrowX + arrowWidth + arrowGap;
             float labelY = resizeDragHandlePillRect.bottom
                     + (resizeHandleBarRect.bottom - resizeDragHandlePillRect.bottom
                             - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent())) / 2f;

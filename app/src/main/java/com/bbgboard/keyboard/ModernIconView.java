@@ -39,6 +39,7 @@ public class ModernIconView extends View {
     public static final int ICON_HASH_SYMBOLS = 27;
     public static final int ICON_SUN = 28;
     public static final int ICON_REFRESH_UPDATE = 29;
+    public static final int ICON_MESSAGE_TEXT = 30;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -480,6 +481,26 @@ public class ModernIconView extends View {
                 canvas.drawLine(cx + v, cy - r * 0.78f, cx + v, cy + r * 0.78f, strokePaint);
                 canvas.drawLine(cx - r * 0.78f, cy - v, cx + r * 0.78f, cy - v, strokePaint);
                 canvas.drawLine(cx - r * 0.78f, cy + v, cx + r * 0.78f, cy + v, strokePaint);
+                break;
+            }
+            case ICON_MESSAGE_TEXT: {
+                // A chat/text-message bubble (rounded rect with a small tail) plus two
+                // short text lines inside, instead of reusing the "A + checkmark"
+                // text-correction glyph for something that isn't about spelling at all.
+                RectF bubble = new RectF(cx - r * 0.95f, cy - r * 0.78f, cx + r * 0.95f, cy + r * 0.45f);
+                Path bubblePath = new Path();
+                bubblePath.addRoundRect(bubble, 6f * density, 6f * density, Path.Direction.CW);
+                canvas.drawPath(bubblePath, strokePaint);
+
+                Path tail = new Path();
+                tail.moveTo(cx - r * 0.55f, cy + r * 0.45f);
+                tail.lineTo(cx - r * 0.55f, cy + r * 0.92f);
+                tail.lineTo(cx - r * 0.12f, cy + r * 0.45f);
+                tail.close();
+                canvas.drawPath(tail, strokePaint);
+
+                canvas.drawLine(cx - r * 0.60f, cy - r * 0.32f, cx + r * 0.60f, cy - r * 0.32f, strokePaint);
+                canvas.drawLine(cx - r * 0.60f, cy - r * 0.02f, cx + r * 0.22f, cy - r * 0.02f, strokePaint);
                 break;
             }
             case ICON_SUN: {

@@ -14,6 +14,8 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -366,6 +368,19 @@ public class MainActivity extends Activity {
         }
 
         if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) == homeMenuView) {
+            showHomeGboardSettingsMenu();
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        // The system's "choose input method" picker is a dialog window, not a
+        // separate Activity, so dismissing it regains focus here without ever
+        // calling onResume(). Without this, the enabled/selected state on the
+        // home screen stayed stale until the page was closed and reopened.
+        if (hasFocus && mainFrame != null && mainFrame.getChildCount() > 0
+                && mainFrame.getChildAt(0) == homeMenuView) {
             showHomeGboardSettingsMenu();
         }
     }
@@ -1683,7 +1698,7 @@ public class MainActivity extends Activity {
             // there instead of showing a row that leads nowhere.
             LinearLayout otpEntryCard = createGroupedWhiteCard();
             otpEntryCard.addView(createMenuRow(
-                    ModernIconView.ICON_TEXT_CORRECTION,
+                    ModernIconView.ICON_MESSAGE_TEXT,
                     tr("اقتراح رمز التحقق (OTP)", "Verification code (OTP) suggestions"),
                     tr("من الرسائل وواتساب", "From SMS & WhatsApp"),
                     false,
@@ -1739,6 +1754,41 @@ public class MainActivity extends Activity {
                 this::openLearnedWordsScreen));
     }
 
+    private Handler downloadToastHandler;
+    private Runnable downloadToastRunnable;
+    private Toast downloadToast;
+
+    // Toast.LENGTH_SHORT/LENGTH_LONG always auto-dismiss after a couple of
+    // seconds, so a single .show() made it look like the download had
+    // already stopped while it was still running in the background. This
+    // keeps re-showing the same toast every couple of seconds until the
+    // download actually finishes (success or failure), so it stays visible
+    // the whole time.
+    private void startPersistentDownloadToast() {
+        stopPersistentDownloadToast();
+        downloadToast = Toast.makeText(this, tr("جاري تنزيل التحديث الآن...", "Downloading the update now..."), Toast.LENGTH_LONG);
+        downloadToastHandler = new Handler(Looper.getMainLooper());
+        downloadToastRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (downloadToast == null) return;
+                downloadToast.show();
+                downloadToastHandler.postDelayed(this, 2500);
+            }
+        };
+        downloadToastHandler.post(downloadToastRunnable);
+    }
+
+    private void stopPersistentDownloadToast() {
+        if (downloadToastHandler != null && downloadToastRunnable != null) {
+            downloadToastHandler.removeCallbacks(downloadToastRunnable);
+        }
+        if (downloadToast != null) {
+            downloadToast.cancel();
+            downloadToast = null;
+        }
+    }
+
     private void checkForAppUpdate() {
         Toast.makeText(this, tr("جاري التحقق من وجود تحديث...", "Checking for an update..."), Toast.LENGTH_SHORT).show();
         AppUpdater.fetchRemoteVersionCode(remoteVersionCode -> {
@@ -1748,8 +1798,9 @@ public class MainActivity extends Activity {
                         Toast.LENGTH_SHORT).show();
                 return;
             }
-            Toast.makeText(this, tr("جاري تنزيل التحديث...", "Downloading the update..."), Toast.LENGTH_SHORT).show();
+            startPersistentDownloadToast();
             AppUpdater.downloadAndInstall(getApplicationContext(), success -> {
+                stopPersistentDownloadToast();
                 if (!success) {
                     Toast.makeText(MainActivity.this,
                             tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
@@ -1872,8 +1923,9 @@ public class MainActivity extends Activity {
             lpDl.topMargin = dp(14);
             downloadBtn.setLayoutParams(lpDl);
             downloadBtn.setOnClickListener(v -> {
-                Toast.makeText(this, tr("جاري تنزيل التحديث...", "Downloading the update..."), Toast.LENGTH_SHORT).show();
+                startPersistentDownloadToast();
                 AppUpdater.downloadAndInstall(getApplicationContext(), true, success -> {
+                    stopPersistentDownloadToast();
                     if (!success) {
                         Toast.makeText(MainActivity.this,
                                 tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
@@ -2048,13 +2100,32 @@ public class MainActivity extends Activity {
         });
         sizeCard.addView(sizeSeek);
 
-        TextView clearBtn = new TextView(this);
-        clearBtn.setText(tr("مسح قسم «مستخدم حديثاً»", "Clear \"Recently used\" section"));
-        clearBtn.setTextColor(Color.parseColor(dm("#DC2626")));
-        clearBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        clearBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        LinearLayout clearBtn = new LinearLayout(this);
+        clearBtn.setOrientation(LinearLayout.HORIZONTAL);
         clearBtn.setGravity(Gravity.CENTER);
-        clearBtn.setPadding(0, dp(14), 0, dp(4));
+        clearBtn.setBackground(roundedCard(dm("#FEE2E2"), 14));
+        clearBtn.setPadding(dp(14), dp(12), dp(14), dp(12));
+        LinearLayout.LayoutParams lpClearBtn = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpClearBtn.topMargin = dp(14);
+        clearBtn.setLayoutParams(lpClearBtn);
+
+        ModernIconView clearIcon = new ModernIconView(this, ModernIconView.ICON_TRASH,
+                Color.parseColor(dm("#DC2626")), Color.TRANSPARENT);
+        clearIcon.setStyle(0.85f, 1.8f);
+        LinearLayout.LayoutParams lpClearIcon = new LinearLayout.LayoutParams(dp(20), dp(20));
+        lpClearIcon.rightMargin = dp(8);
+        lpClearIcon.leftMargin = dp(8);
+        clearIcon.setLayoutParams(lpClearIcon);
+
+        TextView clearLabel = new TextView(this);
+        clearLabel.setText(tr("مسح قسم «مستخدم حديثاً»", "Clear \"Recently used\" section"));
+        clearLabel.setTextColor(Color.parseColor(dm("#DC2626")));
+        clearLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        clearLabel.setTypeface(Typeface.DEFAULT_BOLD);
+
+        clearBtn.addView(clearIcon);
+        clearBtn.addView(clearLabel);
         clearBtn.setOnClickListener(v -> {
             prefs.clearRecentEmojis();
             android.widget.Toast.makeText(this, tr("تم مسح الإيموجي الأخيرة", "Recent emojis cleared"), android.widget.Toast.LENGTH_SHORT).show();
