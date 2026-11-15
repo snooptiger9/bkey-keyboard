@@ -169,9 +169,9 @@ Two builds — pick the one that fits you:
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
 </p>
 
-**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — everything else above (GIF search, the update checker, OTP suggestions, screenshot-to-clipboard) needs internet or photo access it doesn't have, except the copied-text suggestion, which works there too. It only updates manually, from this page.
+**Clean** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access. Updates manually from this page only.
 
-**Plus** has everything, but because it needs internet together with photo access, Google Play Protect shows a "Harmful app" warning on install (see below — it's expected, not a real problem). Update it either from this page or from its own in-app updater (Settings → **Update the app**) — either way it stays on Plus and never switches to Clean.
+**Plus** has everything, but internet and photo access together trigger Google Play Protect's "Harmful app" warning on install (see below — expected, not a real problem). Update it from this page or its in-app updater (Settings → **Update the app**); either way it stays on Plus, never Clean.
 
 <br>
 
@@ -409,9 +409,9 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 <a href="https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"><img src="https://img.shields.io/badge/تحميل_بلس-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="تحميل نسخة بلس" width="300" height="50"></a>
 </p>
 
-**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — باقي ميزات الجدول أعلاه (بحث GIF، التحديث الداخلي، اقتراح OTP، حفظ لقطة الشاشة بالحافظة) تحتاج إنترنت أو صلاحية صور مو متوفرة فيها، ما عدا اقتراح آخر نص منسوخ فهو شغال فيها برضه. تحديثها يدوي بس، من هذي الصفحة.
+**النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور. تحديثها يدوي بس من هذي الصفحة.
 
-**بلس** فيها كل شي، لكن لأنها تحتاج الإنترنت مع صلاحية الصور مع بعض، Google Play Protect يطلع فيها تحذير "Harmful app" عند التثبيت (التفاصيل تحت — هذا متوقع، مو مشكلة حقيقية). حدّثها إما من هذي الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل بلس، ما تتحول للنظيفة أبداً.
+**بلس** فيها كل شي، بس جمع الإنترنت مع صلاحية الصور يسبب تحذير "Harmful app" من Google Play Protect عند التثبيت (التفاصيل تحت — متوقع، مو مشكلة حقيقية). حدّثها من هذي الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل بلس، ما تتحول للنظيفة.
 
 <br>
 
