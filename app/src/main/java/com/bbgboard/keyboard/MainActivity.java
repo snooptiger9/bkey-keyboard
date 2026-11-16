@@ -1166,7 +1166,7 @@ public class MainActivity extends Activity {
                 tr("التبديل بسحب زر المسافة", "Switch by swiping the space bar"),
                 bothLangsOn
                         ? tr("فعّاله: اسحب زر المسافة يميناً أو يساراً للتبديل. مطفيه: يظهر زر 🌐 مخصص للتبديل بدل ذلك",
-                                "On: swipe the space bar left or right to switch. Off: a dedicated 🌐 button appears instead")
+                                "On: swipe the space bar left or right to switch.\nOff: a dedicated 🌐 button appears instead")
                         : tr("يحتاج تفعيل اللغتين (عربي + إنجليزي) حتى يشتغل", "Needs both languages enabled (Arabic + English) to work"),
                 prefs.isSpaceSwipeLangEnabled(),
                 bothLangsOn,
