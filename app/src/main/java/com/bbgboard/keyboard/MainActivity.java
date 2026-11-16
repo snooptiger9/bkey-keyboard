@@ -56,7 +56,23 @@ public class MainActivity extends Activity {
 
     private int currentScrollY() {
         View v = mainFrame != null && mainFrame.getChildCount() > 0 ? mainFrame.getChildAt(0) : null;
-        return v instanceof ScrollView ? v.getScrollY() : 0;
+        ScrollView sv = v != null ? findScrollViewIn(v) : null;
+        return sv != null ? sv.getScrollY() : 0;
+    }
+
+    // The home menu wraps its ScrollView inside a container alongside a fixed
+    // (non-scrolling) header, unlike sub-screens where the ScrollView is the
+    // direct child of mainFrame -- so this looks one level deeper when needed.
+    private ScrollView findScrollViewIn(View v) {
+        if (v instanceof ScrollView) return (ScrollView) v;
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                ScrollView sv = findScrollViewIn(vg.getChildAt(i));
+                if (sv != null) return sv;
+            }
+        }
+        return null;
     }
 
     private void reopenKeepingScroll(Runnable open) {
@@ -408,27 +424,38 @@ public class MainActivity extends Activity {
     private void showHomeGboardSettingsMenu() {
         mainFrame.removeAllViews();
 
-        ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
-        scroll.setLayoutParams(new ViewGroup.LayoutParams(
+        // The title row is a fixed header outside the ScrollView (like Gboard's own
+        // "Gboard settings" header), so it stays in place while the list below scrolls.
+        LinearLayout pageContainer = new LinearLayout(this);
+        pageContainer.setOrientation(LinearLayout.VERTICAL);
+        pageContainer.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        pageContainer.setLayoutDirection(isDeviceArabic() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
+        scroll.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f
         ));
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(16), dp(22), dp(16), dp(36));
+        root.setPadding(dp(16), dp(6), dp(16), dp(36));
 
         root.setLayoutDirection(isDeviceArabic() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
 
         LinearLayout titleRowTop = new LinearLayout(this);
         titleRowTop.setOrientation(LinearLayout.HORIZONTAL);
         titleRowTop.setGravity(Gravity.CENTER_VERTICAL);
+        titleRowTop.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
+        titleRowTop.setPadding(dp(16), dp(22), dp(16), dp(0));
         titleRowTop.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         TextView pageTitle = new TextView(this);
-        pageTitle.setText(tr("الإعدادات", "Settings"));
+        pageTitle.setText(tr("إعدادات bkey", "bkey settings"));
         pageTitle.setTextColor(Color.parseColor(dm("#1F2937")));
         pageTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f);
         pageTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
@@ -459,7 +486,7 @@ public class MainActivity extends Activity {
         });
         titleRowTop.addView(themeToggleBtn);
 
-        root.addView(titleRowTop);
+        pageContainer.addView(titleRowTop);
 
         LinearLayout quickSetupCard = new LinearLayout(this);
         quickSetupCard.setOrientation(LinearLayout.VERTICAL);
@@ -643,8 +670,9 @@ public class MainActivity extends Activity {
         root.addView(copyrightTv);
 
         scroll.addView(root);
-        homeMenuView = scroll;
-        mainFrame.addView(scroll);
+        pageContainer.addView(scroll);
+        homeMenuView = pageContainer;
+        mainFrame.addView(pageContainer);
         currentBack = null;
         restoreScroll(scroll);
     }
