@@ -1735,27 +1735,42 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     @Override
-    public void onBackspaceSingle() {
+    public boolean onBackspaceSingle() {
         if (gifSearchFocused) {
             int len = gifQueryBuilder.length();
-            if (len > 0) gifQueryBuilder.deleteCharAt(len - 1);
+            if (len <= 0) return false;
+            gifQueryBuilder.deleteCharAt(len - 1);
             updateGifQueryDisplay();
-            return;
+            return true;
         }
         InputConnection ic = getCurrentInputConnection();
-        if (ic == null) return;
+        if (ic == null) return false;
         CharSequence selected = ic.getSelectedText(0);
+        boolean deleted;
         if (selected != null && selected.length() > 0) {
             ic.commitText("", 1);
+            deleted = true;
         } else if (lastAutoCorrectResult != null && undoAutoCorrectIfImmediate(ic)) {
-
+            deleted = true;
         } else {
-            int len = lastGraphemeLength(ic);
-            ic.deleteSurroundingText(len, 0);
+            CharSequence before = textBefore(ic, 1);
+            if (before == null || before.length() == 0) {
+                // Nothing before the cursor at all -- there's genuinely nothing to delete,
+                // so report that instead of calling deleteSurroundingText() as a no-op and
+                // refreshing predictions for no reason on every repeat tick.
+                deleted = false;
+            } else {
+                int len = lastGraphemeLength(ic);
+                ic.deleteSurroundingText(len, 0);
+                deleted = true;
+            }
         }
-        lastAutoCorrectOriginal = null;
-        lastAutoCorrectResult = null;
-        refreshPredictions();
+        if (deleted) {
+            lastAutoCorrectOriginal = null;
+            lastAutoCorrectResult = null;
+            refreshPredictions();
+        }
+        return deleted;
     }
 
     private boolean undoAutoCorrectIfImmediate(InputConnection ic) {

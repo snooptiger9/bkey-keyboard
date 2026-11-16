@@ -62,7 +62,10 @@ public class BlackBerryKeyboardView extends View {
 
     public interface KeyboardActionListener {
         void onCharacterTyped(String text);
-        void onBackspaceSingle();
+        /** @return true if something was actually deleted (or undone); false if there was
+         *  nothing before the cursor to delete, so the caller should stop repeating instead
+         *  of continuing to vibrate/click on an empty field as if still actively deleting. */
+        boolean onBackspaceSingle();
         boolean onSwipeLeftDeleteWord();
 
         boolean onSwipeSelectAll();
@@ -306,9 +309,14 @@ public class BlackBerryKeyboardView extends View {
         @Override
         public void run() {
             if (touchDownKey != null && touchDownKey.type == KeyType.BACKSPACE && !isDragging) {
+                boolean deleted = listener != null && listener.onBackspaceSingle();
+                if (!deleted) {
+                    // Nothing left before the cursor -- stop repeating instead of carrying on
+                    // with haptic/sound ticks every frame as if still actively deleting.
+                    return;
+                }
                 vibrateTap(false);
                 soundController.playBackspaceClick();
-                if (listener != null) listener.onBackspaceSingle();
 
                 long heldMs = SystemClock.uptimeMillis() - backspaceRepeatStartUptime;
                 long nextDelay = BACKSPACE_REPEAT_BASE_MS;

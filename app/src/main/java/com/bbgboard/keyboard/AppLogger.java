@@ -18,6 +18,18 @@ public final class AppLogger {
     private static final long MAX_LOG_SIZE_BYTES = 150 * 1024L;
     private static volatile Context appCtx;
 
+    // A bug that throws from inside a draw/layout/touch callback can end up re-throwing
+    // on every single frame (one real case: ~180 identical NPEs logged in ~3 seconds,
+    // which froze the UI thread outright since every log() call here does blocking
+    // synchronous file I/O). Logging is meant to be a safety net, not something that
+    // can itself cause the freeze it's trying to record -- so an identical tag+message
+    // repeated faster than this window is dropped after the first one, with a single
+    // summary line once things go quiet instead of one disk write per occurrence.
+    private static final long REPEAT_SUPPRESS_WINDOW_MS = 1000L;
+    private static String lastKey;
+    private static long lastLogUptimeMs;
+    private static int suppressedSinceLastWrite;
+
     private AppLogger() {
     }
 
@@ -31,7 +43,20 @@ public final class AppLogger {
         Context ctx = appCtx;
         if (ctx == null) return;
         try {
-            logInternal(ctx, tag, message, t);
+            long now = android.os.SystemClock.uptimeMillis();
+            String key = tag + '\u0001' + message + '\u0001' + (t != null ? t.getClass().getName() : "");
+            synchronized (AppLogger.class) {
+                if (key.equals(lastKey) && (now - lastLogUptimeMs) < REPEAT_SUPPRESS_WINDOW_MS) {
+                    suppressedSinceLastWrite++;
+                    lastLogUptimeMs = now;
+                    return;
+                }
+                int suppressed = suppressedSinceLastWrite;
+                lastKey = key;
+                lastLogUptimeMs = now;
+                suppressedSinceLastWrite = 0;
+                logInternal(ctx, tag, suppressed > 0 ? (message + " (+" + suppressed + " repeats suppressed)") : message, t);
+            }
         } catch (Exception ignored) {
         }
     }

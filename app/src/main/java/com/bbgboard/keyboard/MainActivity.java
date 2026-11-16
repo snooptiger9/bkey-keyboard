@@ -1142,7 +1142,28 @@ public class MainActivity extends Activity {
     }
 
     private void refreshLanguagesScreen(LinearLayout root) {
-        root.removeViews(1, root.getChildCount() - 1);
+        // clearFocus() first works around a known Android framework bug: bulk-removing
+        // children with removeViews() while one of them (e.g. a just-touched language
+        // card, or one of the enable/disable Switches above it) still holds input focus
+        // throws a NullPointerException inside ViewGroup.removeViewsInternal. Left
+        // uncaught that bug would re-fire on every redraw frame while this screen stays
+        // in its half-rebuilt state, which is exactly what made this freeze for ~3
+        // seconds in practice -- so this is also guarded with a one-at-a-time fallback,
+        // just in case clearFocus() isn't enough on some device/Android version.
+        root.clearFocus();
+        try {
+            root.removeViews(1, root.getChildCount() - 1);
+        } catch (Exception e) {
+            AppLogger.log("MainActivity", "refreshLanguagesScreen() removeViews", e);
+            while (root.getChildCount() > 1) {
+                try {
+                    root.removeViewAt(root.getChildCount() - 1);
+                } catch (Exception e2) {
+                    AppLogger.log("MainActivity", "refreshLanguagesScreen() removeViewAt fallback", e2);
+                    break;
+                }
+            }
+        }
         fillLanguagesScreen(root);
     }
 
