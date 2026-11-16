@@ -1247,15 +1247,6 @@ public class MainActivity extends Activity {
         return row;
     }
 
-    /** Renumbers the "1-, 2-, 3-" labels to match the order rows' current on-screen position. */
-    private void renumberLanguageOrderRows(LinearLayout container) {
-        for (int i = 0; i < container.getChildCount(); i++) {
-            LinearLayout row = (LinearLayout) container.getChildAt(i);
-            TextView order = (TextView) row.getChildAt(0);
-            order.setText((i + 1) + "-");
-        }
-    }
-
     private static void setAncestorsDisallowIntercept(View v, boolean disallow) {
         ViewParent p = v.getParent();
         while (p != null) {
@@ -1264,20 +1255,21 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void commitLanguageOrder(LinearLayout container) {
-        List<String> order = new ArrayList<>();
-        for (int i = 0; i < container.getChildCount(); i++) {
-            order.add((String) container.getChildAt(i).getTag());
-        }
-        prefs.setEnabledLanguages(order);
-    }
-
     /** Long-press-and-drag reordering for a language card: holding it still for the system's
      *  long-press timeout picks it up (with haptic + elevation feedback), then dragging up or
      *  down moves it to whichever slot the finger is currently over, live-renumbering the "1-,
-     *  2-, 3-" labels as it passes other cards. Releasing commits the new order to prefs. A
-     *  quick swipe/scroll before the long-press timeout fires is left alone so it still scrolls
-     *  the settings page normally instead of starting a drag. */
+     *  2-, 3-" labels as it passes other cards. Releasing commits the new order to prefs and
+     *  rebuilds the screen. A quick swipe/scroll before the long-press timeout fires is left
+     *  alone so it still scrolls the settings page normally instead of starting a drag.
+     *
+     *  Important: the real view hierarchy (container's children) is never touched while the
+     *  gesture is live -- only a virtual order list and each row's translationY. Android cuts
+     *  off further touch events to a view that gets removeView()'d/addView()'d back mid-gesture,
+     *  which is why an earlier version of this (that physically reordered on every ACTION_MOVE)
+     *  only ever worked for the very first card: that's the only row whose desiredIndex never
+     *  changes (already at index 0), so it never triggered the live reorder that broke every
+     *  other card's touch stream. The actual container is only reordered once, at the end, via
+     *  refreshLanguagesScreen -- by which point the gesture is already over. */
     private void setupLanguageOrderDrag(final LinearLayout root, final LinearLayout container, final LinearLayout row) {
         final Handler handler = new Handler(Looper.getMainLooper());
         final int touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
@@ -1287,8 +1279,10 @@ public class MainActivity extends Activity {
         final float[] downRawY = new float[1];
         final float[] startAbsoluteTop = new float[1];
         final float[] slotHeight = new float[1];
+        final int[] homeIndex = new int[1];
         final boolean[] dragging = new boolean[1];
         final boolean[] longPressFired = new boolean[1];
+        final ArrayList<View> virtualOrder = new ArrayList<>();
 
         final Runnable startDrag = () -> {
             longPressFired[0] = true;
@@ -1300,88 +1294,123 @@ public class MainActivity extends Activity {
         };
 
         row.setOnTouchListener((v, event) -> {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    dragging[0] = false;
-                    longPressFired[0] = false;
-                    downRawX[0] = event.getRawX();
-                    downRawY[0] = event.getRawY();
-                    slotHeight[0] = row.getHeight() + dp(6);
-                    startAbsoluteTop[0] = container.indexOfChild(row) * slotHeight[0];
-                    handler.postDelayed(startDrag, longPressTimeout);
-                    // Claim the gesture from the settings page's ScrollView *now*, not only once
-                    // the long-press fires: otherwise the natural finger wobble of a real hold
-                    // crosses the ScrollView's own (same-sized) touch slop first and it steals
-                    // the gesture to scroll, so the long-press timer never gets to fire at all.
-                    setAncestorsDisallowIntercept(row, true);
-                    return true;
-
-                case MotionEvent.ACTION_MOVE:
-                    if (!longPressFired[0]) {
-                        float dx = event.getRawX() - downRawX[0];
-                        float dy = event.getRawY() - downRawY[0];
-                        if (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop) {
-                            // Moved before the long-press fired -- the user wanted to scroll the
-                            // page, not pick up the card. Give the gesture back to the ScrollView.
-                            handler.removeCallbacks(startDrag);
-                            setAncestorsDisallowIntercept(row, false);
-                        }
-                        return true;
-                    }
-                    if (!dragging[0] || slotHeight[0] <= 0f) return true;
-                    // row or container may have been detached (e.g. the screen got rebuilt from
-                    // under this gesture by some other action) -- bail out instead of operating
-                    // on stale view-tree indices, which would throw and crash the whole app.
-                    if (row.getParent() != container) {
+            // Belt-and-suspenders: nothing this listener does should ever be able to crash the
+            // whole app. Any unexpected exception bails out of the drag quietly instead.
+            try {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN: {
                         dragging[0] = false;
                         longPressFired[0] = false;
+                        downRawX[0] = event.getRawX();
+                        downRawY[0] = event.getRawY();
+                        slotHeight[0] = row.getHeight() + dp(6);
+                        homeIndex[0] = container.indexOfChild(row);
+                        startAbsoluteTop[0] = homeIndex[0] * slotHeight[0];
+                        virtualOrder.clear();
+                        for (int i = 0; i < container.getChildCount(); i++) {
+                            virtualOrder.add(container.getChildAt(i));
+                        }
+                        handler.removeCallbacks(startDrag);
+                        handler.postDelayed(startDrag, longPressTimeout);
+                        // Claim the gesture from the settings page's ScrollView *now*, not only
+                        // once the long-press fires: otherwise the natural finger wobble of a
+                        // real hold crosses the ScrollView's own touch slop first and it steals
+                        // the gesture to scroll, so the long-press timer never gets to fire.
+                        setAncestorsDisallowIntercept(row, true);
                         return true;
                     }
-                    try {
+
+                    case MotionEvent.ACTION_MOVE: {
+                        if (!longPressFired[0]) {
+                            float dx = event.getRawX() - downRawX[0];
+                            float dy = event.getRawY() - downRawY[0];
+                            if (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop) {
+                                // Moved before the long-press fired -- the user wanted to scroll
+                                // the page, not pick up the card. Hand the gesture back.
+                                handler.removeCallbacks(startDrag);
+                                setAncestorsDisallowIntercept(row, false);
+                            }
+                            return true;
+                        }
+                        if (!dragging[0] || slotHeight[0] <= 0f || homeIndex[0] < 0) return true;
+                        int childCount = container.getChildCount();
+                        if (childCount <= 0) return true;
+
                         float totalDy = event.getRawY() - downRawY[0];
                         float draggedAbsoluteTop = startAbsoluteTop[0] + totalDy;
-                        int lastIndex = container.getChildCount() - 1;
+                        int lastIndex = childCount - 1;
                         int desiredIndex = (int) Math.floor((draggedAbsoluteTop + slotHeight[0] / 2f) / slotHeight[0]);
                         if (desiredIndex < 0) desiredIndex = 0;
                         if (desiredIndex > lastIndex) desiredIndex = lastIndex;
-                        int currentIndex = container.indexOfChild(row);
-                        if (currentIndex < 0) return true;
-                        if (desiredIndex != currentIndex) {
-                            container.removeViewAt(currentIndex);
-                            container.addView(row, desiredIndex);
-                            renumberLanguageOrderRows(container);
-                            currentIndex = desiredIndex;
+
+                        int currentVirtualIndex = virtualOrder.indexOf(row);
+                        if (currentVirtualIndex < 0) return true;
+                        if (desiredIndex != currentVirtualIndex) {
+                            virtualOrder.remove(currentVirtualIndex);
+                            virtualOrder.add(desiredIndex, row);
                         }
-                        row.setTranslationY(draggedAbsoluteTop - (currentIndex * slotHeight[0]));
-                    } catch (Exception e) {
-                        AppLogger.log("MainActivity", "setupLanguageOrderDrag() move", e);
+
+                        // Slide every other card to the slot the virtual reorder puts it in --
+                        // this is purely visual (translationY), container's real children and
+                        // indices never change until the gesture ends.
+                        for (int i = 0; i < childCount; i++) {
+                            View sibling = container.getChildAt(i);
+                            if (sibling == row) continue;
+                            int virtualPos = virtualOrder.indexOf(sibling);
+                            if (virtualPos < 0) continue;
+                            sibling.setTranslationY((virtualPos - i) * slotHeight[0]);
+                            if (sibling instanceof LinearLayout) {
+                                LinearLayout siblingRow = (LinearLayout) sibling;
+                                if (siblingRow.getChildCount() > 0 && siblingRow.getChildAt(0) instanceof TextView) {
+                                    ((TextView) siblingRow.getChildAt(0)).setText((virtualPos + 1) + "-");
+                                }
+                            }
+                        }
+                        row.setTranslationY(draggedAbsoluteTop - startAbsoluteTop[0]);
+                        int draggedVirtualPos = virtualOrder.indexOf(row);
+                        if (row.getChildCount() > 0 && row.getChildAt(0) instanceof TextView) {
+                            ((TextView) row.getChildAt(0)).setText((draggedVirtualPos + 1) + "-");
+                        }
+                        return true;
+                    }
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL: {
+                        handler.removeCallbacks(startDrag);
+                        if (dragging[0] && !virtualOrder.isEmpty()) {
+                            List<String> order = new ArrayList<>();
+                            for (View v2 : virtualOrder) {
+                                Object tag = v2.getTag();
+                                if (tag instanceof String) order.add((String) tag);
+                            }
+                            if (order.size() == virtualOrder.size()) {
+                                prefs.setEnabledLanguages(order);
+                            }
+                            refreshLanguagesScreen(root);
+                        }
                         dragging[0] = false;
                         longPressFired[0] = false;
+                        virtualOrder.clear();
+                        return true;
                     }
-                    return true;
 
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    handler.removeCallbacks(startDrag);
-                    if (dragging[0]) {
-                        row.setTranslationY(0f);
-                        row.setAlpha(1f);
-                        row.setElevation(0f);
-                        try {
-                            if (row.getParent() == container) {
-                                commitLanguageOrder(container);
-                                refreshLanguagesScreen(root);
-                            }
-                        } catch (Exception e) {
-                            AppLogger.log("MainActivity", "setupLanguageOrderDrag() up", e);
-                        }
-                    }
-                    dragging[0] = false;
-                    longPressFired[0] = false;
-                    return true;
-
-                default:
-                    return false;
+                    default:
+                        return false;
+                }
+            } catch (Throwable t) {
+                AppLogger.log("MainActivity", "setupLanguageOrderDrag()", t);
+                handler.removeCallbacks(startDrag);
+                dragging[0] = false;
+                longPressFired[0] = false;
+                virtualOrder.clear();
+                try {
+                    row.setTranslationY(0f);
+                    row.setAlpha(1f);
+                    row.setElevation(0f);
+                } catch (Throwable ignored) {
+                    // row itself may be in a bad state -- nothing more we can safely do.
+                }
+                return true;
             }
         });
     }
