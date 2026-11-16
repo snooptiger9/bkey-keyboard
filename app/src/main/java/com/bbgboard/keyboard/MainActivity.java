@@ -1404,14 +1404,28 @@ public class MainActivity extends Activity {
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL: {
                         handler.removeCallbacks(startDrag);
-                        if (dragging[0] && !virtualOrder.isEmpty()) {
-                            List<String> order = new ArrayList<>();
-                            for (View v2 : virtualOrder) {
-                                Object tag = v2.getTag();
-                                if (tag instanceof String) order.add((String) tag);
+                        if (dragging[0]) {
+                            // Drop the "picked up" look (shadow, alpha, offset) on this row and
+                            // every sibling immediately, synchronously, before anything else --
+                            // if refreshLanguagesScreen() below ends up slow or only partially
+                            // rebuilds the screen for any reason, the card should still look
+                            // settled right away instead of staying visibly lifted/floating
+                            // until that finishes.
+                            row.setTranslationY(0f);
+                            row.setAlpha(1f);
+                            row.setElevation(0f);
+                            for (int i = 0; i < container.getChildCount(); i++) {
+                                container.getChildAt(i).setTranslationY(0f);
                             }
-                            if (order.size() == virtualOrder.size()) {
-                                prefs.setEnabledLanguages(order);
+                            if (!virtualOrder.isEmpty()) {
+                                List<String> order = new ArrayList<>();
+                                for (View v2 : virtualOrder) {
+                                    Object tag = v2.getTag();
+                                    if (tag instanceof String) order.add((String) tag);
+                                }
+                                if (order.size() == virtualOrder.size()) {
+                                    prefs.setEnabledLanguages(order);
+                                }
                             }
                             refreshLanguagesScreen(root);
                         }
