@@ -17,18 +17,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Talks to KLIPY's GIF API (klipy.com) — a single app-wide key baked in below, so no user
- * ever has to sign up for or paste their own key. KLIPY's production key has no call-rate
- * limit, unlike GIPHY's which requires a paid plan for real (non-beta) usage.
+ * Talks to KLIPY's GIF API (klipy.com) — a single app-wide key, used for every user, so no
+ * user ever has to sign up for or paste their own key. KLIPY's production key has no
+ * call-rate limit, unlike GIPHY's which requires a paid plan for real (non-beta) usage.
  */
 final class KlipyClient {
 
     private KlipyClient() {}
 
-    // App-wide key, used for every user — intentionally baked in rather than entered by the
-    // person using the keyboard. Swap this for the approved "production" key once granted;
-    // until then this is the free test key (100 calls/hour across the whole app).
-    private static final String API_KEY = "GITFCwJBcLn2ChyGwjAVsKhxuqMirBF3GdQonG07WfT7WgdWs13kALGUPl9o7r2x";
+    // Supplied by BuildConfig (app/build.gradle), itself read from the gitignored
+    // app/klipy.properties -- written by CI from a GitHub Actions secret. Never put the
+    // literal key back here: this file is in a public repo, so a hardcoded string is
+    // visible to anyone browsing the source.
+    private static final String API_KEY = BuildConfig.KLIPY_API_KEY;
 
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "bkey-gif-fetch");

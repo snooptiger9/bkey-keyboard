@@ -8,6 +8,15 @@ if (keystorePropsFile.exists()) {
     keystoreProps.load(new FileInputStream(keystorePropsFile))
 }
 
+// KLIPY's production API key -- never committed. CI writes this file from a GitHub
+// Actions secret (same pattern as keystore.properties above); a local dev build
+// without the file just gets an empty key (GIF search won't work, everything else does).
+def klipyPropsFile = file('klipy.properties')
+def klipyProps = new Properties()
+if (klipyPropsFile.exists()) {
+    klipyProps.load(new FileInputStream(klipyPropsFile))
+}
+
 android {
     namespace 'com.bbgboard.keyboard'
     compileSdk 34
@@ -19,6 +28,8 @@ android {
 
         versionCode 293
         versionName "293.0"
+
+        buildConfigField "String", "KLIPY_API_KEY", "\"${klipyProps.getProperty('KLIPY_API_KEY', '')}\""
     }
 
     buildFeatures {

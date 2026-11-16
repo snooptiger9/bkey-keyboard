@@ -58,6 +58,17 @@ jobs:
           fi
           echo "$BKEY_KEYSTORE_B64" | base64 -d > app/bkey_release.keystore
 
+      # Unlike the keystore secrets above, a missing key here only disables GIF search --
+      # it doesn't fail the build, so a build still works before this secret is first added.
+      - name: Write klipy.properties from secret
+        env:
+          BKEY_KLIPY_API_KEY: ${{ secrets.BKEY_KLIPY_API_KEY }}
+        run: |
+          if [ -z "$BKEY_KLIPY_API_KEY" ]; then
+            echo "::warning::Secret BKEY_KLIPY_API_KEY غير موجود — GIF search بيكون معطّل بهذا البناء. أضفه من Settings > Secrets and variables > Actions"
+          fi
+          echo "KLIPY_API_KEY=$BKEY_KLIPY_API_KEY" > app/klipy.properties
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
