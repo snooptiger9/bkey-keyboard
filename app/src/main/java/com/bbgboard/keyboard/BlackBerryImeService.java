@@ -2748,25 +2748,31 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             tabsRow.addView(tab);
         }
 
-        TextView gifTab = new TextView(this);
-        gifTab.setText("GIF");
-        gifTab.setGravity(Gravity.CENTER);
-        gifTab.setIncludeFontPadding(false);
-        gifTab.setTextColor(labelC());
-        gifTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
-        gifTab.setTypeface(Typeface.DEFAULT_BOLD);
-        gifTab.setPadding(dp(2), dp(5), dp(2), dp(5));
-        LinearLayout.LayoutParams lpGifTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
-        lpGifTab.leftMargin = dp(2);
-        lpGifTab.rightMargin = dp(2);
-        gifTab.setLayoutParams(lpGifTab);
-        gifTab.setAlpha(0.60f);
-        gifTabView = gifTab;
-        gifTab.setOnClickListener(v -> {
-            soundController.playKeyClick();
-            showGifPanel();
-        });
-        tabsRow.addView(gifTab);
+        // GIF search needs INTERNET, which the Clean (lite) flavor's manifest strips entirely
+        // (see app/src/lite/AndroidManifest.xml) -- so the tab is skipped there instead of
+        // showing a tab that can only ever fail to load. gifTabView stays null in that build;
+        // every other use of it already null-checks before touching it.
+        if (BuildConfig.OTP_FEATURES_ENABLED) {
+            TextView gifTab = new TextView(this);
+            gifTab.setText("GIF");
+            gifTab.setGravity(Gravity.CENTER);
+            gifTab.setIncludeFontPadding(false);
+            gifTab.setTextColor(labelC());
+            gifTab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+            gifTab.setTypeface(Typeface.DEFAULT_BOLD);
+            gifTab.setPadding(dp(2), dp(5), dp(2), dp(5));
+            LinearLayout.LayoutParams lpGifTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
+            lpGifTab.leftMargin = dp(2);
+            lpGifTab.rightMargin = dp(2);
+            gifTab.setLayoutParams(lpGifTab);
+            gifTab.setAlpha(0.60f);
+            gifTabView = gifTab;
+            gifTab.setOnClickListener(v -> {
+                soundController.playKeyClick();
+                showGifPanel();
+            });
+            tabsRow.addView(gifTab);
+        }
 
         ModernIconView backIconBtn = new ModernIconView(
                 this,
