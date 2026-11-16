@@ -1256,6 +1256,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    private static void setAncestorsDisallowIntercept(View v, boolean disallow) {
+        ViewParent p = v.getParent();
+        while (p != null) {
+            p.requestDisallowInterceptTouchEvent(disallow);
+            p = p.getParent();
+        }
+    }
+
     private void commitLanguageOrder(LinearLayout container) {
         List<String> order = new ArrayList<>();
         for (int i = 0; i < container.getChildCount(); i++) {
@@ -1288,11 +1296,7 @@ public class MainActivity extends Activity {
             row.setAlpha(0.92f);
             row.setElevation(dp(10));
             row.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-            ViewParent p = row.getParent();
-            while (p != null) {
-                p.requestDisallowInterceptTouchEvent(true);
-                p = p.getParent();
-            }
+            setAncestorsDisallowIntercept(row, true);
         };
 
         row.setOnTouchListener((v, event) -> {
@@ -1305,6 +1309,11 @@ public class MainActivity extends Activity {
                     slotHeight[0] = row.getHeight() + dp(6);
                     startAbsoluteTop[0] = container.indexOfChild(row) * slotHeight[0];
                     handler.postDelayed(startDrag, longPressTimeout);
+                    // Claim the gesture from the settings page's ScrollView *now*, not only once
+                    // the long-press fires: otherwise the natural finger wobble of a real hold
+                    // crosses the ScrollView's own (same-sized) touch slop first and it steals
+                    // the gesture to scroll, so the long-press timer never gets to fire at all.
+                    setAncestorsDisallowIntercept(row, true);
                     return true;
 
                 case MotionEvent.ACTION_MOVE:
@@ -1312,7 +1321,10 @@ public class MainActivity extends Activity {
                         float dx = event.getRawX() - downRawX[0];
                         float dy = event.getRawY() - downRawY[0];
                         if (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop) {
+                            // Moved before the long-press fired -- the user wanted to scroll the
+                            // page, not pick up the card. Give the gesture back to the ScrollView.
                             handler.removeCallbacks(startDrag);
+                            setAncestorsDisallowIntercept(row, false);
                         }
                         return true;
                     }
