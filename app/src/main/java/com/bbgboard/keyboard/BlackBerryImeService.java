@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -484,6 +485,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         super.onCreate();
         AppLogger.init(this);
         activeInstance = this;
+        lastOrientation = getResources().getConfiguration().orientation;
         keyboardPrefs = new KeyboardPreferences(this);
         keyboardPrefs.registerChangeListener(appearanceChangeListener);
         soundController = new SoundController(this, keyboardPrefs);
@@ -648,8 +650,25 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (lastOrientation != -1 && lastOrientation != newConfig.orientation) {
+            orientationJustChanged = true;
+        }
+        lastOrientation = newConfig.orientation;
+    }
+
+    @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
+
+        if (orientationJustChanged) {
+            // Just a screen rotation, not a real close/reopen or field switch -- keep
+            // whatever layout (symbols vs. alphabet) was already showing.
+            orientationJustChanged = false;
+        } else if (keyboardView != null) {
+            keyboardView.exitSymbolsIfActive();
+        }
 
         if (gifSearchFocused) {
             gifSearchFocused = false;
@@ -785,6 +804,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private String cachedBefore90 = null;
     private long cachedBeforeTime = 0L;
+
+    // Lets onStartInputView() tell a real close/reopen (or switching fields) apart from
+    // just a screen rotation: the symbols/alphabet layout should reset on the former but
+    // stay put on the latter, like other keyboards do.
+    private int lastOrientation = -1;
+    private boolean orientationJustChanged = false;
 
     private static final long CURSOR_SESSION_MS = 600L;
     private int curSelStart = -1;
