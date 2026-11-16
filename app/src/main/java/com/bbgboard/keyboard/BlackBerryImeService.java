@@ -108,7 +108,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView gifStatusText;
     private boolean gifPanelShown = false;
     private String gifLastQuery = null;
-    private boolean gifLastLoadedArabic;
+    // Language code ("ar"/"en"/"es") the GIF panel's text was last rendered for, so switching
+    // between any two of the three languages (not just Arabic<->not) re-renders it.
+    private String gifLastLoadedLangCode = "";
 
     private boolean gifSearchFocused = false;
     private final StringBuilder gifQueryBuilder = new StringBuilder();
@@ -265,8 +267,23 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         "Symbols & Flags"
     };
 
+    private static final String[] EMOJI_CAT_TITLES_ES = new String[]{
+        "Usados recientemente",
+        "Caras y emociones",
+        "Personas y cuerpo",
+        "Naturaleza, eventos e islámico",
+        "Animales",
+        "Comida y bebida",
+        "Viajes y lugares",
+        "Símbolos y banderas"
+    };
+
     private String[] emojiCatTitles() {
-        return (keyboardView != null && !keyboardView.isArabic()) ? EMOJI_CAT_TITLES_EN : EMOJI_CAT_TITLES;
+        if (keyboardView == null) return EMOJI_CAT_TITLES_EN;
+        String code = keyboardView.getActiveLanguageCode();
+        if (KeyboardPreferences.LANG_AR.equals(code)) return EMOJI_CAT_TITLES;
+        if (KeyboardPreferences.LANG_ES.equals(code)) return EMOJI_CAT_TITLES_ES;
+        return EMOJI_CAT_TITLES_EN;
     }
 
     // Index 0 (Recently used) keeps the drawn clock icon; the rest went back to plain emoji
@@ -1350,8 +1367,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             try {
                 ClipData cd = ClipData.newUri(getContentResolver(), "Screenshot", uri);
                 if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
-                boolean arabicToast = keyboardView == null || keyboardView.isArabic();
-                Toast.makeText(this, arabicToast ? "تم نسخ لقطة الشاشة — اضغط لصق هنا" : "Screenshot copied — paste it here", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, uiText("تم نسخ لقطة الشاشة — اضغط لصق هنا",
+                        "Screenshot copied — paste it here",
+                        "Captura copiada — toca para pegarla aquí"), Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 AppLogger.log("BlackBerryImeService", "useScreenshotClip()", e);
             }
@@ -1362,7 +1380,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     /** Just the screenshot preview itself — no title/subtitle text, sized by whatever slot the caller gives it. */
     private View buildScreenshotThumbRow() {
-        final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER);
@@ -1386,7 +1403,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         row.setOnClickListener(v -> useScreenshotClip());
         row.setOnLongClickListener(v -> {
-            showThemedMenu(v, buildMenuItemView(ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete", () -> {
+            showThemedMenu(v, buildMenuItemView(ModernIconView.ICON_TRASH, uiText("حذف", "Delete", "Eliminar"), () -> {
                 ScreenshotClip.clear(this);
                 clearClipChip();
                 refreshClipboardDrawerList();
@@ -1433,6 +1450,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         } else if (gifPanelShown && gifLastQuery != null) {
             loadGifResults(gifLastQuery.isEmpty(), gifLastQuery);
         }
+    }
+
+    /** Picks text for the keyboard's current active language (ar/en/es) instead of just
+     *  Arabic-vs-not: the clipboard/emoji/GIF drawers used to fall back to English for anything
+     *  that wasn't Arabic, so Spanish mode silently showed English text in these drawers. Layout
+     *  direction/alignment is untouched by this -- Spanish still follows English there, same as
+     *  everywhere else in the keyboard. */
+    private String uiText(String ar, String en, String es) {
+        if (keyboardView == null) return en;
+        String code = keyboardView.getActiveLanguageCode();
+        if (KeyboardPreferences.LANG_AR.equals(code)) return ar;
+        if (KeyboardPreferences.LANG_ES.equals(code)) return es;
+        return en;
     }
 
     private void updateAbcBackLabels(boolean isArabic) {
@@ -1579,7 +1609,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         if (hasValidShotChip() && ctx[0].isEmpty()) {
             keyboardView.setToolbarIdleMode(false);
-            keyboardView.setSuggestions(Arrays.asList("", keyboardView.isArabic() ? "لقطة شاشة" : "Screenshot", ""), 2);
+            keyboardView.setSuggestions(Arrays.asList("", uiText("لقطة شاشة", "Screenshot", "Captura"), ""), 2);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
@@ -2345,8 +2375,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (clipsListContainer == null) return;
         clipsListContainer.removeAllViews();
 
-        boolean arabicUi = keyboardView == null || keyboardView.isArabic();
-
         if (keyboardPrefs.isIncognitoMode()) {
             if (clipCountTv != null) clipCountTv.setText("");
             LinearLayout incog = new LinearLayout(this);
@@ -2359,9 +2387,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             incogIcon.setLayoutParams(new LinearLayout.LayoutParams(dp(54), dp(54)));
 
             TextView incogTv = new TextView(this);
-            incogTv.setText(arabicUi
-                    ? "وضع التخفي مفعّل\nالحافظة مخفية الآن ولا تُحفظ عناصر جديدة"
-                    : "Incognito mode is on\nClipboard is hidden and nothing new is being saved");
+            incogTv.setText(uiText(
+                    "وضع التخفي مفعّل\nالحافظة مخفية الآن ولا تُحفظ عناصر جديدة",
+                    "Incognito mode is on\nClipboard is hidden and nothing new is being saved",
+                    "El modo de incógnito está activado\nEl portapapeles está oculto y no se guarda nada nuevo"));
             incogTv.setTextColor(subC());
             incogTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             incogTv.setGravity(Gravity.CENTER);
@@ -2381,9 +2410,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (clips.isEmpty()) {
                 clipCountTv.setText("");
             } else {
-                clipCountTv.setText(arabicUi
-                        ? clips.size() + " عنصر"
-                        : clips.size() + (clips.size() == 1 ? " item" : " items"));
+                clipCountTv.setText(uiText(
+                        clips.size() + " عنصر",
+                        clips.size() + (clips.size() == 1 ? " item" : " items"),
+                        clips.size() + (clips.size() == 1 ? " elemento" : " elementos")));
             }
         }
         if (clips.isEmpty() && !hasShotThumb) {
@@ -2397,7 +2427,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             emptyIcon.setLayoutParams(new LinearLayout.LayoutParams(dp(54), dp(54)));
 
             TextView emptyTv = new TextView(this);
-            emptyTv.setText(arabicUi ? "ما فيه شي منسوخ بعد" : "Nothing copied yet");
+            emptyTv.setText(uiText("ما فيه شي منسوخ بعد", "Nothing copied yet", "Nada copiado todavía"));
             emptyTv.setTextColor(subC());
             emptyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             emptyTv.setGravity(Gravity.CENTER);
@@ -2505,12 +2535,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             final boolean pinned = clip.pinned;
             showThemedMenu(v,
                     buildMenuItemView(ModernIconView.ICON_PUSHPIN,
-                            pinned ? (arabicUi ? "إلغاء التثبيت" : "Unpin") : (arabicUi ? "تثبيت" : "Pin"),
+                            pinned ? uiText("إلغاء التثبيت", "Unpin", "Desanclar")
+                                   : uiText("تثبيت", "Pin", "Anclar"),
                             () -> {
                                 clipboardRepo.togglePin(clip.text);
                                 refreshClipboardDrawerList();
                             }),
-                    buildMenuItemView(ModernIconView.ICON_TRASH, arabicUi ? "حذف" : "Delete",
+                    buildMenuItemView(ModernIconView.ICON_TRASH, uiText("حذف", "Delete", "Eliminar"),
                             () -> {
                                 clipboardRepo.removeClip(clip.text);
                                 refreshClipboardDrawerList();
@@ -2793,7 +2824,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifSearchRow.setLayoutParams(lpSearchRow);
 
         gifSearchBox = new TextView(this);
-        gifSearchBox.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+        gifSearchBox.setText(uiText("ابحث عن GIF...", "Search GIFs...", "Buscar GIF..."));
         gifSearchBox.setSingleLine(true);
         gifSearchBox.setTextColor(subC());
         gifSearchBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
@@ -2857,10 +2888,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiSectionHeaders.clear();
 
         String[] catTitles = emojiCatTitles();
-        boolean emojiArabic = keyboardView == null || keyboardView.isArabic();
         for (int c = 0; c < catTitles.length; c++) {
             TextView title = new TextView(this);
-            String longPressHint = emojiArabic ? "  •  اضغط مطولاً على أي رمز لحذفه" : "  •  Long-press any emoji to delete it";
+            String longPressHint = uiText("  •  اضغط مطولاً على أي رمز لحذفه",
+                    "  •  Long-press any emoji to delete it",
+                    "  •  Mantén pulsado un emoji para eliminarlo");
             title.setText(c == 0 ? catTitles[0] + longPressHint : catTitles[c]);
             title.setTextColor(subC());
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
@@ -2931,7 +2963,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         TextView label = new TextView(this);
         gifAttributionLabel = label;
-        label.setText(arabic ? "مقدَّم من KLIPY" : "Powered by KLIPY");
+        label.setText(uiText("مقدَّم من KLIPY", "Powered by KLIPY", "Ofrecido por KLIPY"));
         label.setTextColor(subC());
         label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         label.setPadding(dp(6), 0, dp(6), 0);
@@ -2944,7 +2976,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifAttributionBar == null || gifAttributionLabel == null) return;
         boolean arabic = keyboardView == null || keyboardView.isArabic();
         gifAttributionBar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
-        gifAttributionLabel.setText(arabic ? "مقدَّم من KLIPY" : "Powered by KLIPY");
+        gifAttributionLabel.setText(uiText("مقدَّم من KLIPY", "Powered by KLIPY", "Ofrecido por KLIPY"));
     }
 
     private void showGifPanel() {
@@ -2961,12 +2993,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             t.setAlpha(0.60f);
             t.setBackgroundColor(Color.TRANSPARENT);
         }
-        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
+        String activeLangCode = keyboardView != null ? keyboardView.getActiveLanguageCode() : KeyboardPreferences.LANG_EN;
         if (gifLastQuery == null) {
             gifLastQuery = "";
             loadGifResults(true, "");
-        } else if (gifLastLoadedArabic != gifArabic) {
-
+        } else if (!gifLastLoadedLangCode.equals(activeLangCode)) {
             loadGifResults(gifLastQuery.isEmpty(), gifLastQuery);
         }
     }
@@ -3026,10 +3057,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void updateGifQueryDisplay() {
         if (gifQueryDisplay == null) return;
-        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
         String q = gifQueryBuilder.toString();
         if (q.isEmpty()) {
-            gifQueryDisplay.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+            gifQueryDisplay.setText(uiText("ابحث عن GIF...", "Search GIFs...", "Buscar GIF..."));
             gifQueryDisplay.setTextColor(subC());
         } else {
             gifQueryDisplay.setText(q);
@@ -3039,23 +3069,21 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void updateGifSearchBoxDisplay(String query) {
         if (gifSearchBox == null) return;
-        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
         boolean hasQuery = query != null && !query.isEmpty();
         if (hasQuery) {
             gifSearchBox.setText(query);
             gifSearchBox.setTextColor(labelC());
         } else {
-            gifSearchBox.setText(gifArabic ? "ابحث عن GIF..." : "Search GIFs...");
+            gifSearchBox.setText(uiText("ابحث عن GIF...", "Search GIFs...", "Buscar GIF..."));
             gifSearchBox.setTextColor(subC());
         }
         if (gifSearchClearBtn != null) gifSearchClearBtn.setVisibility(hasQuery ? View.VISIBLE : View.GONE);
     }
 
     private void loadGifResults(boolean trending, String query) {
-        boolean gifArabic = keyboardView == null || keyboardView.isArabic();
-        gifLastLoadedArabic = gifArabic;
+        gifLastLoadedLangCode = keyboardView != null ? keyboardView.getActiveLanguageCode() : KeyboardPreferences.LANG_EN;
         if (gifStatusText != null) {
-            gifStatusText.setText(gifArabic ? "جاري التحميل..." : "Loading...");
+            gifStatusText.setText(uiText("جاري التحميل...", "Loading...", "Cargando..."));
             gifStatusText.setVisibility(View.VISIBLE);
         }
         if (gifGrid != null) gifGrid.removeAllViews();
@@ -3063,7 +3091,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         KlipyClient.Callback cb = (results, error) -> {
             if (gifGrid == null || gifStatusText == null) return;
             if (error != null) {
-                gifStatusText.setText((gifArabic ? "تعذّر التحميل: " : "Couldn't load: ") + error);
+                gifStatusText.setText(uiText("تعذّر التحميل: ", "Couldn't load: ", "No se pudo cargar: ") + error);
                 gifStatusText.setVisibility(View.VISIBLE);
                 return;
             }
@@ -3089,12 +3117,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 }
             }
             if (recents.isEmpty() && main.isEmpty()) {
-                gifStatusText.setText(gifArabic ? "ما فيه نتائج" : "No results");
+                gifStatusText.setText(uiText("ما فيه نتائج", "No results", "Sin resultados"));
                 gifStatusText.setVisibility(View.VISIBLE);
                 return;
             }
             gifStatusText.setVisibility(View.GONE);
-            fillGifSections(recents, main, !showRecents, gifArabic);
+            fillGifSections(recents, main, !showRecents);
         };
         if (showRecents) {
             KlipyClient.trending(cb);
@@ -3105,16 +3133,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private static final int GIF_GRID_COLUMNS = 4;
 
-    private void fillGifSections(List<KlipyClient.GifResult> recents, List<KlipyClient.GifResult> main, boolean isSearch, boolean gifArabic) {
+    private void fillGifSections(List<KlipyClient.GifResult> recents, List<KlipyClient.GifResult> main, boolean isSearch) {
         gifGrid.removeAllViews();
         if (!recents.isEmpty()) {
-            TextView recentHeader = gifSectionHeader(gifArabic ? "آخر ما استخدمته" : "Recently used");
-            recentHeader.append(gifArabic ? "  •  اضغط مطولاً على أي GIF لحذفه" : "  •  Long-press any GIF to delete it");
+            TextView recentHeader = gifSectionHeader(uiText("آخر ما استخدمته", "Recently used", "Usados recientemente"));
+            recentHeader.append(uiText("  •  اضغط مطولاً على أي GIF لحذفه",
+                    "  •  Long-press any GIF to delete it",
+                    "  •  Mantén pulsado un GIF para eliminarlo"));
             gifGrid.addView(recentHeader);
             gifGrid.addView(buildGifRow(recents, true));
         }
         if (!main.isEmpty()) {
-            String title = isSearch ? (gifArabic ? "نتائج البحث" : "Search results") : (gifArabic ? "شائع الآن" : "Trending now");
+            String title = isSearch
+                    ? uiText("نتائج البحث", "Search results", "Resultados de búsqueda")
+                    : uiText("شائع الآن", "Trending now", "Tendencias");
             gifGrid.addView(gifSectionHeader(title));
             gifGrid.addView(buildGifRow(main, false));
         }
@@ -3170,9 +3202,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ioExecutor.execute(() -> {
             String fileName = GifDownloadCache.downloadBlocking(this, url);
             uiHandler.post(() -> {
-                boolean arabicToast = keyboardView == null || keyboardView.isArabic();
                 if (fileName == null) {
-                    Toast.makeText(this, arabicToast ? "تعذّر تحميل الصورة المتحركة" : "Couldn't load GIF", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, uiText("تعذّر تحميل الصورة المتحركة", "Couldn't load GIF", "No se pudo cargar el GIF"), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Uri uri = Uri.parse("content://" + GifCacheProvider.AUTHORITY + "/" + fileName);
@@ -3198,7 +3229,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     try {
                         ClipData cd = ClipData.newUri(getContentResolver(), "GIF", uri);
                         if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
-                        Toast.makeText(this, arabicToast ? "تم نسخ الصورة المتحركة — اضغط لصق هنا" : "GIF copied — paste it here", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, uiText("تم نسخ الصورة المتحركة — اضغط لصق هنا",
+                                "GIF copied — paste it here",
+                                "GIF copiado — toca para pegarlo aquí"), Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         AppLogger.log("BlackBerryImeService", "sendGif()", e);
                     }
