@@ -168,6 +168,11 @@ final class VoiceInputController {
                     callback.onError("لا يوجد اتصال بالإنترنت للكتابة بالصوت");
                     break;
                 default:
+                    // Logged (not just shown generically) so the exact SpeechRecognizer
+                    // error code -- and whether this was the on-device or online engine --
+                    // shows up in the in-app error log instead of being a dead end.
+                    AppLogger.log("VoiceInputController", "onError() code=" + error
+                            + " onDevice=" + usingOnDevice, null);
                     callback.onError("تعذّرت الكتابة بالصوت");
             }
         }
