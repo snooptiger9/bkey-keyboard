@@ -1115,12 +1115,30 @@ public class MainActivity extends Activity {
         return gd;
     }
 
-    private void setLanguagesEnabled(boolean arabicOn, boolean englishOn) {
-        if (!arabicOn && !englishOn) return;
-        int mode = arabicOn && englishOn ? KeyboardPreferences.LANGUAGE_MODE_BOTH
-                : arabicOn ? KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY
-                : KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
-        prefs.setLanguageMode(mode);
+    private String languageDisplayName(String code) {
+        if (KeyboardPreferences.LANG_AR.equals(code)) return tr("العربية", "Arabic");
+        if (KeyboardPreferences.LANG_ES.equals(code)) return tr("الإسبانية", "Spanish");
+        return tr("الإنجليزية", "English");
+    }
+
+    private void setLanguageEnabled(String code, boolean on) {
+        List<String> enabled = new ArrayList<>(prefs.getEnabledLanguages());
+        if (on) {
+            if (!enabled.contains(code)) enabled.add(code);
+        } else {
+            if (enabled.size() <= 1) return; // always keep at least one language active
+            enabled.remove(code);
+        }
+        prefs.setEnabledLanguages(enabled);
+    }
+
+    private void moveLanguageOrder(String code, int direction) {
+        List<String> enabled = new ArrayList<>(prefs.getEnabledLanguages());
+        int idx = enabled.indexOf(code);
+        int newIdx = idx + direction;
+        if (idx < 0 || newIdx < 0 || newIdx >= enabled.size()) return;
+        java.util.Collections.swap(enabled, idx, newIdx);
+        prefs.setEnabledLanguages(enabled);
     }
 
     private void openLanguagesScreen() {
@@ -1137,45 +1155,98 @@ public class MainActivity extends Activity {
 
         TextView langModeNote = new TextView(this);
         langModeNote.setText(tr(
-                "فعّل اللغتين للتبديل بسحب المسافة أو زر 🌐. لغة وحدة = بدون تبديل، فيختفي الزر ويتعطّل السحب.",
-                "Enable both languages to switch via space-bar swipe or the 🌐 button.\nOne language = nothing to switch, so the button hides and swipe turns off."));
+                "فعّل لغتين أو أكثر للتبديل بسحب المسافة أو زر 🌐. لغة وحدة = بدون تبديل، فيختفي الزر ويتعطّل السحب.",
+                "Enable two or more languages to switch via space-bar swipe or the 🌐 button.\nOne language = nothing to switch, so the button hides and swipe turns off."));
         langModeNote.setTextColor(Color.parseColor(dm("#6B7280")));
         langModeNote.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
         langModeNote.setPadding(dp(4), 0, dp(4), dp(12));
         root.addView(langModeNote);
 
-        boolean arabicOn = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
-        boolean englishOn = prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY;
+        final List<String> enabled = prefs.getEnabledLanguages();
 
-        root.addView(createSwitchTile(
-                tr("العربية", "Arabic"),
-                tr("", ""),
-                arabicOn,
-                checked -> {
-                    setLanguagesEnabled(checked, prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY);
-                    refreshLanguagesScreen(root);
-                }));
+        for (final String code : KeyboardPreferences.ALL_LANGUAGES) {
+            root.addView(createSwitchTile(
+                    languageDisplayName(code),
+                    tr("", ""),
+                    enabled.contains(code),
+                    checked -> {
+                        setLanguageEnabled(code, checked);
+                        refreshLanguagesScreen(root);
+                    }));
+        }
 
-        root.addView(createSwitchTile(
-                tr("الإنجليزية", "English"),
-                tr("", ""),
-                englishOn,
-                checked -> {
-                    setLanguagesEnabled(prefs.getLanguageMode() != KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY, checked);
-                    refreshLanguagesScreen(root);
-                }));
+        boolean multiLangOn = enabled.size() >= 2;
 
-        boolean bothLangsOn = arabicOn && englishOn;
+        if (multiLangOn) {
+            TextView orderLabel = new TextView(this);
+            orderLabel.setText(tr("ترتيب التبديل", "Switch order"));
+            orderLabel.setTextColor(Color.parseColor(dm("#1F2937")));
+            orderLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
+            orderLabel.setPadding(dp(4), dp(10), dp(4), dp(6));
+            root.addView(orderLabel);
+
+            for (int i = 0; i < enabled.size(); i++) {
+                root.addView(createLanguageOrderRow(root, enabled, i));
+            }
+        }
+
         root.addView(createSwitchTile(
                 tr("التبديل بسحب زر المسافة", "Switch by swiping the space bar"),
-                bothLangsOn
+                multiLangOn
                         ? tr("فعّاله: اسحب زر المسافة يميناً أو يساراً للتبديل. مطفيه: يظهر زر 🌐 مخصص للتبديل بدل ذلك",
                                 "On: swipe the space bar left or right to switch.\nOff: a dedicated 🌐 button appears instead")
-                        : tr("يحتاج تفعيل اللغتين (عربي + إنجليزي) حتى يشتغل", "Needs both languages enabled (Arabic + English) to work"),
+                        : tr("يحتاج تفعيل لغتين أو أكثر حتى يشتغل", "Needs two or more languages enabled to work"),
                 prefs.isSpaceSwipeLangEnabled(),
-                bothLangsOn,
+                multiLangOn,
                 checked -> prefs.setSpaceSwipeLangEnabled(checked)
         ));
+    }
+
+    private View createLanguageOrderRow(final LinearLayout root, final List<String> enabled, final int index) {
+        final String code = enabled.get(index);
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setBackground(roundedCard(dm("#FFFFFF"), 16));
+        row.setPadding(dp(16), dp(10), dp(12), dp(10));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(6);
+        row.setLayoutParams(lp);
+
+        TextView order = new TextView(this);
+        order.setText((index + 1) + ".");
+        order.setTextColor(Color.parseColor(dm("#9CA3AF")));
+        order.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        order.setPadding(0, 0, dp(10), 0);
+        row.addView(order);
+
+        TextView name = new TextView(this);
+        name.setText(languageDisplayName(code));
+        name.setTextColor(Color.parseColor(dm("#1F2937")));
+        name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        name.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(name);
+
+        TextView up = new TextView(this);
+        up.setText("▲");
+        up.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        up.setPadding(dp(10), dp(6), dp(10), dp(6));
+        boolean canUp = index > 0;
+        up.setTextColor(Color.parseColor(canUp ? dm("#2563EB") : dm("#D1D5DB")));
+        if (canUp) up.setOnClickListener(v -> { moveLanguageOrder(code, -1); refreshLanguagesScreen(root); });
+        row.addView(up);
+
+        TextView down = new TextView(this);
+        down.setText("▼");
+        down.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        down.setPadding(dp(10), dp(6), dp(10), dp(6));
+        boolean canDown = index < enabled.size() - 1;
+        down.setTextColor(Color.parseColor(canDown ? dm("#2563EB") : dm("#D1D5DB")));
+        if (canDown) down.setOnClickListener(v -> { moveLanguageOrder(code, 1); refreshLanguagesScreen(root); });
+        row.addView(down);
+
+        return row;
     }
 
     @Override

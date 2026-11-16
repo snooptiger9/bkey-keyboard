@@ -87,6 +87,9 @@ public class BlackBerryKeyboardView extends View {
     private KeyboardActionListener listener;
 
     private boolean isArabic = true;
+    // The single source of truth for which language is active; isArabic above is just
+    // "== LANG_AR", kept as its own field since almost all RTL/UI logic already keys off it.
+    private String currentLangCode = KeyboardPreferences.LANG_AR;
     private boolean isSymbols = false;
     private boolean isShift = false;
     private boolean isCapsLock = false;
@@ -1066,7 +1069,7 @@ public class BlackBerryKeyboardView extends View {
 
     private List<List<KeyDef>> buildSymbolsRows() {
 
-        boolean arabicOff = prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_ENGLISH_ONLY;
+        boolean arabicOff = !prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_AR);
         List<KeyDef> row1 = arabicOff ? Arrays.asList(
             new KeyDef("1"), new KeyDef("2"), new KeyDef("3"), new KeyDef("4"), new KeyDef("5"),
             new KeyDef("6"), new KeyDef("7"), new KeyDef("8"), new KeyDef("9"), new KeyDef("0")
@@ -1115,9 +1118,9 @@ public class BlackBerryKeyboardView extends View {
         String symLabel = isSymbols ? (isArabic ? "أبجد" : "ABC") : (isArabic ? "؟123" : "?123");
 
         boolean showSwipeArrows = prefs.isSpaceSwipeLangEnabled()
-                && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH;
-        String spaceLabel = showSwipeArrows ? (isArabic ? "‹  العربية  ›" : "‹  English  ›")
-                : (isArabic ? "العربية" : "English");
+                && prefs.getEnabledLanguages().size() >= 2;
+        String currentLangName = languageDisplayName(currentLangCode);
+        String spaceLabel = showSwipeArrows ? ("‹  " + currentLangName + "  ›") : currentLangName;
         return Arrays.asList(
             new KeyDef(symLabel, "", Collections.<String>emptyList(), KeyType.SYMBOLS, 1.25f),
 
@@ -1989,7 +1992,7 @@ public class BlackBerryKeyboardView extends View {
 
     private boolean languageKeyShown() {
         return !prefs.isSpaceSwipeLangEnabled()
-                && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH;
+                && prefs.getEnabledLanguages().size() >= 2;
     }
 
     public void exitSymbolsIfActive() {
@@ -1999,9 +2002,30 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
+    /** The language currently active ("ar"/"en"/"es"), for anything that needs the actual
+     *  code rather than just the Arabic/not-Arabic split isArabic() gives. */
+    public String getActiveLanguageCode() {
+        return currentLangCode;
+    }
+
+    private String languageDisplayName(String code) {
+        if (KeyboardPreferences.LANG_AR.equals(code)) return "العربية";
+        if (KeyboardPreferences.LANG_ES.equals(code)) return "Español";
+        return "English";
+    }
+
+    private void setCurrentLanguage(String code) {
+        currentLangCode = code;
+        isArabic = KeyboardPreferences.LANG_AR.equals(code);
+    }
+
     private void toggleLanguage() {
+        List<String> enabled = prefs.getEnabledLanguages();
+        int idx = enabled.indexOf(currentLangCode);
+        String next = enabled.get((idx < 0 ? 0 : idx + 1) % enabled.size());
+
         isSymbols = false;
-        isArabic = !isArabic;
+        setCurrentLanguage(next);
         isShift = false;
         isCapsLock = false;
         vibrateTap(false);
@@ -2234,11 +2258,15 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private void applyLanguageMode() {
-        int mode = prefs.getLanguageMode();
-        if (mode == KeyboardPreferences.LANGUAGE_MODE_BOTH) return;
-        boolean wantArabic = mode == KeyboardPreferences.LANGUAGE_MODE_ARABIC_ONLY;
-        if (isArabic == wantArabic) return;
-        isArabic = wantArabic;
+        List<String> enabled = prefs.getEnabledLanguages();
+        // Only one language enabled -- it must be that one, however many languages used to
+        // be enabled. Otherwise, if the active language got disabled from under it (settings
+        // changed while the keyboard was open), fall back to the first enabled one; if the
+        // active language is still enabled, leave it exactly as the user left it.
+        String want = enabled.size() == 1 ? enabled.get(0)
+                : (enabled.contains(currentLangCode) ? currentLangCode : enabled.get(0));
+        if (want.equals(currentLangCode)) return;
+        setCurrentLanguage(want);
         isShift = false;
         isCapsLock = false;
         if (listener != null) listener.onLanguageChanged(isArabic);
@@ -2857,7 +2885,7 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 if (key != null && key.type == KeyType.SPACE && prefs.isSpaceSwipeLangEnabled()
-                        && prefs.getLanguageMode() == KeyboardPreferences.LANGUAGE_MODE_BOTH) {
+                        && prefs.getEnabledLanguages().size() >= 2) {
                     float spaceSwipeThreshold = 26f * density;
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
                         toggleLanguage();

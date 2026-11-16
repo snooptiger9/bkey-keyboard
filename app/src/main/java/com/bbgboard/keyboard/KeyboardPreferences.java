@@ -38,9 +38,16 @@ public class KeyboardPreferences {
     public static final int SOUND_PROFILE_IOS_TICK = 4;
     public static final int SOUND_PROFILE_SYSTEM = 5;
 
-    public static final int LANGUAGE_MODE_BOTH = 0;
-    public static final int LANGUAGE_MODE_ARABIC_ONLY = 1;
-    public static final int LANGUAGE_MODE_ENGLISH_ONLY = 2;
+    // Kept only so getEnabledLanguages() can migrate anyone still on the old binary setting.
+    private static final int LANGUAGE_MODE_BOTH = 0;
+    private static final int LANGUAGE_MODE_ARABIC_ONLY = 1;
+    private static final int LANGUAGE_MODE_ENGLISH_ONLY = 2;
+
+    public static final String LANG_AR = "ar";
+    public static final String LANG_EN = "en";
+    public static final String LANG_ES = "es";
+    // Every language the keyboard knows how to type in, in the order they're offered in settings.
+    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES};
 
     public static final int SWIPE_SOUND_BB_AIR_FLICK = 0;
     public static final int SWIPE_SOUND_VELVET_BRUSH = 1;
@@ -537,12 +544,43 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("screenshot_clip_enabled", enabled).apply();
     }
 
-    public int getLanguageMode() {
-        return prefs.getInt("language_mode", LANGUAGE_MODE_BOTH);
+    /**
+     * The languages the keyboard can type in, in the order they should be cycled through
+     * (tap the language key, or swipe the space bar). Always at least one.
+     *
+     * Reads the new ordered-list setting once it exists; the very first time, it migrates
+     * whatever the old two-language on/off setting had (Arabic+English only -- Spanish was
+     * never selectable under that scheme, so it never appears from a migration).
+     */
+    public List<String> getEnabledLanguages() {
+        String stored = prefs.getString("enabled_languages", null);
+        if (stored == null) {
+            int mode = prefs.getInt("language_mode", LANGUAGE_MODE_BOTH);
+            if (mode == LANGUAGE_MODE_ARABIC_ONLY) return Arrays.asList(LANG_AR);
+            if (mode == LANGUAGE_MODE_ENGLISH_ONLY) return Arrays.asList(LANG_EN);
+            return Arrays.asList(LANG_AR, LANG_EN);
+        }
+        List<String> out = new ArrayList<>();
+        for (String code : stored.split(",")) {
+            String c = code.trim();
+            if (!c.isEmpty() && !out.contains(c)) out.add(c);
+        }
+        if (out.isEmpty()) out.add(LANG_AR);
+        return out;
     }
 
-    public void setLanguageMode(int mode) {
-        prefs.edit().putInt("language_mode", mode).apply();
+    public void setEnabledLanguages(List<String> codes) {
+        List<String> clean = new ArrayList<>();
+        if (codes != null) {
+            for (String c : codes) if (c != null && !clean.contains(c)) clean.add(c);
+        }
+        if (clean.isEmpty()) clean.add(LANG_AR);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < clean.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(clean.get(i));
+        }
+        prefs.edit().putString("enabled_languages", sb.toString()).apply();
     }
 
     public boolean isVoiceButtonEnabled() {

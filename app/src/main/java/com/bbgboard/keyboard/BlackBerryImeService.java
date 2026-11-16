@@ -1418,6 +1418,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onLanguageChanged(boolean isArabic) {
+        if (keyboardView != null) predictionEngine.setActiveLatinLanguage(keyboardView.getActiveLanguageCode());
         refreshPredictions();
 
         if (emojiDrawerView != null && emojiDrawerView.getVisibility() == View.VISIBLE) {

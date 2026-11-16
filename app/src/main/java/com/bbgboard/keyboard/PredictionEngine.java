@@ -31,10 +31,25 @@ public class PredictionEngine {
     private final Map<String, Map<String, Integer>> baseArBigrams = new HashMap<>();
     private final Map<String, Integer> baseEnWords = new HashMap<>();
     private final Map<String, Map<String, Integer>> baseEnBigrams = new HashMap<>();
+    private final Map<String, Integer> baseEsWords = new HashMap<>();
+    private final Map<String, Map<String, Integer>> baseEsBigrams = new HashMap<>();
 
     private final java.util.TreeMap<String, List<String>> baseArByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseEnByFold = new java.util.TreeMap<>();
+    private final java.util.TreeMap<String, List<String>> baseEsByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> learnedByFold = new java.util.TreeMap<>();
+
+    // Which Latin-script language is active right now (everything above is keyed on isArabic
+    // vs not-Arabic; this picks which non-Arabic dataset "not Arabic" actually means).
+    private volatile boolean latinIsSpanish = false;
+
+    public void setActiveLatinLanguage(String languageCode) {
+        latinIsSpanish = KeyboardPreferences.LANG_ES.equals(languageCode);
+    }
+
+    private Map<String, Integer> currentLatinWords() { return latinIsSpanish ? baseEsWords : baseEnWords; }
+    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsSpanish ? baseEsBigrams : baseEnBigrams; }
+    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsSpanish ? baseEsByFold : baseEnByFold; }
 
     private final java.util.Set<String> knownFolded = new java.util.HashSet<>();
     private volatile boolean learningAllowed = true;
@@ -89,11 +104,14 @@ public class PredictionEngine {
         initBaseDictionaries();
         loadBundledDictionary(context, "dict_ar.txt", baseArWords, 60, 20);
         loadBundledDictionary(context, "dict_en.txt", baseEnWords, 60, 20);
+        loadBundledDictionary(context, "dict_es.txt", baseEsWords, 60, 20);
         buildFoldIndex(baseArWords, baseArByFold);
         buildFoldIndex(baseEnWords, baseEnByFold);
+        buildFoldIndex(baseEsWords, baseEsByFold);
 
         knownFolded.addAll(baseArByFold.keySet());
         knownFolded.addAll(baseEnByFold.keySet());
+        knownFolded.addAll(baseEsByFold.keySet());
         synchronized (this) {
             loadFromPrefs();
             dirty = false;
@@ -497,8 +515,8 @@ public class PredictionEngine {
         if (dirty) { loadFromPrefs(); dirty = false; }
         String prefix = normalize(currentPrefixRaw);
         String lastWord = normalize(lastCompletedWordRaw);
-        Map<String, Integer> baseWords = isArabic ? baseArWords : baseEnWords;
-        Map<String, Map<String, Integer>> baseBigrams = isArabic ? baseArBigrams : baseEnBigrams;
+        Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
+        Map<String, Map<String, Integer>> baseBigrams = isArabic ? baseArBigrams : currentLatinBigrams();
 
         final Map<String, Integer> scored = new HashMap<>();
 
@@ -546,7 +564,7 @@ public class PredictionEngine {
                 }
             }
 
-            java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : baseEnByFold;
+            java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
             addTopBaseCandidates(baseByFold.subMap(prefixLower, prefixUpperBound).values(), baseWords, scored);
 
             boolean hadCompletions = !scored.isEmpty();
@@ -668,8 +686,8 @@ public class PredictionEngine {
         Map<String, Integer> candidates = new HashMap<>();
         collectNearMissCandidates(wordLower, learnedByFold, learnedWords, candidates, 30);
         if (candidates.isEmpty()) {
-            java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : baseEnByFold;
-            Map<String, Integer> baseWords = isArabic ? baseArWords : baseEnWords;
+            java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
+            Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
             collectNearMissCandidates(wordLower, baseByFold, baseWords, candidates, 1);
         }
         if (candidates.isEmpty()) return null;
@@ -681,8 +699,8 @@ public class PredictionEngine {
         Map<String, Integer> cand = new HashMap<>();
         collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, cand, 30);
         if (cand.isEmpty()) {
-            java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : baseEnByFold;
-            Map<String, Integer> baseWords = isArabic ? baseArWords : baseEnWords;
+            java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
+            Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
             collectNearMissCandidates(prefixLower, baseByFold, baseWords, cand, 1);
         }
         for (java.util.Iterator<String> it = cand.keySet().iterator(); it.hasNext(); ) {
@@ -789,7 +807,9 @@ public class PredictionEngine {
     private List<String> activeDefaultWords(boolean isArabic) {
         List<String> all = isArabic
                 ? Arrays.asList("السلام", "بسم", "مرحبا", "إن", "صباح", "الحمد")
-                : Arrays.asList("The", "I", "On", "Hello", "Thanks", "Good");
+                : latinIsSpanish
+                    ? Arrays.asList("El", "Yo", "En", "Hola", "Gracias", "Bueno")
+                    : Arrays.asList("The", "I", "On", "Hello", "Thanks", "Good");
         java.util.Set<String> dismissed = keyboardPrefs.getDismissedDefaultWords(isArabic);
         if (dismissed.isEmpty()) return all;
         List<String> out = new ArrayList<>();
