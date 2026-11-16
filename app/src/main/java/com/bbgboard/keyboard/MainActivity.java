@@ -1744,7 +1744,7 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("زر الكتابة بالصوت (المايك)", "Voice typing button (mic)"),
-                tr("يظهر على يمين صف الاقتراحات؛ اضغطه وتكلم ويكتب الكلام. يحتاج إذن الميكروفون واتصالاً بالإنترنت غالباً", "Shows on the right of the suggestion row; tap it and speak to type. Needs mic permission and usually an internet connection"),
+                tr("يظهر على يمين صف الاقتراحات؛ اضغطه وتكلم ويكتب الكلام. يحتاج إذن الميكروفون، ويجرب التعرف على الصوت داخل جهازك أول شي، وإذا جهازك ما يدعمه يحتاج اتصالاً بالإنترنت", "Shows on the right of the suggestion row; tap it and speak to type. Needs mic permission; tries on-device speech recognition first, and needs an internet connection if your device doesn't support that"),
                 prefs.isVoiceButtonEnabled(),
                 checked -> prefs.setVoiceButtonEnabled(checked)
         ));
