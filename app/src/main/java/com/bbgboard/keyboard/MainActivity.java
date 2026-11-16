@@ -16,7 +16,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -1309,6 +1308,14 @@ public class MainActivity extends Activity {
         final int[] homeIndex = new int[1];
         final boolean[] dragging = new boolean[1];
         final boolean[] longPressFired = new boolean[1];
+        // Guards against the drop logic (prefs commit + full screen rebuild) ever running
+        // more than once per drag session. Diagnostic logging proved that ACTION_UP/CANCEL
+        // was re-entering this same case block hundreds of times within a single release
+        // (not one slow call -- "refreshLanguagesScreen done" was logged 600+ times in a
+        // row, each a few ms apart, together spanning ~2 seconds, which is exactly the
+        // "stuck for 2-3 seconds" visual the drop was showing). This flag makes the heavy
+        // work idempotent regardless of how many times the event fires.
+        final boolean[] dropHandled = new boolean[1];
         final ArrayList<View> virtualOrder = new ArrayList<>();
 
         final Runnable startDrag = () -> {
@@ -1334,6 +1341,7 @@ public class MainActivity extends Activity {
                     case MotionEvent.ACTION_DOWN: {
                         dragging[0] = false;
                         longPressFired[0] = false;
+                        dropHandled[0] = false;
                         downRawX[0] = event.getRawX();
                         downRawY[0] = event.getRawY();
                         slotHeight[0] = row.getHeight() + dp(6);
@@ -1415,45 +1423,45 @@ public class MainActivity extends Activity {
 
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL: {
-                        // TEMPORARY diagnostic timing only -- no behavior change. Logs the
-                        // wall-clock gap between the touch event actually arriving here and
-                        // each step completing, so a reported "stuck for ~3 seconds" can be
-                        // placed precisely: is ACTION_UP itself late (something upstream
-                        // blocked delivering it), or does a step inside this block take
-                        // that long once it does run.
-                        long t0 = SystemClock.uptimeMillis();
-                        AppLogger.log("MainActivity", "dragUp: entered onTouch at " + t0 + ", eventTime=" + event.getEventTime() + " (delta=" + (t0 - event.getEventTime()) + "ms)", null);
                         handler.removeCallbacks(startDrag);
-                        if (dragging[0]) {
+                        if (dragging[0] && !dropHandled[0]) {
+                            dropHandled[0] = true;
+                            // Snapshot the new order now, while virtualOrder is still valid.
+                            final List<String> order = new ArrayList<>();
+                            for (View v2 : virtualOrder) {
+                                Object tag = v2.getTag();
+                                if (tag instanceof String) order.add((String) tag);
+                            }
+                            final boolean orderValid = !virtualOrder.isEmpty() && order.size() == virtualOrder.size();
                             // Drop the "picked up" look (tint, alpha, offset) on this row and
-                            // every sibling immediately, synchronously, before anything else --
-                            // if refreshLanguagesScreen() below ends up slow or only partially
-                            // rebuilds the screen for any reason, the card should still look
-                            // settled right away instead of staying visibly lifted/floating
-                            // until that finishes.
+                            // every sibling immediately, synchronously, so the card looks
+                            // settled right away.
                             row.setTranslationY(0f);
                             row.setAlpha(1f);
                             row.setBackground(roundedCard(dm("#FFFFFF"), 16));
                             for (int i = 0; i < container.getChildCount(); i++) {
                                 container.getChildAt(i).setTranslationY(0f);
                             }
-                            long t1 = SystemClock.uptimeMillis();
-                            AppLogger.log("MainActivity", "dragUp: visual reset done at " + t1 + " (+" + (t1 - t0) + "ms)", null);
-                            if (!virtualOrder.isEmpty()) {
-                                List<String> order = new ArrayList<>();
-                                for (View v2 : virtualOrder) {
-                                    Object tag = v2.getTag();
-                                    if (tag instanceof String) order.add((String) tag);
-                                }
-                                if (order.size() == virtualOrder.size()) {
+                            // Commit the prefs and rebuild the screen on the NEXT frame,
+                            // completely off this touch-dispatch call stack. Diagnostic
+                            // logging proved that calling refreshLanguagesScreen() (which
+                            // tears down and rebuilds the whole row hierarchy) synchronously
+                            // from inside this ACTION_UP/CANCEL handler made this exact case
+                            // block get re-entered hundreds of times for a single release --
+                            // "refreshLanguagesScreen done" was logged 600+ times in a row,
+                            // a few ms apart, together spanning roughly two seconds, which is
+                            // exactly the "still looks held for 2-3 seconds" symptom. Mutating
+                            // the view tree while Android is still mid-dispatch for this
+                            // gesture is what triggered the repeated re-entry; posting the
+                            // heavy work to run after dispatch has fully finished avoids that,
+                            // and dropHandled[0] makes it a no-op even if onTouch does still
+                            // fire again afterward.
+                            row.post(() -> {
+                                if (orderValid) {
                                     prefs.setEnabledLanguages(order);
                                 }
-                            }
-                            long t2 = SystemClock.uptimeMillis();
-                            AppLogger.log("MainActivity", "dragUp: prefs committed at " + t2 + " (+" + (t2 - t1) + "ms)", null);
-                            refreshLanguagesScreen(root);
-                            long t3 = SystemClock.uptimeMillis();
-                            AppLogger.log("MainActivity", "dragUp: refreshLanguagesScreen done at " + t3 + " (+" + (t3 - t2) + "ms, total=" + (t3 - t0) + "ms)", null);
+                                refreshLanguagesScreen(root);
+                            });
                         }
                         dragging[0] = false;
                         longPressFired[0] = false;
