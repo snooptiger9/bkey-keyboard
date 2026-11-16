@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -27,6 +28,12 @@ final class VoiceInputController {
     private final Callback callback;
     private SpeechRecognizer recognizer;
     private boolean listening = false;
+    // Whether the current `recognizer` is the on-device (no-network) engine.
+    // Needed so onError can tell apart "the offline model just doesn't cover
+    // this language" (fall back to the regular online recognizer once) from
+    // an online recognizer that genuinely has no network to work with.
+    private boolean usingOnDevice = false;
+    private boolean pendingArabic = false;
 
     VoiceInputController(Context context, Callback callback) {
         this.context = context.getApplicationContext();
@@ -65,18 +72,43 @@ final class VoiceInputController {
     }
 
     private void start(boolean arabic) {
+        pendingArabic = arabic;
         if (recognizer == null) {
-            recognizer = SpeechRecognizer.createSpeechRecognizer(context);
+            // Prefer the on-device engine when the device actually has one --
+            // it never touches the network (and needs no INTERNET permission
+            // from us), unlike the regular recognizer which normally streams
+            // audio to a cloud service. Falls back to the regular recognizer
+            // below (and in onError, if the on-device model turns out not to
+            // cover the requested language).
+            usingOnDevice = Build.VERSION.SDK_INT >= 31 && SpeechRecognizer.isOnDeviceRecognitionAvailable(context);
+            recognizer = usingOnDevice
+                    ? SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
+                    : SpeechRecognizer.createSpeechRecognizer(context);
             recognizer.setRecognitionListener(listener);
         }
+        startListening(arabic);
+    }
+
+    private void startListening(boolean arabic) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, arabic ? "ar-SA" : "en-US");
         intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.getPackageName());
+        // Hints the system to prefer an offline/on-device model if one exists,
+        // instead of defaulting straight to a network round trip.
+        intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
         setListening(true);
         recognizer.startListening(intent);
+    }
+
+    private void fallBackToOnlineRecognizer() {
+        usingOnDevice = false;
+        if (recognizer != null) recognizer.destroy();
+        recognizer = SpeechRecognizer.createSpeechRecognizer(context);
+        recognizer.setRecognitionListener(listener);
+        startListening(pendingArabic);
     }
 
     private void setListening(boolean value) {
@@ -114,6 +146,13 @@ final class VoiceInputController {
 
         @Override
         public void onError(int error) {
+            if (usingOnDevice && (error == SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED
+                    || error == SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE)) {
+                // This device's offline model doesn't cover the requested language --
+                // retry once with the regular (online) recognizer instead of failing.
+                fallBackToOnlineRecognizer();
+                return;
+            }
             setListening(false);
             switch (error) {
                 case SpeechRecognizer.ERROR_NO_MATCH:
