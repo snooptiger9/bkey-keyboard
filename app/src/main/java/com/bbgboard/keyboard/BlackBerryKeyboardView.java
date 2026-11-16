@@ -1355,7 +1355,9 @@ public class BlackBerryKeyboardView extends View {
             float pillRadius = resizeDragHandlePillRect.height() / 2f;
             canvas.drawRoundRect(resizeDragHandlePillRect, pillRadius, pillRadius, resizePillPaint);
 
-            String label = (isArabic ? "اسحب لأعلى أو لأسفل (" : "Drag up or down (")
+            String label = (isArabic ? "اسحب لأعلى أو لأسفل ("
+                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "Arrastra hacia arriba o abajo ("
+                    : "Drag up or down (")
                     + Math.round(keyboardScale * 100) + "%)";
             int prevColor = sugPrimaryTextPaint.getColor();
             Paint.Align prevAlign = sugPrimaryTextPaint.getTextAlign();
@@ -1395,7 +1397,10 @@ public class BlackBerryKeyboardView extends View {
                     resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint);
             sugPrimaryTextPaint.setTextAlign(Paint.Align.CENTER);
             float doneTy = resizeDoneButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-            canvas.drawText("✓ " + (isArabic ? "تم" : "Done"), resizeDoneButtonRect.centerX(), doneTy, sugPrimaryTextPaint);
+            String doneLabel = isArabic ? "تم"
+                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "Listo"
+                    : "Done";
+            canvas.drawText("✓ " + doneLabel, resizeDoneButtonRect.centerX(), doneTy, sugPrimaryTextPaint);
 
             sugPrimaryTextPaint.setColor(prevColor);
             sugPrimaryTextPaint.setTextAlign(prevAlign);
