@@ -748,6 +748,13 @@ public class MainActivity extends Activity {
     }
 
     private View createMenuRow(int iconType, String title, String subtitle, boolean showBottomDivider, final Runnable onClick) {
+        return createMenuRow(iconType, title, subtitle, showBottomDivider, onClick, null);
+    }
+
+    /** Same as the 5-arg overload, but with an optional out-param to grab a live reference to
+     *  the subtitle TextView (e.g. to update a word count in place after a clear action,
+     *  instead of rebuilding the whole row/screen). Pass null to behave exactly like before. */
+    private View createMenuRow(int iconType, String title, String subtitle, boolean showBottomDivider, final Runnable onClick, TextView[] subtitleOut) {
         LinearLayout wrapper = new LinearLayout(this);
         wrapper.setOrientation(LinearLayout.VERTICAL);
 
@@ -788,6 +795,7 @@ public class MainActivity extends Activity {
             subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             subTv.setPadding(0, dp(3), 0, 0);
             textCol.addView(subTv);
+            if (subtitleOut != null) subtitleOut[0] = subTv;
         }
 
         row.addView(icon);
@@ -2107,6 +2115,8 @@ public class MainActivity extends Activity {
         });
         trainCard.addView(btnTrain);
 
+        final TextView[] learnedCountSubtitleHolder = new TextView[1];
+
         Button btnClear = new Button(this);
         btnClear.setText(tr("مسح جميع الكلمات المتعلمة", "Clear all learned words"));
         styleModernButton(btnClear, dm("#DC2626"));
@@ -2115,6 +2125,12 @@ public class MainActivity extends Activity {
         btnClear.setLayoutParams(lpCl);
         btnClear.setOnClickListener(v -> {
             predictionEngine.clearAllLearnedData();
+            if (learnedCountSubtitleHolder[0] != null) {
+                learnedCountSubtitleHolder[0].setText(learnedWordsCountSubtitle());
+            }
+            Toast.makeText(MainActivity.this,
+                    tr("تم مسح جميع الكلمات المتعلمة", "All learned words were cleared"),
+                    Toast.LENGTH_SHORT).show();
         });
         trainCard.addView(btnClear);
 
@@ -2122,9 +2138,15 @@ public class MainActivity extends Activity {
         root.addView(createMenuRow(
                 ModernIconView.ICON_SLIDERS_PREFS,
                 tr("الكلمات المتعلمة", "Learned words"),
-                tr(predictionEngine.getLearnedWordCount() + " كلمة محفوظة • بحث وحذف", predictionEngine.getLearnedWordCount() + " saved words • search & delete"),
+                learnedWordsCountSubtitle(),
                 false,
-                this::openLearnedWordsScreen));
+                this::openLearnedWordsScreen,
+                learnedCountSubtitleHolder));
+    }
+
+    private String learnedWordsCountSubtitle() {
+        int count = predictionEngine.getLearnedWordCount();
+        return tr(count + " كلمة محفوظة • بحث وحذف", count + " saved words • search & delete");
     }
 
     private Handler downloadToastHandler;
