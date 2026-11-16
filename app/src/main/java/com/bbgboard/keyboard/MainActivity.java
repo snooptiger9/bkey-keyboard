@@ -1329,20 +1329,35 @@ public class MainActivity extends Activity {
                         return true;
                     }
                     if (!dragging[0] || slotHeight[0] <= 0f) return true;
-                    float totalDy = event.getRawY() - downRawY[0];
-                    float draggedAbsoluteTop = startAbsoluteTop[0] + totalDy;
-                    int lastIndex = container.getChildCount() - 1;
-                    int desiredIndex = (int) Math.floor((draggedAbsoluteTop + slotHeight[0] / 2f) / slotHeight[0]);
-                    if (desiredIndex < 0) desiredIndex = 0;
-                    if (desiredIndex > lastIndex) desiredIndex = lastIndex;
-                    int currentIndex = container.indexOfChild(row);
-                    if (desiredIndex != currentIndex) {
-                        container.removeViewAt(currentIndex);
-                        container.addView(row, desiredIndex);
-                        renumberLanguageOrderRows(container);
-                        currentIndex = desiredIndex;
+                    // row or container may have been detached (e.g. the screen got rebuilt from
+                    // under this gesture by some other action) -- bail out instead of operating
+                    // on stale view-tree indices, which would throw and crash the whole app.
+                    if (row.getParent() != container) {
+                        dragging[0] = false;
+                        longPressFired[0] = false;
+                        return true;
                     }
-                    row.setTranslationY(draggedAbsoluteTop - (currentIndex * slotHeight[0]));
+                    try {
+                        float totalDy = event.getRawY() - downRawY[0];
+                        float draggedAbsoluteTop = startAbsoluteTop[0] + totalDy;
+                        int lastIndex = container.getChildCount() - 1;
+                        int desiredIndex = (int) Math.floor((draggedAbsoluteTop + slotHeight[0] / 2f) / slotHeight[0]);
+                        if (desiredIndex < 0) desiredIndex = 0;
+                        if (desiredIndex > lastIndex) desiredIndex = lastIndex;
+                        int currentIndex = container.indexOfChild(row);
+                        if (currentIndex < 0) return true;
+                        if (desiredIndex != currentIndex) {
+                            container.removeViewAt(currentIndex);
+                            container.addView(row, desiredIndex);
+                            renumberLanguageOrderRows(container);
+                            currentIndex = desiredIndex;
+                        }
+                        row.setTranslationY(draggedAbsoluteTop - (currentIndex * slotHeight[0]));
+                    } catch (Exception e) {
+                        AppLogger.log("MainActivity", "setupLanguageOrderDrag() move", e);
+                        dragging[0] = false;
+                        longPressFired[0] = false;
+                    }
                     return true;
 
                 case MotionEvent.ACTION_UP:
@@ -1352,8 +1367,14 @@ public class MainActivity extends Activity {
                         row.setTranslationY(0f);
                         row.setAlpha(1f);
                         row.setElevation(0f);
-                        commitLanguageOrder(container);
-                        refreshLanguagesScreen(root);
+                        try {
+                            if (row.getParent() == container) {
+                                commitLanguageOrder(container);
+                                refreshLanguagesScreen(root);
+                            }
+                        } catch (Exception e) {
+                            AppLogger.log("MainActivity", "setupLanguageOrderDrag() up", e);
+                        }
                     }
                     dragging[0] = false;
                     longPressFired[0] = false;
