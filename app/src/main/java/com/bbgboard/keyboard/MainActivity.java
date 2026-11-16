@@ -1241,6 +1241,11 @@ public class MainActivity extends Activity {
         lp.bottomMargin = dp(6);
         row.setLayoutParams(lp);
         row.setTag(code);
+        // Not focusable: the custom OnTouchListener already handles everything this row
+        // needs, and an unfocusable view can't pick up a lingering OS-drawn focus/pressed
+        // highlight after a rapid rebuild like the one a drop triggers.
+        row.setFocusable(false);
+        row.setFocusableInTouchMode(false);
 
         TextView order = new TextView(this);
         order.setText((initialIndex + 1) + "-");
@@ -1309,7 +1314,13 @@ public class MainActivity extends Activity {
             longPressFired[0] = true;
             dragging[0] = true;
             row.setAlpha(0.92f);
-            row.setElevation(dp(10));
+            // A real shadow (View.elevation) is deliberately avoided for the "picked up"
+            // look: on some devices its GPU shadow layer visibly keeps rendering for a
+            // couple of seconds after elevation is reset back to 0 during the view-tree
+            // rebuild that follows a drop -- which is exactly what made a just-dropped
+            // card look like it was still being held. A background tint gives the same
+            // feedback with no shadow layer that can linger.
+            row.setBackground(roundedCard(dm("#EAF1FF"), 16));
             row.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             setAncestorsDisallowIntercept(row, true);
         };
@@ -1405,7 +1416,7 @@ public class MainActivity extends Activity {
                     case MotionEvent.ACTION_CANCEL: {
                         handler.removeCallbacks(startDrag);
                         if (dragging[0]) {
-                            // Drop the "picked up" look (shadow, alpha, offset) on this row and
+                            // Drop the "picked up" look (tint, alpha, offset) on this row and
                             // every sibling immediately, synchronously, before anything else --
                             // if refreshLanguagesScreen() below ends up slow or only partially
                             // rebuilds the screen for any reason, the card should still look
@@ -1413,7 +1424,7 @@ public class MainActivity extends Activity {
                             // until that finishes.
                             row.setTranslationY(0f);
                             row.setAlpha(1f);
-                            row.setElevation(0f);
+                            row.setBackground(roundedCard(dm("#FFFFFF"), 16));
                             for (int i = 0; i < container.getChildCount(); i++) {
                                 container.getChildAt(i).setTranslationY(0f);
                             }
@@ -1447,7 +1458,7 @@ public class MainActivity extends Activity {
                 try {
                     row.setTranslationY(0f);
                     row.setAlpha(1f);
-                    row.setElevation(0f);
+                    row.setBackground(roundedCard(dm("#FFFFFF"), 16));
                 } catch (Throwable ignored) {
                     // row itself may be in a bad state -- nothing more we can safely do.
                 }
