@@ -9,8 +9,9 @@ if (keystorePropsFile.exists()) {
 }
 
 // KLIPY's production API key -- never committed. CI writes this file from a GitHub
-// Actions secret (same pattern as keystore.properties above); a local dev build
-// without the file just gets an empty key (GIF search won't work, everything else does).
+// Actions secret (same pattern as keystore.properties above) as a single
+// "KLIPY_API_KEY=..." line; a local dev build without the file just gets an empty
+// key (GIF search won't work, everything else does).
 def klipyPropsFile = file('klipy.properties')
 def klipyProps = new Properties()
 if (klipyPropsFile.exists()) {
