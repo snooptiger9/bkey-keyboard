@@ -1360,6 +1360,12 @@ public class MainActivity extends Activity {
                         float totalDy = event.getRawY() - downRawY[0];
                         float draggedAbsoluteTop = startAbsoluteTop[0] + totalDy;
                         int lastIndex = childCount - 1;
+                        // Clamp to the stack's own top/bottom -- a card already first (or
+                        // last) has nowhere to go, so it shouldn't visually float off past
+                        // the edge of the list while the finger keeps dragging it that way.
+                        float maxTop = lastIndex * slotHeight[0];
+                        if (draggedAbsoluteTop < 0f) draggedAbsoluteTop = 0f;
+                        if (draggedAbsoluteTop > maxTop) draggedAbsoluteTop = maxTop;
                         int desiredIndex = (int) Math.floor((draggedAbsoluteTop + slotHeight[0] / 2f) / slotHeight[0]);
                         if (desiredIndex < 0) desiredIndex = 0;
                         if (desiredIndex > lastIndex) desiredIndex = lastIndex;
