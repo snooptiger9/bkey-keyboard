@@ -28,7 +28,8 @@ final class KlipyClient {
     // Supplied by BuildConfig (app/build.gradle), itself read from the gitignored
     // app/klipy.properties -- written by CI from a GitHub Actions secret. Never put the
     // literal key back here: this file is in a public repo, so a hardcoded string is
-    // visible to anyone browsing the source.
+    // visible to anyone browsing the source. The key was rotated on KLIPY's side after
+    // the old one briefly existed in source history, so the old value is now dead.
     private static final String API_KEY = BuildConfig.KLIPY_API_KEY;
 
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
