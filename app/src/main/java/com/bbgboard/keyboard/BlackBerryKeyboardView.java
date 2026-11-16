@@ -1235,8 +1235,13 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private boolean isSplitKeyboardActive(int widthPx) {
-        float widthDp = widthPx / density;
-        return widthDp >= 600f;
+        // smallestScreenWidthDp is the device's shorter axis, which stays the same
+        // across rotation -- unlike a live widthPx check, which on a tall-and-narrow
+        // screen (a regular phone, or a foldable's outer/cover screen) can exceed
+        // 600dp in landscape simply because that's the screen's long dimension, not
+        // because the device is actually tablet-sized. A real tablet (or a
+        // foldable's inner screen when unfolded) stays >= 600dp either way.
+        return getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
     private void layoutSplitRow(List<KeyDef> row, float topY, float rowH, float leftStartX, float leftW, float rightStartX, float rightW) {
