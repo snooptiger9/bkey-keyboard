@@ -15,6 +15,8 @@
 ![Stars](https://img.shields.io/github/stars/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 
+If you find this useful, a ⭐ star would mean a lot — شكراً لو تدعم المشروع بنجمة ⭐.
+
 ---
 
 ## 📖 English
