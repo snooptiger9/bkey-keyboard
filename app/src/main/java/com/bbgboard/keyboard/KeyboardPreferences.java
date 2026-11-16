@@ -746,8 +746,11 @@ public class KeyboardPreferences {
         }
     }
 
-    public java.util.Set<String> getDismissedDefaultWords(boolean arabic) {
-        String key = arabic ? "dismissed_defaults_ar" : "dismissed_defaults_en";
+    // Keyed by language code (LANG_AR/LANG_EN/LANG_ES) rather than a bare Arabic/not-Arabic
+    // boolean -- English and Spanish each need their own dismissed-default-words set, since
+    // they're both "not Arabic" but otherwise unrelated languages.
+    public java.util.Set<String> getDismissedDefaultWords(String languageCode) {
+        String key = "dismissed_defaults_" + languageCode;
         String raw = prefs.getString(key, "");
         java.util.Set<String> out = new java.util.LinkedHashSet<>();
         if (!raw.isEmpty()) {
@@ -758,11 +761,11 @@ public class KeyboardPreferences {
         return out;
     }
 
-    public void dismissDefaultWord(boolean arabic, String word) {
+    public void dismissDefaultWord(String languageCode, String word) {
         if (word == null || word.isEmpty()) return;
-        java.util.Set<String> cur = getDismissedDefaultWords(arabic);
+        java.util.Set<String> cur = getDismissedDefaultWords(languageCode);
         cur.add(word);
-        String key = arabic ? "dismissed_defaults_ar" : "dismissed_defaults_en";
+        String key = "dismissed_defaults_" + languageCode;
         prefs.edit().putString(key, String.join("\u0001", cur)).apply();
     }
 }

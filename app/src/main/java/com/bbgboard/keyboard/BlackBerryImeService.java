@@ -1926,7 +1926,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (word == null || word.isEmpty()) return;
         boolean isArabic = keyboardView.isArabic();
         if (predictionEngine.isDefaultPlaceholderWord(word, isArabic)) {
-            keyboardPrefs.dismissDefaultWord(isArabic, word);
+            keyboardPrefs.dismissDefaultWord(keyboardView.getActiveLanguageCode(), word);
             refreshPredictions();
         }
     }

@@ -2020,9 +2020,19 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private void toggleLanguage() {
+        toggleLanguage(1);
+    }
+
+    /** direction: +1 cycles forward, -1 cycles backward through the enabled-languages order.
+     *  With only two languages enabled both directions land on the same (other) language, so
+     *  this only matters once three or more are enabled. */
+    private void toggleLanguage(int direction) {
         List<String> enabled = prefs.getEnabledLanguages();
         int idx = enabled.indexOf(currentLangCode);
-        String next = enabled.get((idx < 0 ? 0 : idx + 1) % enabled.size());
+        int size = enabled.size();
+        int base = idx < 0 ? 0 : idx;
+        int nextIdx = ((base + direction) % size + size) % size;
+        String next = enabled.get(nextIdx);
 
         isSymbols = false;
         setCurrentLanguage(next);
@@ -2888,7 +2898,7 @@ public class BlackBerryKeyboardView extends View {
                         && prefs.getEnabledLanguages().size() >= 2) {
                     float spaceSwipeThreshold = 26f * density;
                     if (Math.abs(dx) > spaceSwipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2f) {
-                        toggleLanguage();
+                        toggleLanguage(dx > 0 ? 1 : -1);
                         return true;
                     }
                 }

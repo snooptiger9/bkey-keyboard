@@ -848,7 +848,9 @@ public class PredictionEngine {
                 : latinIsSpanish
                     ? Arrays.asList("El", "Yo", "En", "Hola", "Gracias", "Bueno")
                     : Arrays.asList("The", "I", "On", "Hello", "Thanks", "Good");
-        java.util.Set<String> dismissed = keyboardPrefs.getDismissedDefaultWords(isArabic);
+        String defaultsLangCode = isArabic ? KeyboardPreferences.LANG_AR
+                : (latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
+        java.util.Set<String> dismissed = keyboardPrefs.getDismissedDefaultWords(defaultsLangCode);
         if (dismissed.isEmpty()) return all;
         List<String> out = new ArrayList<>();
         for (String w : all) if (!dismissed.contains(w)) out.add(w);
