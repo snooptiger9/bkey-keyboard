@@ -2637,7 +2637,7 @@ public class BlackBerryKeyboardView extends View {
                     if (touchDownKey.type == KeyType.BACKSPACE) {
                         backspaceRepeatStartUptime = SystemClock.uptimeMillis();
                         handler.postDelayed(repeatBackspaceRunnable, 380L);
-                    } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT || touchDownKey.type == KeyType.LANGUAGE) {
+                    } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT || touchDownKey.type == KeyType.LANGUAGE || touchDownKey.type == KeyType.EMOJI) {
                         handler.postDelayed(longPressRunnable, prefs.getLongPressDelayMs());
                     } else if (touchDownKey.type == KeyType.SPACE && prefs.isSpaceCursorDragEnabled()) {
                         spaceCursorModeActive = false;
