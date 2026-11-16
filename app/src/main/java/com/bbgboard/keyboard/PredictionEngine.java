@@ -51,6 +51,26 @@ public class PredictionEngine {
     private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsSpanish ? baseEsBigrams : baseEnBigrams; }
     private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsSpanish ? baseEsByFold : baseEnByFold; }
 
+    // learnedWords/learnedBigrams/learnedByFold below are shared across every language --
+    // that's fine between Arabic and Latin (different Unicode ranges keep them apart
+    // naturally), but English and Spanish share the same letters, so a word learned under
+    // one would otherwise show up as a suggestion under the other. This tags each learned
+    // Latin word with which one it was learned under, so suggestions can filter by it.
+    // Untagged (anything learned before Spanish existed, or not yet re-typed since) defaults
+    // to English -- the only Latin language that could have written it.
+    private final Map<String, String> learnedWordLatinTag = new HashMap<>();
+
+    private void tagLatinWord(String word, boolean isArabic) {
+        if (isArabic) return;
+        learnedWordLatinTag.put(word, latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
+    }
+
+    private boolean latinWordAllowed(String word) {
+        String tag = learnedWordLatinTag.get(word);
+        String active = latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN;
+        return tag == null ? !latinIsSpanish : tag.equals(active);
+    }
+
     private final java.util.Set<String> knownFolded = new java.util.HashSet<>();
     private volatile boolean learningAllowed = true;
     private volatile boolean dirty = true;
@@ -400,6 +420,7 @@ public class PredictionEngine {
         String key = existing != null ? existing : curr;
         int oldCount = learnedWords.containsKey(key) ? learnedWords.get(key) : 0;
         learnedWords.put(key, oldCount + 1);
+        tagLatinWord(key, isArabic);
         if (existing == null) {
 
             String kf = fold(key);
@@ -480,6 +501,7 @@ public class PredictionEngine {
         for (int i = 0; i < 6000 && i < list.size(); i++) keep.put(list.get(i).getKey(), list.get(i).getValue());
         learnedWords.clear();
         learnedWords.putAll(keep);
+        learnedWordLatinTag.keySet().retainAll(keep.keySet());
         rebuildLearnedIndex();
     }
 
@@ -535,7 +557,8 @@ public class PredictionEngine {
                 if (lNext != null) {
                     for (Map.Entry<String, Integer> e : lNext.entrySet()) {
                         String nw = e.getKey();
-                        if (fold(nw).startsWith(prefixLower) && !nw.equals(prefix) && isTrustedWord(nw)) {
+                        if (fold(nw).startsWith(prefixLower) && !nw.equals(prefix) && isTrustedWord(nw)
+                                && (isArabic || latinWordAllowed(nw))) {
                             int cur = scored.containsKey(nw) ? scored.get(nw) : 0;
                             scored.put(nw, cur + e.getValue() * 60 + 250);
                         }
@@ -557,6 +580,7 @@ public class PredictionEngine {
             for (List<String> candidates : learnedByFold.subMap(prefixLower, prefixUpperBound).values()) {
                 for (String w : candidates) {
                     if (!isTrustedWord(w)) continue;
+                    if (!isArabic && !latinWordAllowed(w)) continue;
                     Integer cnt = learnedWords.get(w);
                     if (cnt == null) continue;
                     int cur = scored.containsKey(w) ? scored.get(w) : 0;
@@ -569,7 +593,7 @@ public class PredictionEngine {
 
             boolean hadCompletions = !scored.isEmpty();
             if (scored.isEmpty() && prefixLower.length() >= 3) {
-                collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, scored, 30);
+                collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, scored, 30, !isArabic);
                 if (scored.isEmpty()) {
                     collectNearMissCandidates(prefixLower, baseByFold, baseWords, scored, 1);
                 }
@@ -608,6 +632,7 @@ public class PredictionEngine {
                     for (Map.Entry<String, Integer> e : triNext.entrySet()) {
                         String nw = e.getKey();
                         if (!isTrustedWord(nw)) continue;
+                        if (!isArabic && !latinWordAllowed(nw)) continue;
                         int cur = scored.containsKey(nw) ? scored.get(nw) : 0;
                         scored.put(nw, cur + e.getValue() * 80 + 400);
                         if (e.getValue() > bestCount) {
@@ -624,6 +649,7 @@ public class PredictionEngine {
                 for (Map.Entry<String, Integer> e : lNext.entrySet()) {
                     String nw = e.getKey();
                     if (!isTrustedWord(nw)) continue;
+                    if (!isArabic && !latinWordAllowed(nw)) continue;
                     int cur = scored.containsKey(nw) ? scored.get(nw) : 0;
                     scored.put(nw, cur + e.getValue() * 40 + 200);
                 }
@@ -644,7 +670,8 @@ public class PredictionEngine {
                     for (Map.Entry<String, Integer> e : chain.entrySet()) {
                         if (e.getValue() > chainBestCount) { chainBestCount = e.getValue(); chainBestWord = e.getKey(); }
                     }
-                    if (chainBestWord != null && chainBestCount >= 3 && isTrustedWord(chainBestWord)) {
+                    if (chainBestWord != null && chainBestCount >= 3 && isTrustedWord(chainBestWord)
+                            && (isArabic || latinWordAllowed(chainBestWord))) {
                         String phrase = bestTrigramWord + " " + chainBestWord;
                         scored.put(phrase, 100000);
                     }
@@ -684,7 +711,7 @@ public class PredictionEngine {
         if (word.length() < 3 || isTrustedWord(word)) return null;
         String wordLower = fold(word);
         Map<String, Integer> candidates = new HashMap<>();
-        collectNearMissCandidates(wordLower, learnedByFold, learnedWords, candidates, 30);
+        collectNearMissCandidates(wordLower, learnedByFold, learnedWords, candidates, 30, !isArabic);
         if (candidates.isEmpty()) {
             java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
             Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
@@ -697,7 +724,7 @@ public class PredictionEngine {
     private String findInlineFix(String prefix, String prefixLower, boolean isArabic) {
         if (prefixLower.length() < 3 || isTrustedWord(prefix)) return null;
         Map<String, Integer> cand = new HashMap<>();
-        collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, cand, 30);
+        collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, cand, 30, !isArabic);
         if (cand.isEmpty()) {
             java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
             Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
@@ -725,6 +752,15 @@ public class PredictionEngine {
 
     private void collectNearMissCandidates(String prefixLower, java.util.TreeMap<String, List<String>> byFold,
                                             Map<String, Integer> wordCounts, Map<String, Integer> scored, int baseScore) {
+        collectNearMissCandidates(prefixLower, byFold, wordCounts, scored, baseScore, false);
+    }
+
+    // filterLatin restricts to the active Latin sub-language (English vs Spanish) -- only
+    // meaningful for the learned-words map, since that's the one shared between them; base
+    // dictionary lookups already pass the right language-specific map and are never tagged.
+    private void collectNearMissCandidates(String prefixLower, java.util.TreeMap<String, List<String>> byFold,
+                                            Map<String, Integer> wordCounts, Map<String, Integer> scored, int baseScore,
+                                            boolean filterLatin) {
         final int plen = prefixLower.length();
         final int maxDist = plen >= 5 ? 2 : 1;
         for (Map.Entry<String, List<String>> entry : byFold.entrySet()) {
@@ -737,6 +773,7 @@ public class PredictionEngine {
                 Integer cnt = wordCounts.get(w);
                 if (cnt == null) continue;
                 if (!isTrustedWord(w)) continue;
+                if (filterLatin && !latinWordAllowed(w)) continue;
                 int cur = scored.containsKey(w) ? scored.get(w) : 0;
                 scored.put(w, cur + baseScore + (dist == 1 ? 100000 : 0) + Math.min(cnt, 99999));
             }
@@ -799,6 +836,7 @@ public class PredictionEngine {
             String w = e.getKey();
             if (e.getValue() < 2 || w.indexOf('@') >= 0) continue;
             if (hasArabicLetters(w) != isArabic) continue;
+            if (!isArabic && !latinWordAllowed(w)) continue;
             out.add(w);
         }
         return out;
@@ -916,6 +954,7 @@ public class PredictionEngine {
     public synchronized void removeLearnedWord(String word) {
         String f = fold(word);
         learnedWords.remove(word);
+        learnedWordLatinTag.remove(word);
         learnedBigrams.remove(f);
         learnedBigrams.remove(word);
         for (Map<String, Integer> t : learnedBigrams.values()) {
@@ -931,6 +970,7 @@ public class PredictionEngine {
 
     public synchronized void clearAllLearnedData() {
         learnedWords.clear();
+        learnedWordLatinTag.clear();
         learnedBigrams.clear();
         learnedTrigrams.clear();
         learnedByFold.clear();
@@ -940,7 +980,8 @@ public class PredictionEngine {
     }
 
     private void saveToPrefs() {
-        writeSnapshotToPrefs(new HashMap<>(learnedWords), deepCopyBigrams(learnedBigrams), deepCopyBigrams(learnedTrigrams));
+        writeSnapshotToPrefs(new HashMap<>(learnedWords), deepCopyBigrams(learnedBigrams), deepCopyBigrams(learnedTrigrams),
+                new HashMap<>(learnedWordLatinTag));
     }
 
     private Map<String, Map<String, Integer>> deepCopyBigrams(Map<String, Map<String, Integer>> source) {
@@ -967,12 +1008,14 @@ public class PredictionEngine {
             final Map<String, Integer> wordsSnapshot;
             final Map<String, Map<String, Integer>> bigramsSnapshot;
             final Map<String, Map<String, Integer>> trigramsSnapshot;
+            final Map<String, String> tagsSnapshot;
             synchronized (PredictionEngine.this) {
                 wordsSnapshot = new HashMap<>(learnedWords);
                 bigramsSnapshot = deepCopyBigrams(learnedBigrams);
                 trigramsSnapshot = deepCopyBigrams(learnedTrigrams);
+                tagsSnapshot = new HashMap<>(learnedWordLatinTag);
             }
-            writeSnapshotToPrefs(wordsSnapshot, bigramsSnapshot, trigramsSnapshot);
+            writeSnapshotToPrefs(wordsSnapshot, bigramsSnapshot, trigramsSnapshot, tagsSnapshot);
         });
     }
 
@@ -989,17 +1032,22 @@ public class PredictionEngine {
     }
 
     private void writeSnapshotToPrefs(Map<String, Integer> words, Map<String, Map<String, Integer>> bigrams,
-                                       Map<String, Map<String, Integer>> trigrams) {
+                                       Map<String, Map<String, Integer>> trigrams, Map<String, String> wordLangTags) {
         synchronized (SAVE_LOCK) {
         try {
             JSONObject wordsJson = new JSONObject();
             for (Map.Entry<String, Integer> e : words.entrySet()) {
                 wordsJson.put(e.getKey(), e.getValue());
             }
+            JSONObject tagsJson = new JSONObject();
+            for (Map.Entry<String, String> e : wordLangTags.entrySet()) {
+                tagsJson.put(e.getKey(), e.getValue());
+            }
 
             String ws = wordsJson.toString();
             String bs = bigramsToJson(bigrams).toString();
             String ts = bigramsToJson(trigrams).toString();
+            String tgs = tagsJson.toString();
             lastSavedWords = ws;
             lastSavedBigrams = bs;
             lastSavedTrigrams = ts;
@@ -1007,6 +1055,7 @@ public class PredictionEngine {
                     .putString("words_v1", ws)
                     .putString("bigrams_v1", bs)
                     .putString("trigrams_v1", ts)
+                    .putString("word_lang_v1", tgs)
                     .apply();
         } catch (Exception e) {
             AppLogger.log("PredictionEngine", "writeSnapshotToPrefs()", e);
@@ -1033,6 +1082,7 @@ public class PredictionEngine {
             learnedWords.clear();
             learnedBigrams.clear();
             learnedTrigrams.clear();
+            learnedWordLatinTag.clear();
             String wordsStr = prefs.getString("words_v1", null);
             if (wordsStr != null && !wordsStr.isEmpty()) {
                 JSONObject obj = new JSONObject(wordsStr);
@@ -1076,6 +1126,16 @@ public class PredictionEngine {
                         }
                         learnedTrigrams.put(triKey, map);
                     }
+                }
+            }
+            String tagsStr = prefs.getString("word_lang_v1", null);
+            if (tagsStr != null && !tagsStr.isEmpty()) {
+                JSONObject obj = new JSONObject(tagsStr);
+                Iterator<String> keys = obj.keys();
+                while (keys.hasNext()) {
+                    String k = keys.next();
+                    String v = obj.optString(k, null);
+                    if (v != null) learnedWordLatinTag.put(k, v);
                 }
             }
         } catch (Exception e) {
