@@ -19,8 +19,12 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -1132,15 +1136,6 @@ public class MainActivity extends Activity {
         prefs.setEnabledLanguages(enabled);
     }
 
-    private void moveLanguageOrder(String code, int direction) {
-        List<String> enabled = new ArrayList<>(prefs.getEnabledLanguages());
-        int idx = enabled.indexOf(code);
-        int newIdx = idx + direction;
-        if (idx < 0 || newIdx < 0 || newIdx >= enabled.size()) return;
-        java.util.Collections.swap(enabled, idx, newIdx);
-        prefs.setEnabledLanguages(enabled);
-    }
-
     private void openLanguagesScreen() {
         LinearLayout root = createSubScreenTemplate(tr("اللغة", "Language"));
         fillLanguagesScreen(root);
@@ -1182,11 +1177,23 @@ public class MainActivity extends Activity {
             orderLabel.setText(tr("ترتيب التبديل", "Switch order"));
             orderLabel.setTextColor(Color.parseColor(dm("#1F2937")));
             orderLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
-            orderLabel.setPadding(dp(4), dp(10), dp(4), dp(6));
+            orderLabel.setPadding(dp(4), dp(10), dp(4), dp(2));
             root.addView(orderLabel);
 
+            TextView orderHint = new TextView(this);
+            orderHint.setText(tr("اضغط مطولاً على بطاقة اللغة ثم اسحبها لتغيير ترتيبها",
+                    "Press and hold a language card, then drag to reorder it"));
+            orderHint.setTextColor(Color.parseColor(dm("#9CA3AF")));
+            orderHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+            orderHint.setPadding(dp(4), 0, dp(4), dp(8));
+            root.addView(orderHint);
+
+            LinearLayout orderContainer = new LinearLayout(this);
+            orderContainer.setOrientation(LinearLayout.VERTICAL);
+            root.addView(orderContainer);
+
             for (int i = 0; i < enabled.size(); i++) {
-                root.addView(createLanguageOrderRow(root, enabled, i));
+                orderContainer.addView(createLanguageOrderRow(root, orderContainer, enabled.get(i), i));
             }
         }
 
@@ -1202,9 +1209,8 @@ public class MainActivity extends Activity {
         ));
     }
 
-    private View createLanguageOrderRow(final LinearLayout root, final List<String> enabled, final int index) {
-        final String code = enabled.get(index);
-        LinearLayout row = new LinearLayout(this);
+    private View createLanguageOrderRow(final LinearLayout root, final LinearLayout container, final String code, final int initialIndex) {
+        final LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setBackground(roundedCard(dm("#FFFFFF"), 16));
@@ -1213,9 +1219,10 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.bottomMargin = dp(6);
         row.setLayoutParams(lp);
+        row.setTag(code);
 
         TextView order = new TextView(this);
-        order.setText((index + 1) + ".");
+        order.setText((initialIndex + 1) + "-");
         order.setTextColor(Color.parseColor(dm("#9CA3AF")));
         order.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
         order.setPadding(0, 0, dp(10), 0);
@@ -1228,25 +1235,122 @@ public class MainActivity extends Activity {
         name.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         row.addView(name);
 
-        TextView up = new TextView(this);
-        up.setText("▲");
-        up.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        up.setPadding(dp(10), dp(6), dp(10), dp(6));
-        boolean canUp = index > 0;
-        up.setTextColor(Color.parseColor(canUp ? dm("#2563EB") : dm("#D1D5DB")));
-        if (canUp) up.setOnClickListener(v -> { moveLanguageOrder(code, -1); refreshLanguagesScreen(root); });
-        row.addView(up);
+        TextView handle = new TextView(this);
+        handle.setText("☰");
+        handle.setTextColor(Color.parseColor(dm("#9CA3AF")));
+        handle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        handle.setPadding(dp(10), dp(4), dp(2), dp(4));
+        row.addView(handle);
 
-        TextView down = new TextView(this);
-        down.setText("▼");
-        down.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        down.setPadding(dp(10), dp(6), dp(10), dp(6));
-        boolean canDown = index < enabled.size() - 1;
-        down.setTextColor(Color.parseColor(canDown ? dm("#2563EB") : dm("#D1D5DB")));
-        if (canDown) down.setOnClickListener(v -> { moveLanguageOrder(code, 1); refreshLanguagesScreen(root); });
-        row.addView(down);
+        setupLanguageOrderDrag(root, container, row);
 
         return row;
+    }
+
+    /** Renumbers the "1-, 2-, 3-" labels to match the order rows' current on-screen position. */
+    private void renumberLanguageOrderRows(LinearLayout container) {
+        for (int i = 0; i < container.getChildCount(); i++) {
+            LinearLayout row = (LinearLayout) container.getChildAt(i);
+            TextView order = (TextView) row.getChildAt(0);
+            order.setText((i + 1) + "-");
+        }
+    }
+
+    private void commitLanguageOrder(LinearLayout container) {
+        List<String> order = new ArrayList<>();
+        for (int i = 0; i < container.getChildCount(); i++) {
+            order.add((String) container.getChildAt(i).getTag());
+        }
+        prefs.setEnabledLanguages(order);
+    }
+
+    /** Long-press-and-drag reordering for a language card: holding it still for the system's
+     *  long-press timeout picks it up (with haptic + elevation feedback), then dragging up or
+     *  down moves it to whichever slot the finger is currently over, live-renumbering the "1-,
+     *  2-, 3-" labels as it passes other cards. Releasing commits the new order to prefs. A
+     *  quick swipe/scroll before the long-press timeout fires is left alone so it still scrolls
+     *  the settings page normally instead of starting a drag. */
+    private void setupLanguageOrderDrag(final LinearLayout root, final LinearLayout container, final LinearLayout row) {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        final int touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+        final long longPressTimeout = ViewConfiguration.getLongPressTimeout();
+
+        final float[] downRawX = new float[1];
+        final float[] downRawY = new float[1];
+        final float[] startAbsoluteTop = new float[1];
+        final float[] slotHeight = new float[1];
+        final boolean[] dragging = new boolean[1];
+        final boolean[] longPressFired = new boolean[1];
+
+        final Runnable startDrag = () -> {
+            longPressFired[0] = true;
+            dragging[0] = true;
+            row.setAlpha(0.92f);
+            row.setElevation(dp(10));
+            row.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            ViewParent p = row.getParent();
+            while (p != null) {
+                p.requestDisallowInterceptTouchEvent(true);
+                p = p.getParent();
+            }
+        };
+
+        row.setOnTouchListener((v, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    dragging[0] = false;
+                    longPressFired[0] = false;
+                    downRawX[0] = event.getRawX();
+                    downRawY[0] = event.getRawY();
+                    slotHeight[0] = row.getHeight() + dp(6);
+                    startAbsoluteTop[0] = container.indexOfChild(row) * slotHeight[0];
+                    handler.postDelayed(startDrag, longPressTimeout);
+                    return true;
+
+                case MotionEvent.ACTION_MOVE:
+                    if (!longPressFired[0]) {
+                        float dx = event.getRawX() - downRawX[0];
+                        float dy = event.getRawY() - downRawY[0];
+                        if (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop) {
+                            handler.removeCallbacks(startDrag);
+                        }
+                        return true;
+                    }
+                    if (!dragging[0] || slotHeight[0] <= 0f) return true;
+                    float totalDy = event.getRawY() - downRawY[0];
+                    float draggedAbsoluteTop = startAbsoluteTop[0] + totalDy;
+                    int lastIndex = container.getChildCount() - 1;
+                    int desiredIndex = (int) Math.floor((draggedAbsoluteTop + slotHeight[0] / 2f) / slotHeight[0]);
+                    if (desiredIndex < 0) desiredIndex = 0;
+                    if (desiredIndex > lastIndex) desiredIndex = lastIndex;
+                    int currentIndex = container.indexOfChild(row);
+                    if (desiredIndex != currentIndex) {
+                        container.removeViewAt(currentIndex);
+                        container.addView(row, desiredIndex);
+                        renumberLanguageOrderRows(container);
+                        currentIndex = desiredIndex;
+                    }
+                    row.setTranslationY(draggedAbsoluteTop - (currentIndex * slotHeight[0]));
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    handler.removeCallbacks(startDrag);
+                    if (dragging[0]) {
+                        row.setTranslationY(0f);
+                        row.setAlpha(1f);
+                        row.setElevation(0f);
+                        commitLanguageOrder(container);
+                        refreshLanguagesScreen(root);
+                    }
+                    dragging[0] = false;
+                    longPressFired[0] = false;
+                    return true;
+
+                default:
+                    return false;
+            }
+        });
     }
 
     @Override
