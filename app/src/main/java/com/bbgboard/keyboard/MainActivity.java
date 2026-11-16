@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
             float from = (isDeviceArabic() ? -1 : 1) * dir * dp(36);
             scroll.setAlpha(0f);
             scroll.setTranslationX(from);
-            scroll.animate().alpha(1f).translationX(0f).setDuration(320)
+            scroll.animate().alpha(1f).translationX(0f).setDuration(340)
                     .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
         }
         if (y > 0) {
