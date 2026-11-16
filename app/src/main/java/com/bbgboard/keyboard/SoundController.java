@@ -565,7 +565,7 @@ public class SoundController {
             case 9:
                 return "كريستال ناعم (Soft Glass)";
             case 10:
-                return "الطرقة الأصلية — مقاس من التسجيل (Original Recorded Tap)";
+                return "الطرقة الأصلية (Original Recorded Tap)";
             case KeyboardPreferences.SOUND_PROFILE_SYSTEM:
                 return "صوت نظام أندرويد (System Default)";
             default:
@@ -594,7 +594,7 @@ public class SoundController {
             case 9:
                 return "ثلاث نقرات سريعة (Triple Tick)";
             case 10:
-                return "الحفيف الأصلي — مقاس من التسجيل (Original Recorded Swish)";
+                return "الحفيف الأصلي (Original Recorded Swish)";
             case KeyboardPreferences.SWIPE_SOUND_SILENT:
                 return "صامت للسحب فقط (Silent Swipe)";
             default:
