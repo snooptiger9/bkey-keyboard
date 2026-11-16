@@ -238,7 +238,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ## 📖 العربية
 
-**🔗 اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md#ar) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
+**🔗 اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
 
 ### ✨ الوصف
 
