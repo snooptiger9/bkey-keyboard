@@ -280,6 +280,14 @@ public class BlackBerryKeyboardView extends View {
         }
     };
 
+    private long backspaceRepeatStartUptime = 0L;
+    // Repeat stays at a steady pace for a safe margin after it kicks in, so a normal
+    // press-and-hold never feels like it's "running away" -- only a deliberately long
+    // hold ramps up, and even then it eases toward a floor instead of jumping there.
+    private static final long BACKSPACE_ACCEL_SAFE_PERIOD_MS = 1200L;
+    private static final long BACKSPACE_ACCEL_STEP_MS = 40L;
+    private static final long BACKSPACE_REPEAT_BASE_MS = 60L;
+    private static final long BACKSPACE_REPEAT_FLOOR_MS = 15L;
     private final Runnable repeatBackspaceRunnable = new Runnable() {
         @Override
         public void run() {
@@ -287,7 +295,15 @@ public class BlackBerryKeyboardView extends View {
                 vibrateTap(false);
                 soundController.playBackspaceClick();
                 if (listener != null) listener.onBackspaceSingle();
-                handler.postDelayed(this, 60L);
+
+                long heldMs = SystemClock.uptimeMillis() - backspaceRepeatStartUptime;
+                long nextDelay = BACKSPACE_REPEAT_BASE_MS;
+                if (heldMs > BACKSPACE_ACCEL_SAFE_PERIOD_MS) {
+                    long accelMs = heldMs - BACKSPACE_ACCEL_SAFE_PERIOD_MS;
+                    nextDelay = Math.max(BACKSPACE_REPEAT_FLOOR_MS,
+                            BACKSPACE_REPEAT_BASE_MS - (accelMs / BACKSPACE_ACCEL_STEP_MS));
+                }
+                handler.postDelayed(this, nextDelay);
             }
         }
     };
@@ -2557,6 +2573,7 @@ public class BlackBerryKeyboardView extends View {
                     invalidate();
 
                     if (touchDownKey.type == KeyType.BACKSPACE) {
+                        backspaceRepeatStartUptime = SystemClock.uptimeMillis();
                         handler.postDelayed(repeatBackspaceRunnable, 380L);
                     } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT || touchDownKey.type == KeyType.LANGUAGE) {
                         handler.postDelayed(longPressRunnable, prefs.getLongPressDelayMs());
