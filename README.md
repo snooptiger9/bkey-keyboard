@@ -116,7 +116,8 @@ experience for each.
 
 - **Clean** version has no network access and can't read SMS, notifications, photos or storage — those
   permissions aren't in the app. Voice typing still works, handled entirely by your device's own
-  speech-recognition service.
+  speech-recognition service: it tries on-device (offline) recognition first, and only needs an
+  internet connection as a fallback if your device doesn't support that.
 
 - **Plus** version adds GIF search, image/sticker pasting, OTP suggestions, and the in-app updater. OTP
   suggestions are off by default and only read a newly-arrived SMS/WhatsApp notification — never
@@ -336,7 +337,8 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ‏• **النسخة النظيفة** ما فيها اتصال إنترنت، وما تقدر تقرأ رسائل ولا إشعارات ولا صور ولا تخزين — هذي
   الصلاحيات غير موجودة بالتطبيق. الكتابة بالصوت تشتغل برضه، عبر خدمة التعرف على الصوت بجهازك
-  مباشرة‏.
+  مباشرة: تجرب التعرف على الصوت داخل الجهاز (بدون نت) أول شي، وما تحتاج اتصال إنترنت إلا إذا
+  جهازك ما يدعم هذي الميزة‏.
 
 ‏• **نسخة بلس** فيها بحث GIF، لصق الصور/الستيكرات، اقتراح رمز التحقق (OTP)، والتحديث التلقائي من داخل
   التطبيق. اقتراح OTP معطّل افتراضياً ويفحص بس إشعار الرسالة أو واتساب الجديد اللحظي — أبداً
