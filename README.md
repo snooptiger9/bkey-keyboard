@@ -10,7 +10,7 @@
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Bilingual-AR%20%7C%20EN-blue)
+![Languages](https://img.shields.io/badge/Trilingual-AR%20%7C%20EN%20%7C%20ES-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Stars](https://img.shields.io/github/stars/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
@@ -30,8 +30,8 @@ If you find this useful, a ⭐ star would mean a lot.
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
 instantly, and swipe sideways across the letter row (direction configurable) for quick deletion
-instead of repeated backspace taps. Fully supports Arabic and English with a carefully tailored
-experience for each.
+instead of repeated backspace taps. Fully supports Arabic, English, and Spanish with a carefully
+tailored experience for each.
 
 <br>
 
@@ -54,7 +54,7 @@ experience for each.
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif)
-- Swipe the space bar left/right: switch language (Arabic/English) without a separate 🌐 button.
+- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish) without a separate 🌐 button.
 - Long-press any key: popup with alternate characters (diacritics, accented letters...).
 
 <br>
@@ -67,7 +67,7 @@ experience for each.
   ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif)
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for an automatic period + space.
-- Auto-capitalize the first letter of each sentence (English).
+- Auto-capitalize the first letter of each sentence (English/Spanish).
 - Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(Plus only)*
 
 <br>
@@ -246,8 +246,8 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 **bkey** كيبورد أندرويد (IME) مبني على إيماءات السحب في تطبيق **BlackBerry Keyboard - Classic**،
 بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب جانبياً على صف الحروف (الاتجاه
-قابل للتخصيص) للحذف بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية بالكامل مع تجربة
-مخصصة بعناية لكل لغة.
+قابل للتخصيص) للحذف بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية والإسبانية بالكامل
+مع تجربة مخصصة بعناية لكل لغة.
 
 <br>
 
@@ -276,7 +276,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ![ضغط مطوّل وسحب زر المسافة لتحريك المؤشر](docs/gifs/cursor_move.gif)
 
-‏• سحب زر المسافة يميناً/يساراً: تبديل اللغة (عربي/إنجليزي) بدون زر 🌐 منفصل‏.  
+‏• سحب زر المسافة يميناً/يساراً: التبديل بين اللغات المفعّلة (عربي/إنجليزي/إسباني) بدون زر 🌐 منفصل‏.  
 ‏• ضغط مطوّل على أي حرف: بوب أب الحروف البديلة (حركات، حروف أجنبية...)‏.
 
 <br>
@@ -290,7 +290,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ‏• اختصارات نصية: اكتب اختصار (مثل "سع") ويتحول تلقائياً لعبارة كاملة عند المسافة‏.  
 ‏• نقطة ومسافة تلقائية بضغطتين متتاليتين على زر المسافة‏.  
-‏• أحرف كبيرة تلقائياً في بداية كل جملة (بالإنجليزي)‏.  
+‏• أحرف كبيرة تلقائياً في بداية كل جملة (بالإنجليزي/الإسباني)‏.  
 ‏• اقتراح أكواد التحقق (OTP) تلقائياً من الرسائل أو واتساب — كل المعالجة محلية على الجهاز *(نسخة بلس فقط)*‏.
 
 <br>
