@@ -555,14 +555,14 @@ public class MainActivity extends Activity {
         group1.addView(createMenuRow(
                 ModernIconView.ICON_GLOBE_LANG,
                 tr("اللغة", "Language"),
-                tr("العربية والإنجليزية • بوب أب الضغط المطول", "Arabic & English • long-press popup"),
+                null,
                 true,
                 this::openLanguagesScreen
         ));
         group1.addView(createMenuRow(
                 ModernIconView.ICON_THEME_PALETTE,
                 tr("المظهر وشكل الكيبورد والحجم", "Theme, key style & size"),
-                getThemeAndStyleSummary(),
+                null,
                 false,
                 this::openThemeAndStyleScreen
         ));
@@ -572,39 +572,35 @@ public class MainActivity extends Activity {
         group2.addView(createMenuRow(
                 ModernIconView.ICON_TEXT_CORRECTION,
                 tr("التصحيح والاقتراحات والتعلّم", "Suggestions & learning"),
-                tr("تعلّم الكلمات الجديدة وتوقع الكلمة التالية (" + predictionEngine.getLearnedWordCount() + " كلمة محفوظة)",
-                        "Learns new words and predicts the next one (" + predictionEngine.getLearnedWordCount() + " words saved)"),
+                null,
                 true,
                 this::openCorrectionsAndMemoryScreen
         ));
         group2.addView(createMenuRow(
                 ModernIconView.ICON_GESTURE_SWIPE,
                 tr("إيماءات السحب والأنميشن", "Swipe gestures & animation"),
-                tr("أنميشن طيران الكلمة الواضح لأعلى الشاشة • اتجاه السحب لمسح كلمة",
-                        "Word-flies-up animation • swipe-to-delete direction"),
+                null,
                 true,
                 this::openGesturesScreen
         ));
         group2.addView(createMenuRow(
                 ModernIconView.ICON_SOUND_WAVE,
                 tr("الصوت والاهتزاز", "Sound & vibration"),
-                SoundController.getProfileDisplayName(prefs.getSoundProfile()) + " • " + SoundController.getSwipeProfileDisplayName(prefs.getSwipeSoundProfile()),
+                null,
                 true,
                 this::openSoundAndVibrationScreen
         ));
         group2.addView(createMenuRow(
                 ModernIconView.ICON_EMOJI_SMILE,
                 tr("الإيموجي والرموز", "Emojis & symbols"),
-                tr("حجم الإيموجي • مسح قسم مستخدم حديثاً (أو الضغط مطولاً على رمز لحذفه)",
-                        "Emoji size • clear recents (or long-press an emoji to delete it)"),
+                null,
                 true,
                 this::openEmojiScreen
         ));
         group2.addView(createMenuRow(
                 ModernIconView.ICON_SLIDERS_PREFS,
                 tr("التفضيلات", "Preferences"),
-                tr("صف الأرقام • وضع التخفي • اليد الواحدة",
-                        "Number row • incognito • one-handed mode"),
+                null,
                 false,
                 this::openPreferencesScreen
         ));
@@ -614,16 +610,14 @@ public class MainActivity extends Activity {
         group3.addView(createMenuRow(
                 ModernIconView.ICON_CLIPBOARD_PAD,
                 tr("الحافظة الذكية", "Smart clipboard"),
-                tr("زر (≡) بأعلى اليسار • زر الضبط والحجم والرجوع داخل الحافظة",
-                        "(≡) button top-left • settings, resize and back buttons inside it"),
+                null,
                 true,
                 this::openClipboardScreen
         ));
         group3.addView(createMenuRow(
                 ModernIconView.ICON_DICTIONARY_BOOK,
                 tr("القاموس واختصارات الكلمات", "Dictionary & shortcuts"),
-                tr("إضافة كلمة واختصارها (" + prefs.getShortcuts().size() + " اختصار نشط)",
-                        "Add a word and its shortcut (" + prefs.getShortcuts().size() + " active)"),
+                null,
                 false,
                 this::openShortcutsScreen
         ));
@@ -773,14 +767,18 @@ public class MainActivity extends Activity {
         titleTv.setTextColor(Color.parseColor(dm("#1F2937")));
         titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
 
-        TextView subTv = new TextView(this);
-        subTv.setText(subtitle);
-        subTv.setTextColor(Color.parseColor(dm("#6B7280")));
-        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-        subTv.setPadding(0, dp(3), 0, 0);
-
         textCol.addView(titleTv);
-        textCol.addView(subTv);
+        if (subtitle != null && !subtitle.isEmpty()) {
+            // Omitted entirely (not just left blank) when there's no subtitle text,
+            // so the title sits vertically centered in the row instead of leaving
+            // an empty gap below it.
+            TextView subTv = new TextView(this);
+            subTv.setText(subtitle);
+            subTv.setTextColor(Color.parseColor(dm("#6B7280")));
+            subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+            subTv.setPadding(0, dp(3), 0, 0);
+            textCol.addView(subTv);
+        }
 
         row.addView(icon);
         row.addView(textCol);
