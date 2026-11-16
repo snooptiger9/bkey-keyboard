@@ -236,10 +236,6 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 [![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
-Thanks to everyone who starred the repo:
-
-[![Stargazers repo roster for @snooptiger9/bkey-keyboard](https://reporoster.com/stars/snooptiger9/bkey-keyboard)](https://github.com/snooptiger9/bkey-keyboard/stargazers)
-
 ---
 
 ## 📖 العربية
@@ -479,10 +475,6 @@ Thanks to everyone who starred the repo:
 إذا عجبك المشروع وتبي تدعمه، تقدر تدعمني عبر Ko-fi:
 
 [![ادعمني عبر Ko-fi](https://img.shields.io/badge/Ko--fi-ادعم_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
-
-شكرًا لكل من دعم المشروع بنجمة ⭐:
-
-[![Stargazers repo roster for @snooptiger9/bkey-keyboard](https://reporoster.com/stars/snooptiger9/bkey-keyboard)](https://github.com/snooptiger9/bkey-keyboard/stargazers)
 
 ---
 
