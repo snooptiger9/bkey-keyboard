@@ -17,7 +17,7 @@
 
 If you find this useful, a ⭐ star would mean a lot.
 
-شكراً لو تدعم المشروع بنجمة ⭐
+
 
 ---
 
