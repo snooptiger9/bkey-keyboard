@@ -181,7 +181,7 @@ Two builds — pick the one that fits you:
 > - **Updating the Clean version:** only from this page.
 > - **Updating the Plus version:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on the Plus version, never the Clean version.
 
-🔧 Want to build it yourself instead? See [Build it yourself](BUILDING.md).
+### 🔧 [Build it yourself](BUILDING.md)
 
 <br>
 
@@ -413,7 +413,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 > - **تحديث تطبيق النسخة النظيفة:** من هذه الصفحة فقط.
 > - **تحديث تطبيق النسخة بلس:** من هذه الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل نسخة بلس، ما تتحول للنسخة النظيفة.
 
-🔧 تبي تبنيه بنفسك بدل كذا؟ شوف [ابنِه بنفسك](BUILDING.md).
+### 🔧 [ابنِه بنفسك](BUILDING.md)
 
 <br>
 
