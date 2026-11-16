@@ -269,6 +269,17 @@ public class BlackBerryKeyboardView extends View {
                     rebuildKeys();
                     return;
                 }
+                if ((touchDownKey.type == KeyType.EMOJI || touchDownKey.type == KeyType.LANGUAGE) && emojiKeySuggestion != null) {
+                    // A quick tap accepts the suggested emoji, but that leaves no way to
+                    // reach the full picker while a suggestion is showing. A long-press
+                    // opens the drawer instead, so a different emoji is always reachable.
+                    longPressConsumed = true;
+                    activePreviewKey = null;
+                    vibrateTap(true);
+                    soundController.playKeyClick();
+                    if (listener != null) listener.onToggleEmoji();
+                    return;
+                }
                 if ((touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.LANGUAGE) && !touchDownKey.alts.isEmpty()) {
                     longPressConsumed = true;
                     activePreviewKey = null;
