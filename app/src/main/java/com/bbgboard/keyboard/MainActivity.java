@@ -16,6 +16,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -1414,6 +1415,14 @@ public class MainActivity extends Activity {
 
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL: {
+                        // TEMPORARY diagnostic timing only -- no behavior change. Logs the
+                        // wall-clock gap between the touch event actually arriving here and
+                        // each step completing, so a reported "stuck for ~3 seconds" can be
+                        // placed precisely: is ACTION_UP itself late (something upstream
+                        // blocked delivering it), or does a step inside this block take
+                        // that long once it does run.
+                        long t0 = SystemClock.uptimeMillis();
+                        AppLogger.log("MainActivity", "dragUp: entered onTouch at " + t0 + ", eventTime=" + event.getEventTime() + " (delta=" + (t0 - event.getEventTime()) + "ms)", null);
                         handler.removeCallbacks(startDrag);
                         if (dragging[0]) {
                             // Drop the "picked up" look (tint, alpha, offset) on this row and
@@ -1428,6 +1437,8 @@ public class MainActivity extends Activity {
                             for (int i = 0; i < container.getChildCount(); i++) {
                                 container.getChildAt(i).setTranslationY(0f);
                             }
+                            long t1 = SystemClock.uptimeMillis();
+                            AppLogger.log("MainActivity", "dragUp: visual reset done at " + t1 + " (+" + (t1 - t0) + "ms)", null);
                             if (!virtualOrder.isEmpty()) {
                                 List<String> order = new ArrayList<>();
                                 for (View v2 : virtualOrder) {
@@ -1438,7 +1449,11 @@ public class MainActivity extends Activity {
                                     prefs.setEnabledLanguages(order);
                                 }
                             }
+                            long t2 = SystemClock.uptimeMillis();
+                            AppLogger.log("MainActivity", "dragUp: prefs committed at " + t2 + " (+" + (t2 - t1) + "ms)", null);
                             refreshLanguagesScreen(root);
+                            long t3 = SystemClock.uptimeMillis();
+                            AppLogger.log("MainActivity", "dragUp: refreshLanguagesScreen done at " + t3 + " (+" + (t3 - t2) + "ms, total=" + (t3 - t0) + "ms)", null);
                         }
                         dragging[0] = false;
                         longPressFired[0] = false;
