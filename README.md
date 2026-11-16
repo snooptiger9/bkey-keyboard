@@ -7,13 +7,13 @@
 **An Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures — swipe up to pick a suggestion, swipe sideways to delete (direction configurable).**
 
 ![Build](https://github.com/snooptiger9/bkey-keyboard/actions/workflows/build.yml/badge.svg)
-![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
-![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
-![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Trilingual-AR%20%7C%20EN%20%7C%20ES-blue)
-![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
-![Stars](https://img.shields.io/github/stars/snooptiger9/bkey-keyboard)
-![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
+![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard?style=for-the-badge&logo=github&logoColor=white)
+![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total?style=for-the-badge&logo=android&logoColor=white)
+![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![Languages](https://img.shields.io/badge/Trilingual-AR%20%7C%20EN%20%7C%20ES-blue?style=for-the-badge&logo=googletranslate&logoColor=white)
+![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard?style=for-the-badge&logo=gnu&logoColor=white)
+![Stars](https://img.shields.io/github/stars/snooptiger9/bkey-keyboard?style=for-the-badge&logo=github&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard?style=for-the-badge&logo=git&logoColor=white)
 
 If you find this useful, a ⭐ star would mean a lot.
 
@@ -234,7 +234,7 @@ Settings → **Error log** → **"📧 Email developer"** sends crash details st
 
 If you like the project and want to support it, you can buy me a coffee on Ko-fi:
 
-[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
+[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
 ---
 
@@ -474,7 +474,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 إذا عجبك المشروع وتبي تدعمه، تقدر تدعمني عبر Ko-fi:
 
-[![ادعمني عبر Ko-fi](https://img.shields.io/badge/Ko--fi-ادعم_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
+[![ادعمني عبر Ko-fi](https://img.shields.io/badge/Ko--fi-ادعم_bkey-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
 ---
 
