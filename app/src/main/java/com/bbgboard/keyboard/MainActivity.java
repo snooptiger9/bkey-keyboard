@@ -750,7 +750,13 @@ public class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(18), dp(16), dp(18), dp(16));
+        // No-subtitle rows get extra vertical padding (vs. the subtitle rows'
+        // dp(16)) so they read as a comfortably tall row with the title
+        // centered in it, not just a cramped single line. Padding stays
+        // symmetric top/bottom either way, so the title keeps centering
+        // exactly in the middle of the row.
+        int vPad = (subtitle != null && !subtitle.isEmpty()) ? dp(16) : dp(24);
+        row.setPadding(dp(18), vPad, dp(18), vPad);
 
         ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor(dm("#5F6368")), Color.TRANSPARENT);
         LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(32), dp(32));
