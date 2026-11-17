@@ -359,7 +359,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 </div>
 
 <details>
-<summary><b>خطوات تعليق فحص Play Protect، لو تبي تثبت نسخة بلس برضه (اضغط للتفصيل)</b></summary>
+<summary dir="rtl"><b>‏خطوات تعليق فحص Play Protect، لو تبي تثبت نسخة بلس برضه (اضغط للتفصيل)</b></summary>
 
 <br>
 
