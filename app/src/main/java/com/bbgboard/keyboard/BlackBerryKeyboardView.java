@@ -106,14 +106,6 @@ public class BlackBerryKeyboardView extends View {
     private List<String> suggestions = Arrays.asList("السلام", "بسم", "مرحبا");
     private final RectF menuButtonRect = new RectF();
     private final RectF[] suggestionRects = new RectF[]{new RectF(), new RectF(), new RectF()};
-    // Represents the floating preview boundary band (see computeResizeOverlayRects()) --
-    // not a fixed bar at the top of the view anymore.
-    private final RectF resizeHandleBarRect = new RectF();
-    private final RectF resizeDoneButtonRect = new RectF();
-    private final RectF resizeResetButtonRect = new RectF();
-    private final RectF resizeDragHandlePillRect = new RectF();
-    private boolean resizeDoneButtonPressed = false;
-    private boolean resizeResetButtonPressed = false;
     private boolean menuButtonPressed = false;
 
     private final RectF micButtonRect = new RectF();
@@ -125,6 +117,12 @@ public class BlackBerryKeyboardView extends View {
 
     private PopupWindow topOverlayPopup;
     private TopOverlayCanvasView topOverlayView;
+
+    // The resize-drag preview: a genuinely separate floating popup window, matching
+    // Gboard's own mechanism (see commitResizePreview()/showResizePreviewPopup() below)
+    // rather than an overlay drawn inside this same view's window.
+    private PopupWindow resizePreviewPopup;
+    private ResizePreviewOverlayView resizePreviewView;
     private String flyingWordText = null;
     private float flyingWordCenterX = 0f;
     private float overlayOffsetX = 0f;
@@ -220,20 +218,7 @@ public class BlackBerryKeyboardView extends View {
     private float startX = 0f;
     private float startY = 0f;
     private float lastTouchX = 0f;
-    // The scale the drag started from -- always previewScale's value at ACTION_DOWN,
-    // never the committed keyboardScale directly (see previewScale below).
-    private float resizeStartScale = 1.0f;
-    // Live value shown by the resize-preview overlay while isResizeDragMode is active.
-    // The real keyboard content below keeps rendering at the committed keyboardScale --
-    // completely unaffected -- for the whole drag; only this value, and the floating
-    // boundary/controls drawn from it, change on every move. keyboardScale itself is
-    // only ever written once, when "Done" (or a tap-exit on the handle) commits
-    // previewScale into it. That is what makes the drag itself free of any window
-    // resize, and therefore free of the flicker/ripple that plagued every earlier
-    // attempt at live-resizing the real content during the gesture.
-    private float previewScale = 1.0f;
     private boolean isDragging = false;
-    private boolean isResizingDrag = false;
     private boolean longPressConsumed = false;
 
     // Tracks the single finger that is allowed to drive the tap/swipe gesture state
@@ -397,6 +382,213 @@ public class BlackBerryKeyboardView extends View {
         }
     }
 
+    // The resize-drag preview, matching Gboard's real mechanism: a genuinely separate
+    // floating window (see showResizePreviewPopup()/commitResizePreview() above) that
+    // sits ON TOP of the real keyboard -- which never resizes or redraws for any of
+    // this -- rather than an overlay drawn inside the keyboard's own view/window. Its
+    // background is fully transparent, so the real keyboard underneath shows through
+    // naturally below the dimmed/boundary area this draws, with no painted fill of its
+    // own standing in for it.
+    private class ResizePreviewOverlayView extends View {
+        float previewScale = 1.0f;
+        // The scale the current drag started from -- always previewScale's value at
+        // ACTION_DOWN, never the committed keyboardScale directly.
+        float resizeStartScale = 1.0f;
+        boolean isResizingDrag = false;
+        boolean resizeDoneButtonPressed = false;
+        boolean resizeResetButtonPressed = false;
+        float dragStartY = 0f;
+
+        // The fixed height this popup was created at (the largest size the preview
+        // could ever reach, reserved once up front -- see showResizePreviewPopup()).
+        // Used instead of getHeight() for every rect/boundary calculation so none of it
+        // depends on this view's own layout pass having already landed.
+        int totalPreviewHeightPx = 0;
+
+        final RectF resizeHandleBarRect = new RectF();
+        final RectF resizeDoneButtonRect = new RectF();
+        final RectF resizeResetButtonRect = new RectF();
+        final RectF resizeDragHandlePillRect = new RectF();
+
+        ResizePreviewOverlayView(Context ctx) {
+            super(ctx);
+        }
+
+        // Positions the floating boundary band (the handle bar represented by
+        // resizeHandleBarRect, with Reset/move-handle/Done riding on it) at the height
+        // the keyboard would be at `scale`. Cheap, pure arithmetic off
+        // totalPreviewHeightPx -- safe to call on every single ACTION_MOVE of a drag.
+        void computeOverlayRects(int w, float scale) {
+            float barH = 40f * density;
+            float boundaryTopY = Math.max(0f, totalPreviewHeightPx - contentHeightForScale(scale));
+
+            resizeHandleBarRect.set(0f, boundaryTopY, w, boundaryTopY + barH);
+
+            float btnH = barH - 10f * density;
+            float btnW = 58f * density;
+            float btnTop = boundaryTopY + (barH - btnH) / 2f;
+
+            resizeResetButtonRect.set(8f * density, btnTop, 8f * density + btnW, btnTop + btnH);
+            resizeDoneButtonRect.set(w - 8f * density - btnW, btnTop, w - 8f * density, btnTop + btnH);
+
+            float pillSize = 34f * density;
+            float pillTop = boundaryTopY + (barH - pillSize) / 2f;
+            resizeDragHandlePillRect.set((w - pillSize) / 2f, pillTop, (w + pillSize) / 2f, pillTop + pillSize);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            float boundaryTop = resizeHandleBarRect.top;
+            float w = getWidth();
+            float h = totalPreviewHeightPx;
+
+            // Dim everything ABOVE the preview boundary only -- never below it. Below
+            // the line is the real keyboard showing through this popup's transparent
+            // background, which must stay at full brightness; above the line is either
+            // bare space the keyboard hasn't grown into yet (growing) or the part about
+            // to be cut off (shrinking) -- dimming it either way is the "frozen/inactive"
+            // look the reference video has.
+            canvas.drawRect(0f, 0f, w, boundaryTop, resizeScrimPaint);
+
+            canvas.drawLine(0f, boundaryTop, w, boundaryTop, resizeFrameBorderPaint);
+            canvas.drawLine(0f, boundaryTop, 0f, h, resizeFrameBorderPaint);
+            canvas.drawLine(w, boundaryTop, w, h, resizeFrameBorderPaint);
+
+            float resetRadius = resizeResetButtonRect.height() / 2f;
+            canvas.drawRoundRect(resizeResetButtonRect, resetRadius, resetRadius,
+                    resizeResetButtonPressed ? resizeResetBarPressedPaint : resizeResetBarPaint);
+
+            float doneRadius = resizeDoneButtonRect.height() / 2f;
+            canvas.drawRoundRect(resizeDoneButtonRect, doneRadius, doneRadius,
+                    resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint);
+
+            float pillRadius = resizeDragHandlePillRect.height() / 2f;
+            canvas.drawRoundRect(resizeDragHandlePillRect, pillRadius, pillRadius, resizePillPaint);
+            int prevHandleColor = sugPrimaryTextPaint.getColor();
+            Paint.Align prevHandleAlign = sugPrimaryTextPaint.getTextAlign();
+            float prevHandleSize = sugPrimaryTextPaint.getTextSize();
+            sugPrimaryTextPaint.setTextAlign(Paint.Align.CENTER);
+            sugPrimaryTextPaint.setTextSize(16f * scaledDensity);
+            sugPrimaryTextPaint.setColor(Color.WHITE);
+            float handleTy = resizeDragHandlePillRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
+            canvas.drawText("↕", resizeDragHandlePillRect.centerX(), handleTy, sugPrimaryTextPaint);
+
+            sugPrimaryTextPaint.setTextSize(13f * scaledDensity);
+            sugPrimaryTextPaint.setColor(Color.WHITE);
+
+            String resetLabel = isArabic ? "↺ استعادة"
+                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "↺ Restablecer"
+                    : "↺ Reset";
+            float resetTy = resizeResetButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
+            canvas.drawText(resetLabel, resizeResetButtonRect.centerX(), resetTy, sugPrimaryTextPaint);
+
+            String doneLabel = isArabic ? "✓ تم"
+                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "✓ Listo"
+                    : "✓ Done";
+            float doneTy = resizeDoneButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
+            canvas.drawText(doneLabel, resizeDoneButtonRect.centerX(), doneTy, sugPrimaryTextPaint);
+
+            sugPrimaryTextPaint.setColor(prevHandleColor);
+            sugPrimaryTextPaint.setTextAlign(prevHandleAlign);
+            sugPrimaryTextPaint.setTextSize(prevHandleSize);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            float x = event.getX();
+            float y = event.getY();
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    resizeDoneButtonPressed = false;
+                    resizeResetButtonPressed = false;
+                    isResizingDrag = false;
+                    if (y >= resizeHandleBarRect.top && y <= resizeHandleBarRect.bottom) {
+                        if (resizeDoneButtonRect.contains(x, y)) {
+                            resizeDoneButtonPressed = true;
+                            invalidate();
+                            return true;
+                        }
+                        if (resizeResetButtonRect.contains(x, y)) {
+                            resizeResetButtonPressed = true;
+                            invalidate();
+                            return true;
+                        }
+                        isResizingDrag = true;
+                        dragStartY = y;
+                        resizeStartScale = previewScale;
+                        return true;
+                    }
+                    // A touch anywhere else in the popup (above the boundary, on the
+                    // dimmed area) is still swallowed here so it can never reach the
+                    // real keyboard window underneath -- the whole point of this being
+                    // a separate, touchable popup on top of it.
+                    return true;
+
+                case MotionEvent.ACTION_MOVE:
+                    if (isResizingDrag) {
+                        float dyMove = y - dragStartY;
+                        float deltaScale = -dyMove / (220f * density);
+                        float updatedScale = Math.max(0.70f, Math.min(RESIZE_DRAG_MAX_SCALE, resizeStartScale + deltaScale));
+                        if (Math.abs(updatedScale - previewScale) > 0.004f) {
+                            // Nothing here ever touches the real keyboard's window or
+                            // key bounds -- only this popup's own previewScale and the
+                            // lightweight boundary/controls rects computed from it,
+                            // which is what keeps even a fast drag completely free of
+                            // any flicker. The real resize happens exactly once, only
+                            // when Done is pressed (see commitResizePreview()).
+                            previewScale = updatedScale;
+                            computeOverlayRects(getWidth(), previewScale);
+                            invalidate();
+                        }
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL: {
+                    boolean wasDonePressed = resizeDoneButtonPressed;
+                    boolean wasResetPressed = resizeResetButtonPressed;
+                    boolean wasResizing = isResizingDrag;
+                    resizeDoneButtonPressed = false;
+                    resizeResetButtonPressed = false;
+                    isResizingDrag = false;
+                    invalidate();
+
+                    if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                        return true;
+                    }
+
+                    if (wasDonePressed && resizeDoneButtonRect.contains(x, y)) {
+                        BlackBerryKeyboardView.this.commitResizePreview(previewScale);
+                        return true;
+                    }
+                    if (wasResetPressed && resizeResetButtonRect.contains(x, y)) {
+                        // Resets the live preview back to the default size -- same as
+                        // the reference video's "Reset" pill -- but stays open so the
+                        // new size is only actually applied once Done is pressed, like
+                        // every other change made while this popup is open.
+                        previewScale = 1.0f;
+                        computeOverlayRects(getWidth(), previewScale);
+                        soundController.playKeyClick();
+                        invalidate();
+                        return true;
+                    }
+                    if (wasResizing) {
+                        // Committing is reserved for "Done" alone -- lifting the finger
+                        // (or a tap on the handle itself) just ends this particular drag
+                        // gesture and leaves the preview exactly where it is, so the
+                        // user can keep adjusting before pressing Done.
+                        return true;
+                    }
+                    return true;
+                }
+
+                default:
+                    return true;
+            }
+        }
+    }
+
     private void drawGhostFlyingWord(Canvas canvas, String word, float cx, float startBaselineY, float progress) {
         float p = Math.max(0f, Math.min(1f, progress));
         float inv = 1f - p;
@@ -524,6 +716,7 @@ public class BlackBerryKeyboardView extends View {
         // the view is gone.
         handler.removeCallbacksAndMessages(null);
         dismissFlyingPopup();
+        dismissResizePreviewPopup();
         super.onDetachedFromWindow();
     }
 
@@ -698,15 +891,6 @@ public class BlackBerryKeyboardView extends View {
         return getSuggestionBarHeight() + keyRowHeightForScale(scale) * keyRowCount() + bottomRowHeightForScale(scale) + extraBottomRowGapPx();
     }
 
-    // While resize-drag mode reserves extra height for the preview overlay to grow into
-    // (see onMeasure()), the real content is still only ever as tall as its own committed
-    // scale and stays anchored to the bottom of the view -- exactly like it always was
-    // when the view's own height matched the content exactly. This offset is how much
-    // empty (dimmed, in resize mode) space sits above it when the two no longer match.
-    private float getContentTopOffset() {
-        return Math.max(0f, getHeight() - contentHeightForScale(keyboardScale));
-    }
-
     private void vibrateTap(boolean longPress) {
         if (!prefs.isVibrationEnabled()) return;
         performHapticFeedback(longPress ? HapticFeedbackConstants.LONG_PRESS : HapticFeedbackConstants.KEYBOARD_TAP);
@@ -771,7 +955,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     public float getSuggestionBarTopPx() {
-        return getContentTopOffset();
+        return 0f;
     }
 
     public float getBottomRowHeightPx() {
@@ -798,18 +982,89 @@ public class BlackBerryKeyboardView extends View {
     }
 
     public void setResizeDragMode(boolean enabled) {
+        if (this.isResizeDragMode == enabled) return;
         this.isResizeDragMode = enabled;
-        // The preview always starts (and, on exit, ends) in sync with whatever is
-        // actually committed -- so the floating boundary first appears exactly at the
-        // keyboard's real current edge, matching the reference video.
-        this.previewScale = keyboardScale;
-        requestLayout();
-        computeKeyBounds(getWidth());
-        invalidate();
+        // Unlike every earlier version of this feature, turning resize-drag mode on or
+        // off never touches this view's own size or layout any more -- the live preview
+        // lives entirely in a separate floating popup window (see
+        // showResizePreviewPopup()/dismissResizePreviewPopup()), which can sit above the
+        // real keyboard without it (or the real IME window behind it) ever resizing.
+        // The real content stays exactly as it was: still fully visible, still its own
+        // real size -- only now something else floats above it while this is open.
+        if (enabled) {
+            showResizePreviewPopup();
+        } else {
+            dismissResizePreviewPopup();
+        }
     }
 
     public boolean isResizeDragMode() {
         return isResizeDragMode;
+    }
+
+    // Commits the final chosen scale -- the single moment the real keyboard window ever
+    // actually resizes in this whole feature, called only when "Done" is pressed in the
+    // resize-preview popup.
+    void commitResizePreview(float finalScale) {
+        keyboardScale = Math.max(0.70f, Math.min(RESIZE_DRAG_MAX_SCALE, finalScale));
+        prefs.setKeyboardScale(keyboardScale);
+        isResizeDragMode = false;
+        dismissResizePreviewPopup();
+        requestLayout();
+        computeKeyBounds(getWidth());
+        invalidate();
+        soundController.playKeyClick();
+    }
+
+    private void showResizePreviewPopup() {
+        try {
+            int w = Math.max(getWidth(), getResources().getDisplayMetrics().widthPixels);
+            int maxPreviewHeight = (int) contentHeightForScale(RESIZE_DRAG_MAX_SCALE);
+            if (resizePreviewView == null) {
+                resizePreviewView = new ResizePreviewOverlayView(getContext());
+            }
+            resizePreviewView.totalPreviewHeightPx = maxPreviewHeight;
+            resizePreviewView.previewScale = keyboardScale;
+            resizePreviewView.resizeStartScale = keyboardScale;
+            resizePreviewView.isResizingDrag = false;
+            resizePreviewView.resizeDoneButtonPressed = false;
+            resizePreviewView.resizeResetButtonPressed = false;
+            resizePreviewView.computeOverlayRects(w, keyboardScale);
+
+            if (resizePreviewPopup == null) {
+                resizePreviewPopup = new PopupWindow(resizePreviewView, w, maxPreviewHeight, false);
+                resizePreviewPopup.setTouchable(true);
+                resizePreviewPopup.setFocusable(false);
+                resizePreviewPopup.setClippingEnabled(false);
+                resizePreviewPopup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            } else {
+                resizePreviewPopup.setWidth(w);
+                resizePreviewPopup.setHeight(maxPreviewHeight);
+            }
+
+            if (!resizePreviewPopup.isShowing() && getWindowToken() != null) {
+                int[] loc = new int[2];
+                getLocationInWindow(loc);
+                int kbBottomInWindow = loc[1] + getHeight();
+                int popupTopY = kbBottomInWindow - maxPreviewHeight;
+                resizePreviewPopup.showAtLocation(this, Gravity.NO_GRAVITY, 0, popupTopY);
+            }
+            resizePreviewView.invalidate();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryKeyboardView", "showResizePreviewPopup()", e);
+        }
+    }
+
+    private void dismissResizePreviewPopup() {
+        if (resizePreviewPopup != null) {
+            try {
+                if (resizePreviewPopup.isShowing()) {
+                    resizePreviewPopup.dismiss();
+                }
+            } catch (Exception e) {
+                AppLogger.log("BlackBerryKeyboardView", "dismissResizePreviewPopup()", e);
+            }
+        }
     }
 
     public void setToolbarIdleMode(boolean idle) {
@@ -891,7 +1146,7 @@ public class BlackBerryKeyboardView extends View {
                 int[] loc = new int[2];
                 getLocationInWindow(loc);
                 overlayOffsetX = loc[0];
-                int sugBottomY = loc[1] + (int) (getContentTopOffset() + getSuggestionBarHeight());
+                int sugBottomY = loc[1] + (int) getSuggestionBarHeight();
                 int popupTopY = sugBottomY - popupH;
                 topOverlayPopup.showAtLocation(this, Gravity.NO_GRAVITY, 0, popupTopY);
             }
@@ -1208,16 +1463,13 @@ public class BlackBerryKeyboardView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int w = MeasureSpec.getSize(widthMeasureSpec);
-        // The window is measured once, up front, for the largest size the preview could
-        // ever reach the instant resize-drag mode is turned on -- deliberately, not lazily
-        // on the first drag -- so getHeight() is already correct and completely stable
-        // for the whole resize-drag session. The live preview boundary (and the real
-        // content's own bottom-anchored offset) are then pure, synchronous arithmetic off
-        // that one already-settled height; nothing ever needs a second mid-drag resize,
-        // or has to wait a frame for one to land, which is what keeps the live drag free
-        // of any flicker -- and free of the overlay ever looking "stuck" waiting on layout.
-        float measureScale = isResizeDragMode ? RESIZE_DRAG_MAX_SCALE : keyboardScale;
-        int totalHeight = (int) contentHeightForScale(measureScale);
+        // The real keyboard window is never resized just by turning resize-drag mode on
+        // or off: the live preview now lives entirely in its own separate floating popup
+        // (see ResizePreviewOverlayView/resizePreviewPopup below), which can grow above
+        // the keyboard's own bounds without this view -- or the real IME window behind
+        // it -- changing size at all. This view's own height only ever changes once,
+        // when commitResizePreview() applies the final chosen scale.
+        int totalHeight = (int) contentHeightForScale(keyboardScale);
         setMeasuredDimension(w, totalHeight);
     }
 
@@ -1229,25 +1481,14 @@ public class BlackBerryKeyboardView extends View {
 
     private void computeKeyBounds(int w) {
         if (w <= 0) return;
-        // Content is always anchored to the bottom of the view and laid out at the
-        // committed keyboardScale -- never the live preview -- so none of this moves
-        // during a resize-drag. contentTopOffset is 0 outside of resize-drag mode (view
-        // height == content height, same as always) and is only ever non-zero while
-        // resize-drag mode's up-front max-size measurement (see onMeasure()) reserved
-        // more room than the current committed size actually needs.
-        float contentTopOffset = getContentTopOffset();
+        // Content is always anchored flush at the top of the view, at the committed
+        // keyboardScale -- this view's own height always matches that scale exactly now
+        // (see onMeasure()), since the resize-drag preview lives entirely in its own
+        // separate floating popup and never grows this view itself.
+        float contentTopOffset = 0f;
         float sugH = getSuggestionBarHeight();
         float keyH = getKeyRowHeight();
         float botH = getBottomRowHeight();
-
-        if (isResizeDragMode) {
-            computeResizeOverlayRects(w, previewScale);
-        } else {
-            resizeHandleBarRect.setEmpty();
-            resizeDragHandlePillRect.setEmpty();
-            resizeDoneButtonRect.setEmpty();
-            resizeResetButtonRect.setEmpty();
-        }
 
         float sugEdge = getBottomRowEdgeInsetPx(w);
         float menuW = 42f * density;
@@ -1316,30 +1557,6 @@ public class BlackBerryKeyboardView extends View {
             }
             topY += rowH;
         }
-    }
-
-    // Positions the floating resize-preview boundary band (the handle bar represented by
-    // resizeHandleBarRect, with Reset/move-handle/Done riding on it) at the height the
-    // keyboard would be at `scale` -- which is previewScale while a drag is live, the
-    // committed keyboardScale at every other moment resize-drag mode is on. Unlike
-    // computeKeyBounds(), this touches none of the real key/row rects, so it is cheap
-    // enough to call on every single ACTION_MOVE of a drag.
-    private void computeResizeOverlayRects(int w, float scale) {
-        float barH = 40f * density;
-        float boundaryTopY = Math.max(0f, getHeight() - contentHeightForScale(scale));
-
-        resizeHandleBarRect.set(0f, boundaryTopY, w, boundaryTopY + barH);
-
-        float btnH = barH - 10f * density;
-        float btnW = 58f * density;
-        float btnTop = boundaryTopY + (barH - btnH) / 2f;
-
-        resizeResetButtonRect.set(8f * density, btnTop, 8f * density + btnW, btnTop + btnH);
-        resizeDoneButtonRect.set(w - 8f * density - btnW, btnTop, w - 8f * density, btnTop + btnH);
-
-        float pillSize = 34f * density;
-        float pillTop = boundaryTopY + (barH - pillSize) / 2f;
-        resizeDragHandlePillRect.set((w - pillSize) / 2f, pillTop, (w + pillSize) / 2f, pillTop + pillSize);
     }
 
     private static float bottomRowWeight(KeyDef k, boolean tablet) {
@@ -1440,7 +1657,7 @@ public class BlackBerryKeyboardView extends View {
         sugTextPaint.setTextSize(14.5f * scaledDensity * sugTextScale);
         sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity * sugTextScale);
 
-        float sugTop = getContentTopOffset();
+        float sugTop = 0f;
         float sugBottom = sugTop + getSuggestionBarHeight();
         canvas.drawRect(0f, sugTop, getWidth(), sugBottom, sugBarPaint);
 
@@ -1655,69 +1872,10 @@ public class BlackBerryKeyboardView extends View {
             animatingSlotIndex = -1;
         }
 
-        if (isResizeDragMode) {
-            drawResizePreviewOverlay(canvas);
-        }
-    }
-
-    // Drawn last, over everything else: a dim wash across the whole (frozen) keyboard,
-    // a blue frame marking where the keyboard will actually end up, and the
-    // Reset / move-handle / Done controls riding on that frame's top edge -- the same
-    // look as the reference video. None of the real key rects below are touched by any
-    // of this; it is a pure overlay on top of content that was already drawn using the
-    // committed keyboardScale.
-    private void drawResizePreviewOverlay(Canvas canvas) {
-        float boundaryTop = resizeHandleBarRect.top;
-
-        // Dim everything ABOVE the preview boundary only -- never below it. Below the
-        // line is either real key rows that will be kept (growing or shrinking, they
-        // were already drawn at full brightness and must stay that way) or, when
-        // growing, simply reaches all the way to the view's own bottom edge already.
-        // Above the line is either bare reserved space the keyboard hasn't grown into
-        // yet (growing) or real rows that are about to be cut off (shrinking) -- dimming
-        // it either way is exactly the "frozen/inactive" look the reference video has.
-        canvas.drawRect(0f, 0f, getWidth(), boundaryTop, resizeScrimPaint);
-
-        canvas.drawLine(0f, boundaryTop, getWidth(), boundaryTop, resizeFrameBorderPaint);
-        canvas.drawLine(0f, boundaryTop, 0f, getHeight(), resizeFrameBorderPaint);
-        canvas.drawLine(getWidth(), boundaryTop, getWidth(), getHeight(), resizeFrameBorderPaint);
-
-        float resetRadius = resizeResetButtonRect.height() / 2f;
-        canvas.drawRoundRect(resizeResetButtonRect, resetRadius, resetRadius,
-                resizeResetButtonPressed ? resizeResetBarPressedPaint : resizeResetBarPaint);
-
-        float doneRadius = resizeDoneButtonRect.height() / 2f;
-        canvas.drawRoundRect(resizeDoneButtonRect, doneRadius, doneRadius,
-                resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint);
-
-        float pillRadius = resizeDragHandlePillRect.height() / 2f;
-        canvas.drawRoundRect(resizeDragHandlePillRect, pillRadius, pillRadius, resizePillPaint);
-        int prevHandleColor = sugPrimaryTextPaint.getColor();
-        Paint.Align prevHandleAlign = sugPrimaryTextPaint.getTextAlign();
-        sugPrimaryTextPaint.setTextAlign(Paint.Align.CENTER);
-        sugPrimaryTextPaint.setTextSize(16f * scaledDensity);
-        sugPrimaryTextPaint.setColor(Color.WHITE);
-        float handleTy = resizeDragHandlePillRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-        canvas.drawText("↕", resizeDragHandlePillRect.centerX(), handleTy, sugPrimaryTextPaint);
-
-        sugPrimaryTextPaint.setTextSize(13f * scaledDensity);
-        sugPrimaryTextPaint.setColor(Color.WHITE);
-
-        String resetLabel = isArabic ? "↺ استعادة"
-                : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "↺ Restablecer"
-                : "↺ Reset";
-        float resetTy = resizeResetButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-        canvas.drawText(resetLabel, resizeResetButtonRect.centerX(), resetTy, sugPrimaryTextPaint);
-
-        String doneLabel = isArabic ? "✓ تم"
-                : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "✓ Listo"
-                : "✓ Done";
-        float doneTy = resizeDoneButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-        canvas.drawText(doneLabel, resizeDoneButtonRect.centerX(), doneTy, sugPrimaryTextPaint);
-
-        sugPrimaryTextPaint.setColor(prevHandleColor);
-        sugPrimaryTextPaint.setTextAlign(prevHandleAlign);
-        sugPrimaryTextPaint.setTextSize(15.5f * scaledDensity * sugTextScale);
+        // The resize-drag preview (scrim/boundary/Reset/handle/Done) is no longer drawn
+        // here at all -- it is drawn by the separate ResizePreviewOverlayView riding in
+        // its own popup window above this one, so this view's own onDraw has nothing
+        // left to do for resize-drag mode.
     }
 
     private static final long DELETE_TAG_MS = 380L;
@@ -2637,8 +2795,7 @@ public class BlackBerryKeyboardView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
-        float contentTopOffset = getContentTopOffset();
-        float sugBottom = contentTopOffset + getSuggestionBarHeight();
+        float sugBottom = getSuggestionBarHeight();
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -2671,7 +2828,6 @@ public class BlackBerryKeyboardView extends View {
                 startY = y;
                 lastTouchX = x;
                 isDragging = false;
-                isResizingDrag = false;
                 longPressConsumed = false;
                 suggestionLongPressConsumed = false;
                 touchDownSuggestionSlot = -1;
@@ -2683,24 +2839,14 @@ public class BlackBerryKeyboardView extends View {
                 spaceCursorModeActive = false;
                 handler.removeCallbacks(spaceCursorHoldRunnable);
 
-                if (isResizeDragMode && y >= resizeHandleBarRect.top && y <= resizeHandleBarRect.bottom) {
-                    if (resizeDoneButtonRect.contains(x, y)) {
-                        resizeDoneButtonPressed = true;
-                        invalidate();
-                        return true;
-                    }
-                    if (resizeResetButtonRect.contains(x, y)) {
-                        resizeResetButtonPressed = true;
-                        invalidate();
-                        return true;
-                    }
-                    isResizingDrag = true;
-                    resizeStartScale = previewScale;
-                    return true;
-                }
-
                 // Resize-drag mode is modal: once it's on, nothing else on the keyboard
-                // responds to touch except its own handle/Reset/Done controls above --
+                // responds to touch -- never a key, the mic/menu buttons, or a suggestion
+                // tap. The real content is genuinely frozen, not just visually dimmed. All
+                // of the handle/Reset/Done/drag handling itself now lives entirely in the
+                // separate resize-preview popup window floating above this view (see
+                // ResizePreviewOverlayView), which sits on top and should normally
+                // intercept these touches before they ever reach here -- this is kept as a
+                // defensive fallback in case that popup isn't showing for some reason.
                 // never a key, the mic/menu buttons, or a suggestion tap. The real content
                 // is genuinely frozen, not just visually dimmed.
                 if (isResizeDragMode) {
@@ -2758,7 +2904,7 @@ public class BlackBerryKeyboardView extends View {
                 return true;
 
             case MotionEvent.ACTION_POINTER_DOWN: {
-                if (multiTouchResolved || isResizingDrag || isResizeDragMode) {
+                if (multiTouchResolved || isResizeDragMode) {
                     return true;
                 }
 
@@ -2825,26 +2971,6 @@ public class BlackBerryKeyboardView extends View {
                 float dxMove = x - startX;
                 float dyMove = y - startY;
 
-                if (isResizingDrag) {
-                    float deltaScale = -dyMove / (220f * density);
-                    float updatedScale = Math.max(0.70f, Math.min(RESIZE_DRAG_MAX_SCALE, resizeStartScale + deltaScale));
-                    if (Math.abs(updatedScale - previewScale) > 0.004f) {
-                        // The real keyboard content (every key rect, the suggestion bar,
-                        // the window's own measured size) stays completely frozen at the
-                        // last committed keyboardScale for the whole drag -- only
-                        // previewScale, and the lightweight boundary/controls overlay
-                        // computed from it, change here. Nothing in this block ever calls
-                        // requestLayout() or touches a single key's bounds, which is what
-                        // makes even a fast drag completely free of the flicker/ripple
-                        // that every earlier live-resize attempt had. The real resize
-                        // happens exactly once, in ACTION_UP, only when Done is pressed.
-                        previewScale = updatedScale;
-                        computeResizeOverlayRects(getWidth(), previewScale);
-                        invalidate();
-                    }
-                    return true;
-                }
-
                 if (isLongPressPopupVisible && !longPressAwaitingTap) {
                     if (Math.abs(dxMove) > 8f * density || longPressPopupBoxRect.contains(x, y)) {
                         hasSlidDuringLongPress = true;
@@ -2903,9 +3029,6 @@ public class BlackBerryKeyboardView extends View {
                     visualPressedKey = null;
                     activePreviewKey = null;
                     isDragging = false;
-                    isResizingDrag = false;
-                    resizeDoneButtonPressed = false;
-                    resizeResetButtonPressed = false;
                     spaceCursorModeActive = false;
                     invalidate();
                     return true;
@@ -2952,9 +3075,6 @@ public class BlackBerryKeyboardView extends View {
                 KeyDef key = touchDownKey;
                 boolean wasMenuPressed = menuButtonPressed;
                 boolean wasMicPressed = micButtonPressed;
-                boolean wasResizing = isResizingDrag;
-                boolean wasDoneButtonPressed = resizeDoneButtonPressed;
-                boolean wasResetButtonPressed = resizeResetButtonPressed;
 
                 touchDownKey = null;
                 visualPressedKey = null;
@@ -2962,51 +3082,7 @@ public class BlackBerryKeyboardView extends View {
                 menuButtonPressed = false;
                 micButtonPressed = false;
                 isDragging = false;
-                isResizingDrag = false;
-                resizeDoneButtonPressed = false;
-                resizeResetButtonPressed = false;
                 invalidate();
-
-                if (wasDoneButtonPressed) {
-                    if (resizeDoneButtonRect.contains(x, y)) {
-                        // The chosen size is only ever committed here, when the user actually
-                        // presses "Done" -- not on every lift of the drag thumb mid-session,
-                        // which used to force the window to the latest size (and persist it)
-                        // even if they were just pausing a drag to look at it before adjusting
-                        // further. setResizeDragMode(false) itself does the final requestLayout(),
-                        // which is also the very first real window resize of the whole gesture --
-                        // the drag itself (ACTION_MOVE above) never touched the window at all.
-                        keyboardScale = Math.max(0.70f, Math.min(RESIZE_DRAG_MAX_SCALE, previewScale));
-                        prefs.setKeyboardScale(keyboardScale);
-                        setResizeDragMode(false);
-                        soundController.playKeyClick();
-                    }
-                    return true;
-                }
-
-                if (wasResetButtonPressed) {
-                    if (resizeResetButtonRect.contains(x, y)) {
-                        // Resets the live preview back to the default size -- same as the
-                        // reference video's "Reset" pill -- but stays in resize-drag mode so
-                        // the new size is only actually applied once Done is pressed, exactly
-                        // like every other change made while this mode is open.
-                        previewScale = 1.0f;
-                        computeResizeOverlayRects(getWidth(), previewScale);
-                        soundController.playKeyClick();
-                        invalidate();
-                    }
-                    return true;
-                }
-
-                if (wasResizing) {
-                    // Committing is reserved for "Done" alone now -- a tap (or the end of
-                    // a drag) on the handle itself no longer exits/commits anything on its
-                    // own; it just ends this particular drag gesture and leaves the preview
-                    // exactly where it is, so the user can keep adjusting before pressing
-                    // Done. (dx/dy are unused here now, but are left in scope since the
-                    // suggestion-bar swipe/tap logic right below still needs them.)
-                    return true;
-                }
 
                 if (longPressConsumed) return true;
 
@@ -3027,7 +3103,7 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                if (startY > contentTopOffset && startY <= sugBottom && Math.abs(dx) < 22f * density && Math.abs(dy) < 22f * density) {
+                if (startY > 0f && startY <= sugBottom && Math.abs(dx) < 22f * density && Math.abs(dy) < 22f * density) {
                     if (SystemClock.uptimeMillis() - suggestionTouchDownTime >= MIN_SUGGESTION_TAP_HOLD_MS) {
                         int slot = getClickedSuggestionSlot(x);
                         vibrateTap(false);

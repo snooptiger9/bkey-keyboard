@@ -1048,6 +1048,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (keyboardView != null) {
             keyboardView.dismissFlyingPopup();
 
+            // Defensive: don't let a resize-preview popup survive the keyboard being
+            // hidden -- if resize-drag mode were somehow still on when this fires,
+            // leaving it open would leak that separate floating window.
+            if (keyboardView.isResizeDragMode()) {
+                keyboardView.setResizeDragMode(false);
+            }
+
             keyboardView.setEmojiKeySuggestion(null);
 
             keyboardView.resetShiftState();
