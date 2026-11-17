@@ -2722,11 +2722,17 @@ public class BlackBerryKeyboardView extends View {
                         // Only update the in-memory scale and redraw while dragging --
                         // writing to SharedPreferences here too (as before) fired on
                         // every tiny finger movement, dozens of times per second during
-                        // a fast drag, which on top of the layout/bounds recompute below
-                        // is what made the whole keyboard visibly judder while resizing.
-                        // The final value is persisted once in ACTION_UP/ACTION_CANCEL.
+                        // a fast drag, which judders the keyboard. requestLayout() was
+                        // the worse offender: it makes the IME resize its actual window
+                        // surface on every single one of those movements, which is what
+                        // caused the white/black flicker during the drag -- and could
+                        // leave a stale, unpainted sliver at the window's edge afterwards
+                        // (the white corners seen outside of dragging too). computeKeyBounds()
+                        // is pure arithmetic and never touches the window, so it's safe to
+                        // call on every move for a live-resizing preview; requestLayout()
+                        // is deferred to ACTION_UP/ACTION_CANCEL, where the real window
+                        // resize now happens exactly once.
                         keyboardScale = updatedScale;
-                        requestLayout();
                         computeKeyBounds(getWidth());
                         invalidate();
                     }
@@ -2788,6 +2794,7 @@ public class BlackBerryKeyboardView extends View {
                     // it is swallowed here instead of being run through the swipe checks.
                     if (isResizingDrag) {
                         prefs.setKeyboardScale(keyboardScale);
+                        requestLayout();
                     }
                     multiTouchResolved = false;
                     touchDownKey = null;
@@ -2847,8 +2854,11 @@ public class BlackBerryKeyboardView extends View {
 
                 if (wasResizing) {
                     // Persist the final size once the finger lifts, now that ACTION_MOVE
-                    // no longer writes to SharedPreferences on every drag step.
+                    // no longer writes to SharedPreferences on every drag step. The real
+                    // window resize (requestLayout) is deferred to here too, for the same
+                    // reason -- see the ACTION_MOVE comment above.
                     prefs.setKeyboardScale(keyboardScale);
+                    requestLayout();
                 }
 
                 touchDownKey = null;
