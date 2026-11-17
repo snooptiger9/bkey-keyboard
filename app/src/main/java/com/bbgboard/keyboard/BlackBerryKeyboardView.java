@@ -97,6 +97,10 @@ public class BlackBerryKeyboardView extends View {
     private boolean isShift = false;
     private boolean isCapsLock = false;
     private boolean isResizeDragMode = false;
+    // Must match the Math.min() clamp on updatedScale in ACTION_MOVE below -- this is the
+    // largest size the resize-drag bar can ever reach, used by onMeasure() to reserve enough
+    // window height up front for the whole resize-drag session (see the comment there).
+    private static final float RESIZE_DRAG_MAX_SCALE = 1.45f;
     private boolean isNumericFieldMode = false;
     private long lastShiftTapTime = 0L;
 
@@ -1148,7 +1152,25 @@ public class BlackBerryKeyboardView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int w = MeasureSpec.getSize(widthMeasureSpec);
         int keyRowCount = Math.max(3, rows.size() - 1);
-        int totalHeight = (int) (getResizeBarHeight() + getSuggestionBarHeight() + getKeyRowHeight() * keyRowCount + getBottomRowHeight() + extraBottomRowGapPx());
+        // While the resize-drag bar is up, reserve room for the LARGEST size the drag can
+        // reach (RESIZE_DRAG_MAX_SCALE, matching the clamp in ACTION_MOVE) instead of the
+        // live keyboardScale. ACTION_MOVE no longer calls requestLayout() on every finger
+        // movement (that used to resize the actual IME window on every pixel dragged, which
+        // caused a white/black flicker), so the window's real size now only changes once,
+        // when this mode is entered/exited (setResizeDragMode()) -- never mid-drag. If this
+        // measurement still used the live scale, dragging past the window's last-measured
+        // size would have nowhere to draw into and the bottom row would clip off until the
+        // next real layout pass (on finger-up). Reserving the max up front means there's
+        // always enough room; any unused space below the smaller preview just shows the
+        // keyboard's own background (drawn full-size already), which only happens on this
+        // dedicated resize screen and never during normal typing.
+        float rowHeight = isResizeDragMode
+                ? (52f * density * RESIZE_DRAG_MAX_SCALE)
+                : getKeyRowHeight();
+        float bottomRowHeight = isResizeDragMode
+                ? (50f * density * RESIZE_DRAG_MAX_SCALE)
+                : getBottomRowHeight();
+        int totalHeight = (int) (getResizeBarHeight() + getSuggestionBarHeight() + rowHeight * keyRowCount + bottomRowHeight + extraBottomRowGapPx());
         setMeasuredDimension(w, totalHeight);
     }
 
@@ -2717,7 +2739,7 @@ public class BlackBerryKeyboardView extends View {
 
                 if (isResizingDrag) {
                     float deltaScale = -dyMove / (220f * density);
-                    float updatedScale = Math.max(0.70f, Math.min(1.45f, resizeStartScale + deltaScale));
+                    float updatedScale = Math.max(0.70f, Math.min(RESIZE_DRAG_MAX_SCALE, resizeStartScale + deltaScale));
                     if (Math.abs(updatedScale - keyboardScale) > 0.01f) {
                         // Only update the in-memory scale and redraw while dragging --
                         // writing to SharedPreferences here too (as before) fired on
