@@ -740,6 +740,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         showKeyboardMain();
         try {
+            // Reported separately from the resize-corner bug: after closing the keyboard and
+            // reopening it in a different app, it has sometimes come back fully black with no
+            // keys drawn, until something else forced a fresh frame (the user found that just
+            // taking a screenshot "woke" it back up). That points at the same family of issue
+            // as the resize corners -- a stale window surface that isn't getting repainted on
+            // its own -- just triggered by switching apps/input fields instead of a resize.
+            // onStartInputView() is exactly the method that runs every time the keyboard
+            // reappears in a (possibly different) app, so nudge a redraw here too.
+            forceWindowRepaintAfterResize("onStartInputView()");
+            if (keyboardView != null) keyboardView.invalidate();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onStartInputView() forceWindowRepaintAfterResize()", e);
+        }
+        try {
             if (keyboardPrefs.isOtpSuggestEnabled()) {
                 registerOtpReceiverIfNeeded();
             } else {
