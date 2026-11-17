@@ -232,6 +232,15 @@ public class BlackBerryKeyboardView extends View {
     // resize, and therefore free of the flicker/ripple that plagued every earlier
     // attempt at live-resizing the real content during the gesture.
     private float previewScale = 1.0f;
+    // Stays false for as long as resize-drag mode is open but the user hasn't actually
+    // dragged yet -- so the keyboard first appears flush, at its real committed size,
+    // with the boundary/handle sitting right at its own top edge (no empty reserved gap
+    // to stare at). The one-time switch to reserving RESIZE_DRAG_MAX_SCALE's worth of
+    // height (see onMeasure()) happens exactly when a real drag starts, and then stays
+    // on for the rest of this resize-drag-mode session -- including through a pause
+    // where the user lifts their finger without pressing Done -- so the window never
+    // unexpectedly shrinks back under an in-progress, uncommitted preview.
+    private boolean resizeReserveMaxHeight = false;
     private boolean isDragging = false;
     private boolean isResizingDrag = false;
     private boolean longPressConsumed = false;
@@ -800,6 +809,9 @@ public class BlackBerryKeyboardView extends View {
         // actually committed -- so the floating boundary first appears exactly at the
         // keyboard's real current edge, matching the reference video.
         this.previewScale = keyboardScale;
+        // Every fresh entry into (or exit from) resize-drag mode starts clean: no extra
+        // height is reserved until the user actually drags (see resizeReserveMaxHeight).
+        this.resizeReserveMaxHeight = false;
         requestLayout();
         computeKeyBounds(getWidth());
         invalidate();
@@ -1205,14 +1217,14 @@ public class BlackBerryKeyboardView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int w = MeasureSpec.getSize(widthMeasureSpec);
-        // While resize-drag mode is on, the window is measured once, up front, for the
-        // largest size the preview could ever reach -- so the live drag (and the
-        // floating preview boundary/controls riding on it) always has room to grow into
-        // without a second mid-drag resize. The real content still only occupies its own
-        // committed height within that reserved space (see getContentTopOffset()); this
-        // single resize happens only when resize-drag mode itself is entered or left, not
-        // on every move, which is what keeps the drag itself free of any flicker.
-        float measureScale = isResizeDragMode ? RESIZE_DRAG_MAX_SCALE : keyboardScale;
+        // Resize-drag mode starts flush, at the real committed size -- no reserved extra
+        // height, so there's no empty gap to see before the user has even touched the
+        // handle. The moment an actual drag begins, resizeReserveMaxHeight flips on (see
+        // the ACTION_DOWN handling below) and stays on for the rest of this resize-drag
+        // session, reserving the largest size the preview could ever reach in one single
+        // measurement -- so the live drag itself never needs a second mid-drag resize,
+        // which is what keeps it free of any flicker.
+        float measureScale = (isResizeDragMode && resizeReserveMaxHeight) ? RESIZE_DRAG_MAX_SCALE : keyboardScale;
         int totalHeight = (int) contentHeightForScale(measureScale);
         setMeasuredDimension(w, totalHeight);
     }
@@ -2692,6 +2704,16 @@ public class BlackBerryKeyboardView extends View {
                     }
                     isResizingDrag = true;
                     resizeStartScale = previewScale;
+                    if (!resizeReserveMaxHeight) {
+                        // The very first real drag of this resize-drag-mode session: switch
+                        // on the reserved max-height measurement now, in one single resize,
+                        // so the rest of the drag (every ACTION_MOVE below) has room to grow
+                        // into without ever resizing the window again. onSizeChanged() will
+                        // recompute the overlay/content rects against the new height once
+                        // this layout pass actually lands, same as any other requestLayout().
+                        resizeReserveMaxHeight = true;
+                        requestLayout();
+                    }
                     return true;
                 }
 
@@ -2979,6 +3001,13 @@ public class BlackBerryKeyboardView extends View {
                         // the new size is only actually applied once Done is pressed, exactly
                         // like every other change made while this mode is open.
                         previewScale = 1.0f;
+                        if (!resizeReserveMaxHeight && previewScale > keyboardScale) {
+                            // Same one-time safety reservation a real drag triggers --
+                            // without it, resetting to a preview bigger than whatever is
+                            // currently reserved would have nowhere to draw into and clip.
+                            resizeReserveMaxHeight = true;
+                            requestLayout();
+                        }
                         computeResizeOverlayRects(getWidth(), previewScale);
                         soundController.playKeyClick();
                         invalidate();
@@ -2987,14 +3016,12 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 if (wasResizing) {
-                    if (Math.abs(dx) < 12f * density && Math.abs(dy) < 12f * density) {
-                        // A tap (not a real drag) on the resize handle itself also exits the
-                        // mode -- same commit-on-exit rule as the Done button above.
-                        keyboardScale = Math.max(0.70f, Math.min(RESIZE_DRAG_MAX_SCALE, previewScale));
-                        prefs.setKeyboardScale(keyboardScale);
-                        setResizeDragMode(false);
-                        soundController.playKeyClick();
-                    }
+                    // Committing is reserved for "Done" alone now -- a tap (or the end of
+                    // a drag) on the handle itself no longer exits/commits anything on its
+                    // own; it just ends this particular drag gesture and leaves the preview
+                    // exactly where it is, so the user can keep adjusting before pressing
+                    // Done. (dx/dy are unused here now, but are left in scope since the
+                    // suggestion-bar swipe/tap logic right below still needs them.)
                     return true;
                 }
 
