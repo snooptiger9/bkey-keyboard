@@ -419,13 +419,17 @@ public class BlackBerryKeyboardView extends View {
         // the keyboard would be at `scale`. Cheap, pure arithmetic off
         // totalPreviewHeightPx -- safe to call on every single ACTION_MOVE of a drag.
         void computeOverlayRects(int w, float scale) {
-            float barH = 40f * density;
+            float barH = 36f * density;
             float boundaryTopY = Math.max(0f, totalPreviewHeightPx - contentHeightForScale(scale));
 
             resizeHandleBarRect.set(0f, boundaryTopY, w, boundaryTopY + barH);
 
-            float btnH = barH - 10f * density;
-            float btnW = 58f * density;
+            float btnH = barH - 8f * density;
+            // Reset and Done are deliberately the exact same width -- not sized to fit
+            // their own label -- so the two pills always read as a matched pair however
+            // long either language's word for "Reset" turns out to be (Arabic
+            // "استعادة" is much longer than "تم").
+            float btnW = 54f * density;
             float btnTop = boundaryTopY + (barH - btnH) / 2f;
 
             resizeResetButtonRect.set(8f * density, btnTop, 8f * density + btnW, btnTop + btnH);
@@ -474,7 +478,11 @@ public class BlackBerryKeyboardView extends View {
             float handleTy = resizeDragHandlePillRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
             canvas.drawText("↕", resizeDragHandlePillRect.centerX(), handleTy, sugPrimaryTextPaint);
 
-            sugPrimaryTextPaint.setTextSize(13f * scaledDensity);
+            // Slightly smaller than before so the longer Arabic "استعادة" label fits
+            // comfortably inside the same fixed-width pill as the short "تم" label --
+            // both still share this exact size, so the two pills (and their ↺/✓
+            // symbols) always look like a matched, equal-sized pair.
+            sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
             sugPrimaryTextPaint.setColor(Color.WHITE);
 
             String resetLabel = isArabic ? "↺ استعادة"
