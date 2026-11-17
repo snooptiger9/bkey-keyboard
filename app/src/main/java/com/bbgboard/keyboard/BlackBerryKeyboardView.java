@@ -98,8 +98,7 @@ public class BlackBerryKeyboardView extends View {
     private boolean isCapsLock = false;
     private boolean isResizeDragMode = false;
     // Must match the Math.min() clamp on updatedScale in ACTION_MOVE below -- this is the
-    // largest size the resize-drag bar can ever reach, used by onMeasure() to reserve enough
-    // window height up front for the whole resize-drag session (see the comment there).
+    // largest scale the resize-drag bar can ever reach.
     private static final float RESIZE_DRAG_MAX_SCALE = 1.45f;
     private boolean isNumericFieldMode = false;
     private long lastShiftTapTime = 0L;
@@ -211,6 +210,10 @@ public class BlackBerryKeyboardView extends View {
     private float startY = 0f;
     private float lastTouchX = 0f;
     private float resizeStartScale = 1.0f;
+    // Throttles the real window resize (requestLayout) during a resize-drag -- see the
+    // ACTION_MOVE comment below for why this exists instead of calling it on every move.
+    private long lastResizeLayoutUptimeMs = 0L;
+    private static final long RESIZE_LAYOUT_THROTTLE_MS = 90L;
     private boolean isDragging = false;
     private boolean isResizingDrag = false;
     private boolean longPressConsumed = false;
@@ -1152,25 +1155,7 @@ public class BlackBerryKeyboardView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int w = MeasureSpec.getSize(widthMeasureSpec);
         int keyRowCount = Math.max(3, rows.size() - 1);
-        // While the resize-drag bar is up, reserve room for the LARGEST size the drag can
-        // reach (RESIZE_DRAG_MAX_SCALE, matching the clamp in ACTION_MOVE) instead of the
-        // live keyboardScale. ACTION_MOVE no longer calls requestLayout() on every finger
-        // movement (that used to resize the actual IME window on every pixel dragged, which
-        // caused a white/black flicker), so the window's real size now only changes once,
-        // when this mode is entered/exited (setResizeDragMode()) -- never mid-drag. If this
-        // measurement still used the live scale, dragging past the window's last-measured
-        // size would have nowhere to draw into and the bottom row would clip off until the
-        // next real layout pass (on finger-up). Reserving the max up front means there's
-        // always enough room; any unused space below the smaller preview just shows the
-        // keyboard's own background (drawn full-size already), which only happens on this
-        // dedicated resize screen and never during normal typing.
-        float rowHeight = isResizeDragMode
-                ? (52f * density * RESIZE_DRAG_MAX_SCALE)
-                : getKeyRowHeight();
-        float bottomRowHeight = isResizeDragMode
-                ? (50f * density * RESIZE_DRAG_MAX_SCALE)
-                : getBottomRowHeight();
-        int totalHeight = (int) (getResizeBarHeight() + getSuggestionBarHeight() + rowHeight * keyRowCount + bottomRowHeight + extraBottomRowGapPx());
+        int totalHeight = (int) (getResizeBarHeight() + getSuggestionBarHeight() + getKeyRowHeight() * keyRowCount + getBottomRowHeight() + extraBottomRowGapPx());
         setMeasuredDimension(w, totalHeight);
     }
 
@@ -2616,6 +2601,7 @@ public class BlackBerryKeyboardView extends View {
                     }
                     isResizingDrag = true;
                     resizeStartScale = keyboardScale;
+                    lastResizeLayoutUptimeMs = 0L;
                     return true;
                 }
 
@@ -2741,22 +2727,37 @@ public class BlackBerryKeyboardView extends View {
                     float deltaScale = -dyMove / (220f * density);
                     float updatedScale = Math.max(0.70f, Math.min(RESIZE_DRAG_MAX_SCALE, resizeStartScale + deltaScale));
                     if (Math.abs(updatedScale - keyboardScale) > 0.01f) {
-                        // Only update the in-memory scale and redraw while dragging --
-                        // writing to SharedPreferences here too (as before) fired on
-                        // every tiny finger movement, dozens of times per second during
-                        // a fast drag, which judders the keyboard. requestLayout() was
-                        // the worse offender: it makes the IME resize its actual window
-                        // surface on every single one of those movements, which is what
-                        // caused the white/black flicker during the drag -- and could
-                        // leave a stale, unpainted sliver at the window's edge afterwards
-                        // (the white corners seen outside of dragging too). computeKeyBounds()
-                        // is pure arithmetic and never touches the window, so it's safe to
-                        // call on every move for a live-resizing preview; requestLayout()
-                        // is deferred to ACTION_UP/ACTION_CANCEL, where the real window
-                        // resize now happens exactly once.
+                        // Writing to SharedPreferences here too (as before) fired on every
+                        // tiny finger movement, dozens of times per second during a fast
+                        // drag -- that part stays deferred to ACTION_UP/ACTION_CANCEL.
+                        //
+                        // requestLayout() -- which actually resizes the IME's window -- used
+                        // to also run on every one of those movements, and calling it that
+                        // often (not the resize itself) is what caused the white/black
+                        // flicker during the drag, and likely left the white corners seen
+                        // outside of dragging too. Deferring it entirely to finger-up instead
+                        // fixed the flicker, but then the window's size was frozen mid-drag,
+                        // so dragging past the last-measured size clipped the bottom row off
+                        // until the lift. Reserving max height up front avoided that, but
+                        // left a chunk of empty background below the keyboard whenever the
+                        // live size wasn't already near that max -- not how other keyboards'
+                        // resize feels.
+                        //
+                        // Throttling instead of deferring keeps this a real, live resize --
+                        // same as other keyboards -- while still cutting the call rate from
+                        // "every pixel moved" (dozens/sec) down to at most roughly once per
+                        // RESIZE_LAYOUT_THROTTLE_MS, which is what actually avoided the
+                        // flicker. The worst case between two throttled layouts is the same
+                        // brief, self-correcting clip the old deferred version had for its
+                        // entire drag, just shortened to under RESIZE_LAYOUT_THROTTLE_MS.
                         keyboardScale = updatedScale;
                         computeKeyBounds(getWidth());
                         invalidate();
+                        long now = SystemClock.uptimeMillis();
+                        if (now - lastResizeLayoutUptimeMs >= RESIZE_LAYOUT_THROTTLE_MS) {
+                            lastResizeLayoutUptimeMs = now;
+                            requestLayout();
+                        }
                     }
                     return true;
                 }
@@ -2876,9 +2877,9 @@ public class BlackBerryKeyboardView extends View {
 
                 if (wasResizing) {
                     // Persist the final size once the finger lifts, now that ACTION_MOVE
-                    // no longer writes to SharedPreferences on every drag step. The real
-                    // window resize (requestLayout) is deferred to here too, for the same
-                    // reason -- see the ACTION_MOVE comment above.
+                    // no longer writes to SharedPreferences on every drag step. requestLayout()
+                    // here too guarantees the window ends up at the exact final size even
+                    // though ACTION_MOVE's own calls are throttled -- see the comment there.
                     prefs.setKeyboardScale(keyboardScale);
                     requestLayout();
                 }
