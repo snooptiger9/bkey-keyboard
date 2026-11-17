@@ -213,7 +213,7 @@ public class BlackBerryKeyboardView extends View {
     // Throttles the real window resize (requestLayout) during a resize-drag -- see the
     // ACTION_MOVE comment below for why this exists instead of calling it on every move.
     private long lastResizeLayoutUptimeMs = 0L;
-    private static final long RESIZE_LAYOUT_THROTTLE_MS = 50L;
+    private static final long RESIZE_LAYOUT_THROTTLE_MS = 200L;
     private boolean isDragging = false;
     private boolean isResizingDrag = false;
     private boolean longPressConsumed = false;
@@ -2729,27 +2729,16 @@ public class BlackBerryKeyboardView extends View {
                     if (Math.abs(updatedScale - keyboardScale) > 0.01f) {
                         // Writing to SharedPreferences here too (as before) fired on every
                         // tiny finger movement, dozens of times per second during a fast
-                        // drag -- that part stays deferred to ACTION_UP/ACTION_CANCEL.
+                        // drag -- that part stays deferred to when resize-drag mode is exited.
                         //
                         // requestLayout() -- which actually resizes the IME's window -- used
                         // to also run on every one of those movements, and calling it that
                         // often (not the resize itself) is what caused the white/black
-                        // flicker during the drag, and likely left the white corners seen
-                        // outside of dragging too. Deferring it entirely to finger-up instead
-                        // fixed the flicker, but then the window's size was frozen mid-drag,
-                        // so dragging past the last-measured size clipped the bottom row off
-                        // until the lift. Reserving max height up front avoided that, but
-                        // left a chunk of empty background below the keyboard whenever the
-                        // live size wasn't already near that max -- not how other keyboards'
-                        // resize feels.
-                        //
-                        // Throttling instead of deferring keeps this a real, live resize --
-                        // same as other keyboards -- while still cutting the call rate from
-                        // "every pixel moved" (dozens/sec) down to at most roughly once per
-                        // RESIZE_LAYOUT_THROTTLE_MS, which is what actually avoided the
-                        // flicker. The worst case between two throttled layouts is the same
-                        // brief, self-correcting clip the old deferred version had for its
-                        // entire drag, just shortened to under RESIZE_LAYOUT_THROTTLE_MS.
+                        // flicker during the drag. Throttling it to at most once per
+                        // RESIZE_LAYOUT_THROTTLE_MS cuts that rate down drastically.
+                        // computeKeyBounds()+invalidate() still run on every move so the
+                        // drag handle, percentage label and key preview stay live the whole
+                        // time; only the actual window resize is throttled.
                         keyboardScale = updatedScale;
                         computeKeyBounds(getWidth());
                         invalidate();
