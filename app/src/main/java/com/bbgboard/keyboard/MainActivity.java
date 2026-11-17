@@ -278,9 +278,11 @@ public class MainActivity extends Activity {
             String switchedToName = BuildConfig.OTP_FEATURES_ENABLED
                     ? tr("بلس", "Plus")
                     : tr("النظيفة", "Clean");
+            // Kept short on purpose so it fits on one line on the toast instead of
+            // wrapping to two.
             android.widget.Toast.makeText(this,
-                    tr("✅ تحوّلت إلى " + switchedToName + " — إعداداتك وكلماتك المتعلمة محفوظة",
-                            "✅ Switched to " + switchedToName + " — your settings and learned words were kept"),
+                    tr("تحوّلت إلى " + switchedToName + " — إعداداتك وكلماتك محفوظة",
+                            "Switched to " + switchedToName + " — settings and words kept"),
                     android.widget.Toast.LENGTH_LONG).show();
         }
         prefs.setLastKnownFlavor(currentFlavor);
