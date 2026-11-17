@@ -213,7 +213,7 @@ public class BlackBerryKeyboardView extends View {
     // Throttles the real window resize (requestLayout) during a resize-drag -- see the
     // ACTION_MOVE comment below for why this exists instead of calling it on every move.
     private long lastResizeLayoutUptimeMs = 0L;
-    private static final long RESIZE_LAYOUT_THROTTLE_MS = 90L;
+    private static final long RESIZE_LAYOUT_THROTTLE_MS = 50L;
     private boolean isDragging = false;
     private boolean isResizingDrag = false;
     private boolean longPressConsumed = false;
@@ -2815,10 +2815,6 @@ public class BlackBerryKeyboardView extends View {
                     // left) carries no gesture info we can trust -- its x/y may belong to
                     // whichever finger Android kept, not to a matching ACTION_DOWN -- so
                     // it is swallowed here instead of being run through the swipe checks.
-                    if (isResizingDrag) {
-                        prefs.setKeyboardScale(keyboardScale);
-                        requestLayout();
-                    }
                     multiTouchResolved = false;
                     touchDownKey = null;
                     visualPressedKey = null;
@@ -2875,15 +2871,6 @@ public class BlackBerryKeyboardView extends View {
                 boolean wasResizing = isResizingDrag;
                 boolean wasDoneButtonPressed = resizeDoneButtonPressed;
 
-                if (wasResizing) {
-                    // Persist the final size once the finger lifts, now that ACTION_MOVE
-                    // no longer writes to SharedPreferences on every drag step. requestLayout()
-                    // here too guarantees the window ends up at the exact final size even
-                    // though ACTION_MOVE's own calls are throttled -- see the comment there.
-                    prefs.setKeyboardScale(keyboardScale);
-                    requestLayout();
-                }
-
                 touchDownKey = null;
                 visualPressedKey = null;
                 activePreviewKey = null;
@@ -2896,6 +2883,12 @@ public class BlackBerryKeyboardView extends View {
 
                 if (wasDoneButtonPressed) {
                     if (resizeDoneButtonRect.contains(x, y)) {
+                        // The chosen size is only ever committed here, when the user actually
+                        // presses "Done" -- not on every lift of the drag thumb mid-session,
+                        // which used to force the window to the latest size (and persist it)
+                        // even if they were just pausing a drag to look at it before adjusting
+                        // further. setResizeDragMode(false) itself does the final requestLayout().
+                        prefs.setKeyboardScale(keyboardScale);
                         setResizeDragMode(false);
                         soundController.playKeyClick();
                     }
@@ -2904,6 +2897,9 @@ public class BlackBerryKeyboardView extends View {
 
                 if (wasResizing) {
                     if (Math.abs(dx) < 12f * density && Math.abs(dy) < 12f * density) {
+                        // A tap (not a real drag) on the resize handle itself also exits the
+                        // mode -- same commit-on-exit rule as the Done button above.
+                        prefs.setKeyboardScale(keyboardScale);
                         setResizeDragMode(false);
                         soundController.playKeyClick();
                     }
