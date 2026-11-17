@@ -1118,6 +1118,26 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    // Switching between the keyboard and the clipboard/emoji drawer, or opening/closing the
+    // GIF search field, changes how tall the IME window needs to be, which on some devices
+    // (seen on Samsung/One UI) can leave a stale, unpainted sliver at the window's rounded
+    // corners after the resize settles -- it shows the app behind the keyboard through those
+    // corners until something forces a full repaint. A plain invalidate() right after the
+    // layout change isn't enough since the stale pixels are at the very edge the view may no
+    // longer cover; posting it lets the resize/relayout pass finish first, then nudges the
+    // whole window (decor view, not just our content) to redraw so the system corner mask gets
+    // repainted over those pixels instead of leaving whatever was there before.
+    private void forceWindowRepaintAfterResize() {
+        try {
+            android.view.Window w = getWindow() != null ? getWindow().getWindow() : null;
+            if (w == null) return;
+            View decor = w.getDecorView();
+            decor.post(decor::invalidate);
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "forceWindowRepaintAfterResize()", e);
+        }
+    }
+
     private void updateLearningPolicy(EditorInfo info) {
         boolean allowed = true;
         boolean passwordField = false;
@@ -1224,6 +1244,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (wasDrawer) fadeIn(keyboardView, 0);
             updateInlineStripVisibility();
             updateOneHandedSwitchButton();
+            if (wasDrawer) forceWindowRepaintAfterResize();
         } catch (Exception e) {
             AppLogger.log("BlackBerryImeService", "showKeyboardMain()", e);
             // Whatever failed above, never leave the keyboard surface blank/black for the user --
@@ -1264,6 +1285,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             fadeIn(clipboardDrawerView, 10);
             updateInlineStripVisibility();
             updateOneHandedSwitchButton();
+            forceWindowRepaintAfterResize();
             tryCaptureScreenshotClip(true);
         } catch (Exception e) {
             AppLogger.log("BlackBerryImeService", "onToggleClipboardMenu()", e);
@@ -1431,6 +1453,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         fadeIn(emojiDrawerView, 10);
         updateInlineStripVisibility();
         updateOneHandedSwitchButton();
+        forceWindowRepaintAfterResize();
     }
 
     @Override
@@ -3052,6 +3075,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         gifSearchBar.setVisibility(View.VISIBLE);
         updateOneHandedSwitchButton();
+        forceWindowRepaintAfterResize();
     }
 
     private void closeGifSearchKeyboard(boolean runSearch) {
@@ -3074,6 +3098,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         updateGifSearchBoxDisplay(gifLastQuery);
         updateOneHandedSwitchButton();
+        forceWindowRepaintAfterResize();
     }
 
     private void updateGifQueryDisplay() {
