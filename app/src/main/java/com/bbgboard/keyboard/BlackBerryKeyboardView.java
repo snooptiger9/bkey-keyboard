@@ -2794,6 +2794,7 @@ public class BlackBerryKeyboardView extends View {
                     // it is swallowed here instead of being run through the swipe checks.
                     if (isResizingDrag) {
                         prefs.setKeyboardScale(keyboardScale);
+                        AppLogger.log("BlackBerryKeyboardView", "requestLayout() after resize-drag (multitouch lift)", null);
                         requestLayout();
                     }
                     multiTouchResolved = false;
@@ -2858,6 +2859,7 @@ public class BlackBerryKeyboardView extends View {
                     // window resize (requestLayout) is deferred to here too, for the same
                     // reason -- see the ACTION_MOVE comment above.
                     prefs.setKeyboardScale(keyboardScale);
+                    AppLogger.log("BlackBerryKeyboardView", "requestLayout() after resize-drag", null);
                     requestLayout();
                 }
 

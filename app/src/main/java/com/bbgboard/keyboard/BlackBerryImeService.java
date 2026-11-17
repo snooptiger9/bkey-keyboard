@@ -1127,7 +1127,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // longer cover; posting it lets the resize/relayout pass finish first, then nudges the
     // whole window (decor view, not just our content) to redraw so the system corner mask gets
     // repainted over those pixels instead of leaving whatever was there before.
-    private void forceWindowRepaintAfterResize() {
+    private void forceWindowRepaintAfterResize(String reason) {
+        // Logged (not as an error -- AppLogger.log()'s tag+message dedupe just below still
+        // collapses a burst of the same reason within a second into one line with a repeat
+        // count) so that if the white-corner bug is ever reported again, the error log the
+        // user emails in actually shows which of these resize points it followed, instead of
+        // us guessing all over again like this time.
+        AppLogger.log("BlackBerryImeService", "forceWindowRepaintAfterResize() after " + reason, null);
         try {
             android.view.Window w = getWindow() != null ? getWindow().getWindow() : null;
             if (w == null) return;
@@ -1244,7 +1250,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (wasDrawer) fadeIn(keyboardView, 0);
             updateInlineStripVisibility();
             updateOneHandedSwitchButton();
-            if (wasDrawer) forceWindowRepaintAfterResize();
+            if (wasDrawer) forceWindowRepaintAfterResize("showKeyboardMain() (drawer -> keyboard)");
         } catch (Exception e) {
             AppLogger.log("BlackBerryImeService", "showKeyboardMain()", e);
             // Whatever failed above, never leave the keyboard surface blank/black for the user --
@@ -1285,7 +1291,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             fadeIn(clipboardDrawerView, 10);
             updateInlineStripVisibility();
             updateOneHandedSwitchButton();
-            forceWindowRepaintAfterResize();
+            forceWindowRepaintAfterResize("onToggleClipboardMenu()");
             tryCaptureScreenshotClip(true);
         } catch (Exception e) {
             AppLogger.log("BlackBerryImeService", "onToggleClipboardMenu()", e);
@@ -1453,7 +1459,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         fadeIn(emojiDrawerView, 10);
         updateInlineStripVisibility();
         updateOneHandedSwitchButton();
-        forceWindowRepaintAfterResize();
+        forceWindowRepaintAfterResize("onToggleEmoji()");
     }
 
     @Override
@@ -3075,7 +3081,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         gifSearchBar.setVisibility(View.VISIBLE);
         updateOneHandedSwitchButton();
-        forceWindowRepaintAfterResize();
+        forceWindowRepaintAfterResize("openGifSearchKeyboard()");
     }
 
     private void closeGifSearchKeyboard(boolean runSearch) {
@@ -3098,7 +3104,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         updateGifSearchBoxDisplay(gifLastQuery);
         updateOneHandedSwitchButton();
-        forceWindowRepaintAfterResize();
+        forceWindowRepaintAfterResize("closeGifSearchKeyboard()");
     }
 
     private void updateGifQueryDisplay() {
