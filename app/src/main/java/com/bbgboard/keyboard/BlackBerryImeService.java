@@ -1328,10 +1328,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     private void fadeIn(View v, int slideDp) {
+        fadeIn(v, slideDp, 180);
+    }
+
+    private void fadeIn(View v, int slideDp, int durationMs) {
         v.animate().cancel();
         v.setAlpha(0f);
         v.setTranslationY(dp(slideDp));
-        v.animate().alpha(1f).translationY(0f).setDuration(180)
+        v.animate().alpha(1f).translationY(0f).setDuration(durationMs)
                 .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
     }
 
@@ -1387,7 +1391,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setVisibility(View.GONE);
             emojiDrawerView.setVisibility(View.GONE);
             clipboardDrawerView.setVisibility(View.VISIBLE);
-            fadeIn(clipboardDrawerView, 10);
+            fadeIn(clipboardDrawerView, 10, 260);
             updateInlineStripVisibility();
             updateOneHandedSwitchButton();
             forceWindowRepaintAfterResize();
@@ -1556,7 +1560,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
         emojiDrawerView.setVisibility(View.VISIBLE);
-        fadeIn(emojiDrawerView, 10);
+        fadeIn(emojiDrawerView, 10, 260);
         updateInlineStripVisibility();
         updateOneHandedSwitchButton();
         forceWindowRepaintAfterResize();
