@@ -2222,8 +2222,8 @@ public class MainActivity extends Activity {
 
         TextView introTv = new TextView(this);
         introTv.setText(tr(
-                "يفحص الكيبورد رسالة SMS أو إشعار واتساب الجديد فقط عند وصوله، ويعرض رمز التحقق في منتصف الاقتراحات لمدة 5 دقائق. كل المعالجة محلية على جهازك فقط ولا تُرسل لأي سيرفر",
-                "The keyboard checks only a newly arrived SMS or WhatsApp notification and shows the verification code in the middle suggestion slot for 5 minutes. Everything is processed on your device only — nothing is sent to any server"));
+                "يفحص الكيبورد رسالة SMS أو إشعار واتساب الجديد فقط عند وصوله، ويعرض رمز التحقق في منتصف الاقتراحات لمدة 3 دقائق. كل المعالجة محلية على جهازك فقط ولا تُرسل لأي سيرفر",
+                "The keyboard checks only a newly arrived SMS or WhatsApp notification and shows the verification code in the middle suggestion slot for 3 minutes. Everything is processed on your device only — nothing is sent to any server"));
         introTv.setTextColor(Color.parseColor(dm("#4B5563")));
         introTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         LinearLayout.LayoutParams lpIntro = new LinearLayout.LayoutParams(
@@ -2237,7 +2237,7 @@ public class MainActivity extends Activity {
 
             root.addView(createSwitchTile(
                     tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
-                    tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 5 دقائق فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 5 minutes. Needs SMS permission"),
+                    tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 3 دقائق فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 3 minutes. Needs SMS permission"),
                     prefs.isOtpSuggestEnabled() && checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED,
                     checked -> {
                         if (checked) {
@@ -2254,7 +2254,7 @@ public class MainActivity extends Activity {
 
             root.addView(createSwitchTile(
                     tr("اقتراح رمز التحقق تلقائياً من واتساب", "Auto-suggest verification code from WhatsApp"),
-                    tr("يقرأ إشعارات واتساب فقط (بدون أي تطبيق آخر) بحثاً عن رمز تحقق، ويعرضه في منتصف الاقتراحات لمدة 5 دقائق. كل المعالجة محلية بالجهاز ولا تُرسل لأي سيرفر. يحتاج صلاحية «الوصول للإشعارات» تفعّلها بنفسك من شاشة أندرويد اللي تفتح", "Reads only WhatsApp notifications (no other app) looking for a verification code, and shows it in the middle suggestion slot for 5 minutes. Fully on-device, nothing sent to any server. Needs \"Notification access\", which you enable yourself on the Android screen that opens"),
+                    tr("يقرأ إشعارات واتساب فقط (بدون أي تطبيق آخر) بحثاً عن رمز تحقق، ويعرضه في منتصف الاقتراحات لمدة 3 دقائق. كل المعالجة محلية بالجهاز ولا تُرسل لأي سيرفر. يحتاج صلاحية «الوصول للإشعارات» تفعّلها بنفسك من شاشة أندرويد اللي تفتح", "Reads only WhatsApp notifications (no other app) looking for a verification code, and shows it in the middle suggestion slot for 3 minutes. Fully on-device, nothing sent to any server. Needs \"Notification access\", which you enable yourself on the Android screen that opens"),
                     prefs.isWhatsAppOtpSuggestEnabled() && isNotificationAccessGranted(),
                     checked -> {
                         prefs.setWhatsAppOtpSuggestEnabled(checked);
