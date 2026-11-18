@@ -476,8 +476,22 @@ public class KeyboardPreferences {
         return prefs.getBoolean("swipe_down_copy_paste_enabled", true);
     }
 
+    // Swipe down is a single gesture, so copy/paste and "symbols" can't both own it: turning
+    // either one on turns the other one off (the settings screen mirrors this in its switches).
+    public boolean isSwipeDownSymbolsEnabled() {
+        return prefs.getBoolean("swipe_down_symbols_enabled", false);
+    }
+
+    public void setSwipeDownSymbolsEnabled(boolean enabled) {
+        SharedPreferences.Editor e = prefs.edit().putBoolean("swipe_down_symbols_enabled", enabled);
+        if (enabled) e.putBoolean("swipe_down_copy_paste_enabled", false);
+        e.apply();
+    }
+
     public void setSwipeDownCopyPasteEnabled(boolean enabled) {
-        prefs.edit().putBoolean("swipe_down_copy_paste_enabled", enabled).apply();
+        SharedPreferences.Editor e = prefs.edit().putBoolean("swipe_down_copy_paste_enabled", enabled);
+        if (enabled) e.putBoolean("swipe_down_symbols_enabled", false);
+        e.apply();
     }
 
     public boolean isKeyBounceAnimationEnabled() {

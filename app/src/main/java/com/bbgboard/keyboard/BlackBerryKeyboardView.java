@@ -3175,6 +3175,16 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 float swipeDownThreshold = 42f * density;
+                if (prefs.isSwipeDownSymbolsEnabled() && dy > swipeDownThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
+                    // Same switch the ?123 / ABC key makes, so it behaves identically for every
+                    // language (each language has its own symbols layout) and swiping down again
+                    // on the symbols layout returns to the letters.
+                    vibrateTap(false);
+                    soundController.playKeyClick();
+                    isSymbols = !isSymbols;
+                    rebuildKeys();
+                    return true;
+                }
                 if (prefs.isSwipeDownCopyPasteEnabled() && dy > swipeDownThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
                     boolean done = listener != null && listener.onSwipeDownCopyPaste();
                     if (done) {

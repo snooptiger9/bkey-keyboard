@@ -2573,13 +2573,39 @@ public class MainActivity extends Activity {
                 checked -> prefs.setSwipeSelectAllEnabled(checked)
         ));
 
-        root.addView(createSwitchTile(
+        // Swipe down can only do one job: copy/paste OR open/close the symbols layout. Turning one
+        // on switches the other one off (the preference setters do it, these switches mirror it).
+        final ModernToggleSwitch[] downSwitches = new ModernToggleSwitch[2];
+        View copyPasteTile = createSwitchTile(
                 tr("السحب للأسفل للنسخ واللصق", "Swipe down to copy/paste"),
-                tr("اسحب للأسفل فوق الحروف لنسخ النص المحدد، وبعد النسخ تتحول السحبة للأسفل إلى لصق لمدة دقيقة ثم ترجع نسخ",
-                        "Swipe down over the keys to copy selected text; after copying, swipe-down turns into paste for one minute, then reverts to copy"),
+                tr("اسحب للأسفل فوق الحروف لنسخ النص المحدد، وبعد النسخ تتحول السحبة للأسفل إلى لصق لمدة دقيقة ثم ترجع نسخ. تشغيله يطفي خيار السحب للأسفل للرموز",
+                        "Swipe down over the keys to copy selected text; after copying, swipe-down turns into paste for one minute, then reverts to copy. Turning it on turns off swipe down for symbols"),
                 prefs.isSwipeDownCopyPasteEnabled(),
-                checked -> prefs.setSwipeDownCopyPasteEnabled(checked)
-        ));
+                checked -> {
+                    prefs.setSwipeDownCopyPasteEnabled(checked);
+                    if (checked && downSwitches[1] != null) downSwitches[1].setChecked(false);
+                }
+        );
+        View symbolsTile = createSwitchTile(
+                tr("السحب للأسفل لقائمة الرموز", "Swipe down for the symbols layout"),
+                tr("اسحب للأسفل فوق الحروف لفتح قائمة الرموز للغة المفتوحة، واسحب للأسفل وأنت في الرموز للرجوع للحروف. يعمل لكل لغة على حدة. تشغيله يطفي خيار السحب للأسفل للنسخ واللصق",
+                        "Swipe down over the keys to open the symbols layout of the language you are typing in, and swipe down again on symbols to go back to the letters. Works separately for every language. Turning it on turns off swipe down to copy/paste"),
+                prefs.isSwipeDownSymbolsEnabled(),
+                checked -> {
+                    prefs.setSwipeDownSymbolsEnabled(checked);
+                    if (checked && downSwitches[0] != null) downSwitches[0].setChecked(false);
+                }
+        );
+        if (copyPasteTile instanceof ViewGroup && ((ViewGroup) copyPasteTile).getChildCount() > 1
+                && ((ViewGroup) copyPasteTile).getChildAt(1) instanceof ModernToggleSwitch) {
+            downSwitches[0] = (ModernToggleSwitch) ((ViewGroup) copyPasteTile).getChildAt(1);
+        }
+        if (symbolsTile instanceof ViewGroup && ((ViewGroup) symbolsTile).getChildCount() > 1
+                && ((ViewGroup) symbolsTile).getChildAt(1) instanceof ModernToggleSwitch) {
+            downSwitches[1] = (ModernToggleSwitch) ((ViewGroup) symbolsTile).getChildAt(1);
+        }
+        root.addView(copyPasteTile);
+        root.addView(symbolsTile);
 
         LinearLayout dirCard = createGroupedWhiteCard();
         dirCard.setPadding(dp(16), dp(16), dp(16), dp(16));
