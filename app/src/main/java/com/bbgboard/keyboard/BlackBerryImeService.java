@@ -1878,7 +1878,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             }
 
             if (!currentPrefix.isEmpty() && keyboardPrefs.isAutoCorrectEnabled() && currentPrefix.indexOf('@') < 0
-                    && !currentPrefix.equalsIgnoreCase(rejectedAutoCorrectWord)) {
+                    && !currentPrefix.equalsIgnoreCase(rejectedAutoCorrectWord)
+                    && !keyboardPrefs.isAutoCorrectException(currentPrefix)) {
                 String correction = predictionEngine.findAutoCorrection(currentPrefix, keyboardView.isArabic());
                 if (correction != null) {
                     ic.deleteSurroundingText(currentPrefix.length(), 0);
@@ -1964,6 +1965,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ic.deleteSurroundingText(expected.length(), 0);
         ic.commitText(lastAutoCorrectOriginal, 1);
         rejectedAutoCorrectWord = lastAutoCorrectOriginal;
+        // Remember it for good (not just until the next correction), unless nothing is being saved.
+        if (!keyboardPrefs.isIncognitoMode()) keyboardPrefs.addAutoCorrectException(lastAutoCorrectOriginal);
         return true;
     }
 

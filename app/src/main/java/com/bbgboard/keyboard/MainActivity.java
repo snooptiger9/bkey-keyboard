@@ -2128,6 +2128,7 @@ public class MainActivity extends Activity {
         btnClear.setLayoutParams(lpCl);
         btnClear.setOnClickListener(v -> {
             predictionEngine.clearAllLearnedData();
+            prefs.clearAutoCorrectExceptions();
             if (learnedCountSubtitleHolder[0] != null) {
                 learnedCountSubtitleHolder[0].setText(learnedWordsCountSubtitle());
             }

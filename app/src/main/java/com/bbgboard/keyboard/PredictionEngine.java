@@ -705,24 +705,55 @@ public class PredictionEngine {
         for (Map.Entry<String, Integer> e : heap) scored.put(e.getKey(), e.getValue());
     }
 
+    /** Tokens the user typed on purpose in a non-standard form: NASA, iPhone, @mentions, #tags,
+     *  anything with digits or underscores. A single leading capital ("Teh" at a sentence start)
+     *  is normal and does not protect the word. */
+    static boolean isProtectedToken(String word) {
+        if (word == null || word.isEmpty()) return false;
+        char first = word.charAt(0);
+        if (first == '#' || first == '@') return true;
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+            if (Character.isDigit(c) || c == '_') return true;
+            if (i > 0 && Character.isUpperCase(c)) return true;
+        }
+        return false;
+    }
+
     public synchronized String findAutoCorrection(String wordRaw, boolean isArabic) {
         if (!ready) return null;
+        if (isProtectedToken(wordRaw)) return null;
         String word = normalize(wordRaw);
         if (word.length() < 3 || isTrustedWord(word)) return null;
         String wordLower = fold(word);
         Map<String, Integer> candidates = new HashMap<>();
         collectNearMissCandidates(wordLower, learnedByFold, learnedWords, candidates, 30, !isArabic);
+        int baseScore = 30;
         if (candidates.isEmpty()) {
             java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
             Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
             collectNearMissCandidates(wordLower, baseByFold, baseWords, candidates, 1);
+            baseScore = 1;
         }
         if (candidates.isEmpty()) return null;
-        return sortKeysByScoreDesc(candidates).get(0);
+        List<String> ranked = sortKeysByScoreDesc(candidates);
+        String top = ranked.get(0);
+        if (ranked.size() == 1) return top;
+        // Only correct silently when the winner is clear. Letter-swap typos ("hte") always are;
+        // otherwise the winner must clearly beat the runner-up. An ambiguous word is left alone
+        // and its candidates simply stay in the suggestion bar for the user to pick.
+        if (isAdjacentSwap(wordLower, fold(top))) return top;
+        int topScore = candidates.get(top), secondScore = candidates.get(ranked.get(1));
+        final int DIST1 = 100000;
+        boolean topClose = topScore >= DIST1, secondClose = secondScore >= DIST1;
+        if (topClose && !secondClose) return top;
+        int offset = topClose ? DIST1 + baseScore : baseScore;
+        int topCnt = Math.max(topScore - offset, 1), secondCnt = Math.max(secondScore - offset, 1);
+        return topCnt >= 2 * secondCnt ? top : null;
     }
 
     private String findInlineFix(String prefix, String prefixLower, boolean isArabic) {
-        if (prefixLower.length() < 3 || isTrustedWord(prefix)) return null;
+        if (prefixLower.length() < 3 || isProtectedToken(prefix) || isTrustedWord(prefix)) return null;
         Map<String, Integer> cand = new HashMap<>();
         collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, cand, 30, !isArabic);
         if (cand.isEmpty()) {

@@ -687,6 +687,30 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("auto_correct_enabled", enabled).apply();
     }
 
+    // Words the user reversed with Backspace right after an auto-correction. They are never
+    // auto-corrected again (stored lowercase, on this device only, capped so it can't grow forever).
+    private static final String KEY_AUTOCORRECT_EXCEPTIONS = "autocorrect_exceptions";
+    private static final int MAX_AUTOCORRECT_EXCEPTIONS = 500;
+
+    public boolean isAutoCorrectException(String word) {
+        if (word == null || word.isEmpty()) return false;
+        java.util.Set<String> set = prefs.getStringSet(KEY_AUTOCORRECT_EXCEPTIONS, null);
+        return set != null && set.contains(word.toLowerCase(java.util.Locale.ROOT));
+    }
+
+    public void addAutoCorrectException(String word) {
+        if (word == null || word.isEmpty()) return;
+        java.util.Set<String> old = prefs.getStringSet(KEY_AUTOCORRECT_EXCEPTIONS, null);
+        java.util.Set<String> set = old == null ? new java.util.HashSet<>() : new java.util.HashSet<>(old);
+        if (set.size() >= MAX_AUTOCORRECT_EXCEPTIONS) return;
+        set.add(word.toLowerCase(java.util.Locale.ROOT));
+        prefs.edit().putStringSet(KEY_AUTOCORRECT_EXCEPTIONS, set).apply();
+    }
+
+    public void clearAutoCorrectExceptions() {
+        prefs.edit().remove(KEY_AUTOCORRECT_EXCEPTIONS).apply();
+    }
+
     public boolean isAutoLearnEnabled() {
         return prefs.getBoolean("auto_learn_enabled", true);
     }
