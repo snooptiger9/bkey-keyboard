@@ -622,6 +622,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
 
         gifSearchBar = new FrameLayout(this);
+        gifSearchBar.setBackgroundColor(shellC());
         gifSearchBar.setVisibility(View.GONE);
         LinearLayout gifBarRow = new LinearLayout(this);
         gifBarRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -677,6 +678,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiDrawerView = buildCategorizedEmojiDrawer();
         rootContainer.addView(clipboardDrawerView);
         rootContainer.addView(emojiDrawerView);
+        refreshGifSearchBarColors();
     }
 
     @Override
@@ -3188,6 +3190,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // current theme (dark text on a dark bar with the white theme, a leftover tint after
     // switching back to black). Re-applying them every time the bar opens keeps it in sync.
     private void refreshGifSearchBarColors() {
+        // The full-width strip behind the rounded search pill had no background of its own, so it
+        // showed the window's old color (black) until the keyboard was closed and reopened.
+        if (gifSearchBar != null) gifSearchBar.setBackgroundColor(shellC());
         if (gifBarRowView != null) gifBarRowView.setBackground(roundedBg(sugBarC(), 18));
         if (gifCancelBtnView != null) gifCancelBtnView.setTextColor(labelC());
         updateGifQueryDisplay();
