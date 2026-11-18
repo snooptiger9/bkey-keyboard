@@ -257,8 +257,11 @@ public class KeyboardPreferences {
         prefs.edit().putFloat("key_font_scale", clamped).apply();
     }
 
+    /** The keyboard size shown as the default (105%) in Settings; Reset in the resize popup returns to it. */
+    public static final float DEFAULT_KEYBOARD_SCALE = 1.05f;
+
     public float getKeyboardScale() {
-        return prefs.getFloat("keyboard_scale", 1.05f);
+        return prefs.getFloat("keyboard_scale", DEFAULT_KEYBOARD_SCALE);
     }
 
     public void setKeyboardScale(float scale) {

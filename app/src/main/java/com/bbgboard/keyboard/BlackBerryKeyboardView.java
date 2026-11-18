@@ -575,7 +575,7 @@ public class BlackBerryKeyboardView extends View {
                         // the reference video's "Reset" pill -- but stays open so the
                         // new size is only actually applied once Done is pressed, like
                         // every other change made while this popup is open.
-                        previewScale = 1.0f;
+                        previewScale = KeyboardPreferences.DEFAULT_KEYBOARD_SCALE;
                         computeOverlayRects(getWidth(), previewScale);
                         soundController.playKeyClick();
                         invalidate();
