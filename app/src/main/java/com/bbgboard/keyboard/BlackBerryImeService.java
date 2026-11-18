@@ -1061,6 +1061,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onFinishInputView(boolean finishingInput) {
+        dismissClipMenu();
         // An address typed into a field and left by tapping Next/Login or switching app never
         // got a space or Enter, so it was never saved. Save it now if it is correctly written.
         try {
@@ -1337,6 +1338,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void showKeyboardMain() {
         if (keyboardView == null) return;
         try {
+            dismissClipMenu();
             if (gifSearchFocused) closeGifSearchKeyboard(false);
             if (gifPanelShown) hideGifPanel();
             boolean wasDrawer = clipboardDrawerView.getVisibility() == View.VISIBLE || emojiDrawerView.getVisibility() == View.VISIBLE;
@@ -1374,6 +1376,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onToggleClipboardMenu() {
         try {
+            dismissClipMenu();
             if (gifSearchFocused) closeGifSearchKeyboard(false);
             if (gifPanelShown) hideGifPanel();
 
@@ -1541,6 +1544,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onToggleEmoji() {
+        dismissClipMenu();
         if (gifSearchFocused) closeGifSearchKeyboard(false);
         refreshBottomBarGeometry();
 
