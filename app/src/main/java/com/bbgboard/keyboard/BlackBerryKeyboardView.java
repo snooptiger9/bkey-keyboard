@@ -1121,6 +1121,15 @@ public class BlackBerryKeyboardView extends View {
 
     private int middleIconType = 0;
 
+    // The swipe-up sound should only play when there is actually something in the slot to
+    // accept -- tapping or swiping an empty suggestion bar (nothing typed, no suggestions)
+    // must stay silent.
+    private boolean hasSuggestionInSlot(int slotIndex) {
+        if (slotIndex < 0 || slotIndex >= suggestions.size()) return false;
+        String w = suggestions.get(slotIndex);
+        return w != null && !w.isEmpty();
+    }
+
     private void launchWordOutsideKeyboard(int slotIndex) {
         if (!prefs.isSwipeUpAnimationEnabled()) return;
         if (slotIndex < 0 || slotIndex >= suggestions.size()) return;
@@ -3115,7 +3124,7 @@ public class BlackBerryKeyboardView extends View {
                     if (SystemClock.uptimeMillis() - suggestionTouchDownTime >= MIN_SUGGESTION_TAP_HOLD_MS) {
                         int slot = getClickedSuggestionSlot(x);
                         vibrateTap(false);
-                        soundController.playSwipeUpSound();
+                        if (hasSuggestionInSlot(slot)) soundController.playSwipeUpSound();
                         launchWordOutsideKeyboard(slot);
                         if (listener != null) listener.onSwipeUpSuggestion(slot);
                     }
@@ -3135,7 +3144,7 @@ public class BlackBerryKeyboardView extends View {
                 if (dy < -swipeUpThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
                     int zone = getHorizontalSuggestionZone(startX);
                     vibrateTap(false);
-                    soundController.playSwipeUpSound();
+                    if (hasSuggestionInSlot(zone)) soundController.playSwipeUpSound();
                     launchWordOutsideKeyboard(zone);
                     if (listener != null) listener.onSwipeUpSuggestion(zone);
                     return true;
