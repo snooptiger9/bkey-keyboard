@@ -2934,7 +2934,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         gifGrid = new LinearLayout(this);
         gifGrid.setOrientation(LinearLayout.VERTICAL);
-        gifGrid.setPadding(dp(4), dp(2), dp(4), dp(56));
+        gifGrid.setPadding(dp(4), dp(2), dp(4), dp(36));
         gifScroll.addView(gifGrid);
         gifCol.addView(gifScroll);
 
@@ -3024,7 +3024,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
         bar.setBackground(roundedBg(sugBarC(), 0));
-        bar.setPadding(dp(10), dp(6), dp(10), dp(6));
+        bar.setPadding(dp(10), 0, dp(10), 0);
 
         TextView label = new TextView(this);
         gifAttributionLabel = label;
@@ -3032,6 +3032,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         label.setTextColor(subC());
         label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         label.setPadding(dp(6), 0, dp(6), 0);
+        label.setIncludeFontPadding(false);
         bar.addView(label);
 
         return bar;
@@ -3238,7 +3239,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
             lp.width = cellW - dp(6);
-            lp.height = dp(78);
+            lp.height = dp(70);
             lp.setMargins(dp(3), dp(3), dp(3), dp(3));
             iv.setLayoutParams(lp);
             iv.setBackgroundColor(sugBarC());
