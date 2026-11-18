@@ -1159,6 +1159,57 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    // onStartInputView() runs BEFORE the keyboard window is actually on screen, so any
+    // repaint requested only from there can be consumed by a window that isn't visible
+    // yet. When the first visible frame is lost (seen after switching apps, locking and
+    // unlocking, or reopening in another app) the keyboard sits there as a blank/black
+    // box with no keys until something else forces a frame -- a screenshot, a theme
+    // change, or closing and reopening. onWindowShown() fires once the window really
+    // is visible, so the repaint belongs here, aimed at the keyboard view itself and
+    // not only the decor view, and repeated shortly after to catch a slow first frame.
+    @Override
+    public void onWindowShown() {
+        super.onWindowShown();
+        try {
+            repaintKeyboardSurface();
+            if (rootContainer != null) {
+                rootContainer.postDelayed(this::repaintKeyboardSurface, 120);
+                rootContainer.postDelayed(this::repaintKeyboardSurface, 450);
+            }
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onWindowShown()", e);
+        }
+    }
+
+    private void repaintKeyboardSurface() {
+        try {
+            if (keyboardView != null) {
+                // A cancelled/interrupted fade can leave the view partly or fully
+                // transparent, which looks exactly like an empty box.
+                if (keyboardView.getVisibility() == View.VISIBLE
+                        && keyboardView.getAlpha() < 1f && !drawerOrGifShowing()) {
+                    keyboardView.animate().cancel();
+                    keyboardView.setAlpha(1f);
+                    keyboardView.setTranslationY(0f);
+                }
+                keyboardView.requestLayout();
+                keyboardView.invalidate();
+            }
+            if (rootContainer != null) {
+                rootContainer.requestLayout();
+                rootContainer.invalidate();
+            }
+            forceWindowRepaintAfterResize();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "repaintKeyboardSurface()", e);
+        }
+    }
+
+    private boolean drawerOrGifShowing() {
+        return (clipboardDrawerView != null && clipboardDrawerView.getVisibility() == View.VISIBLE)
+                || (emojiDrawerView != null && emojiDrawerView.getVisibility() == View.VISIBLE);
+    }
+
     private void updateLearningPolicy(EditorInfo info) {
         boolean allowed = true;
         boolean passwordField = false;
