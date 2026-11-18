@@ -1710,6 +1710,28 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    private void applyAutoCapitalizeAtStart() {
+        try {
+            if (keyboardView == null || keyboardView.isArabic() || numericFieldActive) return;
+            EditorInfo ei = getCurrentInputEditorInfo();
+            if (ei != null) {
+                int type = ei.inputType;
+                if ((type & android.text.InputType.TYPE_MASK_CLASS) != android.text.InputType.TYPE_CLASS_TEXT) return;
+                int var = type & android.text.InputType.TYPE_MASK_VARIATION;
+                // Addresses, links and passwords are not sentences: never start them with a capital.
+                if (var == android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                        || var == android.text.InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
+                        || var == android.text.InputType.TYPE_TEXT_VARIATION_URI
+                        || var == android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        || var == android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                        || var == android.text.InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD) return;
+            }
+            keyboardView.updateAutoCapitalization(shouldAutoCapitalizeEnglish());
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "applyAutoCapitalizeAtStart()", e);
+        }
+    }
+
     private boolean shouldAutoCapitalizeEnglish() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return true;
@@ -1739,6 +1761,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (keyboardView == null) return;
         final int gen = ++predictionGen;
         String[] ctx = getTypingContext();
+
+        // Auto-capitalization used to run only at the very end of this method, so every early
+        // return below (an empty field, an OTP/screenshot/clipboard chip, a numeric field) skipped
+        // it -- which is exactly why the first letter in an empty field never came out capital.
+        // Run it up front instead, so it applies on every path.
+        applyAutoCapitalizeAtStart();
 
         if (hasValidPendingOtp() && ctx[0].isEmpty()) {
 
