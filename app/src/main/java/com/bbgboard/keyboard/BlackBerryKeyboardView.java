@@ -829,6 +829,30 @@ public class BlackBerryKeyboardView extends View {
             popupEdgePaint.setColor(Color.parseColor("#334155"));
             iconStrokePaint.setColor(Color.parseColor("#E2E8F0"));
             enterArrowPaint.setColor(Color.WHITE);
+        } else if (themeMode == KeyboardPreferences.THEME_FOREST_GREEN) {
+            bgShellPaint.setColor(Color.parseColor("#0A1511"));
+            sugBarPaint.setColor(Color.parseColor("#0F1D17"));
+            sugCenterHighlightPaint.setColor(Color.parseColor("#17291F"));
+            sugFlashPaint.setColor(Color.parseColor("#14532D"));
+            keyBgPaint.setColor(Color.parseColor("#1B3126"));
+            keyShadowPaint.setColor(Color.parseColor("#07100C"));
+            keySpecialBgPaint.setColor(Color.parseColor("#12231B"));
+            keyPressedPaint.setColor(Color.parseColor("#2A4A39"));
+            fretLinePaint.setColor(Color.parseColor("#264034"));
+            keyDividerPaint.setColor(Color.parseColor("#16281F"));
+            mainTextPaint.setColor(Color.parseColor("#F0FDF4"));
+            subTextPaint.setColor(Color.parseColor("#86A896"));
+            sugTextPaint.setColor(Color.parseColor("#DCFCE7"));
+            sugPrimaryTextPaint.setColor(Color.WHITE);
+            flyingWordPaint.setColor(Color.WHITE);
+            flyingBadgeBgPaint.setColor(Color.parseColor("#1B3126"));
+            flyingBadgeBorderPaint.setColor(Color.parseColor("#34D399"));
+            popupCardBgPaint.setColor(keyBgPaint.getColor());
+            popupCardBorderPaint.setColor(Color.parseColor("#3F6B52"));
+            popupTextPaint.setColor(Color.WHITE);
+            popupEdgePaint.setColor(Color.parseColor("#2A4A39"));
+            iconStrokePaint.setColor(Color.parseColor("#DCFCE7"));
+            enterArrowPaint.setColor(Color.WHITE);
         } else {
             bgShellPaint.setColor(Color.parseColor("#111111"));
             sugBarPaint.setColor(Color.parseColor("#171717"));

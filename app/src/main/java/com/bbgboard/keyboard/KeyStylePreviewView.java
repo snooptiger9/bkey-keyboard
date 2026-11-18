@@ -29,6 +29,9 @@ final class KeyStylePreviewView extends View {
         } else if (themeMode == KeyboardPreferences.THEME_MIDNIGHT_SLATE) {
             shell = col("#0B1120"); keyBg = col("#1E293B"); special = col("#151F32");
             shadow = col("#090D16"); divider = col("#172236"); outline = col("#475569"); label = Color.WHITE;
+        } else if (themeMode == KeyboardPreferences.THEME_FOREST_GREEN) {
+            shell = col("#0A1511"); keyBg = col("#1B3126"); special = col("#12231B");
+            shadow = col("#07100C"); divider = col("#16281F"); outline = col("#3F6B52"); label = Color.WHITE;
         } else {
             // Deliberately lighter (#333333/#252525) than the real keyboard's Matte black
             // (#262626/#181818, see BlackBerryKeyboardView.applyThemeColors): this small preview

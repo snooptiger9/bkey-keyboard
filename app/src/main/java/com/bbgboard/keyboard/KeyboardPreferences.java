@@ -18,6 +18,7 @@ public class KeyboardPreferences {
     public static final int THEME_BLACKBERRY_DARK = 0;
     public static final int THEME_GBOARD_WHITE = 1;
     public static final int THEME_MIDNIGHT_SLATE = 2;
+    public static final int THEME_FOREST_GREEN = 3;
 
     public static final int STYLE_BLACKBERRY_FRETS = 0;
     public static final int STYLE_GBOARD_ROUNDED = 1;

@@ -521,9 +521,9 @@ public class MainActivity extends Activity {
 
         if (imeSelected) {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_SETTINGS_GEAR, dm("#16A34A"),
-                    tr("✓ مفعّل ومختار حالياً", "✓ Enabled and currently selected"),
-                    tr("هذا الكيبورد هو المستخدم الآن", "This keyboard is the one in use now"),
+                    ModernIconView.ICON_CHECK_CIRCLE, dm("#16A34A"),
+                    tr("مفعّل ومختار حالياً", "Enabled and currently selected"),
+                    "",
                     v -> {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         if (imm != null) imm.showInputMethodPicker();
@@ -680,6 +680,7 @@ public class MainActivity extends Activity {
     private String getThemeAndStyleSummary() {
         String th = prefs.getThemeMode() == KeyboardPreferences.THEME_GBOARD_WHITE ? tr("السمة البيضاء", "White theme")
                 : prefs.getThemeMode() == KeyboardPreferences.THEME_MIDNIGHT_SLATE ? tr("السمة الكحلية", "Midnight theme")
+                : prefs.getThemeMode() == KeyboardPreferences.THEME_FOREST_GREEN ? tr("السمة الخضراء", "Forest theme")
                 : tr("سمة bkey السوداء", "bkey black theme");
         String[] styleSummariesAr = {"شكل bkey الكلاسيكي", "شكل bkey الحديث", "شكل كبسولات عصرية",
                 "شكل bkey ماتيريال", "شكل bkey بدون إطار", "شكل كبسولات عصرية", "شكل بإطار خفيف", "شكل أزرار ثلاثية الأبعاد",
@@ -726,7 +727,7 @@ public class MainActivity extends Activity {
         subTv.setPadding(0, dp(2), 0, 0);
 
         textCol.addView(titleTv);
-        textCol.addView(subTv);
+        if (subtitle != null && !subtitle.isEmpty()) textCol.addView(subTv);
 
         row.addView(icon);
         row.addView(textCol);
@@ -1655,16 +1656,16 @@ public class MainActivity extends Activity {
         themeCard.addView(tHeader);
 
         String[] themeNames = tr(
-                new String[]{"أسود مطفي", "أبيض ساطع", "كحلي داكن"},
-                new String[]{"Matte black", "Clean white", "Midnight slate"});
-        String[] themeSwatches = new String[]{"#1C1C1E", "#FFFFFF", "#1E2A47"};
+                new String[]{"أسود مطفي", "أبيض ساطع", "كحلي داكن", "أخضر غابة"},
+                new String[]{"Matte black", "Clean white", "Midnight slate", "Forest green"});
+        String[] themeSwatches = new String[]{"#1C1C1E", "#FFFFFF", "#1E2A47", "#1B3126"};
         List<View> themeTiles = new ArrayList<>();
         for (int i = 0; i < themeNames.length; i++) {
             final int idx = i;
             themeTiles.add(createPreviewTile(themeNames[i], themeSwatches[i], prefs.getThemeMode() == i,
                     v -> { prefs.setThemeMode(idx); refreshThemeScreen(root); }));
         }
-        addTileGrid(themeCard, themeTiles, 3);
+        addTileGrid(themeCard, themeTiles, 2);
         root.addView(themeCard);
 
         LinearLayout styleCard = createGroupedWhiteCard();
