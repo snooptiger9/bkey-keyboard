@@ -118,6 +118,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView gifAttributionLabel;
     private LinearLayout gifAttributionBar;
     private TextView gifQueryDisplay;
+    private LinearLayout gifBarRowView;
+    private TextView gifCancelBtnView;
     private long lastSpaceTapTime = 0L;
     private boolean numericFieldActive = false;
     private boolean passwordFieldActive = false;
@@ -625,6 +627,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifBarRow.setOrientation(LinearLayout.HORIZONTAL);
         gifBarRow.setGravity(Gravity.CENTER_VERTICAL);
         gifBarRow.setBackground(roundedBg(sugBarC(), 18));
+        gifBarRowView = gifBarRow;
 
         gifQueryDisplay = new TextView(this);
         gifQueryDisplay.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
@@ -637,6 +640,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         TextView gifCancelBtn = new TextView(this);
         gifCancelBtn.setText("✕");
         gifCancelBtn.setTextColor(labelC());
+        gifCancelBtnView = gifCancelBtn;
         gifCancelBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
         gifCancelBtn.setGravity(Gravity.CENTER);
         gifCancelBtn.setPadding(dp(14), 0, dp(14), 0);
@@ -3179,9 +3183,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    // The search bar's colors used to be fixed once, when the keyboard view was first built, so
+    // after any theme change the bar kept the old theme's background while its text followed the
+    // current theme (dark text on a dark bar with the white theme, a leftover tint after
+    // switching back to black). Re-applying them every time the bar opens keeps it in sync.
+    private void refreshGifSearchBarColors() {
+        if (gifBarRowView != null) gifBarRowView.setBackground(roundedBg(sugBarC(), 18));
+        if (gifCancelBtnView != null) gifCancelBtnView.setTextColor(labelC());
+        updateGifQueryDisplay();
+    }
+
     private void openGifSearchKeyboard() {
         if (keyboardView == null || gifSearchBar == null) return;
         gifSearchFocused = true;
+        refreshGifSearchBarColors();
         gifQueryBuilder.setLength(0);
         if (gifLastQuery != null) gifQueryBuilder.append(gifLastQuery);
         updateGifQueryDisplay();
