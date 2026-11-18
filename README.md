@@ -64,6 +64,7 @@ tailored experience for each.
 **⌨️ Smart typing & prediction**
 - Silent auto-correct on space, and next-word prediction (up to 3 words).
 - On-the-fly word learning as you type, plus a manual trainer that saves a whole sentence instantly.
+- **The more it learns, the more you swipe:** as the keyboard learns your words, its suggestions get more accurate, so most of what you write becomes a quick swipe up on the right suggestion instead of typing every letter.
 - **Automatic emoji suggestions** based on the word or sentence context you're typing.
 
   ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif)
@@ -286,6 +287,7 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 **⌨️ الكتابة والتوقع الذكي**  
 ‏• تصحيح تلقائي صامت عند المسافة، وتوقع الكلمة التالية (حتى 3 كلمات)‏.  
 ‏• تعلّم الكلمات الجديدة أثناء الكتابة تلقائياً + مدرّب يدوي يحفظ جملة كاملة فوراً‏.  
+‏• **كل ما تعلّم الكيبورد كلماتك أكثر، صارت أغلب كتابتك بالسحب:** تصير اقتراحاته أدق مع الوقت، فتكتب معظم كلامك بسحبة وحدة للأعلى على الاقتراح الصحيح بدل ما تكتب كل حرف‏.  
 ‏• **اقتراح إيموجي تلقائي** حسب الكلمة أو سياق الجملة المكتوبة‏.
 
 ![اقتراح إيموجي تلقائي](docs/gifs/emoji_suggest.gif)
