@@ -22,6 +22,7 @@ final class GifDownloadCache {
     // clipboard paste the user does a little while later), short enough that this never
     // becomes a standing collection of GIF files.
     private static final long MAX_AGE_MS = 30L * 60 * 1000;
+    private static final long MAX_TOTAL_BYTES = 20L * 1024 * 1024;
 
     static File dir(Context c) {
         File d = new File(c.getCacheDir(), "gif_send");
@@ -61,8 +62,24 @@ final class GifDownloadCache {
             File[] files = dir.listFiles();
             if (files == null) return;
             long now = System.currentTimeMillis();
+            long total = 0;
+            java.util.List<File> kept = new java.util.ArrayList<>();
             for (File f : files) {
-                if (now - f.lastModified() > MAX_AGE_MS) f.delete();
+                if (now - f.lastModified() > MAX_AGE_MS) {
+                    f.delete();
+                } else {
+                    kept.add(f);
+                    total += f.length();
+                }
+            }
+            // Size cap on top of the age limit: drop the oldest first.
+            if (total > MAX_TOTAL_BYTES) {
+                java.util.Collections.sort(kept, (a, b) -> Long.compare(a.lastModified(), b.lastModified()));
+                for (File f : kept) {
+                    if (total <= MAX_TOTAL_BYTES) break;
+                    total -= f.length();
+                    f.delete();
+                }
             }
         } catch (Exception e) {
             AppLogger.log("GifDownloadCache", "sweepStale()", e);

@@ -501,6 +501,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onCreate() {
         super.onCreate();
         AppLogger.init(this);
+        // Glide's default on-disk cache is 250 MB, which GIF previews filled to ~90 MB
+        // of app cache. Cap it before Glide's first use; it can only be set once.
+        try {
+            Glide.init(this, new com.bumptech.glide.GlideBuilder().setDiskCacheFactory(
+                    new com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory(
+                            this, 20L * 1024 * 1024)));
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onCreate() Glide.init", e);
+        }
         activeInstance = this;
         lastOrientation = getResources().getConfiguration().orientation;
         keyboardPrefs = new KeyboardPreferences(this);
@@ -1070,6 +1079,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         resetEmojiAndGifToFirstTab();
+
+        // Sweeps sent-GIF temp files older than the grace window (and enforces the size cap).
+        try { GifDownloadCache.dir(this); } catch (Exception ignored) {}
 
         try {
             Glide.get(this).clearMemory();
