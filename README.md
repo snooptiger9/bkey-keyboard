@@ -52,8 +52,12 @@ tailored experience for each.
 - Swipe in the exact opposite direction: select all typed text at once.
 
   ![Swipe the opposite direction to select all](docs/gifs/swipe_select_all.gif)
-- Swipe down over the keys: copy selected text — the same gesture turns into paste for one minute
-  afterward.
+- Swipe down over the keys — you choose what it does (Settings → Swipe Gestures; the two options are
+  mutually exclusive, turning one on turns the other off):
+  - **Copy / paste:** copies the selected text, and the same gesture turns into paste for one minute
+    afterward.
+  - **Numbers & symbols:** opens the symbols layout of the language you are typing in; swipe down again
+    on the symbols layout to return to the letters. Works separately for every language.
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif)
