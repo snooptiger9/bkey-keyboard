@@ -504,7 +504,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // Glide's default on-disk cache is 250 MB, which GIF previews filled to ~90 MB
         // of app cache. Cap it before Glide's first use; it can only be set once.
         try {
-            Glide.init(this, new com.bumptech.glide.GlideBuilder().setDiskCacheFactory(
+            Glide.init(this, new com.bumptech.glide.GlideBuilder().setDiskCache(
                     new com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory(
                             this, 20L * 1024 * 1024)));
         } catch (Exception e) {
