@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="docs/images/banner.png" alt="bkey — a BlackBerry-style Android keyboard, swipe up to accept a suggestion and swipe sideways to delete" width="100%">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/banner-light.png">
+    <img src="docs/images/banner.png" alt="bkey — a BlackBerry-style Android keyboard, swipe up to accept a suggestion and swipe sideways to delete" width="100%">
+  </picture>
 </p>
 
 # bkey ⌨️
