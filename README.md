@@ -1,3 +1,5 @@
+<p align="center"><b>English</b> | <a href="README.ar.md">العربية</a></p>
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="docs/images/banner-light.png?v=2">
@@ -23,11 +25,10 @@ If you find this useful, a ⭐ star would mean a lot.
 
 ---
 
-## 📖 English
 
 **🔗 Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Support](#en-support)
 
-### ✨ Overview
+### Overview ✨
 
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
@@ -39,7 +40,7 @@ tailored experience for each.
 
 <a id="en-features"></a>
 
-### 🚀 Features
+### Features 🚀
 
 **✋ Gestures**
 - Swipe up on any suggestion: accept it instantly.
@@ -120,7 +121,7 @@ tailored experience for each.
 
 <a id="en-privacy"></a>
 
-### 🔒 Privacy & security
+### Privacy & security 🔒
 
 - **Clean** version has no network access and can't read SMS, notifications, photos or storage — those
   permissions aren't in the app. Voice typing still works, handled entirely by your device's own
@@ -158,7 +159,7 @@ tailored experience for each.
 
 <a id="en-download"></a>
 
-### 📥 Download
+### Download 📥
 
 Two builds — pick the one that fits you:
 
@@ -185,13 +186,13 @@ Two builds — pick the one that fits you:
 > - **Updating the Clean version:** only from this page.
 > - **Updating the Plus version:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on the Plus version, never the Clean version.
 
-### 🔧 [Build it yourself](BUILDING.md)
+### [Build it yourself](BUILDING.md) 🔧
 
 <br>
 
 <a id="en-faq"></a>
 
-### ❓ FAQ
+### FAQ ❓
 
 <details>
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
@@ -226,7 +227,7 @@ No — it's lightweight and runs fully on-device, with no background cloud proce
 
 <a id="en-community"></a>
 
-### 🤝 Community & bug reports
+### Community & bug reports 🤝
 
 Settings → **Error log** → **"📧 Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
 
@@ -234,252 +235,11 @@ Settings → **Error log** → **"📧 Email developer"** sends crash details st
 
 <a id="en-support"></a>
 
-### 📩 Support
+### Support 📩
 
 If you like the project and want to support it, you can buy me a coffee on Ko-fi:
 
 [![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
-
----
-
-## 📖 العربية
-
-**🔗 اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
-
-### ✨ الوصف
-
-**bkey** كيبورد أندرويد (IME) مبني على إيماءات السحب في تطبيق **BlackBerry Keyboard - Classic**،
-بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب جانبياً على صف الحروف (الاتجاه
-قابل للتخصيص) للحذف بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية والإسبانية بالكامل
-مع تجربة مخصصة بعناية لكل لغة.
-
-<br>
-
-<a id="ar-features"></a>
-
-### 🚀 المميزات
-
-<div dir="rtl">
-
-**✋ الإيماءات (Gestures)**  
-‏• سحب للأعلى من أي اقتراح: قبوله فوراً‏.
-
-![سحب للأعلى لقبول الاقتراح](docs/gifs/swipe_up_suggestion.gif)
-
-‏• سحب أفقي فوق الحروف: حذف آخر كلمة كاملة دفعة واحدة (تقدر تختار اتجاه السحب من الإعدادات)‏.
-
-![سحب جانبي لحذف آخر كلمة](docs/gifs/swipe_delete_word.gif)
-
-‏• سحب بالاتجاه المعاكس تماماً: تحديد كل النص المكتوب دفعة واحدة‏.
-
-![سحب بالاتجاه المعاكس لتحديد كل النص](docs/gifs/swipe_select_all.gif)
-
-‏• سحب للأسفل فوق الحروف: نسخ النص المحدد، وتتحول نفس السحبة تلقائياً للصق لمدة دقيقة بعد النسخ‏.
-
-‏• ضغط مطوّل + سحب على زر المسافة: تحريك المؤشر حرفاً حرفاً‏.
-
-![ضغط مطوّل وسحب زر المسافة لتحريك المؤشر](docs/gifs/cursor_move.gif)
-
-‏• سحب زر المسافة يميناً/يساراً: التبديل بين اللغات المفعّلة (عربي/إنجليزي/إسباني) بدون زر 🌐 منفصل‏.  
-‏• ضغط مطوّل على أي حرف: بوب أب الحروف البديلة (حركات، حروف أجنبية...)‏.
-
-<br>
-
-**⌨️ الكتابة والتوقع الذكي**  
-‏• تصحيح تلقائي صامت عند المسافة، وتوقع الكلمة التالية (حتى 3 كلمات)‏.  
-‏• تعلّم الكلمات الجديدة أثناء الكتابة تلقائياً + مدرّب يدوي يحفظ جملة كاملة فوراً‏.  
-‏• **كل ما تعلّم الكيبورد كلماتك أكثر، صارت أغلب كتابتك بالسحب:** تصير اقتراحاته أدق مع الوقت، فتكتب معظم كلامك بسحبة وحدة للأعلى على الاقتراح الصحيح بدل ما تكتب كل حرف‏.  
-‏• **اقتراح إيموجي تلقائي** حسب الكلمة أو سياق الجملة المكتوبة‏.
-
-![اقتراح إيموجي تلقائي](docs/gifs/emoji_suggest.gif)
-
-‏• اختصارات نصية: اكتب اختصار (مثل "سع") ويتحول تلقائياً لعبارة كاملة عند المسافة‏.  
-‏• نقطة ومسافة تلقائية بضغطتين متتاليتين على زر المسافة‏.  
-‏• أحرف كبيرة تلقائياً في بداية كل جملة (بالإنجليزي/الإسباني)‏.  
-‏• اقتراح أكواد التحقق (OTP) تلقائياً من الرسائل أو واتساب — كل المعالجة محلية على الجهاز *(نسخة بلس فقط)*‏.
-
-<br>
-
-**📋 الحافظة الذكية**  
-‏• درج حافظة كامل: تثبيت، حذف، وحذف تلقائي للعناصر القديمة بعد مدة تختارها (من ساعة إلى 30 يوماً، أو بدون حذف)‏.  
-‏• حفظ آخر لقطة شاشة تلقائياً (مصغّرة واحدة تحل محل القديمة) *(نسخة بلس فقط)*‏.  
-‏• آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة‏.
-
-<br>
-
-**😀 إيموجي و GIF**  
-‏• لوحة إيموجي ورموز كاملة، مع قسم "مستخدم حديثاً" (قابل للحذف أو حذف عنصر واحد بالضغط المطول)‏.  
-‏• تبويب GIF في لوحة الإيموجي مدعوم بـ KLIPY GIF — بحث ومعاينة صور GIF متحركة *(نسخة بلس فقط)*‏.
-
-<br>
-
-**🎨 التخصيص الكامل**  
-‏• 3 ثيمات ألوان، 9 أشكال لأزرار الكيبورد، خطوط متعددة (افتراضي/Tajawal)‏.  
-‏• تحكم كامل بالحجم: حجم حروف المفاتيح، ارتفاع الكيبورد، ارتفاع شريط الاقتراحات، وحجم خط الاقتراحات‏.  
-‏• لون زر الإدخال؛ كبسولات أبجد/الحذف العائمة تتبع لون الثيم تلقائياً‏.  
-‏• أنميشن ارتداد المفاتيح وأنميشن طيران الكلمة عند القبول — كل منهما قابل للإيقاف لحاله‏.
-
-<br>
-
-**🔊 الصوت والاهتزاز**  
-‏• نغمات كتابة متعددة + نغمات مستقلة للسحب والحذف، كل مجموعة بمستوى صوت خاص بها‏.  
-‏• اهتزاز لمسي اختياري عند الضغط والسحب‏.
-
-<br>
-
-**⚙️ تفضيلات إضافية**  
-‏• صف أرقام دائم فوق الكيبورد (مع صف مخصص يظهر بحقول كلمات المرور حتى لو كان الصف العام مطفياً)‏.  
-‏• أرقام عربية هندية (١٢٣) اختيارية‏.  
-‏• وضع اليد الواحدة (مصغّر يمين أو يسار)‏.  
-‏• كتابة بالصوت (زر مايكروفون اختياري)‏.  
-‏• بوب أب معاينة الحرف فوق الزر عند اللمس‏.  
-‏• **خصوصية أولاً**: وضع تخفي (Incognito) يوقف التعلّم والحفظ بالحافظة بالكامل، وكلمات المرور والروابط
-  لا يُتعلَّم منها مطلقاً حتى في الوضع العادي. أما الإيميلات فتُحفظ فقط إذا كانت مكتوبة بشكل صحيح.
-
-</div>
-
-<br>
-
-<a id="ar-privacy"></a>
-
-### 🔒 الخصوصية والأمان
-
-<div dir="rtl">
-
-‏• **النسخة النظيفة** ما فيها اتصال إنترنت، وما تقدر تقرأ رسائل ولا إشعارات ولا صور ولا تخزين — هذي
-  الصلاحيات غير موجودة بالتطبيق. الكتابة بالصوت تشتغل برضه، عبر خدمة التعرف على الصوت بجهازك
-  مباشرة: تجرب التعرف على الصوت داخل الجهاز (بدون نت) أول شي، وما تحتاج اتصال إنترنت إلا إذا
-  جهازك ما يدعم هذي الميزة‏.
-
-‏• **نسخة بلس** فيها بحث GIF، لصق الصور/الستيكرات، اقتراح رمز التحقق (OTP)، والتحديث التلقائي من داخل
-  التطبيق. اقتراح OTP معطّل افتراضياً ويفحص بس إشعار الرسالة أو واتساب الجديد اللحظي — أبداً
-  الرسائل القديمة — وكل المعالجة على الجهاز فقط‏.
-
-> ⚠️ **ملاحظة عن تحذير Play Protect بنسخة بلس**
->
-> نسخة بلس فيها صلاحية الإنترنت (لبحث GIF والتحديث من داخل التطبيق) وصلاحية الوصول للصور (للصق
-> الصور وآخر لقطة شاشة)، وهذا اللي يخلي Google Play Protect يصنفها "Harmful app"، تأكدنا بالتجربة.
-> قدّمنا استئناف لجوجل بهذا التصنيف؛ لحد الحين هذا سلوك متوقع لأي تطبيق مُثبّت من خارج المتجر بهذي
-> الصلاحيات، مو فيروس. ما تبي تشوفه؟ ثبّت النسخة النظيفة بدالها‏.
-
-</div>
-
-<details>
-<summary dir="rtl"><b>‏خطوات تعليق فحص Play Protect، لو تبي تثبت نسخة بلس برضه (اضغط للتفصيل)</b></summary>
-
-<br>
-
-<div dir="rtl">
-
-‏1. افتح تطبيق **متجر Google Play**.  
-‏2. اضغط صورة حسابك بأعلى يمين الشاشة.  
-‏3. اختر **Play Protect**.  
-‏4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.  
-‏5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?»، اختر **Pause**.  
-‏6. ثبّت ملف نسخة بلس.  
-‏7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التثبيت (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
-
-</div>
-
-</details>
-
-<br>
-
-<a id="ar-download"></a>
-
-### 📥 التحميل
-
-نسختين — اختر اللي تناسبك:
-
-<div dir="rtl">
-
-| | 🟢 النسخة النظيفة (موصى بها) | 🔵 نسخة بلس |
-|---|:---:|:---:|
-| تتثبت بدون أي تحذير من Play Protect | ✅ | ⚠️ شوف الملاحظة تحت |
-| بحث GIF ولصق الصور/الستيكرات | — | ✅ |
-| تحديث تلقائي من داخل التطبيق | — | ✅ |
-| اقتراح رمز التحقق (OTP) | — | ✅ (اختياري، معطّل افتراضياً) |
-| حفظ لقطة الشاشة بالحافظة | — | ✅ |
-| اقتراح آخر نص منسوخ | ✅ | ✅ |
-
-</div>
-
-<p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v298.apk"><img src="docs/images/download_clean_ar.png" alt="تثبيت النسخة النظيفة" width="300" height="50"></a>
-&nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v298.apk"><img src="docs/images/download_plus_ar.png" alt="تثبيت نسخة بلس" width="300" height="50"></a>
-</p>
-
-**النسخة النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور.
-
-**نسخة بلس** فيها كل شي، بس تثبيتها يسبب تحذير من Google Play Protect (متوقع، مو مشكلة حقيقية — شوف [الخصوصية والأمان](#ar-privacy) ليش).
-
-> [!CAUTION]
-> - **تحديث تطبيق النسخة النظيفة:** من هذه الصفحة فقط.
-> - **تحديث تطبيق النسخة بلس:** من هذه الصفحة أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**) — بالحالتين تضل نسخة بلس، ما تتحول للنسخة النظيفة.
-
-### 🔧 [ابنِه بنفسك](BUILDING.md)
-
-<br>
-
-<a id="ar-faq"></a>
-
-### ❓ الأسئلة الشائعة
-
-<div dir="rtl">
-
-<details>
-<summary><b>هل الكيبورد يرسل أي بيانات أو كلمات أكتبها للإنترنت؟</b></summary>
-<br>
-
-لا إطلاقاً — كل التعلّم والتصحيح والتوقع يصير محلياً على جهازك. شوف [الخصوصية والأمان](#ar-privacy) لتفاصيل اللي تقدر النسخة النظيفة ونسخة بلس يوصلون له بالضبط.
-
-</details>
-<details>
-<summary><b>ليش قوقل بروتكت يحذّرني عند تثبيت نسخة بلس؟</b></summary>
-<br>
-
-لأن الإنترنت وصلاحية الصور مع بعض يفعّلون التحذير لأي تطبيق مُثبّت من خارج المتجر — سلوك متوقع، مو فيروس. شوف [الخصوصية والأمان](#ar-privacy) للتفاصيل أو لتعليق الفحص.
-
-</details>
-<details>
-<summary><b>وين تتحفظ الكلمات اللي يتعلمها الكيبورد، وكيف أمسحها؟</b></summary>
-<br>
-
-تنحفظ محلياً على جهازك فقط. من إعدادات التطبيق قسم تدريب التوقعات، زر **"مسح جميع الكلمات المتعلمة"** يمسحها كلها فوراً.
-
-</details>
-<details>
-<summary><b>هل يستهلك الكيبورد بطارية أو ذاكرة كثير؟</b></summary>
-<br>
-
-لا — خفيف ويشتغل بالكامل محلياً بدون أي معالجة بالسحابة.
-
-</details>
-
-</div>
-
-<br>
-
-<a id="ar-community"></a>
-
-### 🤝 المجتمع والإبلاغ عن الأخطاء
-
-<div dir="rtl">
-
-من الإعدادات ← **سجل الأخطاء** ← **"📧 إرسال للمطوّر"** يرسل تفاصيل أي خطأ مباشرة لـ **lvl60me@gmail.com** — نفس الإيميل للاقتراحات والملاحظات، وهو الطريقة الوحيدة للتواصل مع المطوّر.
-
-</div>
-
-<br>
-
-<a id="ar-support"></a>
-
-### 📩 الدعم
-
-إذا عجبك المشروع وتبي تدعمه، تقدر تدعمني عبر Ko-fi:
-
-[![ادعمني عبر Ko-fi](https://img.shields.io/badge/Ko--fi-ادعم_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
 ---
 
