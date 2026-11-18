@@ -112,8 +112,9 @@ tailored experience for each.
 - One-handed mode (compact, left or right).
 - Voice typing (optional mic button).
 - Key-preview popup above the key on touch.
-- **Privacy-first**: Incognito mode disables learning and clipboard saving entirely; passwords,
-  emails and links are never learned from, even outside Incognito mode.
+- **Privacy-first**: Incognito mode disables learning and clipboard saving entirely; passwords
+  and links are never learned from, even outside Incognito mode. Email addresses are saved only
+  when they are written correctly.
 
 <br>
 
@@ -332,8 +333,8 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 ‏• وضع اليد الواحدة (مصغّر يمين أو يسار)‏.  
 ‏• كتابة بالصوت (زر مايكروفون اختياري)‏.  
 ‏• بوب أب معاينة الحرف فوق الزر عند اللمس‏.  
-‏• **خصوصية أولاً**: وضع تخفي (Incognito) يوقف التعلّم والحفظ بالحافظة بالكامل، وكلمات المرور/الإيميلات/الروابط
-  لا يُتعلَّم منها مطلقاً حتى في الوضع العادي.
+‏• **خصوصية أولاً**: وضع تخفي (Incognito) يوقف التعلّم والحفظ بالحافظة بالكامل، وكلمات المرور والروابط
+  لا يُتعلَّم منها مطلقاً حتى في الوضع العادي. أما الإيميلات فتُحفظ فقط إذا كانت مكتوبة بشكل صحيح.
 
 </div>
 
