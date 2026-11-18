@@ -86,36 +86,39 @@ final class AppUpdater {
     // settings screen that started this is still the one open on screen, opens the
     // installer every time with nothing left to tap.
     static void downloadAndInstall(final Context appContext, final boolean fetchFullBuild, final Callback cb) {
-        final String updateUrl = fetchFullBuild ? UPDATE_URL_FULL : UPDATE_URL_LITE;
+        final String fallbackUrl = fetchFullBuild ? UPDATE_URL_FULL : UPDATE_URL_LITE;
+        final String versionUrl = fetchFullBuild ? VERSION_URL_FULL : VERSION_URL_LITE;
         final Handler mainHandler = new Handler(Looper.getMainLooper());
         new Thread(() -> {
             boolean success = false;
-            HttpURLConnection conn = null;
             try {
                 File extDir = appContext.getExternalFilesDir(null);
                 if (extDir == null) throw new IOException("no external files dir");
                 File dest = new File(extDir, UPDATE_FILE_NAME);
-                if (dest.exists()) dest.delete();
 
-                conn = (HttpURLConnection) new URL(updateUrl).openConnection();
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(30000);
-                conn.setInstanceFollowRedirects(true);
-
-                try (InputStream in = conn.getInputStream();
-                     OutputStream out = new FileOutputStream(dest)) {
-                    byte[] buf = new byte[8192];
-                    int n;
-                    while ((n = in.read(buf)) != -1) {
-                        out.write(buf, 0, n);
+                // Prefer the GitHub Release asset: unlike the raw repo file, downloading the
+                // Release asset is what GitHub's per-asset download counter counts, so in-app
+                // updates show up in the Releases download numbers. The raw file stays as a
+                // fallback for the short window where the version file is already updated but
+                // the Release itself isn't published yet (or any other failure).
+                String releaseUrl = null;
+                try {
+                    int code = readVersionCodeBlocking(versionUrl);
+                    if (code > 0) {
+                        releaseUrl = RELEASE_DOWNLOAD_BASE + (fetchFullBuild ? "bkey-plus-v" : "bkey-clean-v") + code + ".apk";
                     }
+                } catch (Exception e) {
+                    AppLogger.log("AppUpdater", "downloadAndInstall() version lookup", e);
                 }
-                success = dest.length() > 0;
+                if (releaseUrl != null) {
+                    success = downloadToFile(releaseUrl, dest);
+                }
+                if (!success) {
+                    success = downloadToFile(fallbackUrl, dest);
+                }
             } catch (Exception e) {
                 AppLogger.log("AppUpdater", "downloadAndInstall()", e);
                 success = false;
-            } finally {
-                if (conn != null) conn.disconnect();
             }
 
             final boolean finalSuccess = success;
@@ -129,6 +132,57 @@ final class AppUpdater {
                 }
             });
         }).start();
+    }
+
+    private static final String RELEASE_DOWNLOAD_BASE =
+            "https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/";
+
+    private static int readVersionCodeBlocking(String versionUrl) throws IOException {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) new URL(versionUrl).openConnection();
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            String line = reader.readLine();
+            reader.close();
+            return line == null ? -1 : Integer.parseInt(line.trim());
+        } catch (NumberFormatException e) {
+            return -1;
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
+    }
+
+    /** Downloads url into dest (replacing it). Returns true only on HTTP 200 with a non-empty file. */
+    private static boolean downloadToFile(String url, File dest) {
+        HttpURLConnection conn = null;
+        try {
+            if (dest.exists()) dest.delete();
+            conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(30000);
+            conn.setInstanceFollowRedirects(true);
+            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) return false;
+            try (InputStream in = conn.getInputStream();
+                 OutputStream out = new FileOutputStream(dest)) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) != -1) {
+                    out.write(buf, 0, n);
+                }
+            }
+            boolean ok = dest.length() > 0;
+            if (!ok) dest.delete();
+            return ok;
+        } catch (Exception e) {
+            AppLogger.log("AppUpdater", "downloadToFile()", e);
+            if (dest.exists()) dest.delete();
+            return false;
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
     }
 
     private static boolean tryInstall(Context context, File apkFile) {
