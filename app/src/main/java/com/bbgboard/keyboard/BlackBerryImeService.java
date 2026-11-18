@@ -687,6 +687,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
+        lastLearnedEmail = "";
 
         if (orientationJustChanged) {
             // Just a screen rotation, not a real close/reopen or field switch -- keep
@@ -1054,6 +1055,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onFinishInputView(boolean finishingInput) {
+        // An address typed into a field and left by tapping Next/Login or switching app never
+        // got a space or Enter, so it was never saved. Save it now if it is correctly written.
+        try {
+            if (predictionEngine != null && keyboardView != null && !gifSearchFocused) {
+                invalidateTextCache();
+                String[] ctx = getTypingContext();
+                if (!ctx[0].isEmpty() && ctx[0].indexOf('@') > 0) learnEmailIfValid(ctx[0]);
+            }
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onFinishInputView() learnEmail", e);
+        }
         if (keyboardView != null) {
             keyboardView.dismissFlyingPopup();
 
@@ -1652,6 +1664,21 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshPredictions();
     }
 
+    // Last email saved through learnEmailIfValid(), so the same address isn't counted twice
+    // when e.g. Enter and then leaving the field both see it.
+    private String lastLearnedEmail = "";
+
+    /** Saves an address to the learned words, but only if it is a correctly written email
+     *  (valid shape, real-looking domain, not a known typo like "gmial.com"). Anything else is ignored. */
+    private void learnEmailIfValid(String token) {
+        if (token == null || predictionEngine == null || keyboardView == null) return;
+        String t = token.trim().replaceAll("^[\\u060C.\\u061F!\\u061B:\",()]+|[\\u060C.\\u061F!\\u061B:\",()]+$", "");
+        if (!PredictionEngine.looksLikeEmail(t)) return;
+        if (t.equals(lastLearnedEmail)) return;
+        lastLearnedEmail = t;
+        predictionEngine.learnWordAndTransition(t, "", "", false);
+    }
+
     private String[] getTypingContext() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return new String[]{"", "", ""};
@@ -1835,6 +1862,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (!currentPrefix.isEmpty() && !midEmail) {
                 predictionEngine.learnWordAndTransition(currentPrefix, prevWord, prevWord2, keyboardView.isArabic());
             }
+        }
+
+        // An address that ended a sentence ("write to me@x.com.") is never learned at the
+        // period itself (the dot could still be part of the domain), so catch it here once the
+        // space proves the address really ended.
+        if (" ".equals(text) && currentPrefix.isEmpty() && prevWord != null
+                && prevWord.indexOf('@') > 0 && prevWord.endsWith(".")) {
+            learnEmailIfValid(prevWord);
         }
 
         ic.commitText(text, 1);
@@ -2094,6 +2129,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String[] ctx = getTypingContext();
         if (!ctx[0].isEmpty()) {
             predictionEngine.learnWordAndTransition(ctx[0], ctx[1], ctx[2], keyboardView.isArabic());
+            if (ctx[0].indexOf('@') > 0) lastLearnedEmail = ctx[0];
         }
 
         EditorInfo info = getCurrentInputEditorInfo();
