@@ -45,13 +45,13 @@ tailored experience for each.
 **✋ Gestures**
 - Swipe up on any suggestion: accept it instantly.
 
-  ![Swipe up to accept a suggestion](docs/gifs/swipe_up_suggestion.gif)
+  ![Swipe up to accept a suggestion](docs/gifs/swipe_up_suggestion.gif?v=2)
 - Swipe sideways over the keys: delete the last whole word at once (pick the swipe direction in settings).
 
-  ![Swipe sideways to delete the last word](docs/gifs/swipe_delete_word.gif)
+  ![Swipe sideways to delete the last word](docs/gifs/swipe_delete_word.gif?v=2)
 - Swipe in the exact opposite direction: select all typed text at once.
 
-  ![Swipe the opposite direction to select all](docs/gifs/swipe_select_all.gif)
+  ![Swipe the opposite direction to select all](docs/gifs/swipe_select_all.gif?v=2)
 - Swipe down over the keys — you choose what it does (Settings → Swipe Gestures; the two options are
   mutually exclusive, turning one on turns the other off):
   - **Copy / paste:** copies the selected text, and the same gesture turns into paste for one minute
@@ -60,7 +60,7 @@ tailored experience for each.
     on the symbols layout to return to the letters. Works separately for every language.
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
-  ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif)
+  ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
 - Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish) without a separate 🌐 button.
 - Long-press any key: popup with alternate characters (diacritics, accented letters...).
 
@@ -72,7 +72,7 @@ tailored experience for each.
 - **The more it learns, the more you swipe:** as the keyboard learns your words, its suggestions get more accurate, so most of what you write becomes a quick swipe up on the right suggestion instead of typing every letter.
 - **Automatic emoji suggestions** based on the word or sentence context you're typing.
 
-  ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif)
+  ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif?v=2)
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for an automatic period + space.
 - Auto-capitalize the first letter of each sentence (English/Spanish).
