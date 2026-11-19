@@ -3428,6 +3428,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private GridLayout buildGifRow(List<KlipyClient.GifResult> results, boolean isRecent) {
         GridLayout grid = new GridLayout(this);
         grid.setColumnCount(GIF_GRID_COLUMNS);
+        grid.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         int panelW = (gifPanel != null && gifPanel.getWidth() > 0) ? gifPanel.getWidth()
                 : (rootContainer != null && rootContainer.getWidth() > 0 ? rootContainer.getWidth() : getResources().getDisplayMetrics().widthPixels);
         // grid padding is dp(4) on each side, so subtract exactly that: equal gutters left and right
@@ -3436,7 +3437,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             ImageView iv = new ImageView(this);
             iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-            lp.width = cellW - dp(6);
+            // Equal-weight columns that fill the row exactly, so left and right gutters match
+            // regardless of rounding or the window width.
+            lp.width = 0;
+            lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             lp.height = dp(70);
             lp.setMargins(dp(3), dp(3), dp(3), dp(3));
             iv.setLayoutParams(lp);
@@ -3461,6 +3465,21 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 });
             }
             grid.addView(iv);
+        }
+        // Invisible fillers so a short last row keeps the same four equal-width columns.
+        int rem = results.size() % GIF_GRID_COLUMNS;
+        if (rem != 0 && results.size() > 0) {
+            for (int i = rem; i < GIF_GRID_COLUMNS; i++) {
+                View filler = new View(this);
+                GridLayout.LayoutParams flp = new GridLayout.LayoutParams();
+                flp.width = 0;
+                flp.height = dp(70);
+                flp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                flp.setMargins(dp(3), dp(3), dp(3), dp(3));
+                filler.setLayoutParams(flp);
+                filler.setVisibility(View.INVISIBLE);
+                grid.addView(filler);
+            }
         }
         return grid;
     }
