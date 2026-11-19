@@ -191,9 +191,9 @@
 </div>
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v299.apk"><img src="docs/images/download_clean_ar.png" alt="تثبيت النسخة النظيفة" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v300.apk"><img src="docs/images/download_clean_ar.png" alt="تثبيت النسخة النظيفة" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v299.apk"><img src="docs/images/download_plus_ar.png" alt="تثبيت نسخة بلس" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v300.apk"><img src="docs/images/download_plus_ar.png" alt="تثبيت نسخة بلس" width="300" height="50"></a>
 </p>
 
 **النسخة النظيفة** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور.
