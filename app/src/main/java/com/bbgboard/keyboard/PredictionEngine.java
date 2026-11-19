@@ -731,6 +731,10 @@ public class PredictionEngine {
         String word = normalize(wordRaw);
         if (word.length() < 3 || isTrustedWord(word)) return null;
         String wordLower = fold(word);
+        if (!isArabic && !latinIsSpanish) {
+            String fixed = COMMON_EN_TYPOS.get(wordLower);
+            if (fixed != null) return matchCase(word, fixed);
+        }
         Map<String, Integer> candidates = new HashMap<>();
         collectNearMissCandidates(wordLower, learnedByFold, learnedWords, candidates, 30, !isArabic);
         int baseScore = 30;
@@ -743,6 +747,14 @@ public class PredictionEngine {
         if (candidates.isEmpty()) return null;
         List<String> ranked = sortKeysByScoreDesc(candidates);
         String top = ranked.get(0);
+        // 3-letter words are too ambiguous for silent correction: only fix a letter swap or a
+        // slip onto a neighbouring key (Latin QWERTY); everything else stays a suggestion.
+        if (wordLower.length() == 3) {
+            String tf = fold(top);
+            if (isAdjacentSwap(wordLower, tf)) return top;
+            if (!isArabic && isNeighborKeySlip(wordLower, tf)) return top;
+            return null;
+        }
         if (ranked.size() == 1 || strong) return top;
         // Only correct silently when the winner is clear. Letter-swap typos ("hte") always are;
         // otherwise the winner must clearly beat the runner-up. An ambiguous word is left alone
@@ -755,6 +767,70 @@ public class PredictionEngine {
         int offset = topClose ? DIST1 + baseScore : baseScore;
         int topCnt = Math.max(topScore - offset, 1), secondCnt = Math.max(secondScore - offset, 1);
         return topCnt >= 2 * secondCnt ? top : null;
+    }
+
+    private static final String[] QWERTY_ROWS = {"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+
+    private static boolean keysAdjacent(char a, char b) {
+        int ra = -1, ca = -1, rb = -1, cb = -1;
+        for (int r = 0; r < QWERTY_ROWS.length; r++) {
+            int i = QWERTY_ROWS[r].indexOf(a);
+            if (i >= 0) { ra = r; ca = i; }
+            int j = QWERTY_ROWS[r].indexOf(b);
+            if (j >= 0) { rb = r; cb = j; }
+        }
+        if (ra < 0 || rb < 0 || a == b) return false;
+        return Math.abs(ra - rb) <= 1 && Math.abs(ca - cb) <= 1;
+    }
+
+    /** Same length, exactly one differing letter, and the two letters sit on neighbouring keys. */
+    private static boolean isNeighborKeySlip(String a, String b) {
+        if (a.length() != b.length()) return false;
+        int diff = -1;
+        for (int i = 0; i < a.length(); i++) {
+            if (a.charAt(i) != b.charAt(i)) {
+                if (diff >= 0) return false;
+                diff = i;
+            }
+        }
+        return diff >= 0 && keysAdjacent(a.charAt(diff), b.charAt(diff));
+    }
+
+    private static String matchCase(String typed, String fixed) {
+        if (typed.length() > 1 && typed.equals(typed.toUpperCase(Locale.ROOT))) return fixed.toUpperCase(Locale.ROOT);
+        if (Character.isUpperCase(typed.charAt(0))) return Character.toUpperCase(fixed.charAt(0)) + fixed.substring(1);
+        return fixed;
+    }
+
+    /** Only certain, unambiguous English slips. Never a real word on the left side. */
+    private static final Map<String, String> COMMON_EN_TYPOS = new HashMap<>();
+    static {
+        String[] p = {
+            "teh","the", "hte","the", "taht","that", "thsi","this", "tihs","this", "nad","and", "adn","and",
+            "wiht","with", "whit","with", "waht","what", "wat","what", "jsut","just", "juts","just",
+            "becuase","because", "becasue","because", "beacuse","because", "recieve","receive",
+            "recieved","received", "definately","definitely", "definitly","definitely",
+            "seperate","separate", "occured","occurred", "occurence","occurrence",
+            "untill","until", "wich","which", "whihc","which", "thier","their", "freind","friend",
+            "frist","first", "firts","first", "togehter","together", "tommorow","tomorrow",
+            "tomorow","tomorrow", "tommorrow","tomorrow", "alot","a lot", "doesnt","doesn't",
+            "dont","don't", "cant","can't", "wont","won't", "didnt","didn't", "isnt","isn't",
+            "wasnt","wasn't", "couldnt","couldn't", "wouldnt","wouldn't", "shouldnt","shouldn't",
+            "im","I'm", "ive","I've", "youre","you're", "thats","that's", "whats","what's",
+            "adress","address", "begining","beginning", "beleive","believe", "calender","calendar",
+            "comming","coming", "diffrent","different", "enviroment","environment",
+            "goverment","government", "happend","happened", "knowlege","knowledge",
+            "mispell","misspell", "neccessary","necessary", "noticable","noticeable",
+            "pubic","public", "reciept","receipt", "refered","referred", "succesful","successful",
+            "tounge","tongue", "wierd","weird", "yuo","you", "yoru","your", "ahve","have", "hvae","have",
+            "coudl","could", "woudl","would", "shoudl","should", "peice","piece", "thnak","thank",
+            "thanx","thanks", "thansk","thanks", "pleae","please", "plase","please", "realy","really",
+            "reallly","really", "abuot","about", "aobut","about", "form","from"
+        };
+        for (int i = 0; i + 1 < p.length; i += 2) {
+            if (p[i].equals("form") || p[i].equals("pubic")) continue; // real words: never rewrite
+            COMMON_EN_TYPOS.put(p[i], p[i + 1]);
+        }
     }
 
     private String findInlineFix(String prefix, String prefixLower, boolean isArabic) {

@@ -2838,27 +2838,25 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         FrameLayout.LayoutParams menuLp = new FrameLayout.LayoutParams(menuWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
         menuLp.leftMargin = clampedLeft;
         menuLp.topMargin = anchorBottom + dp(4);
+        // Measure the menu now so its final position is known before it is ever shown: flip
+        // above the anchor when it would overflow below, then clamp inside the keyboard so
+        // neither row can be clipped (the post-layout height was unreliable for lower items).
+        menu.measure(View.MeasureSpec.makeMeasureSpec(menuWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        int menuH = menu.getMeasuredHeight();
+        int rootH = rootH0;
+        int gap = dp(4);
+        int top = anchorBottom + gap;
+        if (top + menuH > rootH - gap) {
+            top = anchorTop - menuH - gap;
+        }
+        top = Math.max(gap, Math.min(top, rootH - menuH - gap));
+        menuLp.topMargin = top;
         menu.setLayoutParams(menuLp);
-        // Hidden until its final position below is settled, so it never flashes at this
-        // placeholder spot (below the anchor) for a frame before jumping to where it actually
-        // belongs — that one-frame jump was the "flicker" between the two positions.
-        menu.setVisibility(View.INVISIBLE);
 
         overlay.addView(menu);
         rootContainer.addView(overlay);
         activeClipMenuOverlay = overlay;
-
-        menu.post(() -> {
-            if (activeClipMenuOverlay != overlay) return;
-            int rootH = rootContainer.getHeight();
-            int menuH = menu.getHeight();
-            if (anchorBottom + dp(4) + menuH > rootH - dp(4)) {
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) menu.getLayoutParams();
-                lp.topMargin = Math.max(dp(4), anchorTop - menuH - dp(4));
-                menu.setLayoutParams(lp);
-            }
-            menu.setVisibility(View.VISIBLE);
-        });
     }
 
     private View buildMenuItemView(int iconType, String label, final Runnable action) {
