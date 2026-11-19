@@ -657,10 +657,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         gifBarRow.addView(gifCancelBtn);
 
-        FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(38));
-        lpBarRow.setMargins(dp(8), dp(9), dp(8), dp(9));
+        FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(34));
+        lpBarRow.setMargins(dp(8), dp(6), dp(8), dp(6));
         gifSearchBar.addView(gifBarRow, lpBarRow);
-        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56));
+        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46));
         lpGifBar.gravity = Gravity.TOP;
         rootContainer.addView(gifSearchBar, lpGifBar);
 
@@ -1132,6 +1132,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         activeEmojiCategory = 0;
         gifPanelShown = false;
         gifSearchFocused = false;
+        applyNavigationBarColor();
         gifQueryBuilder.setLength(0);
         gifLastQuery = null;
         updateGifSearchBoxDisplay(null);
@@ -1171,11 +1172,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (keyboardView == null) return;
         try {
             int color = keyboardView.getShellColor();
-            if (rootContainer != null) rootContainer.setBackgroundColor(color);
+            // While the GIF search field is open, the strip above the keyboard (behind the pill)
+            // must not paint a bar of its own: root + window background go transparent.
+            int bg = gifSearchFocused ? Color.TRANSPARENT : color;
+            if (rootContainer != null) rootContainer.setBackgroundColor(bg);
             android.view.Window w = getWindow() != null ? getWindow().getWindow() : null;
             if (w == null) return;
             w.setNavigationBarColor(color);
-            w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(color));
+            w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(bg));
             View decor = w.getDecorView();
             int flags = decor.getSystemUiVisibility();
             if (keyboardView.isLightTheme()) {
@@ -3289,10 +3293,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.VISIBLE);
         ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
         if (lp instanceof FrameLayout.LayoutParams) {
-            ((FrameLayout.LayoutParams) lp).topMargin = dp(56);
+            ((FrameLayout.LayoutParams) lp).topMargin = dp(46);
             keyboardView.setLayoutParams(lp);
         }
         gifSearchBar.setVisibility(View.VISIBLE);
+        applyNavigationBarColor(); // makes the strip behind the pill transparent while searching
         updateOneHandedSwitchButton();
         forceWindowRepaintAfterResize();
     }
@@ -3300,6 +3305,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void closeGifSearchKeyboard(boolean runSearch) {
         if (!gifSearchFocused) return;
         gifSearchFocused = false;
+        applyNavigationBarColor();
         String typed = gifQueryBuilder.toString().trim();
         if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
         if (keyboardView != null) {
