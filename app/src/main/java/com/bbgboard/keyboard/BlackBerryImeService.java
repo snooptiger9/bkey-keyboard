@@ -3052,7 +3052,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifSearchRow.setOrientation(LinearLayout.HORIZONTAL);
         gifSearchRow.setGravity(Gravity.CENTER_VERTICAL);
         gifSearchRow.setBackground(roundedBg(gifSearchFieldC(), 18));
-        LinearLayout.LayoutParams lpSearchRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(32));
+        // Floats over the top of the GIF grid (added to gifPanel below), so GIFs scroll under it.
+        FrameLayout.LayoutParams lpSearchRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(32), Gravity.TOP);
         lpSearchRow.setMargins(dp(8), dp(6), dp(8), dp(6));
         gifSearchRow.setLayoutParams(lpSearchRow);
 
@@ -3087,13 +3088,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         gifSearchRow.addView(gifSearchClearBtn);
 
-        gifCol.addView(gifSearchRow);
 
         gifStatusText = new TextView(this);
         gifStatusText.setGravity(Gravity.CENTER);
         gifStatusText.setTextColor(subC());
         gifStatusText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-        gifStatusText.setPadding(dp(16), dp(24), dp(16), dp(16));
+        gifStatusText.setPadding(dp(16), dp(24 + 44), dp(16), dp(16));
         gifStatusText.setVisibility(View.GONE);
         gifCol.addView(gifStatusText);
 
@@ -3102,11 +3102,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         gifGrid = new LinearLayout(this);
         gifGrid.setOrientation(LinearLayout.VERTICAL);
-        gifGrid.setPadding(dp(4), dp(2), dp(4), dp(36));
+        gifGrid.setPadding(dp(4), dp(44), dp(4), dp(36));
         gifScroll.addView(gifGrid);
         gifCol.addView(gifScroll);
 
         gifPanel.addView(gifCol);
+        gifPanel.addView(gifSearchRow);
         gifPanel.addView(buildGifAttributionBar(), new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
         container.addView(gifPanel);
