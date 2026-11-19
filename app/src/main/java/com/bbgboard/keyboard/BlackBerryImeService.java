@@ -60,7 +60,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private BlackBerryKeyboardView keyboardView;
 
     private static final java.util.Set<String> APPEARANCE_PREF_KEYS = new java.util.HashSet<>(java.util.Arrays.asList(
-            "theme_mode", "keyboard_style", "key_font", "enter_color",
+            "theme_mode", "theme_follow_system", "keyboard_style", "key_font", "enter_color",
             "key_font_scale", "keyboard_scale", "suggestion_bar_scale", "suggestion_text_level"));
     private final SharedPreferences.OnSharedPreferenceChangeListener appearanceChangeListener = (sp, key) -> {
         if (key == null || !APPEARANCE_PREF_KEYS.contains(key)) return;
@@ -693,6 +693,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             orientationJustChanged = true;
         }
         lastOrientation = newConfig.orientation;
+        // Day/night switch of the system: re-resolve the theme when "follow system" is on.
+        try {
+            if (keyboardPrefs != null && keyboardPrefs.isThemeFollowSystem() && keyboardView != null) {
+                keyboardView.reloadAppearanceFromPrefs();
+                keyboardView.invalidate();
+                rebuildDrawersIfThemeChanged();
+            }
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "onConfigurationChanged() follow system theme", e);
+        }
     }
 
     @Override

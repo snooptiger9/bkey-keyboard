@@ -1609,6 +1609,11 @@ public class MainActivity extends Activity {
         fillThemeAndStyleScreen(root);
     }
 
+    private String vibrationLabel(int ms) {
+        return tr("قوة الاهتزاز: ", "Vibration strength: ")
+                + (ms == 0 ? tr("افتراضي النظام", "System default") : ms + " ms");
+    }
+
     private void refreshThemeScreen(LinearLayout root) {
         root.removeViews(1, root.getChildCount() - 1);
         fillThemeAndStyleScreen(root);
@@ -1674,6 +1679,13 @@ public class MainActivity extends Activity {
         }
         addTileGrid(themeCard, themeTiles, 2);
         root.addView(themeCard);
+
+        root.addView(createSwitchTile(
+                tr("اتباع وضع النظام (نهاري/ليلي)", "Follow system (light/dark)"),
+                tr("نهاري: السمة البيضاء. ليلي: السمة الداكنة التي اخترتها", "Light mode: white theme. Dark mode: the dark theme you picked"),
+                prefs.isThemeFollowSystem(),
+                checked -> { prefs.setThemeFollowSystem(checked); refreshThemeScreen(root); }
+        ));
 
         LinearLayout styleCard = createGroupedWhiteCard();
         styleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
@@ -2696,6 +2708,41 @@ public class MainActivity extends Activity {
                 prefs.isVibrationEnabled(),
                 checked -> prefs.setVibrationEnabled(checked)
         ));
+
+        LinearLayout vibCard = createGroupedWhiteCard();
+        vibCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        final TextView vibLabel = new TextView(this);
+        vibLabel.setTextColor(Color.parseColor(dm("#111827")));
+        vibLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        vibLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        vibLabel.setText(vibrationLabel(prefs.getVibrationMs()));
+        vibCard.addView(vibLabel);
+        SeekBar vibSeek = new SeekBar(this);
+        vibSeek.setMax(46); // 0 = system default, 1..46 = 5..50 ms
+        vibSeek.setProgress(prefs.getVibrationMs() == 0 ? 0 : prefs.getVibrationMs() - 4);
+        vibSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        vibSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int ms = progress == 0 ? 0 : progress + 4;
+                prefs.setVibrationMs(ms);
+                vibLabel.setText(vibrationLabel(ms));
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int ms = prefs.getVibrationMs();
+                try {
+                    android.os.Vibrator vib = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
+                    if (vib != null && vib.hasVibrator() && ms > 0) {
+                        if (android.os.Build.VERSION.SDK_INT >= 26) vib.vibrate(android.os.VibrationEffect.createOneShot(ms, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+                        else vib.vibrate(ms);
+                    }
+                } catch (Exception ignored) {}
+            }
+        });
+        vibCard.addView(vibSeek);
+        root.addView(vibCard);
 
         LinearLayout volCard = createGroupedWhiteCard();
         volCard.setPadding(dp(16), dp(16), dp(16), dp(16));

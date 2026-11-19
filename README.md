@@ -98,6 +98,8 @@ tailored experience for each.
 
 **🎨 Full customization**
 - 3 color themes, 9 key shapes, multiple fonts (System/Tajawal).
+- **Follow system (light/dark):** optionally switch automatically with Android's day/night mode: the white theme by day, your chosen dark theme at night.
+- The suggestion bar uses the same font you pick for the keys.
 - Full size control: key letter size, keyboard height, suggestion bar height, and suggestion
   text size.
 - Enter-key color; the floating ABC/Delete capsules match your theme automatically.
@@ -107,7 +109,7 @@ tailored experience for each.
 
 **🔊 Sound & vibration**
 - Multiple typing tones + independent swipe/delete tones, each with its own volume level.
-- Optional haptic vibration on press and swipe.
+- Optional haptic vibration on press and swipe, with an adjustable strength (5–50 ms, or the system default).
 
 <br>
 

@@ -60,7 +60,10 @@ public class KeyboardPreferences {
     private static final String PREFS_NAME = "bb_keyboard_settings_v7";
     private final SharedPreferences prefs;
 
+    private Context appCtx;
+
     public KeyboardPreferences(Context context) {
+        this.appCtx = context.getApplicationContext() != null ? context.getApplicationContext() : context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         removeDefaultShortcutsOnce();
     }
@@ -279,8 +282,38 @@ public class KeyboardPreferences {
         prefs.edit().putFloat("suggestion_bar_scale", clamped).apply();
     }
 
-    public int getThemeMode() {
+    /** The theme the user picked, ignoring "follow system". */
+    public int getRawThemeMode() {
         return prefs.getInt("theme_mode", THEME_GBOARD_WHITE);
+    }
+
+    public boolean isThemeFollowSystem() {
+        return prefs.getBoolean("theme_follow_system", false);
+    }
+
+    public void setThemeFollowSystem(boolean on) {
+        prefs.edit().putBoolean("theme_follow_system", on).apply();
+    }
+
+    private boolean systemIsNight() {
+        try {
+            int ui = appCtx.getResources().getConfiguration().uiMode
+                    & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            return ui == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Effective theme. With "follow system" on: light mode -> the white theme, dark mode -> the
+     * dark theme the user picked (or Matte black if they picked the white one).
+     */
+    public int getThemeMode() {
+        int raw = getRawThemeMode();
+        if (!isThemeFollowSystem()) return raw;
+        if (!systemIsNight()) return THEME_GBOARD_WHITE;
+        return raw == THEME_GBOARD_WHITE ? THEME_BLACKBERRY_DARK : raw;
     }
 
     public void setThemeMode(int mode) {
@@ -438,6 +471,16 @@ public class KeyboardPreferences {
     public void setSwipeSoundVolume(int volume) {
         int clamped = Math.max(0, Math.min(100, volume));
         prefs.edit().putInt("swipe_sound_volume", clamped).apply();
+    }
+
+    /** 0 = system default haptic; otherwise a custom buzz length in ms (5..50). */
+    public int getVibrationMs() {
+        int v = prefs.getInt("vibration_ms", 0);
+        return v <= 0 ? 0 : Math.max(5, Math.min(50, v));
+    }
+
+    public void setVibrationMs(int ms) {
+        prefs.edit().putInt("vibration_ms", ms <= 0 ? 0 : Math.max(5, Math.min(50, ms))).apply();
     }
 
     public boolean isVibrationEnabled() {

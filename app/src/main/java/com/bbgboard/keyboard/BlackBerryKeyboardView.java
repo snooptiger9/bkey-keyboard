@@ -652,6 +652,7 @@ public class BlackBerryKeyboardView extends View {
 
         mainTextPaint.setTextAlign(Paint.Align.CENTER);
         mainTextPaint.setTypeface(loadKeyTypeface(context, prefs.getKeyFont()));
+        sugTextPaint.setTypeface(mainTextPaint.getTypeface());
 
         subTextPaint.setTextAlign(Paint.Align.RIGHT);
 
@@ -761,6 +762,7 @@ public class BlackBerryKeyboardView extends View {
         this.themeMode = prefs.getThemeMode();
         this.keyboardStyle = prefs.getKeyboardStyle();
         mainTextPaint.setTypeface(loadKeyTypeface(getContext(), prefs.getKeyFont()));
+        sugTextPaint.setTypeface(mainTextPaint.getTypeface());
         popupTextPaint.setTypeface(popupTypefaceFor(prefs.getKeyFont()));
         applyLanguageMode();
 
@@ -925,6 +927,21 @@ public class BlackBerryKeyboardView extends View {
 
     private void vibrateTap(boolean longPress) {
         if (!prefs.isVibrationEnabled()) return;
+        int ms = prefs.getVibrationMs();
+        if (ms > 0) {
+            try {
+                android.os.Vibrator vib = (android.os.Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+                if (vib != null && vib.hasVibrator()) {
+                    int d = longPress ? Math.min(60, ms * 3 / 2) : ms;
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        vib.vibrate(android.os.VibrationEffect.createOneShot(d, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        vib.vibrate(d);
+                    }
+                    return;
+                }
+            } catch (Exception ignored) {}
+        }
         performHapticFeedback(longPress ? HapticFeedbackConstants.LONG_PRESS : HapticFeedbackConstants.KEYBOARD_TAP);
     }
 
