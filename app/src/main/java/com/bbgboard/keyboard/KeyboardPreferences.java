@@ -711,6 +711,16 @@ public class KeyboardPreferences {
         prefs.edit().remove(KEY_AUTOCORRECT_EXCEPTIONS).apply();
     }
 
+    // Sub-option of silent auto-correct: false (default) only corrects when the best candidate
+    // clearly beats the runner-up; true also corrects when it is a close call.
+    public boolean isAutoCorrectStrong() {
+        return prefs.getBoolean("auto_correct_strong", false);
+    }
+
+    public void setAutoCorrectStrong(boolean strong) {
+        prefs.edit().putBoolean("auto_correct_strong", strong).apply();
+    }
+
     public boolean isAutoLearnEnabled() {
         return prefs.getBoolean("auto_learn_enabled", true);
     }

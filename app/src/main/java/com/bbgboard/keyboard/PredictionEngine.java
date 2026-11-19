@@ -721,6 +721,11 @@ public class PredictionEngine {
     }
 
     public synchronized String findAutoCorrection(String wordRaw, boolean isArabic) {
+        return findAutoCorrection(wordRaw, isArabic, false);
+    }
+
+    /** strong = also correct close calls (best candidate not clearly ahead of the runner-up). */
+    public synchronized String findAutoCorrection(String wordRaw, boolean isArabic, boolean strong) {
         if (!ready) return null;
         if (isProtectedToken(wordRaw)) return null;
         String word = normalize(wordRaw);
@@ -738,7 +743,7 @@ public class PredictionEngine {
         if (candidates.isEmpty()) return null;
         List<String> ranked = sortKeysByScoreDesc(candidates);
         String top = ranked.get(0);
-        if (ranked.size() == 1) return top;
+        if (ranked.size() == 1 || strong) return top;
         // Only correct silently when the winner is clear. Letter-swap typos ("hte") always are;
         // otherwise the winner must clearly beat the runner-up. An ambiguous word is left alone
         // and its candidates simply stay in the suggestion bar for the user to pick.

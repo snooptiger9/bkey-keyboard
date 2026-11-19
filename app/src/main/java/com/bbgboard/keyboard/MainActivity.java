@@ -999,6 +999,13 @@ public class MainActivity extends Activity {
         return card;
     }
 
+    private void setAutoCorrectStrongTileEnabled(View tile, boolean enabled) {
+        tile.setAlpha(enabled ? 1f : 0.5f);
+        if (tile instanceof ViewGroup && ((ViewGroup) tile).getChildCount() > 1) {
+            ((ViewGroup) tile).getChildAt(1).setEnabled(enabled);
+        }
+    }
+
     private View createSwitchTile(String title, String subtitle, boolean checked, final SwitchListener listener) {
         return createSwitchTile(title, subtitle, checked, true, listener);
     }
@@ -2061,13 +2068,32 @@ public class MainActivity extends Activity {
                 checked -> prefs.setNextWordPredictionEnabled(checked)
         ));
 
+        final View[] autoCorrectStrongTile = new View[1];
         root.addView(createSwitchTile(
                 tr("تصحيح تلقائي صامت عند المسافة", "Silent auto-correct on space"),
                 tr("يستبدل الكلمة تلقائياً بأقرب كلمة صحيحة معروفة بمجرد الضغط على مسافة، بدون ما تلمس شيء. اضغط باكسبيس فوراً للتراجع وإرجاع ما كتبته بالضبط. عند الإيقاف يرجع للوضع الحالي: الاقتراح يظهر لك فقط وأنت تختاره يدوياً",
                         "Instantly replaces the word with the closest known correct word the moment you press space — no tap needed. Press backspace right away to undo and restore exactly what you typed. When off, it goes back to the current behavior: the suggestion just shows and you pick it yourself"),
                 prefs.isAutoCorrectEnabled(),
-                checked -> prefs.setAutoCorrectEnabled(checked)
+                checked -> {
+                    prefs.setAutoCorrectEnabled(checked);
+                    if (autoCorrectStrongTile[0] != null) setAutoCorrectStrongTileEnabled(autoCorrectStrongTile[0], checked);
+                }
         ));
+
+        // Sub-option of the silent auto-correct switch above: only usable while it is on.
+        View strongTile = createSwitchTile(
+                tr("تصحيح أقوى", "Stronger correction"),
+                tr("الوضع الافتراضي يصحح فقط لما يكون التصحيح واضحاً. التشغيل يخلّيه يصحح حتى لما تتقارب الاحتمالات، فيصحح أكثر لكن قد يخطئ أحياناً. اضغط باكسبيس للتراجع",
+                        "The default only corrects when the fix is clear. Turning this on also corrects close calls, so it fixes more but may occasionally get it wrong. Press backspace to undo"),
+                prefs.isAutoCorrectStrong(),
+                prefs.isAutoCorrectEnabled(),
+                checked -> prefs.setAutoCorrectStrong(checked)
+        );
+        ViewGroup.MarginLayoutParams strongLp = (ViewGroup.MarginLayoutParams) strongTile.getLayoutParams();
+        strongLp.setMarginStart(dp(18));
+        strongTile.setLayoutParams(strongLp);
+        autoCorrectStrongTile[0] = strongTile;
+        root.addView(strongTile);
 
         root.addView(createSwitchTile(
                 tr("زر الكتابة بالصوت (المايك)", "Voice typing button (mic)"),

@@ -1880,7 +1880,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (!currentPrefix.isEmpty() && keyboardPrefs.isAutoCorrectEnabled() && currentPrefix.indexOf('@') < 0
                     && !currentPrefix.equalsIgnoreCase(rejectedAutoCorrectWord)
                     && !keyboardPrefs.isAutoCorrectException(currentPrefix)) {
-                String correction = predictionEngine.findAutoCorrection(currentPrefix, keyboardView.isArabic());
+                String correction = predictionEngine.findAutoCorrection(currentPrefix, keyboardView.isArabic(), keyboardPrefs.isAutoCorrectStrong());
                 if (correction != null) {
                     ic.deleteSurroundingText(currentPrefix.length(), 0);
                     ic.commitText(correction + " ", 1);
