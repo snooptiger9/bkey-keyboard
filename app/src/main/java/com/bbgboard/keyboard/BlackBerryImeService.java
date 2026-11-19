@@ -508,7 +508,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         try {
             Glide.init(this, new com.bumptech.glide.GlideBuilder().setDiskCache(
                     new com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory(
-                            this, 20L * 1024 * 1024)));
+                            this, 10L * 1024 * 1024)));
         } catch (Exception e) {
             AppLogger.log("BlackBerryImeService", "onCreate() Glide.init", e);
         }
@@ -874,6 +874,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (c != null && now - cachedBeforeTime < 1500L) return c;
         CharSequence cs = ic.getTextBeforeCursor(90, 0);
         String s = cs == null ? "" : cs.toString();
+        // Apps like Samsung Notes keep a placeholder char (U+FFFC "OBJ") in the text for each
+        // inserted image/GIF; treat it as a plain space (same length) so it is never read as a word.
+        if (s.indexOf('\uFFFC') >= 0) s = s.replace('\uFFFC', ' ');
         cachedBefore90 = s;
         cachedBeforeTime = now;
         return s;

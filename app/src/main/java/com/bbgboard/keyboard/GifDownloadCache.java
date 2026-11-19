@@ -21,8 +21,8 @@ final class GifDownloadCache {
     // Long enough for the receiving app to read a just-sent/just-copied GIF (including a
     // clipboard paste the user does a little while later), short enough that this never
     // becomes a standing collection of GIF files.
-    private static final long MAX_AGE_MS = 30L * 60 * 1000;
-    private static final long MAX_TOTAL_BYTES = 20L * 1024 * 1024;
+    private static final long MAX_AGE_MS = 10L * 60 * 1000;
+    private static final long MAX_TOTAL_BYTES = 12L * 1024 * 1024;
 
     static File dir(Context c) {
         File d = new File(c.getCacheDir(), "gif_send");
@@ -49,6 +49,7 @@ final class GifDownloadCache {
             while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
             out.close();
             in.close();
+            sweepStale(cacheDir);
             return name;
         } catch (Exception e) {
             return null;
