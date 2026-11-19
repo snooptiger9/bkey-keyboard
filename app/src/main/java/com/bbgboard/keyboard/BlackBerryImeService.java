@@ -657,10 +657,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         gifBarRow.addView(gifCancelBtn);
 
-        FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(34));
-        lpBarRow.setMargins(dp(8), dp(6), dp(8), dp(6));
+        FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        lpBarRow.setMargins(dp(8), 0, dp(8), 0); // the pill IS the bar: no extra strip above/below
         gifSearchBar.addView(gifBarRow, lpBarRow);
-        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46));
+        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(36));
         lpGifBar.gravity = Gravity.TOP;
         rootContainer.addView(gifSearchBar, lpGifBar);
 
@@ -3290,7 +3290,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.VISIBLE);
         ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
         if (lp instanceof FrameLayout.LayoutParams) {
-            ((FrameLayout.LayoutParams) lp).topMargin = dp(46);
+            ((FrameLayout.LayoutParams) lp).topMargin = dp(36); // pill sits directly on the suggestion bar
             keyboardView.setLayoutParams(lp);
         }
         gifSearchBar.setVisibility(View.VISIBLE);
