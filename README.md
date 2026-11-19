@@ -70,6 +70,7 @@ tailored experience for each.
 - Silent auto-correct on space, and next-word prediction (up to 3 words).
 - On-the-fly word learning as you type, plus a manual trainer that saves a whole sentence instantly.
 - **The more it learns, the more you swipe:** as the keyboard learns your words, its suggestions get more accurate, so most of what you write becomes a quick swipe up on the right suggestion instead of typing every letter.
+- **Learning limits:** it keeps up to 8,000 learned words (the least-used are dropped first) and up to 32 likely next words for each word (the weakest are dropped first).
 - **Automatic emoji suggestions** based on the word or sentence context you're typing.
 
   ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif?v=2)

@@ -67,6 +67,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (keyboardView != null) {
             keyboardView.reloadAppearanceFromPrefs();
             keyboardView.invalidate();
+            try {
+                keyboardView.animate().cancel();
+                keyboardView.setAlpha(0.55f);
+                keyboardView.animate().alpha(1f).setDuration(220).start();
+            } catch (Exception ignored) {}
         }
         rebuildDrawersIfThemeChanged();
     };
@@ -2860,6 +2865,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         overlay.addView(menu);
         rootContainer.addView(overlay);
         activeClipMenuOverlay = overlay;
+        menu.setAlpha(0f);
+        menu.setScaleX(0.92f);
+        menu.setScaleY(0.92f);
+        menu.setPivotX(menuWidth / 2f);
+        menu.setPivotY(top > anchorTop ? 0f : menuH);
+        menu.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(140)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
     }
 
     private View buildMenuItemView(int iconType, String label, final Runnable action) {
@@ -3403,7 +3415,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             iv.setLayoutParams(lp);
             iv.setBackgroundColor(sugBarC());
             try {
-                Glide.with(this).load(gif.previewUrl).into(iv);
+                Glide.with(this).load(gif.previewUrl)
+                        .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(160))
+                        .into(iv);
             } catch (Exception e) {
                 AppLogger.log("BlackBerryImeService", "buildGifRow()", e);
             }
