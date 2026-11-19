@@ -3047,18 +3047,19 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifCol.setOrientation(LinearLayout.VERTICAL);
         gifCol.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        LinearLayout gifSearchRow = new LinearLayout(this);
+        final LinearLayout gifSearchRow = new LinearLayout(this);
+        gifSearchRowView = gifSearchRow;
         gifSearchRow.setOrientation(LinearLayout.HORIZONTAL);
         gifSearchRow.setGravity(Gravity.CENTER_VERTICAL);
-        gifSearchRow.setBackground(roundedBg(sugBarC(), 18));
-        LinearLayout.LayoutParams lpSearchRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
+        gifSearchRow.setBackground(roundedBg(gifSearchFieldC(), 18));
+        LinearLayout.LayoutParams lpSearchRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(32));
         lpSearchRow.setMargins(dp(8), dp(6), dp(8), dp(6));
         gifSearchRow.setLayoutParams(lpSearchRow);
 
         gifSearchBox = new TextView(this);
         gifSearchBox.setText(uiText("ابحث عن GIF...", "Search GIFs...", "Buscar GIF..."));
         gifSearchBox.setSingleLine(true);
-        gifSearchBox.setTextColor(subC());
+        gifSearchBox.setTextColor((labelC() & 0x00FFFFFF) | 0xD0000000);
         gifSearchBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
         gifSearchBox.setGravity(Gravity.CENTER_VERTICAL | (gifArabic ? Gravity.RIGHT : Gravity.LEFT));
         gifSearchBox.setPadding(dp(12), dp(6), dp(12), dp(6));
@@ -3251,7 +3252,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // after any theme change the bar kept the old theme's background while its text followed the
     // current theme (dark text on a dark bar with the white theme, a leftover tint after
     // switching back to black). Re-applying them every time the bar opens keeps it in sync.
+    private LinearLayout gifSearchRowView;
+
+    /** The (non-typing) GIF search field: the suggestion-bar color at 85% opacity. */
+    private int gifSearchFieldC() {
+        return (sugBarC() & 0x00FFFFFF) | 0xD9000000;
+    }
+
     private void refreshGifSearchBarColors() {
+        if (gifSearchRowView != null) gifSearchRowView.setBackground(roundedBg(gifSearchFieldC(), 18));
         // The full-width strip behind the rounded search pill had no background of its own, so it
         // showed the window's old color (black) until the keyboard was closed and reopened.
         if (gifSearchBar != null) gifSearchBar.setBackgroundColor(shellC());
@@ -3324,7 +3333,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifSearchBox.setTextColor(labelC());
         } else {
             gifSearchBox.setText(uiText("ابحث عن GIF...", "Search GIFs...", "Buscar GIF..."));
-            gifSearchBox.setTextColor(subC());
+            gifSearchBox.setTextColor((labelC() & 0x00FFFFFF) | 0xD0000000);
         }
         if (gifSearchClearBtn != null) gifSearchClearBtn.setVisibility(hasQuery ? View.VISIBLE : View.GONE);
     }
