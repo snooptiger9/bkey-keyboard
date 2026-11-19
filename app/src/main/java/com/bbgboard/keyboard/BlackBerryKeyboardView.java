@@ -1138,15 +1138,12 @@ public class BlackBerryKeyboardView extends View {
         for (int i = 0; i < 3; i++) {
             padded.add((newSuggestions != null && i < newSuggestions.size()) ? newSuggestions.get(i) : "");
         }
-        if (!padded.equals(suggestions)) sugFadeStart = SystemClock.uptimeMillis();
         suggestions = padded;
         middleIconType = iconType;
         invalidate();
     }
 
     private int middleIconType = 0;
-    private long sugFadeStart = 0L;
-    private static final long SUG_FADE_MS = 150L;
 
     // The swipe-up sound should only play when there is actually something in the slot to
     // accept -- tapping or swiping an empty suggestion bar (nothing typed, no suggestions)
@@ -1756,16 +1753,7 @@ public class BlackBerryKeyboardView extends View {
                 canvas.drawText(shown, startX + iconW + gap, textY, paint);
                 paint.setTextAlign(prevAlign);
             } else {
-                long fe = now - sugFadeStart;
-                if (fe < SUG_FADE_MS && !word.isEmpty()) {
-                    int prevA = paint.getAlpha();
-                    paint.setAlpha((int) ((0.3f + 0.7f * fe / (float) SUG_FADE_MS) * prevA));
-                    canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
-                    paint.setAlpha(prevA);
-                    postInvalidateOnAnimation();
-                } else {
-                    canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
-                }
+                canvas.drawText(ellipsizeWord(word, r.width() - 10f * density, paint), r.centerX(), textY, paint);
             }
 
         }
