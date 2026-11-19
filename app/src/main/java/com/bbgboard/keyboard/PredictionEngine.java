@@ -807,7 +807,7 @@ public class PredictionEngine {
     static {
         String[] p = {
             "teh","the", "hte","the", "taht","that", "thsi","this", "tihs","this", "nad","and", "adn","and",
-            "wiht","with", "whit","with", "waht","what", "wat","what", "jsut","just", "juts","just",
+            "wiht","with", "waht","what", "jsut","just", "juts","just",
             "becuase","because", "becasue","because", "beacuse","because", "recieve","receive",
             "recieved","received", "definately","definitely", "definitly","definitely",
             "seperate","separate", "occured","occurred", "occurence","occurrence",
@@ -816,19 +816,18 @@ public class PredictionEngine {
             "tomorow","tomorrow", "tommorrow","tomorrow", "alot","a lot", "doesnt","doesn't",
             "dont","don't", "cant","can't", "wont","won't", "didnt","didn't", "isnt","isn't",
             "wasnt","wasn't", "couldnt","couldn't", "wouldnt","wouldn't", "shouldnt","shouldn't",
-            "im","I'm", "ive","I've", "youre","you're", "thats","that's", "whats","what's",
+            "youre","you're", "thats","that's", "whats","what's",
             "adress","address", "begining","beginning", "beleive","believe", "calender","calendar",
             "comming","coming", "diffrent","different", "enviroment","environment",
             "goverment","government", "happend","happened", "knowlege","knowledge",
             "mispell","misspell", "neccessary","necessary", "noticable","noticeable",
-            "pubic","public", "reciept","receipt", "refered","referred", "succesful","successful",
+            "reciept","receipt", "refered","referred", "succesful","successful",
             "tounge","tongue", "wierd","weird", "yuo","you", "yoru","your", "ahve","have", "hvae","have",
             "coudl","could", "woudl","would", "shoudl","should", "peice","piece", "thnak","thank",
-            "thanx","thanks", "thansk","thanks", "pleae","please", "plase","please", "realy","really",
-            "reallly","really", "abuot","about", "aobut","about", "form","from"
+            "thansk","thanks", "pleae","please", "plase","please", "realy","really",
+            "reallly","really", "abuot","about", "aobut","about"
         };
         for (int i = 0; i + 1 < p.length; i += 2) {
-            if (p[i].equals("form") || p[i].equals("pubic")) continue; // real words: never rewrite
             COMMON_EN_TYPOS.put(p[i], p[i + 1]);
         }
     }
