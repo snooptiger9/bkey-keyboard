@@ -1134,6 +1134,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifSearchFocused = false;
         gifQueryBuilder.setLength(0);
         gifLastQuery = null;
+        updateGifSearchBoxDisplay(null);
         suppressEmojiTabScrollSync = true;
         if (gifPanel != null) gifPanel.setVisibility(View.GONE);
         if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.VISIBLE);
@@ -3232,6 +3233,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String activeLangCode = keyboardView != null ? keyboardView.getActiveLanguageCode() : KeyboardPreferences.LANG_EN;
         if (gifLastQuery == null) {
             gifLastQuery = "";
+            updateGifSearchBoxDisplay("");
             loadGifResults(true, "");
         } else if (!gifLastLoadedLangCode.equals(activeLangCode)) {
             loadGifResults(gifLastQuery.isEmpty(), gifLastQuery);
