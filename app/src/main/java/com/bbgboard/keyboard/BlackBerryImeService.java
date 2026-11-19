@@ -632,7 +632,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         LinearLayout gifBarRow = new LinearLayout(this);
         gifBarRow.setOrientation(LinearLayout.HORIZONTAL);
         gifBarRow.setGravity(Gravity.CENTER_VERTICAL);
-        gifBarRow.setBackground(roundedBg(sugBarC(), 18));
+        gifBarRow.setBackground(new android.graphics.drawable.ColorDrawable(sugBarC()));
         gifBarRowView = gifBarRow;
 
         gifQueryDisplay = new TextView(this);
@@ -658,7 +658,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifBarRow.addView(gifCancelBtn);
 
         FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lpBarRow.setMargins(dp(8), 0, dp(8), 0); // the pill IS the bar: no extra strip above/below
+        lpBarRow.setMargins(0, 0, 0, 0); // the field IS the bar: edge to edge, square, no strip around it
         gifSearchBar.addView(gifBarRow, lpBarRow);
         FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(36));
         lpGifBar.gravity = Gravity.TOP;
@@ -3272,7 +3272,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // The full-width strip behind the rounded search pill had no background of its own, so it
         // showed the window's old color (black) until the keyboard was closed and reopened.
         if (gifSearchBar != null) gifSearchBar.setBackgroundColor(shellC());
-        if (gifBarRowView != null) gifBarRowView.setBackground(roundedBg(sugBarC(), 18));
+        if (gifBarRowView != null) gifBarRowView.setBackground(new android.graphics.drawable.ColorDrawable(sugBarC()));
         if (gifCancelBtnView != null) gifCancelBtnView.setTextColor(labelC());
         updateGifQueryDisplay();
     }
