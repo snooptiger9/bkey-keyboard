@@ -1609,6 +1609,14 @@ public class MainActivity extends Activity {
         fillThemeAndStyleScreen(root);
     }
 
+    private void setVibrationSliderEnabled(View card, boolean enabled) {
+        card.setAlpha(enabled ? 1f : 0.45f);
+        if (card instanceof ViewGroup) {
+            ViewGroup g = (ViewGroup) card;
+            for (int i = 0; i < g.getChildCount(); i++) g.getChildAt(i).setEnabled(enabled);
+        }
+    }
+
     private String vibrationLabel(int ms) {
         return tr("قوة الاهتزاز: ", "Vibration strength: ")
                 + (ms == 0 ? tr("افتراضي النظام", "System default") : ms + " ms");
@@ -2702,11 +2710,15 @@ public class MainActivity extends Activity {
                 }
         ));
 
+        final View[] vibCardRef = new View[1];
         root.addView(createSwitchTile(
                 tr("تفعيل الاهتزاز عند اللمس", "Enable vibration on touch"),
                 tr("اهتزاز لمسي خفيف مع الضغط والسحب", "A light haptic buzz on key press and swipe"),
                 prefs.isVibrationEnabled(),
-                checked -> prefs.setVibrationEnabled(checked)
+                checked -> {
+                    prefs.setVibrationEnabled(checked);
+                    if (vibCardRef[0] != null) setVibrationSliderEnabled(vibCardRef[0], checked);
+                }
         ));
 
         LinearLayout vibCard = createGroupedWhiteCard();
@@ -2743,6 +2755,8 @@ public class MainActivity extends Activity {
         });
         vibCard.addView(vibSeek);
         root.addView(vibCard);
+        vibCardRef[0] = vibCard;
+        setVibrationSliderEnabled(vibCard, prefs.isVibrationEnabled());
 
         LinearLayout volCard = createGroupedWhiteCard();
         volCard.setPadding(dp(16), dp(16), dp(16), dp(16));
