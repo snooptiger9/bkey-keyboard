@@ -773,7 +773,23 @@ public class KeyboardPreferences {
     public String findShortcutExpansion(String typedWord) {
         if (typedWord == null || typedWord.isEmpty()) return null;
         Map<String, String> map = getShortcuts();
-        return map.get(typedWord.trim());
+        String typed = typedWord.trim();
+        // An exact match always wins (so "Omw" and "omw" can still be two different shortcuts).
+        String exact = map.get(typed);
+        if (exact != null) return exact;
+        // Otherwise ignore the letter case: with auto-capitalization on, "omw" at the start of a
+        // sentence is typed as "Omw" and used to miss the shortcut saved as "omw".
+        for (Map.Entry<String, String> e : map.entrySet()) {
+            if (e.getKey().equalsIgnoreCase(typed)) {
+                String full = e.getValue();
+                // Typed with a capital first letter -> the expansion starts with a capital too.
+                if (!full.isEmpty() && Character.isUpperCase(typed.charAt(0))) {
+                    full = full.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + full.substring(1);
+                }
+                return full;
+            }
+        }
+        return null;
     }
 
     private void saveShortcutsMap(Map<String, String> map) {
