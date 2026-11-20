@@ -276,7 +276,7 @@ public class MainActivity extends Activity {
         String lastFlavor = prefs.getLastKnownFlavor();
         if (lastFlavor != null && !lastFlavor.equals(currentFlavor)) {
             String switchedToName = BuildConfig.OTP_FEATURES_ENABLED
-                    ? tr("بلس", "Plus")
+                    ? "bkey Plus"
                     : "bkey";
             // Kept short on purpose so it fits on one line on the toast instead of
             // wrapping to two.
@@ -649,9 +649,9 @@ public class MainActivity extends Activity {
             group4.addView(createMenuRow(
                     ModernIconView.ICON_REFRESH_UPDATE,
                     tr("تحديث التطبيق", "Update the app"),
-                    tr("الإصدار " + BuildConfig.VERSION_NAME + " • نسخة Plus"
+                    tr("الإصدار " + BuildConfig.VERSION_NAME + " • نسخة bkey Plus"
                                     + "\nاضغط لتنزيل أي تحديث جديد",
-                            "Version " + BuildConfig.VERSION_NAME + " • Plus build"
+                            "Version " + BuildConfig.VERSION_NAME + " • bkey Plus build"
                                     + "\ntap to download the latest update"),
                     true,
                     this::checkForAppUpdate

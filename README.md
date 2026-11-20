@@ -79,14 +79,14 @@ tailored experience for each.
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for an automatic period + space.
 - Auto-capitalize the first letter of each sentence (English/Spanish).
-- Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(Plus only)*
+- Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(bkey Plus only)*
 
 <br>
 
 **📋 Smart clipboard**
 - A full clipboard drawer: pin, delete, and auto-delete old items after a duration you choose
   (from 1 hour to 30 days, or never).
-- Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(Plus only)*
+- Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(bkey Plus only)*
 - The last copied text shows right in the middle suggestion slot for a quick re-paste.
 
 <br>
@@ -94,7 +94,7 @@ tailored experience for each.
 **😀 Emoji & GIF**
 - Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
   remove a single emoji).
-- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs. *(Plus only)*
+- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs. *(bkey Plus only)*
 
 <br>
 
@@ -137,20 +137,20 @@ tailored experience for each.
   speech-recognition service: it tries on-device (offline) recognition first, and only needs an
   internet connection as a fallback if your device doesn't support that.
 
-- **Plus** version adds GIF search, image/sticker pasting, OTP suggestions, and the in-app updater. OTP
+- **bkey Plus** adds GIF search, image/sticker pasting, OTP suggestions, and the in-app updater. OTP
   suggestions are off by default and only read a newly-arrived SMS/WhatsApp notification — never
   your message history — all processed on-device, never sent to any server.
 
-> ⚠️ **About the Play Protect warning on the Plus version**
+> ⚠️ **About the Play Protect warning on bkey Plus**
 >
-> The Plus version has internet access (for GIF search and the in-app update checker) and photo
+> bkey Plus has internet access (for GIF search and the in-app update checker) and photo
 > access (for image-pasting and the screenshot-to-clipboard suggestion), and that's what gets it
 > flagged by Google Play Protect as a "Harmful app" — confirmed by our own testing. We've appealed
 > the false positive with Google; until resolved, this is expected behavior for a sideloaded app
 > with these permissions, not malware. Prefer not to see it? Install the standard bkey version instead.
 
 <details>
-<summary><b>Steps to pause Play Protect scanning, if you still want to install the Plus version (tap for details)</b></summary>
+<summary><b>Steps to pause Play Protect scanning, if you still want to install bkey Plus (tap for details)</b></summary>
 
 <br>
 
@@ -159,7 +159,7 @@ tailored experience for each.
 3. Tap **Play Protect**.
 4. Tap the ⚙️ settings icon, top right.
 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
-6. Install the Plus version's APK.
+6. Install the bkey Plus APK.
 7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after installing (recommended to keep it on for your other apps).
 
 </details>
@@ -172,7 +172,7 @@ tailored experience for each.
 
 Two builds — pick the one that fits you:
 
-| | 🟢 bkey (recommended) | 🔵 Plus version |
+| | 🟢 bkey (recommended) | 🔵 bkey Plus |
 |---|:---:|:---:|
 | Installs with no Play Protect warning | ✅ | ⚠️ see note below |
 | GIF search & image/sticker pasting | — | ✅ |
@@ -184,16 +184,16 @@ Two builds — pick the one that fits you:
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v302.apk"><img src="https://img.shields.io/badge/Download_bkey_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Download bkey" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v302.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v302.apk"><img src="https://img.shields.io/badge/Download_bkey_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download bkey Plus" width="300" height="50"></a>
 </p>
 
 **bkey** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
 
-**Plus** version has everything, but installing it triggers a Google Play Protect warning (expected, not a real problem — see [Privacy & security](#en-privacy) for why).
+**bkey Plus** has everything, but installing it triggers a Google Play Protect warning (expected, not a real problem — see [Privacy & security](#en-privacy) for why).
 
 > [!CAUTION]
 > - **Updating bkey:** only from this page.
-> - **Updating the Plus version:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on the Plus version, never the standard bkey version.
+> - **Updating bkey Plus:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on bkey Plus, never the standard bkey version.
 
 ### [Build it yourself](BUILDING.md) 🔧
 
@@ -207,11 +207,11 @@ Two builds — pick the one that fits you:
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
 <br>
 
-No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what bkey and Plus can each access.
+No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what bkey and bkey Plus can each access.
 
 </details>
 <details>
-<summary><b>Why does Google Play Protect warn me when I install the Plus version?</b></summary>
+<summary><b>Why does Google Play Protect warn me when I install bkey Plus?</b></summary>
 <br>
 
 Internet and photo access together trigger it for any sideloaded app — expected, not malware. See [Privacy & security](#en-privacy) for why, or to pause the scan.

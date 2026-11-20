@@ -21,7 +21,7 @@ What you expected to happen instead.
 
 **Device info**
 - App version (Settings → About, or the APK filename): 
-- Build: bkey / Plus
+- Build: bkey / bkey Plus
 - Android version:
 - Device model:
 
