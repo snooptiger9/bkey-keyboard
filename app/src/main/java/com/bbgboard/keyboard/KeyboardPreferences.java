@@ -19,6 +19,8 @@ public class KeyboardPreferences {
     public static final int THEME_GBOARD_WHITE = 1;
     public static final int THEME_MIDNIGHT_SLATE = 2;
     public static final int THEME_FOREST_GREEN = 3;
+    /** Follows Android's day/night: white by day, Matte black at night. */
+    public static final int THEME_AUTO = 4;
 
     public static final int STYLE_BLACKBERRY_FRETS = 0;
     public static final int STYLE_GBOARD_ROUNDED = 1;
@@ -296,12 +298,8 @@ public class KeyboardPreferences {
         return prefs.getInt("theme_mode", THEME_GBOARD_WHITE);
     }
 
-    public boolean isThemeFollowSystem() {
-        return prefs.getBoolean("theme_follow_system", false);
-    }
-
-    public void setThemeFollowSystem(boolean on) {
-        prefs.edit().putBoolean("theme_follow_system", on).apply();
+    public boolean isThemeAuto() {
+        return getRawThemeMode() == THEME_AUTO;
     }
 
     private boolean systemIsNight() {
@@ -314,15 +312,11 @@ public class KeyboardPreferences {
         }
     }
 
-    /**
-     * Effective theme. With "follow system" on: light mode -> the white theme, dark mode -> the
-     * dark theme the user picked (or Matte black if they picked the white one).
-     */
+    /** Effective theme: "Auto" resolves to white (system light) or Matte black (system dark). */
     public int getThemeMode() {
         int raw = getRawThemeMode();
-        if (!isThemeFollowSystem()) return raw;
-        if (!systemIsNight()) return THEME_GBOARD_WHITE;
-        return raw == THEME_GBOARD_WHITE ? THEME_BLACKBERRY_DARK : raw;
+        if (raw != THEME_AUTO) return raw;
+        return systemIsNight() ? THEME_BLACKBERRY_DARK : THEME_GBOARD_WHITE;
     }
 
     public void setThemeMode(int mode) {

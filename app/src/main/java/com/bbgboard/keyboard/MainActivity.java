@@ -624,17 +624,21 @@ public class MainActivity extends Activity {
                 ModernIconView.ICON_DICTIONARY_BOOK,
                 tr("القاموس واختصارات الكلمات", "Dictionary & shortcuts"),
                 null,
-                true,
+                false,
                 this::openShortcutsScreen
         ));
-        group3.addView(createMenuRow(
+        root.addView(group3);
+
+        // Typing stats: its own card, separate from the dictionary and clipboard rows.
+        LinearLayout groupStats = createGroupedWhiteCard();
+        groupStats.addView(createMenuRow(
                 ModernIconView.ICON_STATS,
                 tr("إحصائيات الكتابة", "Typing stats"),
                 null,
                 false,
                 this::openStatsScreen
         ));
-        root.addView(group3);
+        root.addView(groupStats);
 
         LinearLayout group4 = createGroupedWhiteCard();
         if (BuildConfig.OTP_FEATURES_ENABLED) {
@@ -685,7 +689,8 @@ public class MainActivity extends Activity {
     }
 
     private String getThemeAndStyleSummary() {
-        String th = prefs.getThemeMode() == KeyboardPreferences.THEME_GBOARD_WHITE ? tr("السمة البيضاء", "White theme")
+        String th = prefs.getRawThemeMode() == KeyboardPreferences.THEME_AUTO ? tr("السمة التلقائية", "Auto theme")
+                : prefs.getThemeMode() == KeyboardPreferences.THEME_GBOARD_WHITE ? tr("السمة البيضاء", "White theme")
                 : prefs.getThemeMode() == KeyboardPreferences.THEME_MIDNIGHT_SLATE ? tr("السمة الكحلية", "Midnight theme")
                 : prefs.getThemeMode() == KeyboardPreferences.THEME_FOREST_GREEN ? tr("السمة الخضراء", "Forest theme")
                 : tr("سمة bkey السوداء", "bkey black theme");
@@ -1683,24 +1688,17 @@ public class MainActivity extends Activity {
         themeCard.addView(tHeader);
 
         String[] themeNames = tr(
-                new String[]{"أسود مطفي", "أبيض ساطع", "كحلي داكن", "أخضر غابة"},
-                new String[]{"Matte black", "Clean white", "Midnight slate", "Forest green"});
-        String[] themeSwatches = new String[]{"#1C1C1E", "#FFFFFF", "#1E2A47", "#1B3126"};
+                new String[]{"أسود مطفي", "أبيض ساطع", "كحلي داكن", "أخضر غابة", "تلقائي (النظام)"},
+                new String[]{"Matte black", "Clean white", "Midnight slate", "Forest green", "Auto (system)"});
+        String[] themeSwatches = new String[]{"#1C1C1E", "#FFFFFF", "#1E2A47", "#1B3126", "#FFFFFF"};
         List<View> themeTiles = new ArrayList<>();
         for (int i = 0; i < themeNames.length; i++) {
             final int idx = i;
-            themeTiles.add(createPreviewTile(themeNames[i], themeSwatches[i], prefs.getThemeMode() == i,
-                    v -> { prefs.setThemeMode(idx); refreshThemeScreen(root); }));
+            themeTiles.add(createPreviewTile(themeNames[i], themeSwatches[i], prefs.getRawThemeMode() == i,
+                    v -> { prefs.setThemeMode(idx); refreshThemeScreen(root); }, i == KeyboardPreferences.THEME_AUTO));
         }
         addTileGrid(themeCard, themeTiles, 2);
         root.addView(themeCard);
-
-        root.addView(createSwitchTile(
-                tr("اتباع وضع النظام (نهاري/ليلي)", "Follow system (light/dark)"),
-                tr("نهاري: السمة البيضاء. ليلي: السمة الداكنة التي اخترتها", "Light mode: white theme. Dark mode: the dark theme you picked"),
-                prefs.isThemeFollowSystem(),
-                checked -> { prefs.setThemeFollowSystem(checked); refreshThemeScreen(root); }
-        ));
 
         LinearLayout styleCard = createGroupedWhiteCard();
         styleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
@@ -1877,6 +1875,10 @@ public class MainActivity extends Activity {
     }
 
     private View createPreviewTile(String label, String colorHex, boolean selected, View.OnClickListener onClick) {
+        return createPreviewTile(label, colorHex, selected, onClick, false);
+    }
+
+    private View createPreviewTile(String label, String colorHex, boolean selected, View.OnClickListener onClick, boolean halfAndHalf) {
         LinearLayout tile = new LinearLayout(this);
         tile.setOrientation(LinearLayout.VERTICAL);
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -1916,7 +1918,33 @@ public class MainActivity extends Activity {
         swatch.setShape(GradientDrawable.OVAL);
         swatch.setColor(Color.parseColor(colorHex));
         swatch.setStroke(dp(1), Color.parseColor(dm("#E5E7EB")));
-        circle.setBackground(swatch);
+        if (halfAndHalf) {
+            // "Auto" swatch: left half white, right half black.
+            final int strokeColor = Color.parseColor(dm("#E5E7EB"));
+            final float sw = dp(1);
+            circle = new View(this) {
+                @Override
+                protected void onDraw(android.graphics.Canvas c) {
+                    float w = getWidth(), h = getHeight(), r = Math.min(w, h) / 2f;
+                    android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                    android.graphics.Path circlePath = new android.graphics.Path();
+                    circlePath.addCircle(w / 2f, h / 2f, r - sw / 2f, android.graphics.Path.Direction.CW);
+                    c.save();
+                    c.clipPath(circlePath);
+                    p.setColor(Color.WHITE);
+                    c.drawRect(0, 0, w / 2f, h, p);
+                    p.setColor(Color.parseColor("#1C1C1E"));
+                    c.drawRect(w / 2f, 0, w, h, p);
+                    c.restore();
+                    p.setStyle(android.graphics.Paint.Style.STROKE);
+                    p.setStrokeWidth(sw);
+                    p.setColor(strokeColor);
+                    c.drawCircle(w / 2f, h / 2f, r - sw / 2f, p);
+                }
+            };
+        } else {
+            circle.setBackground(swatch);
+        }
         circle.setElevation(selected ? dp(3) : dp(1));
         FrameLayout.LayoutParams lpCircle = new FrameLayout.LayoutParams(circleSize, circleSize);
         lpCircle.gravity = Gravity.CENTER;
@@ -1926,7 +1954,8 @@ public class MainActivity extends Activity {
         if (selected) {
             TextView check = new TextView(this);
             check.setText("✓");
-            check.setTextColor(colorHex.equals("#FFFFFF") ? Color.parseColor("#2563EB") : Color.WHITE);
+            check.setTextColor(halfAndHalf ? Color.parseColor("#2563EB")
+                    : colorHex.equals("#FFFFFF") ? Color.parseColor("#2563EB") : Color.WHITE);
             check.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             check.setTypeface(Typeface.DEFAULT_BOLD);
             FrameLayout.LayoutParams lpCheck = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

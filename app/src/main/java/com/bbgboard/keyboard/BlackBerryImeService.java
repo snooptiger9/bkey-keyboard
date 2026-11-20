@@ -696,7 +696,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         lastOrientation = newConfig.orientation;
         // Day/night switch of the system: re-resolve the theme when "follow system" is on.
         try {
-            if (keyboardPrefs != null && keyboardPrefs.isThemeFollowSystem() && keyboardView != null) {
+            if (keyboardPrefs != null && keyboardPrefs.isThemeAuto() && keyboardView != null) {
                 keyboardView.reloadAppearanceFromPrefs();
                 keyboardView.invalidate();
                 rebuildDrawersIfThemeChanged();
