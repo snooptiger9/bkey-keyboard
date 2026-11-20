@@ -1081,6 +1081,98 @@ public class PredictionEngine {
         saveToPrefs();
     }
 
+    /** Everything the keyboard learned (words, next-word links, language tags) as JSON, for backup. */
+    public synchronized JSONObject exportBackup() {
+        loadFromPrefs();
+        dirty = false;
+        JSONObject out = new JSONObject();
+        try {
+            JSONObject words = new JSONObject();
+            for (Map.Entry<String, Integer> e : learnedWords.entrySet()) words.put(e.getKey(), e.getValue());
+            JSONObject tags = new JSONObject();
+            for (Map.Entry<String, String> e : learnedWordLatinTag.entrySet()) tags.put(e.getKey(), e.getValue());
+            out.put("words", words);
+            out.put("bigrams", bigramsToJson(learnedBigrams));
+            out.put("trigrams", bigramsToJson(learnedTrigrams));
+            out.put("tags", tags);
+        } catch (Exception e) {
+            AppLogger.log("PredictionEngine", "exportBackup()", e);
+        }
+        return out;
+    }
+
+    private static final int BACKUP_MAX_WORDS = 20000;
+    private static final int BACKUP_MAX_KEY = 64;
+    private static final int BACKUP_MAX_NEXT = 64;
+
+    private static int clampCount(int v) {
+        return Math.max(1, Math.min(99999, v));
+    }
+
+    private static boolean okKey(String k) {
+        return k != null && !k.isEmpty() && k.length() <= BACKUP_MAX_KEY;
+    }
+
+    private void mergeNested(JSONObject src, Map<String, Map<String, Integer>> dst) {
+        if (src == null) return;
+        Iterator<String> keys = src.keys();
+        int outer = 0;
+        while (keys.hasNext() && outer++ < BACKUP_MAX_WORDS) {
+            String k = keys.next();
+            JSONObject inner = src.optJSONObject(k);
+            if (!okKey(k) || inner == null) continue;
+            Map<String, Integer> map = dst.get(k);
+            if (map == null) { map = new HashMap<>(); dst.put(k, map); }
+            Iterator<String> nk = inner.keys();
+            int n = 0;
+            while (nk.hasNext() && n++ < BACKUP_MAX_NEXT) {
+                String w = nk.next();
+                if (!okKey(w)) continue;
+                int c = clampCount(inner.optInt(w, 1));
+                Integer old = map.get(w);
+                map.put(w, old == null ? c : Math.max(old, c));
+            }
+        }
+    }
+
+    /**
+     * Merges a backup into what is already learned (never deletes anything; for a word in both,
+     * the higher count wins). Input is validated and size-limited. Returns words in the backup.
+     */
+    public synchronized int importBackup(JSONObject backup) {
+        if (backup == null) return 0;
+        loadFromPrefs();
+        int seen = 0;
+        JSONObject words = backup.optJSONObject("words");
+        if (words != null) {
+            Iterator<String> keys = words.keys();
+            while (keys.hasNext() && seen < BACKUP_MAX_WORDS) {
+                String k = keys.next();
+                if (!okKey(k)) continue;
+                int c = clampCount(words.optInt(k, 1));
+                Integer old = learnedWords.get(k);
+                learnedWords.put(k, old == null ? c : Math.max(old, c));
+                seen++;
+            }
+        }
+        mergeNested(backup.optJSONObject("bigrams"), learnedBigrams);
+        mergeNested(backup.optJSONObject("trigrams"), learnedTrigrams);
+        JSONObject tags = backup.optJSONObject("tags");
+        if (tags != null) {
+            Iterator<String> keys = tags.keys();
+            int n = 0;
+            while (keys.hasNext() && n++ < BACKUP_MAX_WORDS) {
+                String k = keys.next();
+                String v = tags.optString(k, null);
+                if (okKey(k) && v != null && v.length() <= 8 && !learnedWordLatinTag.containsKey(k)) learnedWordLatinTag.put(k, v);
+            }
+        }
+        saveToPrefs();
+        loadFromPrefs();
+        dirty = false;
+        return seen;
+    }
+
     public synchronized void clearAllLearnedData() {
         learnedWords.clear();
         learnedWordLatinTag.clear();

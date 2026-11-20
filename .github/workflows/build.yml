@@ -161,6 +161,13 @@ jobs:
           if [ -z "$LOG" ]; then
             LOG="- Minor fixes and improvements"
           fi
+
+          # A hand-written RELEASE_NOTES.md wins when its first line is the marker
+          # "<!-- versionCode: N -->" for THIS release, so stale notes from an earlier
+          # release can never be reused by accident.
+          if [ -f RELEASE_NOTES.md ] && [ "$(head -n 1 RELEASE_NOTES.md)" = "<!-- versionCode: ${{ steps.verdiff.outputs.new }} -->" ]; then
+            LOG="$(tail -n +2 RELEASE_NOTES.md)"$'\n'
+          fi
           {
             echo "body<<CHANGELOG_EOF"
             printf '%s' "$LOG"

@@ -658,6 +658,14 @@ public class MainActivity extends Activity {
             ));
         }
         group4.addView(createMenuRow(
+                ModernIconView.ICON_BACKUP,
+                tr("النسخ الاحتياطي والاستعادة", "Backup & restore"),
+                tr("احفظ كلماتك واختصاراتك في ملف واستعدها في أي جهاز",
+                        "Save your words and shortcuts to a file and restore them on any device"),
+                true,
+                this::openBackupScreen
+        ));
+        group4.addView(createMenuRow(
                 ModernIconView.ICON_SETTINGS_GEAR,
                 tr("سجل الأخطاء", "Error log"),
                 tr("لعرض أي خطأ صار بالتطبيق وإرساله مباشرة لإيميل المطوّر",
@@ -2427,21 +2435,38 @@ public class MainActivity extends Activity {
 
     private void openLearnedWordsScreen() {
         LinearLayout root = createSubScreenTemplate(tr("الكلمات المتعلمة", "Learned words"), this::openCorrectionsAndMemoryScreen);
+
+        int learned = 0;
+        try { learned = predictionEngine.getLearnedWordCount(); } catch (Exception ignored) {}
+        root.addView(createStatCard(
+                tr("كلمات تعلّمها الكيبورد", "Words learned"),
+                tr("اضغط × بجانب أي كلمة لحذفها من القاموس", "Tap × next to any word to remove it from the dictionary"),
+                learned, Color.parseColor("#0EA5E9"), Color.parseColor("#2563EB"), 0L));
+
         final LinearLayout learnedListMount = new LinearLayout(this);
         learnedListMount.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout card = createGroupedWhiteCard();
-        card.setPadding(dp(16), dp(16), dp(16), dp(16));
         learnedFilter = "";
+
+        LinearLayout searchRow = new LinearLayout(this);
+        searchRow.setOrientation(LinearLayout.HORIZONTAL);
+        searchRow.setGravity(Gravity.CENTER_VERTICAL);
+        searchRow.setBackground(borderedBox(dm("#FFFFFF"), dm("#E5E7EB"), 26));
+        searchRow.setPadding(dp(14), dp(2), dp(14), dp(2));
+        LinearLayout.LayoutParams lpSearch = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpSearch.bottomMargin = dp(12);
+        searchRow.setLayoutParams(lpSearch);
+        ModernIconView sIc = new ModernIconView(this, ModernIconView.ICON_SEARCH, Color.parseColor(dm("#6B7280")), Color.TRANSPARENT);
+        sIc.setStyle(0.9f, 2.0f);
+        sIc.setLayoutParams(new LinearLayout.LayoutParams(dp(22), dp(22)));
+        searchRow.addView(sIc);
         final EditText searchBox = new EditText(this);
-        searchBox.setHint(tr("ابحث عن كلمة في القائمة...", "Search for a word in the list..."));
+        searchBox.setHint(tr("ابحث عن كلمة...", "Search for a word..."));
         searchBox.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
         searchBox.setTextColor(Color.parseColor(dm("#111827")));
         searchBox.setSingleLine(true);
-        searchBox.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 12));
-        searchBox.setPadding(dp(12), dp(10), dp(12), dp(10));
-        LinearLayout.LayoutParams lpSearch = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lpSearch.topMargin = 0;
-        searchBox.setLayoutParams(lpSearch);
+        searchBox.setBackground(null);
+        searchBox.setPadding(dp(10), dp(12), dp(4), dp(12));
+        searchBox.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         searchBox.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence cs, int a, int b, int c) {}
             @Override public void onTextChanged(CharSequence cs, int a, int b, int c) {}
@@ -2451,11 +2476,11 @@ public class MainActivity extends Activity {
                 populateLearnedWordsView(learnedListMount);
             }
         });
-        card.addView(searchBox);
+        searchRow.addView(searchBox);
+        root.addView(searchRow);
 
         populateLearnedWordsView(learnedListMount);
-        card.addView(learnedListMount);
-        root.addView(card);
+        root.addView(learnedListMount);
     }
 
     private String learnedFilter = "";
@@ -2471,60 +2496,88 @@ public class MainActivity extends Activity {
 
         TextView header = new TextView(this);
         header.setText(q.isEmpty()
-                ? tr("الكلمات المحفوظة (" + entries.size() + ")", "Saved words (" + entries.size() + ")")
+                ? tr("الأكثر استخداماً (" + entries.size() + ")", "Most used (" + entries.size() + ")")
                 : tr("نتائج البحث (" + entries.size() + " من " + allEntries.size() + ")", "Search results (" + entries.size() + " of " + allEntries.size() + ")"));
-        header.setTextColor(Color.parseColor(dm("#047857")));
+        header.setTextColor(Color.parseColor(dm("#374151")));
         header.setTypeface(Typeface.DEFAULT_BOLD);
-        header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        header.setPadding(0, dp(4), 0, dp(6));
+        header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        header.setPadding(dp(4), dp(2), dp(4), dp(8));
         container.addView(header);
 
         if (entries.isEmpty()) {
             TextView empty = new TextView(this);
             empty.setText(q.isEmpty()
-                    ? tr("لا توجد كلمات محفوظة بعد. اكتب جملاً أو درّب الكيبورد من الأعلى لتظهر هنا.", "No saved words yet. Type sentences or train the keyboard above to see them here.")
+                    ? tr("لا توجد كلمات محفوظة بعد. اكتب جملاً لتظهر هنا.", "No saved words yet. Type some sentences and they'll show up here.")
                     : tr("لا توجد كلمة تطابق بحثك.", "No word matches your search."));
             empty.setTextColor(Color.parseColor(dm("#6B7280")));
+            empty.setPadding(dp(4), dp(8), dp(4), dp(8));
             container.addView(empty);
             return;
         }
 
         int shown = 0;
         for (final PredictionEngine.LearnedEntry entry : entries) {
-            if (shown++ >= 250) break;
+            if (shown >= 250) break;
 
             LinearLayout wRow = new LinearLayout(this);
             wRow.setOrientation(LinearLayout.HORIZONTAL);
             wRow.setGravity(Gravity.CENTER_VERTICAL);
-            wRow.setBackground(borderedBox(dm("#F8FAFC"), dm("#E2E8F0"), 10));
-            wRow.setPadding(dp(12), dp(4), dp(4), dp(4));
+            wRow.setBackground(borderedBox(dm("#FFFFFF"), dm("#EEF0F3"), 16));
+            wRow.setPadding(dp(14), dp(10), dp(6), dp(10));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = dp(5);
+            lp.bottomMargin = dp(8);
             wRow.setLayoutParams(lp);
 
             LinearLayout textBox = new LinearLayout(this);
             textBox.setOrientation(LinearLayout.VERTICAL);
             textBox.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
+            LinearLayout top = new LinearLayout(this);
+            top.setOrientation(LinearLayout.HORIZONTAL);
+            top.setGravity(Gravity.CENTER_VERTICAL);
             TextView tv = new TextView(this);
-            tv.setText(entry.word + "  (×" + entry.count + ")");
+            tv.setText(entry.word);
             tv.setTextColor(Color.parseColor(dm("#111827")));
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
             tv.setTypeface(Typeface.DEFAULT_BOLD);
-            textBox.addView(tv);
+            top.addView(tv);
+            TextView cnt = new TextView(this);
+            cnt.setText("×" + entry.count);
+            cnt.setTextColor(Color.parseColor(dm("#1D4ED8")));
+            cnt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+            cnt.setTypeface(Typeface.DEFAULT_BOLD);
+            cnt.setBackground(roundedCard(dm("#DBEAFE"), 10));
+            cnt.setPadding(dp(8), dp(2), dp(8), dp(2));
+            LinearLayout.LayoutParams lpCnt = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lpCnt.setMarginStart(dp(8));
+            cnt.setLayoutParams(lpCnt);
+            top.addView(cnt);
+            textBox.addView(top);
 
             if (!entry.nextSummary.isEmpty()) {
-                TextView nx = new TextView(this);
-                nx.setText("← " + entry.nextSummary);
-                nx.setTextColor(Color.parseColor(dm("#6B7280")));
-                nx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-                nx.setPadding(0, dp(2), 0, 0);
-                textBox.addView(nx);
+                LinearLayout chips = new LinearLayout(this);
+                chips.setOrientation(LinearLayout.HORIZONTAL);
+                chips.setPadding(0, dp(6), 0, 0);
+                for (String nw : entry.nextSummary.split(" ، ")) {
+                    if (nw.trim().isEmpty()) continue;
+                    TextView chip = new TextView(this);
+                    chip.setText(nw.trim());
+                    chip.setSingleLine(true);
+                    chip.setTextColor(Color.parseColor(dm("#4B5563")));
+                    chip.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+                    chip.setBackground(roundedCard(dm("#F3F4F6"), 10));
+                    chip.setPadding(dp(8), dp(2), dp(8), dp(2));
+                    LinearLayout.LayoutParams lpChip = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lpChip.setMarginEnd(dp(6));
+                    chip.setLayoutParams(lpChip);
+                    chips.addView(chip);
+                }
+                textBox.addView(chips);
             }
 
             ModernIconView del = new ModernIconView(this, ModernIconView.ICON_CLOSE,
                     Color.parseColor(dm("#DC2626")), Color.TRANSPARENT);
-            del.setStyle(0.8f, 1.9f);
+            del.setStyle(0.7f, 1.9f);
             del.setLayoutParams(new LinearLayout.LayoutParams(dp(42), dp(42)));
             del.setOnClickListener(v -> {
                 predictionEngine.removeLearnedWord(entry.word);
@@ -2534,6 +2587,14 @@ public class MainActivity extends Activity {
             wRow.addView(textBox);
             wRow.addView(del);
             container.addView(wRow);
+
+            if (shown < 10) {
+                // Soft staggered entrance for the first rows only.
+                wRow.setAlpha(0f);
+                wRow.setTranslationY(dp(10));
+                wRow.animate().alpha(1f).translationY(0f).setStartDelay(60L * shown).setDuration(260).start();
+            }
+            shown++;
         }
     }
 
@@ -2770,6 +2831,175 @@ public class MainActivity extends Activity {
                 .format((Integer) a.getAnimatedValue())));
         va.start();
         return card;
+    }
+
+    private static final int REQ_BACKUP_SAVE = 7101;
+    private static final int REQ_BACKUP_OPEN = 7102;
+    private static final int BACKUP_MAX_BYTES = 4 * 1024 * 1024;
+
+    private View createActionCard(int iconType, String title, String caption, int colorFrom, int colorTo, long delayMs, View.OnClickListener onClick) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(dp(18), dp(16), dp(18), dp(16));
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{colorFrom, colorTo});
+        bg.setCornerRadius(dp(22));
+        card.setBackground(bg);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(12);
+        card.setLayoutParams(lp);
+
+        ModernIconView ic = new ModernIconView(this, iconType, Color.WHITE, Color.argb(48, 255, 255, 255));
+        ic.setStyle(0.7f, 2.0f);
+        ic.setLayoutParams(new LinearLayout.LayoutParams(dp(46), dp(46)));
+        card.addView(ic);
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lpT = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lpT.setMarginStart(dp(14));
+        texts.setLayoutParams(lpT);
+        TextView t = new TextView(this);
+        t.setText(title);
+        t.setTextColor(Color.WHITE);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16.5f);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        texts.addView(t);
+        TextView c = new TextView(this);
+        c.setText(caption);
+        c.setTextColor(Color.argb(215, 255, 255, 255));
+        c.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        c.setPadding(0, dp(3), 0, 0);
+        texts.addView(c);
+        card.addView(texts);
+
+        card.setOnClickListener(onClick);
+        card.setAlpha(0f);
+        card.setTranslationY(dp(20));
+        card.animate().alpha(1f).translationY(0f).setStartDelay(delayMs).setDuration(380)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+        return card;
+    }
+
+    private void openBackupScreen() {
+        LinearLayout root = createSubScreenTemplate(tr("النسخ الاحتياطي والاستعادة", "Backup & restore"));
+
+        int learned = 0;
+        try { learned = predictionEngine.getLearnedWordCount(); } catch (Exception ignored) {}
+        int shortcuts = prefs.getShortcuts().size();
+
+        root.addView(createStatCard(
+                tr("كلمات في النسخة", "Words in your backup"),
+                tr("هذه الكلمات ستُحفظ في الملف", "These words will be saved to the file"),
+                learned, Color.parseColor("#F59E0B"), Color.parseColor("#EA580C"), 0L));
+        root.addView(createStatCard(
+                tr("اختصارات الكلمات", "Word shortcuts"),
+                tr("تُحفظ معها في نفس الملف", "Saved in the same file"),
+                shortcuts, Color.parseColor("#8B5CF6"), Color.parseColor("#6D28D9"), 140L));
+
+        root.addView(createActionCard(ModernIconView.ICON_BACKUP,
+                tr("حفظ نسخة احتياطية", "Back up now"),
+                tr("ينشئ ملف JSON تختار مكانه", "Creates a JSON file in a place you choose"),
+                Color.parseColor("#2563EB"), Color.parseColor("#1D4ED8"), 280L, v -> {
+                    try {
+                        Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                        i.addCategory(Intent.CATEGORY_OPENABLE);
+                        i.setType("application/json");
+                        i.putExtra(Intent.EXTRA_TITLE, "bkey-backup-"
+                                + new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(new java.util.Date()) + ".json");
+                        startActivityForResult(i, REQ_BACKUP_SAVE);
+                    } catch (Exception e) {
+                        AppLogger.log("MainActivity", "openBackupScreen() save", e);
+                        Toast.makeText(this, tr("تعذّر فتح منتقي الملفات", "Couldn't open the file picker"), Toast.LENGTH_LONG).show();
+                    }
+                }));
+        root.addView(createActionCard(ModernIconView.ICON_REFRESH_UPDATE,
+                tr("استعادة من ملف", "Restore from a file"),
+                tr("يدمج الكلمات دون حذف ما عندك الآن", "Merges the words without deleting what you have now"),
+                Color.parseColor("#10B981"), Color.parseColor("#047857"), 400L, v -> {
+                    try {
+                        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        i.addCategory(Intent.CATEGORY_OPENABLE);
+                        i.setType("*/*");
+                        startActivityForResult(i, REQ_BACKUP_OPEN);
+                    } catch (Exception e) {
+                        AppLogger.log("MainActivity", "openBackupScreen() open", e);
+                        Toast.makeText(this, tr("تعذّر فتح منتقي الملفات", "Couldn't open the file picker"), Toast.LENGTH_LONG).show();
+                    }
+                }));
+
+        TextView note = new TextView(this);
+        note.setText(tr("الملف نصي ويحوي كلماتك بدون تشفير، فاحفظه في مكان خاص. الاستعادة تضيف فقط ولا تحذف شيئاً.",
+                "The file is plain text and holds your words unencrypted, so keep it somewhere private. Restoring only adds; it never deletes anything."));
+        note.setTextColor(Color.parseColor(dm("#6B7280")));
+        note.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        note.setPadding(dp(6), dp(4), dp(6), 0);
+        root.addView(note);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
+        final android.net.Uri uri = data.getData();
+        if (requestCode == REQ_BACKUP_SAVE) {
+            try {
+                org.json.JSONObject out = new org.json.JSONObject();
+                out.put("format", "bkey-backup");
+                out.put("version", 1);
+                out.put("createdAt", System.currentTimeMillis());
+                out.put("learned", predictionEngine.exportBackup());
+                org.json.JSONObject sc = new org.json.JSONObject();
+                for (java.util.Map.Entry<String, String> e : prefs.getShortcuts().entrySet()) sc.put(e.getKey(), e.getValue());
+                out.put("shortcuts", sc);
+                try (java.io.OutputStream os = getContentResolver().openOutputStream(uri, "wt")) {
+                    if (os == null) throw new java.io.IOException("no stream");
+                    os.write(out.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+                Toast.makeText(this, tr("تم حفظ النسخة الاحتياطية", "Backup saved"), Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                AppLogger.log("MainActivity", "backup save", e);
+                Toast.makeText(this, tr("تعذّر حفظ النسخة الاحتياطية", "Couldn't save the backup"), Toast.LENGTH_LONG).show();
+            }
+        } else if (requestCode == REQ_BACKUP_OPEN) {
+            try {
+                java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+                try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                    if (is == null) throw new java.io.IOException("no stream");
+                    byte[] buf = new byte[8192];
+                    int n, total = 0;
+                    while ((n = is.read(buf)) > 0) {
+                        total += n;
+                        if (total > BACKUP_MAX_BYTES) throw new java.io.IOException("too large");
+                        bos.write(buf, 0, n);
+                    }
+                }
+                org.json.JSONObject in = new org.json.JSONObject(new String(bos.toByteArray(), java.nio.charset.StandardCharsets.UTF_8));
+                if (!"bkey-backup".equals(in.optString("format")) || in.optInt("version", 0) != 1) {
+                    Toast.makeText(this, tr("هذا ليس ملف نسخة احتياطية من bkey", "This isn't a bkey backup file"), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                int words = predictionEngine.importBackup(in.optJSONObject("learned"));
+                int sc = 0;
+                org.json.JSONObject shortcuts = in.optJSONObject("shortcuts");
+                if (shortcuts != null) {
+                    java.util.Iterator<String> it = shortcuts.keys();
+                    while (it.hasNext() && sc < 500) {
+                        String k = it.next();
+                        String v = shortcuts.optString(k, "");
+                        if (k.isEmpty() || k.length() > 40 || v.isEmpty() || v.length() > 500) continue;
+                        prefs.addShortcut(k, v);
+                        sc++;
+                    }
+                }
+                Toast.makeText(this, tr("تمت الاستعادة: " + words + " كلمة و" + sc + " اختصار",
+                        "Restored " + words + " words and " + sc + " shortcuts"), Toast.LENGTH_LONG).show();
+                openBackupScreen();
+            } catch (Exception e) {
+                AppLogger.log("MainActivity", "backup restore", e);
+                Toast.makeText(this, tr("تعذّرت الاستعادة: الملف غير صالح", "Couldn't restore: the file isn't valid"), Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void openStatsScreen() {
