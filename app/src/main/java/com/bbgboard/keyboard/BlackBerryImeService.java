@@ -3398,7 +3398,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifQueryDisplay == null) return;
         String q = gifQueryBuilder.toString();
         if (q.isEmpty()) {
-            gifQueryDisplay.setText(uiText("ابحث عن GIF...", "Search GIFs...", "Buscar GIF..."));
+            gifQueryDisplay.setText(uiText("ابحث في KLIPY...", "Search KLIPY...", "Buscar en KLIPY..."));
             gifQueryDisplay.setTextColor(subC());
         } else {
             gifQueryDisplay.setText(q);
@@ -3413,7 +3413,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifSearchBox.setText(query);
             gifSearchBox.setTextColor(labelC());
         } else {
-            gifSearchBox.setText(uiText("ابحث عن GIF...", "Search GIFs...", "Buscar GIF..."));
+            gifSearchBox.setText(uiText("ابحث في KLIPY...", "Search KLIPY...", "Buscar en KLIPY..."));
             gifSearchBox.setTextColor((labelC() & 0x00FFFFFF) | 0xD0000000);
         }
         if (gifSearchClearBtn != null) gifSearchClearBtn.setVisibility(hasQuery ? View.VISIBLE : View.GONE);
