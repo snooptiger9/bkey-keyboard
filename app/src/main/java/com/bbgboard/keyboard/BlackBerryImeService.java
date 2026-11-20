@@ -658,7 +658,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifBarRow.addView(gifCancelBtn);
 
         FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lpBarRow.setMargins(0, 0, 0, 0); // the field IS the bar: edge to edge, square, no strip around it
+        lpBarRow.setMargins(0, 0, 0, 0); // the field IS the bar: edge to edge, square, no strip around it.
         gifSearchBar.addView(gifBarRow, lpBarRow);
         FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(36));
         lpGifBar.gravity = Gravity.TOP;
