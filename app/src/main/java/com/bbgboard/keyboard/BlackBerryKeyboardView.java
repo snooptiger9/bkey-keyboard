@@ -1515,13 +1515,15 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("\"", "«", Collections.singletonList("«")),
             new KeyDef("'", "»", Collections.singletonList("»")),
             new KeyDef(":", "", Collections.singletonList(":")),
-            new KeyDef("؛", ";", Collections.singletonList(";")),
+            arabicEnabled ? new KeyDef("؛", ";", Collections.singletonList(";"))
+                          : new KeyDef(";", "", Collections.singletonList(";")),
             new KeyDef("!", "¡", Collections.singletonList("¡")),
 
             new KeyDef(isArabic ? "؟" : "?", isArabic ? "?" : (arabicEnabled ? "؟" : ""),
                     isArabic ? Collections.singletonList("?")
                             : (arabicEnabled ? Collections.singletonList("؟") : Collections.<String>emptyList())),
-            new KeyDef("،", ",", Collections.singletonList(",")),
+            arabicEnabled ? new KeyDef("،", ",", Collections.singletonList(","))
+                          : new KeyDef(",", "", Collections.singletonList(",")),
             new KeyDef("%", "‰", Collections.singletonList("‰")),
             new KeyDef("=", "≈", Collections.singletonList("≈")),
             new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1.35f)
