@@ -132,7 +132,7 @@ tailored experience for each.
 
 ### Privacy & security 🔒
 
-- **Clean** version has no network access and can't read SMS, notifications, photos or storage — those
+- **bkey** (the standard version) has no network access and can't read SMS, notifications, photos or storage — those
   permissions aren't in the app. Voice typing still works, handled entirely by your device's own
   speech-recognition service: it tries on-device (offline) recognition first, and only needs an
   internet connection as a fallback if your device doesn't support that.
@@ -147,7 +147,7 @@ tailored experience for each.
 > access (for image-pasting and the screenshot-to-clipboard suggestion), and that's what gets it
 > flagged by Google Play Protect as a "Harmful app" — confirmed by our own testing. We've appealed
 > the false positive with Google; until resolved, this is expected behavior for a sideloaded app
-> with these permissions, not malware. Prefer not to see it? Install the Clean version instead.
+> with these permissions, not malware. Prefer not to see it? Install the standard bkey version instead.
 
 <details>
 <summary><b>Steps to pause Play Protect scanning, if you still want to install the Plus version (tap for details)</b></summary>
@@ -172,7 +172,7 @@ tailored experience for each.
 
 Two builds — pick the one that fits you:
 
-| | 🟢 Clean version (recommended) | 🔵 Plus version |
+| | 🟢 bkey (recommended) | 🔵 Plus version |
 |---|:---:|:---:|
 | Installs with no Play Protect warning | ✅ | ⚠️ see note below |
 | GIF search & image/sticker pasting | — | ✅ |
@@ -182,18 +182,18 @@ Two builds — pick the one that fits you:
 | Copied-text suggestion | ✅ | ✅ |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v302.apk"><img src="https://img.shields.io/badge/Download_Clean_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Download Clean" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v302.apk"><img src="https://img.shields.io/badge/Download_bkey_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Download bkey" width="300" height="50"></a>
 &nbsp;
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v302.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
 </p>
 
-**Clean** version requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
+**bkey** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
 
 **Plus** version has everything, but installing it triggers a Google Play Protect warning (expected, not a real problem — see [Privacy & security](#en-privacy) for why).
 
 > [!CAUTION]
-> - **Updating the Clean version:** only from this page.
-> - **Updating the Plus version:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on the Plus version, never the Clean version.
+> - **Updating bkey:** only from this page.
+> - **Updating the Plus version:** from this page, or from inside the app (Settings → **Update the app**) — either way it stays on the Plus version, never the standard bkey version.
 
 ### [Build it yourself](BUILDING.md) 🔧
 
@@ -207,7 +207,7 @@ Two builds — pick the one that fits you:
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
 <br>
 
-No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what the Clean and Plus versions can each access.
+No, never — all learning, correction and prediction happen locally on your device. See [Privacy & security](#en-privacy) for exactly what bkey and Plus can each access.
 
 </details>
 <details>

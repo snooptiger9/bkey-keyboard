@@ -183,7 +183,7 @@ jobs:
       - name: Create version-named copies of the APKs for this release
         if: steps.verdiff.outputs.changed == 'true'
         run: |
-          cp release/bkey-latest.apk "release/bkey-clean-v${{ steps.verdiff.outputs.new }}.apk"
+          cp release/bkey-latest.apk "release/bkey-v${{ steps.verdiff.outputs.new }}.apk"
           cp release/bkey-full-latest.apk "release/bkey-plus-v${{ steps.verdiff.outputs.new }}.apk"
 
       # Only cuts a new GitHub Release when versionCode actually changed, so the
@@ -199,7 +199,7 @@ jobs:
           body: ${{ steps.changelog.outputs.body }}
           make_latest: true
           files: |
-            release/bkey-clean-v${{ steps.verdiff.outputs.new }}.apk
+            release/bkey-v${{ steps.verdiff.outputs.new }}.apk
             release/bkey-plus-v${{ steps.verdiff.outputs.new }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -207,15 +207,15 @@ jobs:
       # Since the Release no longer ships a fixed-name asset, the README's
       # download buttons have to be repointed at THIS release's exact
       # versioned filename every time -- otherwise "releases/latest/
-      # download/bkey-clean-v<old>.apk" would 404 the moment a newer release
+      # download/bkey-v<old>.apk" would 404 the moment a newer release
       # replaces "latest" with different filenames.
       - name: Point README download links at this release
         if: steps.verdiff.outputs.changed == 'true'
         run: |
           NEW_VERSION="${{ steps.verdiff.outputs.new }}"
-          sed -i -E "s#releases/latest/download/bkey-clean-v[0-9]+\.apk#releases/latest/download/bkey-clean-v${NEW_VERSION}.apk#g" README.md
+          sed -i -E "s#releases/latest/download/bkey-(clean-)?v[0-9]+\.apk#releases/latest/download/bkey-v${NEW_VERSION}.apk#g" README.md
           sed -i -E "s#releases/latest/download/bkey-plus-v[0-9]+\.apk#releases/latest/download/bkey-plus-v${NEW_VERSION}.apk#g" README.md
-          sed -i -E "s#releases/latest/download/bkey-clean-v[0-9]+\.apk#releases/latest/download/bkey-clean-v${NEW_VERSION}.apk#g" README.ar.md
+          sed -i -E "s#releases/latest/download/bkey-(clean-)?v[0-9]+\.apk#releases/latest/download/bkey-v${NEW_VERSION}.apk#g" README.ar.md
           sed -i -E "s#releases/latest/download/bkey-plus-v[0-9]+\.apk#releases/latest/download/bkey-plus-v${NEW_VERSION}.apk#g" README.ar.md
           git config user.name "bkey-ci"
           git config user.email "ci@bkey.local"

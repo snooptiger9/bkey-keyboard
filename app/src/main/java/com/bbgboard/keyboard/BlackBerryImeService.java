@@ -3020,7 +3020,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             tabsRow.addView(tab);
         }
 
-        // GIF search needs INTERNET, which the Clean (lite) flavor's manifest strips entirely
+        // GIF search needs INTERNET, which the bkey (lite) flavor's manifest strips entirely
         // (see app/src/lite/AndroidManifest.xml) -- so the tab is skipped there instead of
         // showing a tab that can only ever fail to load. gifTabView stays null in that build;
         // every other use of it already null-checks before touching it.

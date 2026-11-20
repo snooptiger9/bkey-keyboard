@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Overlay applied only to the "lite" flavor: this is the "Clean" build
+    Overlay applied only to the "lite" flavor: this is the "bkey" build
     (manifest merger combines this with app/src/main/AndroidManifest.xml).
 
     Confirmed by direct testing (installing real signed builds and checking

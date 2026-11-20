@@ -105,7 +105,7 @@ final class AppUpdater {
                 try {
                     int code = readVersionCodeBlocking(versionUrl);
                     if (code > 0) {
-                        releaseUrl = RELEASE_DOWNLOAD_BASE + (fetchFullBuild ? "bkey-plus-v" : "bkey-clean-v") + code + ".apk";
+                        releaseUrl = RELEASE_DOWNLOAD_BASE + (fetchFullBuild ? "bkey-plus-v" : "bkey-v") + code + ".apk";
                     }
                 } catch (Exception e) {
                     AppLogger.log("AppUpdater", "downloadAndInstall() version lookup", e);

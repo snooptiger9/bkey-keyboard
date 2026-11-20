@@ -351,7 +351,7 @@ public class KeyboardPreferences {
     // BlackBerryImeService.floatingPillC() instead of read from a preference.
 
     /** "lite" or "full" -- whichever build was last known to be installed, so MainActivity can
-     *  tell when the user has switched builds (Clean sideloaded over Plus or vice versa) and
+     *  tell when the user has switched builds (bkey sideloaded over Plus or vice versa) and
      *  show a one-time reassurance that their settings/data were kept, not lost. Null the very
      *  first time the app ever runs. */
     public String getLastKnownFlavor() {
@@ -597,7 +597,7 @@ public class KeyboardPreferences {
     }
 
     public boolean isScreenshotClipEnabled() {
-        // Clean (lite) build never requests photos/storage access, so this
+        // bkey (lite) build never requests photos/storage access, so this
         // stays off there even if the pref was left on from before an update
         // (the setting UI for it is hidden in that build too).
         if (!BuildConfig.OTP_FEATURES_ENABLED) return false;
@@ -658,7 +658,7 @@ public class KeyboardPreferences {
     public boolean isClipChipEnabled() {
         // Needs no special permission (just the system clipboard listener),
         // so unlike screenshot-to-clipboard this works the same in both the
-        // Clean (lite) and Plus (full) builds.
+        // bkey (lite) and Plus (full) builds.
         return prefs.getBoolean("clip_chip_enabled", true);
     }
 

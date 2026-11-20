@@ -267,7 +267,7 @@ public class MainActivity extends Activity {
         setContentView(rootContainer);
     }
 
-    /** Clean and Plus share one applicationId, so sideloading one over the other replaces the
+    /** bkey and Plus share one applicationId, so sideloading one over the other replaces the
      *  same installed app rather than adding a second one -- settings/learned words/clipboard
      *  are kept across that replace, but a user doing it might not realize that happened on
      *  purpose. If the build just changed since last launch, say so once. */
@@ -277,7 +277,7 @@ public class MainActivity extends Activity {
         if (lastFlavor != null && !lastFlavor.equals(currentFlavor)) {
             String switchedToName = BuildConfig.OTP_FEATURES_ENABLED
                     ? tr("بلس", "Plus")
-                    : tr("النظيفة", "Clean");
+                    : "bkey";
             // Kept short on purpose so it fits on one line on the toast instead of
             // wrapping to two.
             android.widget.Toast.makeText(this,
@@ -642,10 +642,10 @@ public class MainActivity extends Activity {
 
         LinearLayout group4 = createGroupedWhiteCard();
         if (BuildConfig.OTP_FEATURES_ENABLED) {
-            // The in-app updater needs INTERNET, which the Clean (lite) build
+            // The in-app updater needs INTERNET, which the bkey (lite) build
             // intentionally doesn't request -- so this row would just be a
             // button that can never work there. Shown in Plus (full) only;
-            // Clean is updated manually from GitHub.
+            // bkey is updated manually from GitHub.
             group4.addView(createMenuRow(
                     ModernIconView.ICON_REFRESH_UPDATE,
                     tr("تحديث التطبيق", "Update the app"),
@@ -979,7 +979,7 @@ public class MainActivity extends Activity {
 
         TextView title = new TextView(this);
         // The screenshot-to-clipboard feature doesn't exist at all in the
-        // Clean (lite) build (no photos/storage permission there), so its
+        // bkey (lite) build (no photos/storage permission there), so its
         // retention-settings title shouldn't mention it either.
         title.setText(BuildConfig.OTP_FEATURES_ENABLED
                 ? tr("حذف نصوص الحافظة ولقطة الشاشة تلقائياً", "Auto-delete old clipboard items & screenshot")
@@ -2168,7 +2168,7 @@ public class MainActivity extends Activity {
 
         if (BuildConfig.OTP_FEATURES_ENABLED) {
             // OTP suggestions need SMS/notification-listener access, which the
-            // Clean (lite) build doesn't request at all -- hidden entirely
+            // bkey (lite) build doesn't request at all -- hidden entirely
             // there instead of showing a row that leads nowhere.
             LinearLayout otpEntryCard = createGroupedWhiteCard();
             otpEntryCard.addView(createMenuRow(
@@ -3210,7 +3210,7 @@ public class MainActivity extends Activity {
 
         if (BuildConfig.OTP_FEATURES_ENABLED) {
             // Screenshot-to-clipboard needs photos/storage permission, which
-            // the Clean (lite) build intentionally doesn't request -- so this
+            // the bkey (lite) build intentionally doesn't request -- so this
             // one stays Plus-only.
             root.addView(createSwitchTile(
                     tr("حفظ آخر لقطة شاشة في الحافظة", "Save last screenshot to clipboard"),
@@ -3229,7 +3229,7 @@ public class MainActivity extends Activity {
 
         // The copied-text suggestion chip only reads the system clipboard
         // (ClipboardManager), which needs no special permission -- so unlike
-        // the screenshot one above, it's available in Clean too.
+        // the screenshot one above, it's available in bkey too.
         root.addView(createSwitchTile(
                 tr("إظهار آخر نص منسوخ في الاقتراحات", "Show last copied text in suggestions"),
                 tr("بعد النسخ يظهر النص أو الرقم في الخانة الوسطى لمدة دقيقة، واسحب أو اضغط عليه للصقه. لا يظهر في حقول كلمات المرور ولا في وضع التخفي", "After copying, the text or number shows in the middle slot for a minute; tap or swipe up to paste. Never shown in password fields or incognito"),
