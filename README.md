@@ -180,9 +180,9 @@ Two builds — pick the one that fits you:
 | Copied-text suggestion | ✅ | ✅ |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v301.apk"><img src="https://img.shields.io/badge/Download_Clean_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Download Clean" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-clean-v302.apk"><img src="https://img.shields.io/badge/Download_Clean_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Download Clean" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v301.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v302.apk"><img src="https://img.shields.io/badge/Download_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download Plus" width="300" height="50"></a>
 </p>
 
 **Clean** version requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
