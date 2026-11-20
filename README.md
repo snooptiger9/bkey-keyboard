@@ -100,7 +100,7 @@ tailored experience for each.
 
 **🎨 Full customization**
 - 4 color themes, 9 key shapes, multiple fonts (System/Tajawal).
-- **Follow system (light/dark):** optionally switch automatically with Android's day/night mode: the white theme by day, your chosen dark theme at night.
+- **Auto (light/dark):** optionally switch automatically with Android's day/night mode: the white theme by day, your chosen dark theme at night.
 - The suggestion bar uses the same font you pick for the keys.
 - Full size control: key letter size, keyboard height, suggestion bar height, and suggestion
   text size.
