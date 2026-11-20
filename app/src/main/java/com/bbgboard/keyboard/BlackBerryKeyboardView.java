@@ -1495,10 +1495,13 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("9", "٩", Collections.singletonList("٩")),
             new KeyDef("0", "٠", Collections.singletonList("٠"))
         );
+        // Arabic-only symbols (﷼, ؟) are offered only when Arabic is an enabled language.
+        final boolean arabicEnabled = isArabic
+                || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_AR);
         List<KeyDef> row2 = Arrays.asList(
             new KeyDef("@", "~", Collections.singletonList("~")),
             new KeyDef("#", "^", Collections.singletonList("^")),
-            new KeyDef("$", "€", Arrays.asList("€", "£", "¥", "﷼")),
+            new KeyDef("$", "€", arabicEnabled ? Arrays.asList("€", "£", "¥", "﷼") : Arrays.asList("€", "£", "¥")),
             new KeyDef("_", "|", Collections.singletonList("|")),
             new KeyDef("&", "\\", Collections.singletonList("\\")),
             new KeyDef("-", "—", Collections.singletonList("—")),
@@ -1515,7 +1518,9 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("؛", ";", Collections.singletonList(";")),
             new KeyDef("!", "¡", Collections.singletonList("¡")),
 
-            new KeyDef(isArabic ? "؟" : "?", isArabic ? "?" : "؟", Collections.singletonList(isArabic ? "?" : "؟")),
+            new KeyDef(isArabic ? "؟" : "?", isArabic ? "?" : (arabicEnabled ? "؟" : ""),
+                    isArabic ? Collections.singletonList("?")
+                            : (arabicEnabled ? Collections.singletonList("؟") : Collections.<String>emptyList())),
             new KeyDef("،", ",", Collections.singletonList(",")),
             new KeyDef("%", "‰", Collections.singletonList("‰")),
             new KeyDef("=", "≈", Collections.singletonList("≈")),
