@@ -121,6 +121,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private final StringBuilder gifQueryBuilder = new StringBuilder();
     private FrameLayout gifSearchBar;
     private TextView gifAttributionLabel;
+    private TextView gifKlipyPillLabel;
     private LinearLayout gifAttributionBar;
     private TextView gifQueryDisplay;
     private LinearLayout gifBarRowView;
@@ -3128,6 +3129,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         LinearLayout.LayoutParams lpIc = new LinearLayout.LayoutParams(dp(22), dp(22));
         lpIc.setMargins(dp(14), 0, dp(14), 0);
         gifSearchIconView.setLayoutParams(lpIc);
+        gifKlipyPillLabel = new TextView(this);
+        gifKlipyPillLabel.setText(uiText("مقدَّم من KLIPY", "Powered by KLIPY", "Ofrecido por KLIPY"));
+        gifKlipyPillLabel.setTextColor((labelC() & 0x00FFFFFF) | 0xE6000000);
+        gifKlipyPillLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
+        gifKlipyPillLabel.setSingleLine(true);
+        LinearLayout.LayoutParams lpKl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpKl.setMargins(dp(12), 0, 0, 0);
+        gifKlipyPillLabel.setLayoutParams(lpKl);
+        gifSearchRow.addView(gifKlipyPillLabel);
         gifSearchRow.addView(gifSearchIconView);
         gifSearchRow.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -3163,14 +3173,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifScroll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         gifGrid = new LinearLayout(this);
         gifGrid.setOrientation(LinearLayout.VERTICAL);
-        gifGrid.setPadding(dp(4), dp(44), dp(4), dp(36));
+        gifGrid.setPadding(dp(4), dp(44), dp(4), dp(6));
         gifScroll.addView(gifGrid);
         gifCol.addView(gifScroll);
 
         gifPanel.addView(gifCol);
         gifPanel.addView(gifSearchRow);
-        gifPanel.addView(buildGifAttributionBar(), new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
+        // The KLIPY credit now lives inside the floating search pill (no bar over the GIFs).
+        buildGifAttributionBar();
         container.addView(gifPanel);
 
         rebuildEmojiSections();
@@ -3274,6 +3284,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         boolean arabic = keyboardView == null || keyboardView.isArabic();
         gifAttributionBar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
         gifAttributionLabel.setText(uiText("مقدَّم من KLIPY", "Powered by KLIPY", "Ofrecido por KLIPY"));
+        if (gifKlipyPillLabel != null) gifKlipyPillLabel.setText(gifAttributionLabel.getText());
     }
 
     private void showGifPanel() {
@@ -3327,6 +3338,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void refreshGifSearchBarColors() {
         if (gifSearchRowView != null) gifSearchRowView.setBackground(roundedBg(gifSearchFieldC(), 16));
         if (gifSearchIconView != null) gifSearchIconView.setColors(labelC(), Color.TRANSPARENT);
+        if (gifKlipyPillLabel != null) gifKlipyPillLabel.setTextColor((labelC() & 0x00FFFFFF) | 0xE6000000);
         if (gifSearchClearBtn != null) gifSearchClearBtn.setTextColor(labelC());
         // The full-width strip behind the rounded search pill had no background of its own, so it
         // showed the window's old color (black) until the keyboard was closed and reopened.
