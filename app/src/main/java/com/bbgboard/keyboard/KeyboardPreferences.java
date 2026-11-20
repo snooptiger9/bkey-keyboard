@@ -282,6 +282,15 @@ public class KeyboardPreferences {
         prefs.edit().putFloat("suggestion_bar_scale", clamped).apply();
     }
 
+    /** Words picked via swipe-up on a suggestion (a plain counter, no text is stored). */
+    public int getFlickWordCount() {
+        return prefs.getInt("stat_flick_words", 0);
+    }
+
+    public void incrementFlickWordCount() {
+        prefs.edit().putInt("stat_flick_words", prefs.getInt("stat_flick_words", 0) + 1).apply();
+    }
+
     /** The theme the user picked, ignoring "follow system". */
     public int getRawThemeMode() {
         return prefs.getInt("theme_mode", THEME_GBOARD_WHITE);

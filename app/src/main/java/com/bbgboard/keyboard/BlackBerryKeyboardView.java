@@ -1410,40 +1410,60 @@ public class BlackBerryKeyboardView extends View {
         return (isShift || isCapsLock) ? letter.toUpperCase(Locale.ROOT) : letter.toLowerCase(Locale.ROOT);
     }
 
+    /** Symbols that already live on the numbers/symbols page: not repeated in letter long-presses. */
+    private static final String SYMBOL_PAGE_CHARS = "@#$%&-+()*\"':;!?";
+
+    /**
+     * Long-press options for a Latin letter key: digits stay; symbols already on the symbols page
+     * are dropped; accented letters only appear on the Spanish layout; and while Shift/Caps is
+     * off, the capital version of the letter is offered (so it never conflicts with Shift).
+     */
+    private List<String> latinAlts(String letter, List<String> raw) {
+        boolean spanish = KeyboardPreferences.LANG_ES.equals(currentLangCode);
+        List<String> out = new ArrayList<>();
+        for (String a : raw) {
+            if (a.length() == 1 && SYMBOL_PAGE_CHARS.indexOf(a.charAt(0)) >= 0) continue;
+            if (!spanish && a.length() > 0 && Character.isLetter(a.charAt(0))) continue;
+            out.add(a);
+        }
+        if (!isShift && !isCapsLock) out.add(letter.toUpperCase(Locale.ROOT));
+        return out;
+    }
+
     private List<List<KeyDef>> buildEnglishQwertyRows() {
         boolean showNums = false;
         List<KeyDef> row1 = Arrays.asList(
-            new KeyDef(getTypedEnglishChar("Q"), showNums ? "1" : "", Collections.singletonList("1")),
-            new KeyDef(getTypedEnglishChar("W"), showNums ? "2" : "", Collections.singletonList("2")),
-            new KeyDef(getTypedEnglishChar("E"), showNums ? "3" : "", Arrays.asList("3", "é", "è", "ê")),
-            new KeyDef(getTypedEnglishChar("R"), showNums ? "4" : "", Collections.singletonList("4")),
-            new KeyDef(getTypedEnglishChar("T"), showNums ? "5" : "", Collections.singletonList("5")),
-            new KeyDef(getTypedEnglishChar("Y"), showNums ? "6" : "", Collections.singletonList("6")),
-            new KeyDef(getTypedEnglishChar("U"), showNums ? "7" : "", Arrays.asList("7", "ú", "ü", "û")),
-            new KeyDef(getTypedEnglishChar("I"), showNums ? "8" : "", Arrays.asList("8", "í", "î")),
-            new KeyDef(getTypedEnglishChar("O"), showNums ? "9" : "", Arrays.asList("9", "ó", "ö", "ô")),
-            new KeyDef(getTypedEnglishChar("P"), showNums ? "0" : "", Collections.singletonList("0"))
+            new KeyDef(getTypedEnglishChar("Q"), showNums ? "1" : "", latinAlts("Q", Collections.singletonList("1"))),
+            new KeyDef(getTypedEnglishChar("W"), showNums ? "2" : "", latinAlts("W", Collections.singletonList("2"))),
+            new KeyDef(getTypedEnglishChar("E"), showNums ? "3" : "", latinAlts("E", Arrays.asList("3", "é", "è", "ê"))),
+            new KeyDef(getTypedEnglishChar("R"), showNums ? "4" : "", latinAlts("R", Collections.singletonList("4"))),
+            new KeyDef(getTypedEnglishChar("T"), showNums ? "5" : "", latinAlts("T", Collections.singletonList("5"))),
+            new KeyDef(getTypedEnglishChar("Y"), showNums ? "6" : "", latinAlts("Y", Collections.singletonList("6"))),
+            new KeyDef(getTypedEnglishChar("U"), showNums ? "7" : "", latinAlts("U", Arrays.asList("7", "ú", "ü", "û"))),
+            new KeyDef(getTypedEnglishChar("I"), showNums ? "8" : "", latinAlts("I", Arrays.asList("8", "í", "î"))),
+            new KeyDef(getTypedEnglishChar("O"), showNums ? "9" : "", latinAlts("O", Arrays.asList("9", "ó", "ö", "ô"))),
+            new KeyDef(getTypedEnglishChar("P"), showNums ? "0" : "", latinAlts("P", Collections.singletonList("0")))
         );
         List<KeyDef> row2 = Arrays.asList(
-            new KeyDef(getTypedEnglishChar("A"), "", Arrays.asList("@", "á", "ä", "â")),
-            new KeyDef(getTypedEnglishChar("S"), "", Arrays.asList("#", "ß", "$")),
-            new KeyDef(getTypedEnglishChar("D"), "", Collections.singletonList("$")),
-            new KeyDef(getTypedEnglishChar("F"), "", Collections.singletonList("%")),
-            new KeyDef(getTypedEnglishChar("G"), "", Collections.singletonList("&")),
-            new KeyDef(getTypedEnglishChar("H"), "", Collections.singletonList("-")),
-            new KeyDef(getTypedEnglishChar("J"), "", Collections.singletonList("+")),
-            new KeyDef(getTypedEnglishChar("K"), "", Collections.singletonList("(")),
-            new KeyDef(getTypedEnglishChar("L"), "", Collections.singletonList(")"))
+            new KeyDef(getTypedEnglishChar("A"), "", latinAlts("A", Arrays.asList("@", "á", "ä", "â"))),
+            new KeyDef(getTypedEnglishChar("S"), "", latinAlts("S", Arrays.asList("#", "ß", "$"))),
+            new KeyDef(getTypedEnglishChar("D"), "", latinAlts("D", Collections.singletonList("$"))),
+            new KeyDef(getTypedEnglishChar("F"), "", latinAlts("F", Collections.singletonList("%"))),
+            new KeyDef(getTypedEnglishChar("G"), "", latinAlts("G", Collections.singletonList("&"))),
+            new KeyDef(getTypedEnglishChar("H"), "", latinAlts("H", Collections.singletonList("-"))),
+            new KeyDef(getTypedEnglishChar("J"), "", latinAlts("J", Collections.singletonList("+"))),
+            new KeyDef(getTypedEnglishChar("K"), "", latinAlts("K", Collections.singletonList("("))),
+            new KeyDef(getTypedEnglishChar("L"), "", latinAlts("L", Collections.singletonList(")")))
         );
         List<KeyDef> row3 = Arrays.asList(
             new KeyDef("⬆", "", Collections.<String>emptyList(), KeyType.SHIFT, 1.35f),
-            new KeyDef(getTypedEnglishChar("Z"), "", Collections.singletonList("*")),
-            new KeyDef(getTypedEnglishChar("X"), "", Collections.singletonList("\"")),
-            new KeyDef(getTypedEnglishChar("C"), "", Arrays.asList("'", "ç")),
-            new KeyDef(getTypedEnglishChar("V"), "", Collections.singletonList(":")),
-            new KeyDef(getTypedEnglishChar("B"), "", Collections.singletonList(";")),
-            new KeyDef(getTypedEnglishChar("N"), "", Arrays.asList("!", "ñ")),
-            new KeyDef(getTypedEnglishChar("M"), "", Collections.singletonList("?")),
+            new KeyDef(getTypedEnglishChar("Z"), "", latinAlts("Z", Collections.singletonList("*"))),
+            new KeyDef(getTypedEnglishChar("X"), "", latinAlts("X", Collections.singletonList("\""))),
+            new KeyDef(getTypedEnglishChar("C"), "", latinAlts("C", Arrays.asList("'", "ç"))),
+            new KeyDef(getTypedEnglishChar("V"), "", latinAlts("V", Collections.singletonList(":"))),
+            new KeyDef(getTypedEnglishChar("B"), "", latinAlts("B", Collections.singletonList(";"))),
+            new KeyDef(getTypedEnglishChar("N"), "", latinAlts("N", Arrays.asList("!", "ñ"))),
+            new KeyDef(getTypedEnglishChar("M"), "", latinAlts("M", Collections.singletonList("?"))),
             new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1.35f)
         );
         return Arrays.asList(row1, row2, row3);

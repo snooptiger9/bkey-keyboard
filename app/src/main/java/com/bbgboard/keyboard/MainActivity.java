@@ -624,8 +624,15 @@ public class MainActivity extends Activity {
                 ModernIconView.ICON_DICTIONARY_BOOK,
                 tr("القاموس واختصارات الكلمات", "Dictionary & shortcuts"),
                 null,
-                false,
+                true,
                 this::openShortcutsScreen
+        ));
+        group3.addView(createMenuRow(
+                ModernIconView.ICON_STATS,
+                tr("إحصائيات الكتابة", "Typing stats"),
+                null,
+                false,
+                this::openStatsScreen
         ));
         root.addView(group3);
 
@@ -2685,6 +2692,79 @@ public class MainActivity extends Activity {
                 prefs.isSpaceCursorDragEnabled(),
                 checked -> prefs.setSpaceCursorDragEnabled(checked)
         ));
+    }
+
+    /** A big animated number card: count-up, gentle slide-in, and a colored gradient. */
+    private View createStatCard(String label, String caption, final int target, int colorFrom, int colorTo, long delayMs) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(22), dp(22), dp(22), dp(22));
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{colorFrom, colorTo});
+        bg.setCornerRadius(dp(26));
+        card.setBackground(bg);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(14);
+        card.setLayoutParams(lp);
+
+        TextView lab = new TextView(this);
+        lab.setText(label);
+        lab.setTextColor(Color.argb(230, 255, 255, 255));
+        lab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        lab.setTypeface(Typeface.DEFAULT_BOLD);
+        card.addView(lab);
+
+        final TextView num = new TextView(this);
+        num.setText("0");
+        num.setTextColor(Color.WHITE);
+        num.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f);
+        num.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
+        num.setIncludeFontPadding(false);
+        num.setPadding(0, dp(6), 0, dp(4));
+        card.addView(num);
+
+        TextView cap = new TextView(this);
+        cap.setText(caption);
+        cap.setTextColor(Color.argb(200, 255, 255, 255));
+        cap.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        card.addView(cap);
+
+        // Entrance: slide up + fade in, then the number counts up. Plain View/ValueAnimator only.
+        card.setAlpha(0f);
+        card.setTranslationY(dp(24));
+        card.animate().alpha(1f).translationY(0f).setStartDelay(delayMs).setDuration(420)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+        android.animation.ValueAnimator va = android.animation.ValueAnimator.ofInt(0, Math.max(0, target));
+        va.setStartDelay(delayMs + 120);
+        va.setDuration(target == 0 ? 1 : 1000);
+        va.setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f));
+        va.addUpdateListener(a -> num.setText(java.text.NumberFormat.getInstance(java.util.Locale.US)
+                .format((Integer) a.getAnimatedValue())));
+        va.start();
+        return card;
+    }
+
+    private void openStatsScreen() {
+        LinearLayout root = createSubScreenTemplate(tr("إحصائيات الكتابة", "Typing stats"));
+
+        int learned = 0;
+        try { learned = predictionEngine.getLearnedWordCount(); } catch (Exception ignored) {}
+        int flicks = prefs.getFlickWordCount();
+
+        root.addView(createStatCard(
+                tr("كلمات تعلّمها الكيبورد", "Words learned"),
+                tr("تتزايد مع كتابتك، وتبقى على جهازك فقط", "Grows as you type, and stays on your device only"),
+                learned, Color.parseColor("#3B6CF6"), Color.parseColor("#6D4BF0"), 0L));
+        root.addView(createStatCard(
+                tr("كلمات اخترتها بالسحب لأعلى", "Words picked by swiping up"),
+                tr("كل كلمة مقترحة سحبتها من شريط الاقتراحات", "Every suggestion you swiped up from the suggestion bar"),
+                flicks, Color.parseColor("#12B981"), Color.parseColor("#0E8F8F"), 180L));
+
+        TextView note = new TextView(this);
+        note.setText(tr("هذه أعداد فقط، لا يُحفظ أي نص مما تكتبه في الإحصائيات.", "These are counts only; no text you type is stored in the stats."));
+        note.setTextColor(Color.parseColor(dm("#6B7280")));
+        note.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        note.setPadding(dp(6), dp(4), dp(6), 0);
+        root.addView(note);
     }
 
     private void openSoundAndVibrationScreen() {

@@ -627,12 +627,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
 
         gifSearchBar = new FrameLayout(this);
-        gifSearchBar.setBackgroundColor(shellC());
+        gifSearchBar.setBackgroundColor(Color.TRANSPARENT); // floating: the app shows around the pill
         gifSearchBar.setVisibility(View.GONE);
         LinearLayout gifBarRow = new LinearLayout(this);
         gifBarRow.setOrientation(LinearLayout.HORIZONTAL);
         gifBarRow.setGravity(Gravity.CENTER_VERTICAL);
-        gifBarRow.setBackground(new android.graphics.drawable.ColorDrawable(sugBarC()));
+        gifBarRow.setBackground(gifFloatingPillBg());
         gifBarRowView = gifBarRow;
 
         gifQueryDisplay = new TextView(this);
@@ -658,9 +658,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifBarRow.addView(gifCancelBtn);
 
         FrameLayout.LayoutParams lpBarRow = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lpBarRow.setMargins(0, 0, 0, 0); // the field IS the bar: edge to edge, square, no strip around it.
+        lpBarRow.setMargins(dp(10), dp(6), dp(10), dp(6)); // floating pill, like the settings test field.
         gifSearchBar.addView(gifBarRow, lpBarRow);
-        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(36));
+        FrameLayout.LayoutParams lpGifBar = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
         lpGifBar.gravity = Gravity.TOP;
         rootContainer.addView(gifSearchBar, lpGifBar);
 
@@ -1132,6 +1132,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         activeEmojiCategory = 0;
         gifPanelShown = false;
         gifSearchFocused = false;
+        applyNavigationBarColor();
         gifQueryBuilder.setLength(0);
         gifLastQuery = null;
         updateGifSearchBoxDisplay(null);
@@ -1167,11 +1168,21 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refreshPredictions();
     }
 
+    /** Rounded, theme-colored pill with a hairline border: same look as the settings test field. */
+    private android.graphics.drawable.Drawable gifFloatingPillBg() {
+        android.graphics.drawable.GradientDrawable d = new android.graphics.drawable.GradientDrawable();
+        d.setColor(sugBarC());
+        d.setCornerRadius(dp(18));
+        d.setStroke(Math.max(1, dp(1)), (labelC() & 0x00FFFFFF) | 0x33000000);
+        return d;
+    }
+
     private void applyNavigationBarColor() {
         if (keyboardView == null) return;
         try {
             int color = keyboardView.getShellColor();
-            int bg = color;
+            // While the floating GIF search field is open, nothing is painted around the pill.
+            int bg = gifSearchFocused ? Color.TRANSPARENT : color;
             if (rootContainer != null) rootContainer.setBackgroundColor(bg);
             android.view.Window w = getWindow() != null ? getWindow().getWindow() : null;
             if (w == null) return;
@@ -2155,12 +2166,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             ic.deleteSurroundingText(currentPrefix.length(), 0);
             ic.commitText(chosen + " ", 1);
             if (learnableChoice) predictionEngine.learnWordAndTransition(chosen, lastCompletedWord, lastCompletedWord2, keyboardView.isArabic());
+            keyboardPrefs.incrementFlickWordCount();
         } else {
             CharSequence beforeCs = textBefore(ic, 2);
             String before = beforeCs != null ? beforeCs.toString() : "";
             String prefixSpace = (!before.isEmpty() && !Character.isWhitespace(before.charAt(before.length() - 1))) ? " " : "";
             ic.commitText(prefixSpace + chosen + " ", 1);
             if (learnableChoice) predictionEngine.learnWordAndTransition(chosen, lastCompletedWord, lastCompletedWord2, keyboardView.isArabic());
+            keyboardPrefs.incrementFlickWordCount();
         }
         refreshPredictions();
     }
@@ -2747,7 +2760,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         textTv.setMaxLines(3);
         textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
         textTv.setPadding(dp(10), dp(10), dp(10), dp(10));
-        textTv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final String phone = phoneNumberOrNull(clip.text);
+        textTv.setLayoutParams(phone == null
+                ? new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                : new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         textTv.setOnClickListener(v -> {
             InputConnection ic = getCurrentInputConnection();
             if (ic != null) ic.commitText(clip.text + " ", 1);
@@ -2773,7 +2789,49 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
 
         row.addView(textTv);
+        if (phone != null) {
+            // Phone numbers only: a quick button that opens the dialer with the number filled in.
+            // It never places the call itself (ACTION_DIAL needs no permission); the user decides.
+            TextView callBtn = new TextView(this);
+            callBtn.setText("📞");
+            callBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+            callBtn.setGravity(Gravity.CENTER);
+            callBtn.setBackground(roundedBg(pressedC(), 12));
+            LinearLayout.LayoutParams lpCall = new LinearLayout.LayoutParams(dp(40), dp(36));
+            lpCall.setMargins(dp(4), 0, dp(6), 0);
+            callBtn.setLayoutParams(lpCall);
+            callBtn.setOnClickListener(v -> {
+                soundController.playKeyClick();
+                try {
+                    Intent dial = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(phone)));
+                    dial.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(dial);
+                } catch (Exception e) {
+                    AppLogger.log("BlackBerryImeService", "buildClipCard() dial", e);
+                }
+            });
+            row.addView(callBtn);
+        }
         return row;
+    }
+
+    /** Returns the number (digits, optional leading +) if the whole text is a phone number, else null. */
+    static String phoneNumberOrNull(String text) {
+        if (text == null) return null;
+        String t = text.trim();
+        if (t.length() < 7 || t.length() > 24) return null;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c >= '0' && c <= '9') sb.append(c);
+            else if (c >= '\u0660' && c <= '\u0669') sb.append((char) ('0' + (c - '\u0660')));
+            else if (c == '+' && i == 0) sb.append(c);
+            else if (c == ' ' || c == '-' || c == '(' || c == ')' || c == '.') continue;
+            else return null;
+        }
+        String n = sb.toString();
+        int digits = n.startsWith("+") ? n.length() - 1 : n.length();
+        return (digits >= 7 && digits <= 15) ? n : null;
     }
 
     /**
@@ -3195,13 +3253,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         gifAttributionBar = bar;
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
-        bar.setBackground(roundedBg(sugBarC(), 0));
+        // ~25% transparent so GIFs scroll visibly behind it; the label stays fully readable.
+        bar.setBackground(new android.graphics.drawable.ColorDrawable((sugBarC() & 0x00FFFFFF) | 0xBF000000));
         bar.setPadding(dp(10), 0, dp(10), 0);
 
         TextView label = new TextView(this);
         gifAttributionLabel = label;
         label.setText(uiText("مقدَّم من KLIPY", "Powered by KLIPY", "Ofrecido por KLIPY"));
-        label.setTextColor(subC());
+        label.setTextColor((labelC() & 0x00FFFFFF) | 0xF2000000);
         label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
         label.setPadding(dp(6), 0, dp(6), 0);
         label.setIncludeFontPadding(false);
@@ -3271,8 +3330,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifSearchClearBtn != null) gifSearchClearBtn.setTextColor(labelC());
         // The full-width strip behind the rounded search pill had no background of its own, so it
         // showed the window's old color (black) until the keyboard was closed and reopened.
-        if (gifSearchBar != null) gifSearchBar.setBackgroundColor(shellC());
-        if (gifBarRowView != null) gifBarRowView.setBackground(new android.graphics.drawable.ColorDrawable(sugBarC()));
+        if (gifSearchBar != null) gifSearchBar.setBackgroundColor(Color.TRANSPARENT);
+        if (gifBarRowView != null) gifBarRowView.setBackground(gifFloatingPillBg());
         if (gifCancelBtnView != null) gifCancelBtnView.setTextColor(labelC());
         updateGifQueryDisplay();
     }
@@ -3290,10 +3349,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.VISIBLE);
         ViewGroup.LayoutParams lp = keyboardView.getLayoutParams();
         if (lp instanceof FrameLayout.LayoutParams) {
-            ((FrameLayout.LayoutParams) lp).topMargin = dp(36); // pill sits directly on the suggestion bar
+            ((FrameLayout.LayoutParams) lp).topMargin = dp(48);
             keyboardView.setLayoutParams(lp);
         }
         gifSearchBar.setVisibility(View.VISIBLE);
+        applyNavigationBarColor();
         updateOneHandedSwitchButton();
         forceWindowRepaintAfterResize();
     }
@@ -3301,6 +3361,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void closeGifSearchKeyboard(boolean runSearch) {
         if (!gifSearchFocused) return;
         gifSearchFocused = false;
+        applyNavigationBarColor();
         String typed = gifQueryBuilder.toString().trim();
         if (gifSearchBar != null) gifSearchBar.setVisibility(View.GONE);
         if (keyboardView != null) {

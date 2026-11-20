@@ -42,6 +42,7 @@ public class ModernIconView extends View {
     public static final int ICON_MESSAGE_TEXT = 30;
     public static final int ICON_CHECK_CIRCLE = 31;
     public static final int ICON_SEARCH = 32;
+    public static final int ICON_STATS = 33;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -503,6 +504,14 @@ public class ModernIconView extends View {
 
                 canvas.drawLine(cx - r * 0.60f, cy - r * 0.32f, cx + r * 0.60f, cy - r * 0.32f, strokePaint);
                 canvas.drawLine(cx - r * 0.60f, cy - r * 0.02f, cx + r * 0.22f, cy - r * 0.02f, strokePaint);
+                break;
+            }
+            case ICON_STATS: {
+                float bw = r * 0.34f;
+                canvas.drawLine(cx - r * 0.62f, cy + r * 0.62f, cx - r * 0.62f, cy + r * 0.05f, strokePaint);
+                canvas.drawLine(cx, cy + r * 0.62f, cx, cy - r * 0.62f, strokePaint);
+                canvas.drawLine(cx + r * 0.62f, cy + r * 0.62f, cx + r * 0.62f, cy - r * 0.25f, strokePaint);
+                canvas.drawLine(cx - r * 0.85f, cy + r * 0.78f, cx + r * 0.85f, cy + r * 0.78f, strokePaint);
                 break;
             }
             case ICON_SEARCH: {
