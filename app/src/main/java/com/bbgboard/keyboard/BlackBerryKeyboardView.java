@@ -1420,6 +1420,14 @@ public class BlackBerryKeyboardView extends View {
      */
     private List<String> latinAlts(String letter, List<String> raw) {
         boolean spanish = KeyboardPreferences.LANG_ES.equals(currentLangCode);
+        boolean shifted = isShift || isCapsLock;
+        // English: lowercase keys long-press to their capital only; the numbers show up only
+        // while Shift/Caps is on.
+        if (!spanish && !shifted) {
+            List<String> only = new ArrayList<>();
+            only.add(letter.toUpperCase(Locale.ROOT));
+            return only;
+        }
         List<String> out = new ArrayList<>();
         for (String a : raw) {
             if (a.length() == 1 && SYMBOL_PAGE_CHARS.indexOf(a.charAt(0)) >= 0) continue;
