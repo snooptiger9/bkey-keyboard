@@ -198,9 +198,9 @@
 </div>
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v304.apk"><img src="docs/images/badges/dl_bkey_ar.png" alt="تحميل bkey (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v305.apk"><img src="docs/images/badges/dl_bkey_ar.png" alt="تحميل bkey (APK)" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v304.apk"><img src="docs/images/badges/dl_plus_ar.png" alt="تحميل bkey Plus (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v305.apk"><img src="docs/images/badges/dl_plus_ar.png" alt="تحميل bkey Plus (APK)" width="300"></a>
 </p>
 
 **نسخة bkey** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور.
