@@ -772,7 +772,7 @@ public class MainActivity extends Activity {
         pill.setBackground(borderedBox(dm("#F9FAFB"), dm("#E5E7EB"), 22));
         pill.setPadding(dp(14), dp(2), dp(14), dp(2));
         ModernIconView ic = new ModernIconView(this, iconType, accent, Color.TRANSPARENT);
-        ic.setStyle(0.9f, 2.0f);
+        ic.setStyle(0.9f, 1.4f);
         ic.setLayoutParams(new LinearLayout.LayoutParams(dp(22), dp(22)));
         pill.addView(ic);
         EditText et = new EditText(this);
@@ -800,7 +800,7 @@ public class MainActivity extends Activity {
         lp.topMargin = dp(10);
         b.setLayoutParams(lp);
         ModernIconView ic = new ModernIconView(this, iconType, Color.WHITE, Color.TRANSPARENT);
-        ic.setStyle(0.9f, 2.0f);
+        ic.setStyle(0.9f, 1.4f);
         LinearLayout.LayoutParams lpi = new LinearLayout.LayoutParams(dp(22), dp(22));
         lpi.setMarginEnd(dp(8));
         ic.setLayoutParams(lpi);
