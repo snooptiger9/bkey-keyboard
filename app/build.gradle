@@ -22,13 +22,19 @@ android {
     namespace 'com.bbgboard.keyboard'
     compileSdk 34
 
+    // Keep the Google dependency-info block out of the signed APK (F-Droid/IzzyOnDroid scanners flag it).
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     defaultConfig {
         applicationId "com.snooptiger9.bkey"
         minSdk 24
         targetSdk 34
 
-        versionCode 305
-        versionName "305.0"
+        versionCode 306
+        versionName "306.0"
 
         buildConfigField "String", "KLIPY_API_KEY", "\"${klipyProps.getProperty('KLIPY_API_KEY', '')}\""
     }
