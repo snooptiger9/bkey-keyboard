@@ -1270,8 +1270,8 @@ public class MainActivity extends Activity {
 
         TextView langModeNote = new TextView(this);
         langModeNote.setText(tr(
-                "فعّل لغتين أو أكثر للتبديل بسحب المسافة أو زر 🌐. لغة وحدة = بدون تبديل، فيختفي الزر ويتعطّل السحب.",
-                "Enable two or more languages to switch via space-bar swipe or the 🌐 button.\nOne language = nothing to switch, so the button hides and swipe turns off."));
+                "فعّل لغتين أو أكثر للتبديل بسحب المسافة أو زر 🌐.",
+                "Enable two or more languages to switch via space-bar swipe or the 🌐 button."));
         langModeNote.setTextColor(Color.parseColor(dm("#6B7280")));
         langModeNote.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
         langModeNote.setPadding(dp(4), 0, dp(4), dp(12));
