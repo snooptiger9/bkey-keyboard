@@ -878,6 +878,7 @@ public class MainActivity extends Activity {
         // accent over a ~16% tint of it, so rows are easy to tell apart at a glance.
         int accent = menuAccent(iconType);
         ModernIconView iconInner = new ModernIconView(this, iconType, accent, Color.TRANSPARENT);
+        iconInner.setStyle(1f, 1.5f);
         iconInner.setLayoutParams(new FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER));
         FrameLayout icon = new FrameLayout(this);
         android.graphics.drawable.GradientDrawable tile = new android.graphics.drawable.GradientDrawable();
