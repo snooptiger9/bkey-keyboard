@@ -193,6 +193,12 @@ Dos versiones: elige la que mejor te venga:
 
 **bkey Plus** lo tiene todo, pero al instalarlo aparece una advertencia de Google Play Protect (esperada, no es un problema real; mira [Privacidad y seguridad](#es-privacy) para saber por qué).
 
+¿Quieres actualizaciones automáticas? Añade **bkey** (la versión estándar) a [Obtainium](https://github.com/ImranR98/Obtainium) con un toque (el enlace ya excluye el APK de Plus).
+
+<p>
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="https://img.shields.io/badge/Obtener_en-Obtainium-6D28D9?style=for-the-badge&logo=android&logoColor=white" alt="Obtener en Obtainium" width="300" height="50"></a>
+</p>
+
 > [!CAUTION]
 > - **Actualizar bkey:** solo desde esta página.
 > - **Actualizar bkey Plus:** desde esta página o desde dentro de la app (Ajustes → **Actualizar la app**); en ambos casos se queda en bkey Plus, nunca pasa a la versión estándar de bkey.
