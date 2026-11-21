@@ -729,8 +729,13 @@ public class PredictionEngine {
         if (!ready) return null;
         if (isProtectedToken(wordRaw)) return null;
         String word = normalize(wordRaw);
-        if (word.length() < 3 || isTrustedWord(word)) return null;
+        if (word.length() < 3) return null;
         String wordLower = fold(word);
+        String sure = isArabic ? COMMON_AR_TYPOS.get(wordLower)
+                : (latinIsSpanish ? COMMON_ES_TYPOS.get(wordLower)
+                : (EN_NOT_SURE.contains(wordLower) ? null : COMMON_EN_TYPOS.get(wordLower)));
+        if (sure != null) return isArabic ? sure : matchCase(word, sure);
+        if (isTrustedWord(word)) return null;
         if (!isArabic && !latinIsSpanish) {
             String fixed = COMMON_EN_TYPOS.get(wordLower);
             if (fixed != null) return matchCase(word, fixed);
@@ -829,6 +834,101 @@ public class PredictionEngine {
         };
         for (int i = 0; i + 1 < p.length; i += 2) {
             COMMON_EN_TYPOS.put(p[i], p[i + 1]);
+        }
+    }
+
+    /**
+     * More certain misspellings. Every entry is a spelling that is never right on its own. The
+     * Spanish and Arabic maps are keyed on the folded form (Arabic hamza/ya variants merged).
+     * They are checked before the "known word" shortcut because the frequency dictionaries also
+     * contain some of these spellings (typos that show up in real text).
+     */
+    private static final Map<String, String> COMMON_ES_TYPOS = new HashMap<>();
+    private static final Map<String, String> COMMON_AR_TYPOS = new HashMap<>();
+    // Real words that sit in the English map: they only use the old trusted-word path.
+    private static final java.util.Set<String> EN_NOT_SURE = new java.util.HashSet<>(Arrays.asList("cant", "wont"));
+    static {
+        String[] en = {
+            "absense","absence", "accomodate","accommodate", "accomodation","accommodation", "acheive","achieve", "acheived","achieved", "achievment","achievement",
+            "acknowlege","acknowledge", "acquaintence","acquaintance", "agressive","aggressive", "aggresive","aggressive", "aparent","apparent", "apparantly","apparently",
+            "appearence","appearance", "arguement","argument", "assasinate","assassinate", "athiest","atheist", "basicly","basically", "beautifull","beautiful",
+            "belive","believe", "beleived","believed", "buisness","business", "bussiness","business", "catagory","category", "cemetary","cemetery",
+            "changable","changeable", "collegue","colleague", "commited","committed", "comitted","committed", "comittee","committee", "committe","committee",
+            "concious","conscious", "congradulations","congratulations", "conveniant","convenient", "definate","definite", "definatly","definitely", "definitley","definitely",
+            "desparate","desperate", "dissapoint","disappoint", "dissapointed","disappointed", "disapear","disappear", "dissapear","disappear", "embarass","embarrass",
+            "embarassed","embarrassed", "embarassing","embarrassing", "equiptment","equipment", "excercise","exercise", "existance","existence", "experiance","experience",
+            "familar","familiar", "finaly","finally", "foriegn","foreign", "gaurd","guard", "garantee","guarantee", "guarentee","guarantee",
+            "grammer","grammar", "harrass","harass", "hieght","height", "heigth","height", "immediatly","immediately", "imediately","immediately",
+            "independant","independent", "intresting","interesting", "intersting","interesting", "interupt","interrupt", "lenght","length", "liason","liaison",
+            "libary","library", "lisence","license", "maintainance","maintenance", "millenium","millennium", "minature","miniature", "mischevious","mischievous",
+            "neccesary","necessary", "necesary","necessary", "neice","niece", "ocasion","occasion", "occassion","occasion", "occurance","occurrence",
+            "occuring","occurring", "oppurtunity","opportunity", "oportunity","opportunity", "parliment","parliament", "persistant","persistent", "posession","possession",
+            "possesion","possession", "prefered","preferred", "presance","presence", "privelege","privilege", "probaly","probably", "professer","professor",
+            "pronounciation","pronunciation", "publically","publicly", "questionaire","questionnaire", "recomend","recommend", "reccomend","recommend", "relevent","relevant",
+            "religous","religious", "remeber","remember", "resistence","resistance", "responsability","responsibility", "restaraunt","restaurant", "resturant","restaurant",
+            "rythm","rhythm", "scedule","schedule", "shedule","schedule", "sentance","sentence", "similiar","similar", "sincerly","sincerely",
+            "speach","speech", "strenght","strength", "succesfully","successfully", "suprise","surprise", "surprize","surprise", "suprised","surprised",
+            "tendancy","tendency", "threshhold","threshold", "truely","truly", "unforseen","unforeseen", "unfortunatly","unfortunately", "usefull","useful",
+            "vaccum","vacuum", "vegtable","vegetable", "vehical","vehicle", "visable","visible", "writting","writing", "writen","written",
+            "yesturday","yesterday", "becomming","becoming", "begginning","beginning", "beggining","beginning", "runing","running", "geting","getting",
+            "stoped","stopped", "tryed","tried", "ofcourse","of course", "infact","in fact", "aswell","as well", "eachother","each other",
+            "alittle","a little", "atleast","at least", "alrady","already", "allready","already", "recieving","receiving", "freinds","friends",
+            "hapen","happen", "diferent","different", "elligible","eligible", "sucess","success", "succes","success", "sucessful","successful",
+            "wouldve","would've", "couldve","could've", "shouldve","should've", "theyre","they're", "theyve","they've", "weve","we've",
+            "youve","you've", "youll","you'll", "theyll","they'll", "hasnt","hasn't", "havent","haven't", "hadnt","hadn't",
+            "arent","aren't", "werent","weren't", "theres","there's", "wheres","where's", "heres","here's", "reciving","receiving",
+            "recieves","receives", "beleive","believe", "beleives","believes", "calender","calendar", "wierdo","weirdo", "accross","across",
+            "agressively","aggressively", "alchohol","alcohol", "apparant","apparent", "assistent","assistant", "bizzare","bizarre", "brillant","brilliant",
+            "cieling","ceiling", "compatability","compatibility", "completly","completely", "concensus","consensus", "critisism","criticism", "decison","decision",
+            "disatisfied","dissatisfied", "ecstacy","ecstasy", "enterance","entrance", "entrepeneur","entrepreneur", "exagerate","exaggerate", "facinating","fascinating",
+            "febuary","february", "flourescent","fluorescent", "gratefull","grateful", "greatful","grateful", "happyness","happiness", "humerous","humorous",
+            "hygeine","hygiene", "ignorence","ignorance", "incidently","incidentally", "indispensible","indispensable", "intellegent","intelligent", "jewlery","jewelry",
+            "knowlegable","knowledgeable", "labratory","laboratory", "largly","largely", "lazyness","laziness", "mathmatics","mathematics", "medcine","medicine",
+            "medeval","medieval", "mysterous","mysterious", "naturaly","naturally", "nieghbor","neighbor", "noticably","noticeably", "ocurred","occurred",
+            "ocurrence","occurrence", "offical","official", "paralell","parallel", "pasttime","pastime", "peculier","peculiar", "percieve","perceive",
+            "perseverence","perseverance", "personel","personnel", "playwrite","playwright", "politican","politician", "potatos","potatoes", "practicly","practically",
+            "presense","presence", "proffesional","professional", "promiss","promise", "propably","probably", "quantaty","quantity", "reccommend","recommend",
+            "refrence","reference", "religon","religion", "repitition","repetition", "resemblence","resemblance", "sandwhich","sandwich", "seige","siege",
+            "sieze","seize", "sence","sense", "shcool","school", "skillfull","skillful", "sophmore","sophomore", "souvenier","souvenir",
+            "spagetti","spaghetti", "stategy","strategy", "straigth","straight", "stubborness","stubbornness", "substancial","substantial", "sucessor","successor",
+            "sufficent","sufficient", "suposed","supposed", "supposably","supposedly", "temperture","temperature", "temprature","temperature", "tounament","tournament",
+            "tradgedy","tragedy", "transfered","transferred", "tyrany","tyranny", "unecessary","unnecessary", "unnecesary","unnecessary", "valueable","valuable",
+            "varient","variant", "volonteer","volunteer", "wensday","wednesday", "wendesday","wednesday", "wellcome","welcome", "wilfull","willful",
+            "withold","withhold"
+        };
+        for (int i = 0; i + 1 < en.length; i += 2) {
+            if (!COMMON_EN_TYPOS.containsKey(en[i])) COMMON_EN_TYPOS.put(en[i], en[i + 1]);
+        }
+        String[] es = {
+            "tambien","también", "ademas","además", "despues","después", "aqui","aquí", "alli","allí", "ahi","ahí",
+            "asi","así", "adios","adiós", "quizas","quizás", "ultimamente","últimamente", "facil","fácil", "dificil","difícil",
+            "rapido","rápido", "util","útil", "inutil","inútil", "movil","móvil", "pelicula","película", "espanol","español",
+            "manana","mañana", "senor","señor", "senora","señora", "companero","compañero", "cumpleanos","cumpleaños", "pequeno","pequeño",
+            "diseno","diseño", "dueno","dueño", "extrano","extraño", "pequena","pequeña", "espana","españa", "informacion","información",
+            "atencion","atención", "educacion","educación", "situacion","situación", "relacion","relación", "organizacion","organización", "comunicacion","comunicación",
+            "cancion","canción", "corazon","corazón", "razon","razón", "conversacion","conversación", "direccion","dirección", "habitacion","habitación",
+            "reunion","reunión", "aplicacion","aplicación", "funcion","función", "nacion","nación", "estacion","estación", "invitacion","invitación",
+            "pasion","pasión", "presion","presión", "excepcion","excepción", "operacion","operación", "produccion","producción", "construccion","construcción",
+            "solucion","solución", "tradicion","tradición", "jamas","jamás", "ojala","ojalá", "porfavor","por favor", "aveces","a veces",
+            "apesar","a pesar", "osea","o sea", "atravez","a través", "haiga","haya", "bamos","vamos", "estubo","estuvo",
+            "estubieron","estuvieron", "exelente","excelente", "perdon","perdón", "compania","compañía", "tecnologia","tecnología", "psicologia","psicología",
+            "biologia","biología", "energia","energía", "economia","economía", "alegria","alegría", "categoria","categoría", "ingenieria","ingeniería",
+            "filosofia","filosofía", "geografia","geografía", "fotografia","fotografía", "biografia","biografía", "telefono","teléfono", "numeros","números",
+            "todavia","todavía", "dia","día", "sabado","sábado", "miercoles","miércoles", "electrico","eléctrico", "musico","músico",
+            "basico","básico", "clasico","clásico", "historico","histórico", "politico","político", "economico","económico", "tipico","típico",
+            "unico","único"
+        };
+        for (int i = 0; i + 1 < es.length; i += 2) {
+            COMMON_ES_TYPOS.put(foldUncached(es[i]), es[i + 1]);
+        }
+        String[] ar = {
+            "لاكن","لكن", "هاذا","هذا", "هاذه","هذه", "ذالك","ذلك", "كذالك","كذلك", "اولائك","أولئك",
+            "اولاءك","أولئك", "اللذي","الذي", "اللتي","التي", "ماشاءالله","ما شاء الله", "انشاءالله","إن شاء الله", "مسؤل","مسؤول",
+            "المسؤل","المسؤول", "اللة","الله", "لاكنه","لكنه", "لاكنها","لكنها", "هاكذا","هكذا", "هاذين","هذين",
+            "لاكني","لكني", "لاكنني","لكنني", "هاذان","هذان", "لذالك","لذلك", "بذالك","بذلك", "وذالك","وذلك"
+        };
+        for (int i = 0; i + 1 < ar.length; i += 2) {
+            COMMON_AR_TYPOS.put(foldUncached(ar[i]), ar[i + 1]);
         }
     }
 
