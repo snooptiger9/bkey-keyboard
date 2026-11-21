@@ -566,7 +566,7 @@ public class MainActivity extends Activity {
                 this::openLanguagesScreen
         ));
         group1.addView(createMenuRow(
-                ModernIconView.ICON_THEME_PALETTE,
+                ModernIconView.ICON_PALETTE_BRUSH,
                 tr("المظهر وشكل الكيبورد والحجم", "Theme, key style & size"),
                 null,
                 false,
@@ -583,7 +583,7 @@ public class MainActivity extends Activity {
                 this::openCorrectionsAndMemoryScreen
         ));
         group2.addView(createMenuRow(
-                ModernIconView.ICON_GESTURE_SWIPE,
+                ModernIconView.ICON_HAND_SWIPE,
                 tr("إيماءات السحب والأنميشن", "Swipe gestures & animation"),
                 null,
                 true,
@@ -831,6 +831,27 @@ public class MainActivity extends Activity {
         return card;
     }
 
+    private int menuAccent(int iconType) {
+        switch (iconType) {
+            case ModernIconView.ICON_GLOBE_LANG: return Color.parseColor("#0EA5E9");
+            case ModernIconView.ICON_PALETTE_BRUSH:
+            case ModernIconView.ICON_THEME_PALETTE: return Color.parseColor("#EC4899");
+            case ModernIconView.ICON_TEXT_CORRECTION: return Color.parseColor("#10B981");
+            case ModernIconView.ICON_HAND_SWIPE:
+            case ModernIconView.ICON_GESTURE_SWIPE: return Color.parseColor("#8B5CF6");
+            case ModernIconView.ICON_SOUND_WAVE: return Color.parseColor("#6366F1");
+            case ModernIconView.ICON_EMOJI_SMILE: return Color.parseColor("#F59E0B");
+            case ModernIconView.ICON_SLIDERS_PREFS: return Color.parseColor("#64748B");
+            case ModernIconView.ICON_CLIPBOARD_PAD: return Color.parseColor("#14B8A6");
+            case ModernIconView.ICON_BOLT: return Color.parseColor("#F97316");
+            case ModernIconView.ICON_STATS: return Color.parseColor("#3B82F6");
+            case ModernIconView.ICON_REFRESH_UPDATE: return Color.parseColor("#22C55E");
+            case ModernIconView.ICON_BACKUP: return Color.parseColor("#0891B2");
+            case ModernIconView.ICON_SETTINGS_GEAR: return Color.parseColor("#EF4444");
+            default: return Color.parseColor(dm("#5F6368"));
+        }
+    }
+
     private View createMenuRow(int iconType, String title, String subtitle, boolean showBottomDivider, final Runnable onClick) {
         return createMenuRow(iconType, title, subtitle, showBottomDivider, onClick, null);
     }
@@ -853,10 +874,20 @@ public class MainActivity extends Activity {
         int vPad = (subtitle != null && !subtitle.isEmpty()) ? dp(16) : dp(24);
         row.setPadding(dp(18), vPad, dp(18), vPad);
 
-        ModernIconView icon = new ModernIconView(this, iconType, Color.parseColor(dm("#5F6368")), Color.TRANSPARENT);
-        LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(32), dp(32));
+        // Soft tinted tile behind each icon: one accent per feature, drawn in that
+        // accent over a ~16% tint of it, so rows are easy to tell apart at a glance.
+        int accent = menuAccent(iconType);
+        ModernIconView iconInner = new ModernIconView(this, iconType, accent, Color.TRANSPARENT);
+        iconInner.setLayoutParams(new FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER));
+        FrameLayout icon = new FrameLayout(this);
+        android.graphics.drawable.GradientDrawable tile = new android.graphics.drawable.GradientDrawable();
+        tile.setColor(Color.argb(42, Color.red(accent), Color.green(accent), Color.blue(accent)));
+        tile.setCornerRadius(dp(13));
+        icon.setBackground(tile);
+        icon.addView(iconInner);
+        LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(44), dp(44));
         lpIcon.setMarginStart(0);
-        lpIcon.setMarginEnd(dp(10));
+        lpIcon.setMarginEnd(dp(14));
         icon.setLayoutParams(lpIcon);
 
         LinearLayout textCol = new LinearLayout(this);

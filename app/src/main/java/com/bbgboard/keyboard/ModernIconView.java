@@ -49,6 +49,8 @@ public class ModernIconView extends View {
     public static final int ICON_SHIELD_CHECK = 37;
     public static final int ICON_BOLT = 38;
     public static final int ICON_SPARKLE = 39;
+    public static final int ICON_PALETTE_BRUSH = 40;
+    public static final int ICON_HAND_SWIPE = 41;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -582,6 +584,38 @@ public class ModernIconView extends View {
                 b.lineTo(cx + r * 0.04f, cy - r * 0.14f);
                 b.close();
                 canvas.drawPath(b, strokePaint);
+                break;
+            }
+            case ICON_PALETTE_BRUSH: {
+                Path pal = new Path();
+                RectF body = new RectF(cx - r * 0.92f, cy - r * 0.92f, cx + r * 0.92f, cy + r * 0.92f);
+                pal.addArc(body, 120f, 300f);
+                pal.quadTo(cx + r * 0.55f, cy + r * 0.2f, cx + r * 0.45f, cy + r * 0.55f);
+                pal.quadTo(cx + r * 0.38f, cy + r * 0.85f, cx + r * 0.05f, cy + r * 0.92f);
+                canvas.drawPath(pal, strokePaint);
+                float d = 1.7f * density;
+                canvas.drawCircle(cx - r * 0.45f, cy - r * 0.05f, d, fillPaint);
+                canvas.drawCircle(cx - r * 0.15f, cy - r * 0.50f, d, fillPaint);
+                canvas.drawCircle(cx + r * 0.32f, cy - r * 0.42f, d, fillPaint);
+                canvas.drawCircle(cx - r * 0.30f, cy + r * 0.42f, d, fillPaint);
+                break;
+            }
+            case ICON_HAND_SWIPE: {
+                Path hand = new Path();
+                hand.moveTo(cx - r * 0.35f, cy + r * 0.15f);
+                hand.lineTo(cx - r * 0.35f, cy - r * 0.62f);
+                hand.quadTo(cx - r * 0.35f, cy - r * 0.92f, cx - r * 0.10f, cy - r * 0.92f);
+                hand.quadTo(cx + r * 0.15f, cy - r * 0.92f, cx + r * 0.15f, cy - r * 0.62f);
+                hand.lineTo(cx + r * 0.15f, cy - r * 0.10f);
+                hand.lineTo(cx + r * 0.62f, cy - r * 0.02f);
+                hand.quadTo(cx + r * 0.80f, cy + r * 0.02f, cx + r * 0.80f, cy + r * 0.22f);
+                hand.lineTo(cx + r * 0.80f, cy + r * 0.35f);
+                hand.moveTo(cx - r * 0.35f, cy + r * 0.15f);
+                hand.lineTo(cx - r * 0.55f, cy - r * 0.02f);
+                canvas.drawPath(hand, strokePaint);
+                canvas.drawLine(cx - r * 0.85f, cy + r * 0.80f, cx + r * 0.85f, cy + r * 0.80f, strokePaint);
+                canvas.drawLine(cx + r * 0.58f, cy + r * 0.58f, cx + r * 0.85f, cy + r * 0.80f, strokePaint);
+                canvas.drawLine(cx + r * 0.58f, cy + r * 0.98f, cx + r * 0.85f, cy + r * 0.80f, strokePaint);
                 break;
             }
             case ICON_SPARKLE: {
