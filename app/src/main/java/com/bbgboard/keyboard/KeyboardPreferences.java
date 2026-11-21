@@ -247,7 +247,7 @@ public class KeyboardPreferences {
     }
 
     public int getSuggestionTextLevel() {
-        return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 3)));
+        return Math.max(0, Math.min(5, prefs.getInt("suggestion_text_level", 2)));
     }
 
     public void setSuggestionTextLevel(int level) {
@@ -255,7 +255,7 @@ public class KeyboardPreferences {
     }
 
     public float getKeyFontScale() {
-        return prefs.getFloat("key_font_scale", 1.18f);
+        return prefs.getFloat("key_font_scale", 1.0f);
     }
 
     public void setKeyFontScale(float scale) {
@@ -263,8 +263,8 @@ public class KeyboardPreferences {
         prefs.edit().putFloat("key_font_scale", clamped).apply();
     }
 
-    /** The keyboard size shown as the default (105%) in Settings; Reset in the resize popup returns to it. */
-    public static final float DEFAULT_KEYBOARD_SCALE = 1.05f;
+    /** The keyboard size shown as the default (100%) in Settings; Reset in the resize popup returns to it. */
+    public static final float DEFAULT_KEYBOARD_SCALE = 1.0f;
 
     public float getKeyboardScale() {
         return prefs.getFloat("keyboard_scale", DEFAULT_KEYBOARD_SCALE);
@@ -276,7 +276,7 @@ public class KeyboardPreferences {
     }
 
     public float getSuggestionBarScale() {
-        return prefs.getFloat("suggestion_bar_scale", 1.15f);
+        return prefs.getFloat("suggestion_bar_scale", 1.0f);
     }
 
     public void setSuggestionBarScale(float scale) {

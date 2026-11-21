@@ -1853,25 +1853,25 @@ public class MainActivity extends Activity {
 
         root.addView(buildSizerCard(
                 tr("5. حجم الحروف داخل المربعات", "5. Key letter size"),
-                Math.round(prefs.getKeyFontScale() * 100), 118, 50, 150,
+                Math.round(prefs.getKeyFontScale() * 100), 100, 50, 150,
                 pct -> prefs.setKeyFontScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("6. ارتفاع الكيبورد العام", "6. Overall keyboard height"),
-                Math.round(prefs.getKeyboardScale() * 100), 105, 70, 145,
+                Math.round(prefs.getKeyboardScale() * 100), 100, 70, 145,
                 pct -> prefs.setKeyboardScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("7. ارتفاع صف الاقتراحات العلوي", "7. Suggestion bar height"),
-                Math.round(prefs.getSuggestionBarScale() * 100), 115, 70, 125,
+                Math.round(prefs.getSuggestionBarScale() * 100), 100, 70, 125,
                 pct -> prefs.setSuggestionBarScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("8. حجم خط الاقتراحات", "8. Suggestion text size"),
-                prefs.getSuggestionTextLevel(), 3, 0, 5,
+                prefs.getSuggestionTextLevel(), 2, 0, 5,
                 lv -> prefs.setSuggestionTextLevel(lv),
                 lv -> lv == 0 ? tr("بدون تكبير", "No enlargement") : "+" + lv));
     }
