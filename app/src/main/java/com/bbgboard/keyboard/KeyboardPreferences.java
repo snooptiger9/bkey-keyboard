@@ -259,7 +259,7 @@ public class KeyboardPreferences {
     }
 
     public void setKeyFontScale(float scale) {
-        float clamped = Math.max(0.80f, Math.min(1.50f, scale));
+        float clamped = Math.max(0.50f, Math.min(1.50f, scale));
         prefs.edit().putFloat("key_font_scale", clamped).apply();
     }
 

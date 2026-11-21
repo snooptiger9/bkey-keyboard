@@ -1853,7 +1853,7 @@ public class MainActivity extends Activity {
 
         root.addView(buildSizerCard(
                 tr("5. حجم الحروف داخل المربعات", "5. Key letter size"),
-                Math.round(prefs.getKeyFontScale() * 100), 118, 80, 150,
+                Math.round(prefs.getKeyFontScale() * 100), 118, 50, 150,
                 pct -> prefs.setKeyFontScale(pct / 100f),
                 pct -> pct + "%"));
 
