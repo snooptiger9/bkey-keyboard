@@ -1852,8 +1852,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         keyboardView.setToolbarIdleMode(false);
 
-        String emojiSuggestion = !ctx[0].isEmpty() ? EmojiSuggester.suggestFor(ctx[0])
-                : (ctx[1] != null && !ctx[1].isEmpty() ? EmojiSuggester.suggestFor(ctx[1]) : null);
+        String emojiSuggestion = !ctx[0].isEmpty() ? EmojiSuggester.suggestFor(ctx[0], keyboardView.getActiveLanguageCode())
+                : (ctx[1] != null && !ctx[1].isEmpty() ? EmojiSuggester.suggestFor(ctx[1], keyboardView.getActiveLanguageCode()) : null);
         keyboardView.setEmojiKeySuggestion(emojiSuggestion);
 
         final String c0 = ctx[0], c1 = ctx[1], c2 = ctx[2];

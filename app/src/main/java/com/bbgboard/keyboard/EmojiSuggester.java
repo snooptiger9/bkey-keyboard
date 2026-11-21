@@ -7,6 +7,9 @@ final class EmojiSuggester {
     private EmojiSuggester() {}
 
     private static final Map<String, String> MAP = new HashMap<>();
+    // Spanish-only: many of these words (no, sol, pan, mar...) are ordinary English words,
+    // so they are only consulted while the Spanish layout is active.
+    private static final Map<String, String> ES_MAP = new HashMap<>();
     static {
 
         put("مبروك", "🎉");
@@ -132,13 +135,30 @@ final class EmojiSuggester {
         }
     }
 
+    static {
+        addAllTo(ES_MAP,
+            "amor|❤️ te quiero|❤️ te amo|❤️ cariño|❤️ corazón|❤️ beso|😘 besos|😘 abrazo|🤗 feliz|😊 contento|😊 contenta|😊 alegre|😄 alegría|😄 sonrisa|😊 risa|😂 jaja|😂 jajaja|😂 jeje|😂 jajajaja|😂 gracioso|😂 triste|😢 tristeza|😢 llorar|😭 lloro|😭 enojado|😠 enojada|😠 enfadado|😠 rabia|😡 miedo|😨 susto|😱 sorpresa|😮 nervioso|😬 vergüenza|😳 cansado|😴 cansada|😴 sueño|😴 dormir|😴 aburrido|😐 enfermo|🤒 enferma|🤒 fiebre|🤒 guay|😎 genial|🤩 increíble|🤩 fantástico|🤩 perfecto|👌 excelente|🔥 bueno|👍 buena|👍 vale|👌 claro|👌 dale|👌 sí|✅ no|❌ ok|👌 bien|👍 mal|👎 cuidado|⚠️ peligro|⚠️ ojo|👀 ",
+            "gracias|🙏 muchas|🙏 por favor|🙏 perdón|🙏 disculpa|🙏 lo siento|🙏 bienvenido|🤝 bienvenida|🤝 hola|👋 adiós|👋 chao|👋 hasta luego|👋 saludos|👋 buenos días|☀️ buenas noches|🌙 buenas tardes|🌆 felicidades|🎉 enhorabuena|🎉 cumpleaños|🎂 fiesta|🎉 pastel|🎂 tarta|🎂 regalo|🎁 navidad|🎄 sorpresas|🎁 bendiciones|🙏 dios|🙏 oración|🙏 rezar|🙏 amén|🙏 amigo|🤝 amiga|🤝 amigos|🤝 familia|👨‍👩‍👧 mamá|👩 papá|👨 bebé|👶 hijo|👦 hija|👧 abuela|👵 abuelo|👴 novio|💑 novia|💑 boda|💒 ",
+            "comida|🍽️ comer|🍽️ desayuno|🍳 almuerzo|🍛 cena|🍽️ hambre|🍽️ pizza|🍕 hamburguesa|🍔 tacos|🌮 taco|🌮 pollo|🍗 carne|🥩 pescado|🐟 arroz|🍚 pan|🍞 queso|🧀 huevo|🥚 huevos|🥚 leche|🥛 jugo|🧃 agua|💧 bebida|🥤 cerveza|🍺 vino|🍷 café|☕ té|🍵 helado|🍦 pastel|🍰 chocolate|🍫 fruta|🍎 manzana|🍎 plátano|🍌 naranja|🍊 fresa|🍓 sandía|🍉 ensalada|🥗 sopa|🍲 postre|🍰 dulce|🍬 galleta|🍪 ",
+            "casa|🏠 hogar|🏠 escuela|🏫 colegio|🏫 universidad|🎓 trabajo|💼 oficina|🏢 reunión|📅 hospital|🏥 doctor|👨‍⚕️ médico|👨‍⚕️ medicina|💊 farmacia|💊 tienda|🛒 compras|🛍️ restaurante|🍴 teléfono|📱 móvil|📱 celular|📱 llamada|📞 llamar|📞 mensaje|💬 correo|📧 llave|🔑 idea|💡 importante|❗ dinero|💰 plata|💰 pago|💳 coche|🚗 carro|🚗 auto|🚗 autobús|🚌 tren|🚆 avión|✈️ vuelo|✈️ viaje|🧳 playa|🏖️ mar|🌊 montaña|⛰️ ciudad|🏙️ ",
+            "sol|☀️ calor|🥵 frío|🥶 lluvia|🌧️ llueve|🌧️ nieve|❄️ viento|💨 tormenta|⛈️ luna|🌙 estrella|⭐ noche|🌙 mañana|🌅 tarde|🌆 hoy|📅 fútbol|⚽ gol|⚽ partido|⚽ música|🎵 canción|🎶 baile|💃 bailar|💃 película|🎬 cine|🎬 libro|📚 leer|📖 estudiar|📚 examen|📝 tarea|📝 juego|🎮 jugar|🎮 foto|📸 fotos|📸 ",
+            "perro|🐶 gato|🐱 caballo|🐴 vaca|🐄 pájaro|🐦 pez|🐟 león|🦁 oso|🐻 mono|🐒 conejo|🐰 flor|🌸 flores|🌹 rosa|🌹 árbol|🌳 fuego|🔥 victoria|🏆 ganar|🏆 campeón|🏆 fuerza|💪 fuerte|💪 ánimo|💪 suerte|🍀 bravo|👏 aplausos|👏 felicitaciones|👏 listo|👍 gol|⚽ ",
+            "españa|🇪🇸 méxico|🇲🇽 mexico|🇲🇽 argentina|🇦🇷 colombia|🇨🇴 chile|🇨🇱 perú|🇵🇪 peru|🇵🇪 venezuela|🇻🇪 cuba|🇨🇺 ecuador|🇪🇨 bolivia|🇧🇴 uruguay|🇺🇾 paraguay|🇵🇾 brasil|🇧🇷 portugal|🇵🇹 estados unidos|🇺🇸 "
+        );
+
+    }
+
     private static void addAll(String... chunks) {
+        addAllTo(MAP, chunks);
+    }
+
+    private static void addAllTo(Map<String, String> target, String... chunks) {
         java.util.regex.Pattern p = java.util.regex.Pattern.compile("([^|]+?)\\|(\\S+)(?:\\s+|$)");
         for (String chunk : chunks) {
             java.util.regex.Matcher m = p.matcher(chunk);
             while (m.find()) {
                 String k = fold(m.group(1));
-                if (!k.isEmpty() && !MAP.containsKey(k)) MAP.put(k, m.group(2));
+                if (!k.isEmpty() && !target.containsKey(k)) target.put(k, m.group(2));
             }
         }
     }
@@ -148,21 +168,36 @@ final class EmojiSuggester {
     }
 
     static String suggestFor(String word) {
+        return suggestFor(word, null);
+    }
+
+    static String suggestFor(String word, String langCode) {
         if (word == null || word.isEmpty()) return null;
-        return MAP.get(fold(word));
+        String k = fold(word);
+        if (KeyboardPreferences.LANG_ES.equals(langCode)) {
+            String e = ES_MAP.get(k);
+            if (e != null) return e;
+        }
+        return MAP.get(k);
     }
 
     private static String fold(String s) {
         StringBuilder sb = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
+            char c = Character.toLowerCase(s.charAt(i));
             if (c == 'أ' || c == 'إ' || c == 'آ') c = 'ا';
             else if (c == 'ى') c = 'ي';
             else if (c == 'ة') c = 'ه';
             else if (c >= 0x064B && c <= 0x0652) continue;
+            else if (c == 'á') c = 'a';
+            else if (c == 'é') c = 'e';
+            else if (c == 'í') c = 'i';
+            else if (c == 'ó') c = 'o';
+            else if (c == 'ú' || c == 'ü') c = 'u';
+            else if (c == 'ñ') c = 'n';
             else if (c == 0x093C || c == 0x200C || c == 0x200D) continue;
             else if (c == 0x0901) c = (char) 0x0902;
-            sb.append(Character.toLowerCase(c));
+            sb.append(c);
         }
         return sb.toString().trim();
     }
