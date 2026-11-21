@@ -93,6 +93,10 @@ public class BlackBerryKeyboardView extends View {
     // The single source of truth for which language is active; isArabic above is just
     // "== LANG_AR", kept as its own field since almost all RTL/UI logic already keys off it.
     private String currentLangCode = KeyboardPreferences.LANG_AR;
+
+    public String getCurrentLangCode() {
+        return currentLangCode;
+    }
     private boolean isSymbols = false;
     private boolean isShift = false;
     private boolean isCapsLock = false;

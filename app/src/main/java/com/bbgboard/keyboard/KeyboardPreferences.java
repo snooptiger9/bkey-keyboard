@@ -293,6 +293,23 @@ public class KeyboardPreferences {
         prefs.edit().putInt("stat_flick_words", prefs.getInt("stat_flick_words", 0) + 1).apply();
     }
 
+    /** Plain numeric counters for the typing stats page (no text is ever stored). */
+    public int getStat(String key) {
+        return prefs.getInt(key, 0);
+    }
+
+    public void addStat(String key, int delta) {
+        if (delta <= 0) return;
+        long v = (long) prefs.getInt(key, 0) + delta;
+        prefs.edit().putInt(key, (int) Math.min(v, 2_000_000_000L)).apply();
+    }
+
+    /** One finished word, typed, corrected or picked from the bar, credited to a language. */
+    public void recordWord(String langCode) {
+        addStat("stat_words_total", 1);
+        if (langCode != null) addStat("stat_lang_" + langCode, 1);
+    }
+
     /** The theme the user picked, ignoring "follow system". */
     public int getRawThemeMode() {
         return prefs.getInt("theme_mode", THEME_GBOARD_WHITE);

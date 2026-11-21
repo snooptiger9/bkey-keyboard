@@ -2839,6 +2839,10 @@ public class MainActivity extends Activity {
 
     /** A big animated number card: count-up, gentle slide-in, and a colored gradient. */
     private View createStatCard(String label, String caption, final int target, int colorFrom, int colorTo, long delayMs) {
+        return createStatCard(label, caption, target, colorFrom, colorTo, delayMs, "");
+    }
+
+    private View createStatCard(String label, String caption, final int target, int colorFrom, int colorTo, long delayMs, final String suffix) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(22), dp(22), dp(22), dp(22));
@@ -2881,7 +2885,7 @@ public class MainActivity extends Activity {
         va.setDuration(target == 0 ? 1 : 1000);
         va.setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f));
         va.addUpdateListener(a -> num.setText(java.text.NumberFormat.getInstance(java.util.Locale.US)
-                .format((Integer) a.getAnimatedValue())));
+                .format((Integer) a.getAnimatedValue()) + suffix));
         va.start();
         return card;
     }
@@ -3055,6 +3059,102 @@ public class MainActivity extends Activity {
         }
     }
 
+    private View createLanguageShareCard(int totalWords) {
+        String[] codes = {KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES};
+        String[] names = tr(new String[]{"العربية", "الإنجليزية", "الإسبانية"}, new String[]{"Arabic", "English", "Spanish"});
+        int[] colors = {Color.parseColor("#10B981"), Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B")};
+        int sum = 0;
+        int[] counts = new int[3];
+        for (int i = 0; i < 3; i++) { counts[i] = prefs.getStat("stat_lang_" + codes[i]); sum += counts[i]; }
+
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(22), dp(22), dp(22), dp(20));
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{Color.parseColor("#475569"), Color.parseColor("#1E293B")});
+        bg.setCornerRadius(dp(26));
+        card.setBackground(bg);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(14);
+        card.setLayoutParams(lp);
+
+        TextView lab = new TextView(this);
+        lab.setText(tr("الكتابة بكل لغة", "Words by language"));
+        lab.setTextColor(Color.argb(230, 255, 255, 255));
+        lab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        lab.setTypeface(Typeface.DEFAULT_BOLD);
+        lab.setPadding(0, 0, 0, dp(10));
+        card.addView(lab);
+
+        if (sum == 0) {
+            TextView empty = new TextView(this);
+            empty.setText(tr("ابدأ الكتابة لتظهر النسب هنا", "Start typing and the shares will show here"));
+            empty.setTextColor(Color.argb(200, 255, 255, 255));
+            empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+            card.addView(empty);
+        }
+        for (int i = 0; i < 3 && sum > 0; i++) {
+            if (counts[i] == 0) continue;
+            final int pct = Math.round(counts[i] * 100f / sum);
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lpRow.bottomMargin = dp(8);
+            row.setLayoutParams(lpRow);
+
+            TextView name = new TextView(this);
+            name.setText(names[i]);
+            name.setTextColor(Color.WHITE);
+            name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+            name.setLayoutParams(new LinearLayout.LayoutParams(dp(78), ViewGroup.LayoutParams.WRAP_CONTENT));
+            row.addView(name);
+
+            FrameLayout track = new FrameLayout(this);
+            GradientDrawable tb = new GradientDrawable();
+            tb.setCornerRadius(dp(6));
+            tb.setColor(Color.argb(50, 255, 255, 255));
+            track.setBackground(tb);
+            track.setLayoutParams(new LinearLayout.LayoutParams(0, dp(12), 1f));
+            final View fill = new View(this);
+            GradientDrawable fb = new GradientDrawable();
+            fb.setCornerRadius(dp(6));
+            fb.setColor(colors[i]);
+            fill.setBackground(fb);
+            fill.setLayoutParams(new FrameLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT));
+            track.addView(fill);
+            track.post(() -> {
+                final int full = Math.max(1, track.getWidth() * pct / 100);
+                android.animation.ValueAnimator va = android.animation.ValueAnimator.ofInt(0, full);
+                va.setDuration(900);
+                va.setStartDelay(900);
+                va.setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f));
+                va.addUpdateListener(a -> {
+                    ViewGroup.LayoutParams flp = fill.getLayoutParams();
+                    flp.width = (Integer) a.getAnimatedValue();
+                    fill.setLayoutParams(flp);
+                });
+                va.start();
+            });
+            row.addView(track);
+
+            TextView pv = new TextView(this);
+            pv.setText(pct + "%");
+            pv.setTextColor(Color.WHITE);
+            pv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+            pv.setGravity(Gravity.END);
+            pv.setLayoutParams(new LinearLayout.LayoutParams(dp(44), ViewGroup.LayoutParams.WRAP_CONTENT));
+            row.addView(pv);
+            card.addView(row);
+        }
+
+        card.setAlpha(0f);
+        card.setTranslationY(dp(24));
+        card.animate().alpha(1f).translationY(0f).setStartDelay(900L).setDuration(420)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+        return card;
+    }
+
     private void openStatsScreen() {
         LinearLayout root = createSubScreenTemplate(tr("إحصائيات الكتابة", "Typing stats"));
 
@@ -3070,6 +3170,22 @@ public class MainActivity extends Activity {
                 tr("كلمات اخترتها بالسحب لأعلى", "Words picked by swiping up"),
                 tr("كل كلمة مقترحة سحبتها من شريط الاقتراحات", "Every suggestion you swiped up from the suggestion bar"),
                 flicks, Color.parseColor("#12B981"), Color.parseColor("#0E8F8F"), 180L));
+
+        int totalWords = Math.max(prefs.getStat("stat_words_total"), flicks);
+        int swipeShare = totalWords == 0 ? 0 : Math.min(100, Math.round(flicks * 100f / totalWords));
+        root.addView(createStatCard(
+                tr("نسبة كلماتك بالسحب", "Share of words by swiping"),
+                tr("من كل الكلمات التي كتبتها منذ هذا التحديث", "Of all the words you wrote since this update"),
+                swipeShare, Color.parseColor("#EC4899"), Color.parseColor("#9D174D"), 360L, "%"));
+        root.addView(createStatCard(
+                tr("ضغطات وفّرها السحب (تقريباً)", "Taps saved by swiping (approx.)"),
+                tr("الحروف التي لم تضطر لكتابتها بفضل الاقتراحات", "Letters you did not have to type thanks to suggestions"),
+                prefs.getStat("stat_saved_keys"), Color.parseColor("#06B6D4"), Color.parseColor("#0369A1"), 540L));
+        root.addView(createStatCard(
+                tr("كلمات حذفتها بسحبة واحدة", "Words deleted with one swipe"),
+                tr("كل مرة حذفت فيها كلمة كاملة بالسحب الجانبي", "Each time you removed a whole word with the sideways swipe"),
+                prefs.getStat("stat_swipe_deletes"), Color.parseColor("#F97316"), Color.parseColor("#B91C1C"), 720L));
+        root.addView(createLanguageShareCard(totalWords));
 
         TextView note = new TextView(this);
         note.setText(tr("هذه أعداد فقط، لا يُحفظ أي نص مما تكتبه في الإحصائيات.", "These are counts only; no text you type is stored in the stats."));

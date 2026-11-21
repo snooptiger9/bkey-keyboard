@@ -1917,6 +1917,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     ic.deleteSurroundingText(currentPrefix.length(), 0);
                     ic.commitText(correction + " ", 1);
                     predictionEngine.learnWordAndTransition(correction, prevWord, prevWord2, keyboardView.isArabic());
+                    keyboardPrefs.recordWord(keyboardView.getCurrentLangCode());
+                    keyboardPrefs.addStat("stat_autocorrects", 1);
                     lastAutoCorrectOriginal = currentPrefix;
                     lastAutoCorrectResult = correction;
                     lastSpaceTapTime = 0L;
@@ -1936,6 +1938,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             boolean midEmail = ".".equals(text) && currentPrefix.indexOf('@') > 0;
             if (!currentPrefix.isEmpty() && !midEmail) {
                 predictionEngine.learnWordAndTransition(currentPrefix, prevWord, prevWord2, keyboardView.isArabic());
+                keyboardPrefs.recordWord(keyboardView.getCurrentLangCode());
             }
         }
 
@@ -2052,6 +2055,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         int deleteLength = before.length() - i;
         if (deleteLength > 0) {
             ic.deleteSurroundingText(deleteLength, 0);
+            keyboardPrefs.addStat("stat_swipe_deletes", 1);
         }
         refreshPredictions();
         return deleteLength > 0;
@@ -2168,6 +2172,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             ic.commitText(chosen + " ", 1);
             if (learnableChoice) predictionEngine.learnWordAndTransition(chosen, lastCompletedWord, lastCompletedWord2, keyboardView.isArabic());
             keyboardPrefs.incrementFlickWordCount();
+            keyboardPrefs.recordWord(keyboardView.getCurrentLangCode());
+            keyboardPrefs.addStat("stat_saved_keys", Math.max(0, chosen.length() - currentPrefix.length() + 1));
         } else {
             CharSequence beforeCs = textBefore(ic, 2);
             String before = beforeCs != null ? beforeCs.toString() : "";
@@ -2175,6 +2181,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             ic.commitText(prefixSpace + chosen + " ", 1);
             if (learnableChoice) predictionEngine.learnWordAndTransition(chosen, lastCompletedWord, lastCompletedWord2, keyboardView.isArabic());
             keyboardPrefs.incrementFlickWordCount();
+            keyboardPrefs.recordWord(keyboardView.getCurrentLangCode());
+            keyboardPrefs.addStat("stat_saved_keys", chosen.length() + 1);
         }
         refreshPredictions();
     }
