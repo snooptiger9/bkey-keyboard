@@ -6,3 +6,4 @@ local.properties
 app/keystore.properties
 app/bkey_release.keystore
 app/klipy.properties
+release/*.apk

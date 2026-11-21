@@ -20,10 +20,6 @@ import java.nio.charset.StandardCharsets;
 final class AppUpdater {
     private AppUpdater() {}
 
-    private static final String UPDATE_URL_LITE =
-            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk";
-    private static final String UPDATE_URL_FULL =
-            "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk";
     private static final String VERSION_URL_LITE =
             "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.version";
     private static final String VERSION_URL_FULL =
@@ -86,7 +82,6 @@ final class AppUpdater {
     // settings screen that started this is still the one open on screen, opens the
     // installer every time with nothing left to tap.
     static void downloadAndInstall(final Context appContext, final boolean fetchFullBuild, final Callback cb) {
-        final String fallbackUrl = fetchFullBuild ? UPDATE_URL_FULL : UPDATE_URL_LITE;
         final String versionUrl = fetchFullBuild ? VERSION_URL_FULL : VERSION_URL_LITE;
         final Handler mainHandler = new Handler(Looper.getMainLooper());
         new Thread(() -> {
@@ -112,9 +107,6 @@ final class AppUpdater {
                 }
                 if (releaseUrl != null) {
                     success = downloadToFile(releaseUrl, dest);
-                }
-                if (!success) {
-                    success = downloadToFile(fallbackUrl, dest);
                 }
             } catch (Exception e) {
                 AppLogger.log("AppUpdater", "downloadAndInstall()", e);

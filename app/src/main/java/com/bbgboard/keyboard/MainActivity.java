@@ -2381,9 +2381,7 @@ public class MainActivity extends Activity {
                                     "Automatic download failed, opening the link in your browser instead"),
                             Toast.LENGTH_LONG).show();
                     try {
-                        String url = BuildConfig.OTP_FEATURES_ENABLED
-                                ? "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk"
-                                : "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-latest.apk";
+                        String url = "https://github.com/snooptiger9/bkey-keyboard/releases/latest";
                         startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)));
                     } catch (Exception e) {
                         AppLogger.log("MainActivity", "checkForAppUpdate() download fallback", e);
@@ -2507,7 +2505,7 @@ public class MainActivity extends Activity {
                                 Toast.LENGTH_LONG).show();
                         try {
                             startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
-                                    "https://github.com/snooptiger9/bkey-keyboard/raw/main/release/bkey-full-latest.apk")));
+                                    "https://github.com/snooptiger9/bkey-keyboard/releases/latest")));
                         } catch (Exception e) {
                             AppLogger.log("MainActivity", "openOtpSettingsScreen() download fallback", e);
                         }

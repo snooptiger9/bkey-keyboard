@@ -112,7 +112,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit built APKs into the repo
+      - name: Stage built APKs and commit the version files
         run: |
           mkdir -p release
           cp app/build/outputs/apk/lite/release/*.apk release/bkey-latest.apk
@@ -121,12 +121,12 @@ jobs:
           cp release/bkey-latest.version release/bkey-full-latest.version
           git config user.name "bkey-ci"
           git config user.email "ci@bkey.local"
-          git add release/bkey-latest.apk release/bkey-full-latest.apk release/bkey-latest.version release/bkey-full-latest.version
+          git add release/bkey-latest.version release/bkey-full-latest.version
           if ! git diff --cached --quiet; then
-            git commit -m "ci: update built APKs [skip ci]"
+            git commit -m "ci: update version files [skip ci]"
             git push
           else
-            echo "No APK changes to commit."
+            echo "No version change to commit."
           fi
 
       - name: Read app version name
@@ -174,12 +174,10 @@ jobs:
             echo "CHANGELOG_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      # release/bkey-latest.apk and release/bkey-full-latest.apk (committed in
-      # the step above) stay as fixed-name raw files purely for the in-app
-      # updater, which downloads them straight from the repo rather than from
-      # a Release. The Release page itself only ever ships these two
-      # version-named copies -- never both a fixed-name AND a versioned copy
-      # of the same APK, which was confusing to look at.
+      # The APKs in release/ exist only inside this CI run (they are git-ignored and
+      # never committed). Only the tiny .version files live in the repo, for the in-app
+      # updater; the APKs themselves are downloaded from the GitHub Release. The Release
+      # ships only the two version-named copies made below.
       - name: Create version-named copies of the APKs for this release
         if: steps.verdiff.outputs.changed == 'true'
         run: |
