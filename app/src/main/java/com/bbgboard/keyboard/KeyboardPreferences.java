@@ -49,8 +49,9 @@ public class KeyboardPreferences {
     public static final String LANG_AR = "ar";
     public static final String LANG_EN = "en";
     public static final String LANG_ES = "es";
+    public static final String LANG_HI = "hi";
     // Every language the keyboard knows how to type in, in the order they're offered in settings.
-    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES};
+    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES, LANG_HI};
 
     public static final int SWIPE_SOUND_BB_AIR_FLICK = 0;
     public static final int SWIPE_SOUND_VELVET_BRUSH = 1;
@@ -877,7 +878,7 @@ public class KeyboardPreferences {
         }
     }
 
-    // Keyed by language code (LANG_AR/LANG_EN/LANG_ES) rather than a bare Arabic/not-Arabic
+    // Keyed by language code (LANG_AR/LANG_EN/LANG_ES/LANG_HI) rather than a bare Arabic/not-Arabic
     // boolean -- English and Spanish each need their own dismissed-default-words set, since
     // they're both "not Arabic" but otherwise unrelated languages.
     public java.util.Set<String> getDismissedDefaultWords(String languageCode) {

@@ -112,6 +112,19 @@ final class EmojiSuggester {
             "saudi|🇸🇦 saudi arabia|🇸🇦 uae|🇦🇪 emirates|🇦🇪 kuwait|🇰🇼 qatar|🇶🇦 bahrain|🇧🇭 oman|🇴🇲 yemen|🇾🇪 jordan|🇯🇴 iraq|🇮🇶 syria|🇸🇾 lebanon|🇱🇧 palestine|🇵🇸 egypt|🇪🇬 sudan|🇸🇩 libya|🇱🇾 tunisia|🇹🇳 algeria|🇩🇿 morocco|🇲🇦 mauritania|🇲🇷 somalia|🇸🇴 turkey|🇹🇷 iran|🇮🇷 pakistan|🇵🇰 india|🇮🇳 usa|🇺🇸 america|🇺🇸 uk|🇬🇧 britain|🇬🇧 england|🇬🇧 france|🇫🇷 germany|🇩🇪 spain|🇪🇸 italy|🇮🇹 brazil|🇧🇷 argentina|🇦🇷 china|🇨🇳 japan|🇯🇵 korea|🇰🇷 russia|🇷🇺 canada|🇨🇦 australia|🇦🇺 south africa|🇿🇦 nigeria|🇳🇬 kenya|🇰🇪 ethiopia|🇪🇹 ghana|🇬🇭 senegal|🇸🇳 cameroon|🇨🇲 uganda|🇺🇬 tanzania|🇹🇿 zimbabwe|🇿🇼 indonesia|🇮🇩 malaysia|🇲🇾 singapore|🇸🇬 thailand|🇹🇭 vietnam|🇻🇳 philippines|🇵🇭 bangladesh|🇧🇩 sri lanka|🇱🇰 nepal|🇳🇵 afghanistan|🇦🇫 kazakhstan|🇰🇿 uzbekistan|🇺🇿 azerbaijan|🇦🇿 armenia|🇦🇲 georgia|🇬🇪 netherlands|🇳🇱 belgium|🇧🇪 switzerland|🇨🇭 austria|🇦🇹 sweden|🇸🇪 norway|🇳🇴 denmark|🇩🇰 finland|🇫🇮 poland|🇵🇱 portugal|🇵🇹 greece|🇬🇷 ireland|🇮🇪 czech republic|🇨🇿 hungary|🇭🇺 romania|🇷🇴 ukraine|🇺🇦 mexico|🇲🇽 chile|🇨🇱 colombia|🇨🇴 peru|🇵🇪 venezuela|🇻🇪 cuba|🇨🇺 new zealand|🇳🇿 "
         );
 
+        addAll(
+            "प्यार|❤️ प्रेम|❤️ मोहब्बत|❤️ इश्क|❤️ दिल|❤️ मुस्कान|😊 खुश|😊 ख़ुश|😊 खुशी|😊 हँसी|😂 हंसी|😂 हाहा|😂 हाहाहा|😂 उदास|😢 दुखी|😢 रोना|😭 गुस्सा|😠 नाराज़|😠 नाराज|😠 डर|😨 डरा|😨 थका|😩 थकान|😩 नींद|😴 सोना|😴 ",
+            "धन्यवाद|🙏 शुक्रिया|🙏 शुक्रिया|🙏 नमस्ते|🙏 नमस्कार|🙏 प्रणाम|🙏 राम|🙏 जय|🙏 भगवान|🙏 ईश्वर|🙏 प्रार्थना|🙏 आशीर्वाद|🙏 ",
+            "बधाई|🎉 शुभकामनाएँ|🎉 शुभकामनाएं|🎉 मुबारक|🎉 जन्मदिन|🎂 केक|🎂 पार्टी|🎉 दिवाली|🪔 दीपावली|🪔 दीवाली|🪔 होली|🎨 राखी|🧵 ईद|🌙 रमज़ान|🌙 रमजान|🌙 क्रिसमस|🎄 त्योहार|🎊 ",
+            "अच्छा|👍 बढ़िया|👍 बढ़िया|👌 ठीक|👌 हाँ|✅ हां|✅ नहीं|❌ बिल्कुल|💯 शानदार|🔥 जबरदस्त|🔥 कमाल|🤩 सुंदर|😍 खूबसूरत|😍 प्यारा|🥰 मस्त|😎 ",
+            "खाना|🍽️ भोजन|🍽️ नाश्ता|🍳 दोपहर|🍛 रात|🌙 चाय|🍵 कॉफ़ी|☕ कॉफी|☕ पानी|💧 दूध|🥛 रोटी|🫓 चावल|🍚 दाल|🍲 समोसा|🥟 पिज़्ज़ा|🍕 पिज्जा|🍕 बर्गर|🍔 मिठाई|🍬 आइसक्रीम|🍦 फल|🍎 आम|🥭 केला|🍌 सेब|🍎 ",
+            "घर|🏠 स्कूल|🏫 कॉलेज|🎓 दफ़्तर|🏢 दफ्तर|🏢 काम|💼 मीटिंग|📅 अस्पताल|🏥 डॉक्टर|👨‍⚕️ दवा|💊 पैसा|💰 पैसे|💰 रुपया|💰 रुपये|💰 गाड़ी|🚗 कार|🚗 बस|🚌 ट्रेन|🚆 रेल|🚆 विमान|✈️ हवाई|✈️ यात्रा|✈️ सफ़र|✈️ सफर|✈️ ",
+            "फोन|📱 फ़ोन|📱 मोबाइल|📱 कॉल|📞 संदेश|💬 मैसेज|💬 ईमेल|📧 उपहार|🎁 तोहफा|🎁 तोहफ़ा|🎁 किताब|📚 पढ़ाई|📖 संगीत|🎵 गाना|🎵 गीत|🎵 फिल्म|🎬 फ़िल्म|🎬 खेल|⚽ क्रिकेट|🏏 ",
+            "सुबह|☀️ सुप्रभात|☀️ शाम|🌆 शुभरात्रि|🌙 रात्रि|🌙 चाँद|🌙 चांद|🌙 सूरज|☀️ बारिश|🌧️ बादल|☁️ बर्फ|❄️ गर्मी|🥵 सर्दी|🥶 हवा|🌬️ आग|🔥 फूल|🌸 गुलाब|🌹 पेड़|🌳 समुद्र|🌊 नदी|🏞️ पहाड़|⛰️ ",
+            "कुत्ता|🐶 बिल्ली|🐱 गाय|🐄 घोड़ा|🐴 शेर|🦁 हाथी|🐘 बंदर|🐒 मछली|🐟 पक्षी|🐦 चिड़िया|🐦 साँप|🐍 सांप|🐍 मोर|🦚 ",
+            "भारत|🇮🇳 हिंदुस्तान|🇮🇳 इंडिया|🇮🇳 पाकिस्तान|🇵🇰 नेपाल|🇳🇵 बांग्लादेश|🇧🇩 श्रीलंका|🇱🇰 अमेरिका|🇺🇸 ब्रिटेन|🇬🇧 दुबई|🇦🇪 सऊदी|🇸🇦 "
+        );
+
         for (int i = 2; i <= 25; i++) {
             char[] rep = new char[i];
             java.util.Arrays.fill(rep, 'ه');
@@ -147,6 +160,8 @@ final class EmojiSuggester {
             else if (c == 'ى') c = 'ي';
             else if (c == 'ة') c = 'ه';
             else if (c >= 0x064B && c <= 0x0652) continue;
+            else if (c == 0x093C || c == 0x200C || c == 0x200D) continue;
+            else if (c == 0x0901) c = (char) 0x0902;
             sb.append(Character.toLowerCase(c));
         }
         return sb.toString().trim();

@@ -34,7 +34,7 @@ Si te resulta útil, una <img src="docs/icons/star.svg" width="22" height="22" a
 Keyboard - Classic**, con más personalización y funciones extra: desliza hacia arriba sobre cualquier
 sugerencia para aceptarla al instante, y desliza hacia los lados sobre la fila de letras (dirección
 configurable) para borrar rápido en lugar de pulsar la tecla de retroceso una y otra vez. Es
-totalmente compatible con árabe, inglés y español, con una experiencia cuidada para cada idioma.
+totalmente compatible con árabe, inglés, español e hindi, con una experiencia cuidada para cada idioma.
 
 <br>
 
@@ -61,7 +61,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 - Mantén pulsada la barra espaciadora y arrastra: mueve el cursor carácter a carácter.
 
   ![Mantén pulsada y arrastra la barra espaciadora para mover el cursor](docs/gifs/cursor_move.gif?v=2)
-- Desliza la barra espaciadora a izquierda/derecha: cambia entre tus idiomas activados (árabe/inglés/español) sin un botón de idioma aparte.
+- Desliza la barra espaciadora a izquierda/derecha: cambia entre tus idiomas activados (árabe/inglés/español/hindi) sin un botón de idioma aparte.
 - Mantén pulsada cualquier tecla: ventana con caracteres alternativos. En el teclado inglés, una letra minúscula da su mayúscula (al estilo BlackBerry), y la fila de números solo aparece mientras Shift o Bloq Mayús está activo. Los símbolos que ya están en la página de símbolos no se repiten, las letras con acento aparecen solo en el teclado español, y los símbolos exclusivos del árabe (﷼ ، ؛ ؟) aparecen solo cuando el árabe está activado.
 
 <br>
@@ -80,6 +80,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 - Atajos de texto: escribe un atajo (p. ej. "omw") y se expande a la frase completa al pulsar espacio.
 - Doble toque en espacio para punto + espacio automático.
 - Mayúscula automática al inicio de cada frase (inglés/español).
+- **Teclado hindi (devanagari):** disposición InScript estándar con capa Shift, conjuntos (क्ष, त्र, ज्ञ, श्र) y letras con nukta con pulsación larga, dígitos devanagari, ₹ y el danda (।). Tiene su propio diccionario, predicción de palabra siguiente, sugerencias de emojis y palabras aprendidas, separados de los otros idiomas, y el hindi solo se autocorrige cuando el error es seguro.
 - Sugerencias automáticas de códigos de verificación (OTP) desde SMS o WhatsApp — todo se procesa en el dispositivo. *(solo bkey Plus)*
 
 <br>

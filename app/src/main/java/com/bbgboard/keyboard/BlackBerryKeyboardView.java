@@ -90,6 +90,9 @@ public class BlackBerryKeyboardView extends View {
     private KeyboardActionListener listener;
 
     private boolean isArabic = true;
+    // Hindi (Devanagari): left-to-right like Latin, but with its own letter layout, a Shift
+    // layer instead of capitals, and no auto-capitalisation.
+    private boolean isHindi = false;
     // The single source of truth for which language is active; isArabic above is just
     // "== LANG_AR", kept as its own field since almost all RTL/UI logic already keys off it.
     private String currentLangCode = KeyboardPreferences.LANG_AR;
@@ -491,12 +494,14 @@ public class BlackBerryKeyboardView extends View {
 
             String resetLabel = isArabic ? "↺ استعادة"
                     : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "↺ Restablecer"
+                    : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "↺ रीसेट"
                     : "↺ Reset";
             float resetTy = resizeResetButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
             canvas.drawText(resetLabel, resizeResetButtonRect.centerX(), resetTy, sugPrimaryTextPaint);
 
             String doneLabel = isArabic ? "✓ تم"
                     : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "✓ Listo"
+                    : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "✓ हो गया"
                     : "✓ Done";
             float doneTy = resizeDoneButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
             canvas.drawText(doneLabel, resizeDoneButtonRect.centerX(), doneTy, sugPrimaryTextPaint);
@@ -957,6 +962,10 @@ public class BlackBerryKeyboardView extends View {
         return isArabic;
     }
 
+    public boolean isHindi() {
+        return isHindi;
+    }
+
     public int getActiveKeyboardStyle() {
         return keyboardStyle;
     }
@@ -1138,7 +1147,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     public void updateAutoCapitalization(boolean shouldCapitalizeNext) {
-        if (isArabic || isSymbols || isCapsLock) return;
+        if (isArabic || isHindi || isSymbols || isCapsLock) return;
         if (prefs.isAutoCapitalizeSentences() && shouldCapitalizeNext != isShift) {
             isShift = shouldCapitalizeNext;
             rebuildKeys();
@@ -1323,6 +1332,8 @@ public class BlackBerryKeyboardView extends View {
                 rows.addAll(buildSymbolsRows());
             } else if (isArabic) {
                 rows.addAll(buildArabicGboardRows());
+            } else if (isHindi) {
+                rows.addAll(buildHindiInscriptRows());
             } else {
                 rows.addAll(buildEnglishQwertyRows());
             }
@@ -1442,6 +1453,70 @@ public class BlackBerryKeyboardView extends View {
         return out;
     }
 
+    /** Marks that can't stand alone get a dotted-circle base so their key doesn't look empty or
+     *  render oddly; what is typed is still the bare mark. */
+    private static String hindiDisplay(String s) {
+        if (s == null || s.isEmpty()) return s;
+        char c = s.charAt(0);
+        boolean combining = (c >= 0x0900 && c <= 0x0903) || (c >= 0x093A && c <= 0x093C)
+                || (c >= 0x093E && c <= 0x094F) || (c >= 0x0951 && c <= 0x0957)
+                || c == 0x0962 || c == 0x0963;
+        return combining ? "◌" + s : s;
+    }
+
+    /** Long-press options for a Hindi key: the extra letters/conjuncts given, plus the Western and
+     *  Devanagari digit on the top row. */
+    private static List<String> hi(String... alts) {
+        return Arrays.asList(alts);
+    }
+
+    /**
+     * Devanagari layout following the standard InScript arrangement (the one Windows, macOS and
+     * Android's built-in Hindi keyboards use), so existing muscle memory carries over. Shift
+     * switches to the second layer (the aspirated/long forms); conjuncts and nukta letters live
+     * on long-press.
+     */
+    private List<List<KeyDef>> buildHindiInscriptRows() {
+        final boolean up = isShift || isCapsLock;
+        final String[] r1 = up ? new String[]{"औ", "ऐ", "आ", "ई", "ऊ", "भ", "ङ", "घ", "ध", "झ", "ढ"}
+                : new String[]{"ौ", "ै", "ा", "ी", "ू", "ब", "ह", "ग", "द", "ज", "ड"};
+        final String[] r2 = up ? new String[]{"ओ", "ए", "अ", "इ", "उ", "फ", "ऱ", "ख", "थ", "छ", "ठ"}
+                : new String[]{"ो", "े", "्", "ि", "ु", "प", "र", "क", "त", "च", "ट"};
+        final String[] r3 = up ? new String[]{"ँ", "ण", "ऩ", "ऴ", "ळ", "श", "ष", "ञ"}
+                : new String[]{"ं", "म", "न", "व", "ल", "स", "य", "़"};
+        final String[] western = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
+        final String[] devanagari = {"१", "२", "३", "४", "५", "६", "७", "८", "९", "०"};
+        final java.util.Map<String, List<String>> extra = new java.util.HashMap<>();
+        extra.put("क", hi("क्ष", "क़")); extra.put("त", hi("त्र")); extra.put("ज", hi("ज्ञ", "ज़"));
+        extra.put("श", hi("श्र")); extra.put("ड", hi("ड़")); extra.put("ढ", hi("ढ़"));
+        extra.put("फ", hi("फ़")); extra.put("ख", hi("ख़")); extra.put("ग", hi("ग़"));
+        extra.put("र", hi("ऋ", "ृ", "्र")); extra.put("ो", hi("ॉ")); extra.put("ओ", hi("ऑ"));
+        extra.put("े", hi("ॅ")); extra.put("ए", hi("ऍ")); extra.put("ं", hi("ः", "ँ"));
+        extra.put("्", hi("ॐ", "ऽ")); extra.put("अ", hi("ॐ"));
+
+        List<KeyDef> row1 = new ArrayList<>();
+        for (int i = 0; i < r1.length; i++) {
+            List<String> alts = new ArrayList<>();
+            if (i < 10) { alts.add(western[i]); alts.add(devanagari[i]); }
+            List<String> more = extra.get(r1[i]);
+            if (more != null) alts.addAll(more);
+            row1.add(new KeyDef(r1[i], "", alts));
+        }
+        List<KeyDef> row2 = new ArrayList<>();
+        for (String k : r2) {
+            List<String> more = extra.get(k);
+            row2.add(new KeyDef(k, "", more != null ? more : Collections.<String>emptyList()));
+        }
+        List<KeyDef> row3 = new ArrayList<>();
+        row3.add(new KeyDef("⬆", "", Collections.<String>emptyList(), KeyType.SHIFT, 1.35f));
+        for (String k : r3) {
+            List<String> more = extra.get(k);
+            row3.add(new KeyDef(k, "", more != null ? more : Collections.<String>emptyList()));
+        }
+        row3.add(new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1.35f));
+        return Arrays.asList(row1, row2, row3);
+    }
+
     private List<List<KeyDef>> buildEnglishQwertyRows() {
         boolean showNums = false;
         List<KeyDef> row1 = Arrays.asList(
@@ -1484,7 +1559,19 @@ public class BlackBerryKeyboardView extends View {
     private List<List<KeyDef>> buildSymbolsRows() {
 
         boolean arabicOff = !prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_AR);
-        List<KeyDef> row1 = arabicOff ? Arrays.asList(
+        final boolean hindiOn = isHindi || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_HI);
+        List<KeyDef> row1 = (arabicOff && hindiOn) ? Arrays.asList(
+            new KeyDef("1", "१", Collections.singletonList("१")),
+            new KeyDef("2", "२", Collections.singletonList("२")),
+            new KeyDef("3", "३", Collections.singletonList("३")),
+            new KeyDef("4", "४", Collections.singletonList("४")),
+            new KeyDef("5", "५", Collections.singletonList("५")),
+            new KeyDef("6", "६", Collections.singletonList("६")),
+            new KeyDef("7", "७", Collections.singletonList("७")),
+            new KeyDef("8", "८", Collections.singletonList("८")),
+            new KeyDef("9", "९", Collections.singletonList("९")),
+            new KeyDef("0", "०", Collections.singletonList("०"))
+        ) : arabicOff ? Arrays.asList(
             new KeyDef("1"), new KeyDef("2"), new KeyDef("3"), new KeyDef("4"), new KeyDef("5"),
             new KeyDef("6"), new KeyDef("7"), new KeyDef("8"), new KeyDef("9"), new KeyDef("0")
         ) : Arrays.asList(
@@ -1505,7 +1592,9 @@ public class BlackBerryKeyboardView extends View {
         List<KeyDef> row2 = Arrays.asList(
             new KeyDef("@", "~", Collections.singletonList("~")),
             new KeyDef("#", "^", Collections.singletonList("^")),
-            new KeyDef("$", "€", arabicEnabled ? Arrays.asList("€", "£", "¥", "﷼") : Arrays.asList("€", "£", "¥")),
+            new KeyDef("$", hindiOn ? "₹" : "€",
+                    hindiOn ? (arabicEnabled ? Arrays.asList("₹", "€", "£", "¥", "﷼") : Arrays.asList("₹", "€", "£", "¥"))
+                            : (arabicEnabled ? Arrays.asList("€", "£", "¥", "﷼") : Arrays.asList("€", "£", "¥"))),
             new KeyDef("_", "|", Collections.singletonList("|")),
             new KeyDef("&", "\\", Collections.singletonList("\\")),
             new KeyDef("-", "—", Collections.singletonList("—")),
@@ -1536,7 +1625,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private List<KeyDef> buildBottomRow() {
-        String symLabel = isSymbols ? (isArabic ? "أبجد" : "ABC") : (isArabic ? "؟123" : "?123");
+        String symLabel = isSymbols ? (isArabic ? "أبجد" : (isHindi ? "अआइ" : "ABC")) : (isArabic ? "؟123" : "?123");
 
         boolean showSwipeArrows = prefs.isSpaceSwipeLangEnabled()
                 && prefs.getEnabledLanguages().size() >= 2;
@@ -1549,9 +1638,10 @@ public class BlackBerryKeyboardView extends View {
                 ? new KeyDef("🌐", "", Collections.singletonList("😀"), KeyType.LANGUAGE, 1.0f)
                 : new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f),
             new KeyDef(spaceLabel, "", Collections.<String>emptyList(), KeyType.SPACE, 4.7f),
-            new KeyDef(".", isArabic ? "؟" : "?",
+            new KeyDef(isHindi ? "।" : ".", isArabic ? "؟" : "?",
                     isArabic ? Arrays.asList("؟", "،", "!", "؛", ":", "…")
-                            : Arrays.asList("?", ",", "!", ";", ":", "…"),
+                            : (isHindi ? Arrays.asList("?", ".", ",", "!", ";", ":", "…", "॥")
+                            : Arrays.asList("?", ",", "!", ";", ":", "…")),
                     KeyType.PERIOD, 1.0f),
             new KeyDef("↵", "", Collections.<String>emptyList(), KeyType.ENTER, 1.35f)
         );
@@ -1748,7 +1838,7 @@ public class BlackBerryKeyboardView extends View {
         }
         canvas.drawRect(0f, 0f, getWidth(), getHeight(), bgShellPaint);
 
-        float baseLetterSp = (!isArabic && !isSymbols) ? 23.0f : 22.5f;
+        float baseLetterSp = isHindi && !isSymbols ? 21.0f : ((!isArabic && !isSymbols) ? 23.0f : 22.5f);
         mainTextPaint.setTextSize(baseLetterSp * scaledDensity * keyFontScale);
         subTextPaint.setTextSize(10.5f * scaledDensity * Math.min(1.25f, keyFontScale));
         sugTextPaint.setTextSize(14.5f * scaledDensity * sugTextScale);
@@ -1913,8 +2003,8 @@ public class BlackBerryKeyboardView extends View {
                     } else if (k.type == KeyType.BACKSPACE) {
                         mainTextPaint.setTextSize(prevSize * 0.9f);
                     }
-                    String displayLabel = k.main;
-                    if (!isArabic && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
+                    String displayLabel = hindiDisplay(k.main);
+                    if (!isArabic && !isHindi && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
                         displayLabel = k.main.toUpperCase(Locale.ROOT);
                     }
                     float textY = k.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
@@ -1940,8 +2030,8 @@ public class BlackBerryKeyboardView extends View {
             Paint dupBg = (dup == visualPressedKey && !isDragging) ? keyPressedPaint : keyBgPaint;
             drawStyledKeyCell(canvas, dup, dupBg);
             float prevSize = mainTextPaint.getTextSize();
-            String displayLabel = dup.main;
-            if (!isArabic && !isSymbols && prefs.isAlwaysShowUppercaseKeycapsEn()) {
+            String displayLabel = hindiDisplay(dup.main);
+            if (!isArabic && !isHindi && !isSymbols && prefs.isAlwaysShowUppercaseKeycapsEn()) {
                 displayLabel = dup.main.toUpperCase(Locale.ROOT);
             }
             float textY = dup.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
@@ -2087,7 +2177,7 @@ public class BlackBerryKeyboardView extends View {
         float prevSize = popupTextPaint.getTextSize();
         popupTextPaint.setTextSize(19f * scaledDensity);
         float ty = bubbleRect.centerY() - (popupTextPaint.descent() + popupTextPaint.ascent()) / 2f;
-        canvas.drawText(key.main, bubbleRect.centerX(), ty, popupTextPaint);
+        canvas.drawText(hindiDisplay(key.main), bubbleRect.centerX(), ty, popupTextPaint);
         popupTextPaint.setTextSize(prevSize);
     }
 
@@ -2107,7 +2197,7 @@ public class BlackBerryKeyboardView extends View {
                 popupTextPaint.setColor(normalTextColor);
             }
             float ty = cell.centerY() - (popupTextPaint.descent() + popupTextPaint.ascent()) / 2f;
-            canvas.drawText(opt, cell.centerX(), ty, popupTextPaint);
+            canvas.drawText(isHindi ? hindiDisplay(opt) : opt, cell.centerX(), ty, popupTextPaint);
         }
         popupTextPaint.setColor(normalTextColor);
     }
@@ -2376,12 +2466,14 @@ public class BlackBerryKeyboardView extends View {
     private String languageDisplayName(String code) {
         if (KeyboardPreferences.LANG_AR.equals(code)) return "العربية";
         if (KeyboardPreferences.LANG_ES.equals(code)) return "Español";
+        if (KeyboardPreferences.LANG_HI.equals(code)) return "हिन्दी";
         return "English";
     }
 
     private void setCurrentLanguage(String code) {
         currentLangCode = code;
         isArabic = KeyboardPreferences.LANG_AR.equals(code);
+        isHindi = KeyboardPreferences.LANG_HI.equals(code);
     }
 
     private void toggleLanguage() {
@@ -3306,7 +3398,7 @@ public class BlackBerryKeyboardView extends View {
                 listener.onCharacterTyped(" ");
                 break;
             case PERIOD:
-                listener.onCharacterTyped(".");
+                listener.onCharacterTyped(isHindi ? "।" : ".");
                 break;
             case BACKSPACE:
                 listener.onBackspaceSingle();

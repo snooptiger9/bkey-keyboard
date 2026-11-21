@@ -33,23 +33,36 @@ public class PredictionEngine {
     private final Map<String, Map<String, Integer>> baseEnBigrams = new HashMap<>();
     private final Map<String, Integer> baseEsWords = new HashMap<>();
     private final Map<String, Map<String, Integer>> baseEsBigrams = new HashMap<>();
+    private final Map<String, Integer> baseHiWords = new HashMap<>();
+    private final Map<String, Map<String, Integer>> baseHiBigrams = new HashMap<>();
 
     private final java.util.TreeMap<String, List<String>> baseArByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseEnByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseEsByFold = new java.util.TreeMap<>();
+    private final java.util.TreeMap<String, List<String>> baseHiByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> learnedByFold = new java.util.TreeMap<>();
 
     // Which Latin-script language is active right now (everything above is keyed on isArabic
     // vs not-Arabic; this picks which non-Arabic dataset "not Arabic" actually means).
     private volatile boolean latinIsSpanish = false;
+    // Hindi (Devanagari) is not Latin and not Arabic: it rides the same "not Arabic" branch as
+    // English/Spanish, with its own dictionary, learned-word tag, typo map and default words.
+    private volatile boolean latinIsHindi = false;
 
     public void setActiveLatinLanguage(String languageCode) {
         latinIsSpanish = KeyboardPreferences.LANG_ES.equals(languageCode);
+        latinIsHindi = KeyboardPreferences.LANG_HI.equals(languageCode);
     }
 
-    private Map<String, Integer> currentLatinWords() { return latinIsSpanish ? baseEsWords : baseEnWords; }
-    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsSpanish ? baseEsBigrams : baseEnBigrams; }
-    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsSpanish ? baseEsByFold : baseEnByFold; }
+    /** The language code of the active non-Arabic language (en / es / hi). */
+    private String activeLatinTag() {
+        return latinIsHindi ? KeyboardPreferences.LANG_HI
+                : (latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
+    }
+
+    private Map<String, Integer> currentLatinWords() { return latinIsHindi ? baseHiWords : (latinIsSpanish ? baseEsWords : baseEnWords); }
+    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsHindi ? baseHiBigrams : (latinIsSpanish ? baseEsBigrams : baseEnBigrams); }
+    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsHindi ? baseHiByFold : (latinIsSpanish ? baseEsByFold : baseEnByFold); }
 
     // learnedWords/learnedBigrams/learnedByFold below are shared across every language --
     // that's fine between Arabic and Latin (different Unicode ranges keep them apart
@@ -62,13 +75,14 @@ public class PredictionEngine {
 
     private void tagLatinWord(String word, boolean isArabic) {
         if (isArabic) return;
-        learnedWordLatinTag.put(word, latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
+        learnedWordLatinTag.put(word, activeLatinTag());
     }
 
     private boolean latinWordAllowed(String word) {
         String tag = learnedWordLatinTag.get(word);
-        String active = latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN;
-        return tag == null ? !latinIsSpanish : tag.equals(active);
+        String active = activeLatinTag();
+        // Untagged words predate Spanish/Hindi and could only have been English.
+        return tag == null ? KeyboardPreferences.LANG_EN.equals(active) : tag.equals(active);
     }
 
     private final java.util.Set<String> knownFolded = new java.util.HashSet<>();
@@ -89,8 +103,8 @@ public class PredictionEngine {
     });
     private static final Object SAVE_LOCK = new Object();
     private static final int BASE_TOP_K = 14;
-    private static final Pattern EMAIL_EDGE_PUNCT = Pattern.compile("^[،.؟!؛:\\\",()]+|[،.؟!؛:\\\",()]+$");
-    private static final Pattern ALL_PUNCT = Pattern.compile("[،.؟!؛:\\\",()]");
+    private static final Pattern EMAIL_EDGE_PUNCT = Pattern.compile("^[،.؟!؛:\\\",()।॥]+|[،.؟!؛:\\\",()।॥]+$");
+    private static final Pattern ALL_PUNCT = Pattern.compile("[،.؟!؛:\\\",()।॥]");
     private final android.os.Handler saveHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private boolean saveScheduled = false;
     private final Runnable saveRunnable = this::performScheduledSave;
@@ -125,13 +139,16 @@ public class PredictionEngine {
         loadBundledDictionary(context, "dict_ar.txt", baseArWords, 60, 20);
         loadBundledDictionary(context, "dict_en.txt", baseEnWords, 60, 20);
         loadBundledDictionary(context, "dict_es.txt", baseEsWords, 60, 20);
+        loadBundledDictionary(context, "dict_hi.txt", baseHiWords, 60, 20);
         buildFoldIndex(baseArWords, baseArByFold);
         buildFoldIndex(baseEnWords, baseEnByFold);
         buildFoldIndex(baseEsWords, baseEsByFold);
+        buildFoldIndex(baseHiWords, baseHiByFold);
 
         knownFolded.addAll(baseArByFold.keySet());
         knownFolded.addAll(baseEnByFold.keySet());
         knownFolded.addAll(baseEsByFold.keySet());
+        knownFolded.addAll(baseHiByFold.keySet());
         synchronized (this) {
             loadFromPrefs();
             dirty = false;
@@ -225,6 +242,10 @@ public class PredictionEngine {
         for (int i = 0; i < w.length(); i++) {
             char c = w.charAt(i);
             if ((c >= 0x064B && c <= 0x065F) || c == 0x0670 || c == 0x0640) continue;
+            // Devanagari: nukta, zero-width joiners and the chandrabindu/anusvara split are
+            // spelling variants of the same word, so they fold together for matching.
+            if (c == 0x093C || c == 0x200C || c == 0x200D) continue;
+            if (c == 0x0901) { sb.append((char) 0x0902); continue; }
             switch (c) {
                 case 'أ': case 'إ': case 'آ': case 'ٱ': sb.append('ا'); break;
                 case 'ى': case 'ئ': sb.append('ي'); break;
@@ -349,6 +370,29 @@ public class PredictionEngine {
         addEnBigram("how", "are", 92); addEnBigram("how", "is", 75); addEnBigram("how", "about", 60);
         addEnBigram("are", "you", 95); addEnBigram("are", "we", 60); addEnBigram("are", "they", 55);
         addEnBigram("thank", "you", 98); addEnBigram("thank", "god", 60);
+
+        addHiWord("नमस्ते", 110); addHiWord("धन्यवाद", 105); addHiWord("शुक्रिया", 90);
+        addHiWord("कृपया", 95); addHiWord("आप", 100); addHiWord("मैं", 100); addHiWord("हम", 90);
+        addHiWord("कैसे", 95); addHiWord("हैं", 100); addHiWord("हूँ", 95); addHiWord("ठीक", 95);
+        addHiWord("शुभ", 90); addHiWord("सुप्रभात", 90); addHiWord("शुभकामनाएँ", 88);
+        addHiBigram("नमस्ते", "दोस्त", 60); addHiBigram("आप", "कैसे", 95); addHiBigram("कैसे", "हैं", 95);
+        addHiBigram("कैसे", "हो", 90); addHiBigram("आप", "कहाँ", 70); addHiBigram("मैं", "ठीक", 85);
+        addHiBigram("ठीक", "हूँ", 95); addHiBigram("ठीक", "है", 90); addHiBigram("शुभ", "रात्रि", 85);
+        addHiBigram("शुभ", "प्रभात", 85); addHiBigram("शुभ", "दिन", 80); addHiBigram("शुभ", "संध्या", 70);
+        addHiBigram("बहुत", "बहुत", 60); addHiBigram("बहुत", "धन्यवाद", 90); addHiBigram("बहुत", "अच्छा", 85);
+        addHiBigram("क्या", "हाल", 85); addHiBigram("क्या", "आप", 70); addHiBigram("क्या", "हुआ", 70);
+        addHiBigram("आपका", "नाम", 85); addHiBigram("मेरा", "नाम", 90); addHiBigram("मुझे", "पता", 80);
+        addHiBigram("मुझे", "नहीं", 75); addHiBigram("जन्मदिन", "की", 90); addHiBigram("की", "हार्दिक", 60);
+        addHiBigram("हार्दिक", "शुभकामनाएँ", 95); addHiBigram("हार्दिक", "बधाई", 90);
+    }
+
+    private void addHiWord(String w, int weight) { baseHiWords.put(w, weight); }
+
+    private void addHiBigram(String prev, String next, int weight) {
+        prev = fold(prev);
+        Map<String, Integer> m = baseHiBigrams.get(prev);
+        if (m == null) { m = new HashMap<>(); baseHiBigrams.put(prev, m); }
+        m.put(next, weight);
     }
 
     private void addArWord(String w, int weight) { baseArWords.put(w, weight); }
@@ -732,11 +776,16 @@ public class PredictionEngine {
         if (word.length() < 3) return null;
         String wordLower = fold(word);
         String sure = isArabic ? COMMON_AR_TYPOS.get(wordLower)
-                : (latinIsSpanish ? COMMON_ES_TYPOS.get(wordLower)
+                : (latinIsHindi ? COMMON_HI_TYPOS.get(wordLower)
+                : latinIsSpanish ? COMMON_ES_TYPOS.get(wordLower)
                 : (EN_NOT_SURE.contains(wordLower) ? null : COMMON_EN_TYPOS.get(wordLower)));
         if (sure != null) return isArabic ? sure : matchCase(word, sure);
         if (isTrustedWord(word)) return null;
-        if (!isArabic && !latinIsSpanish) {
+        // Hindi: the bundled dictionary is much smaller than English/Spanish, so a real word it
+        // doesn't know must never be silently swapped for a "close" one. Only the certain-typo
+        // map above corrects Hindi on its own; everything else stays a suggestion in the bar.
+        if (latinIsHindi && !isArabic) return null;
+        if (!isArabic && !latinIsSpanish && !latinIsHindi) {
             String fixed = COMMON_EN_TYPOS.get(wordLower);
             if (fixed != null) return matchCase(word, fixed);
         }
@@ -845,6 +894,7 @@ public class PredictionEngine {
      */
     private static final Map<String, String> COMMON_ES_TYPOS = new HashMap<>();
     private static final Map<String, String> COMMON_AR_TYPOS = new HashMap<>();
+    private static final Map<String, String> COMMON_HI_TYPOS = new HashMap<>();
     // Real words that sit in the English map: they only use the old trusted-word path.
     private static final java.util.Set<String> EN_NOT_SURE = new java.util.HashSet<>(Arrays.asList("cant", "wont"));
     static {
@@ -920,6 +970,15 @@ public class PredictionEngine {
         };
         for (int i = 0; i + 1 < es.length; i += 2) {
             COMMON_ES_TYPOS.put(foldUncached(es[i]), es[i + 1]);
+        }
+        String[] hi = {
+            "कृप्या","कृपया", "परिक्षा","परीक्षा", "बिमार","बीमार", "उज्जवल","उज्ज्वल", "अत्याधिक","अत्यधिक",
+            "आर्शीवाद","आशीर्वाद", "आशिर्वाद","आशीर्वाद", "श्रीमति","श्रीमती", "पूर्ती","पूर्ति", "निरिक्षण","निरीक्षण",
+            "प्रतिक्षा","प्रतीक्षा", "सुचना","सूचना", "शुभकामनाए","शुभकामनाएँ", "धन्यवाद्","धन्यवाद", "ब्रम्हा","ब्रह्मा",
+            "अतिथी","अतिथि", "प्रार्थाना","प्रार्थना", "कार्यकृम","कार्यक्रम"
+        };
+        for (int i = 0; i + 1 < hi.length; i += 2) {
+            COMMON_HI_TYPOS.put(foldUncached(hi[i]), hi[i + 1]);
         }
         String[] ar = {
             "لاكن","لكن", "هاذا","هذا", "هاذه","هذه", "ذالك","ذلك", "كذالك","كذلك", "اولائك","أولئك",
@@ -1056,11 +1115,12 @@ public class PredictionEngine {
     private List<String> activeDefaultWords(boolean isArabic) {
         List<String> all = isArabic
                 ? Arrays.asList("السلام", "بسم", "مرحبا", "إن", "صباح", "الحمد")
+                : latinIsHindi
+                    ? Arrays.asList("मैं", "आप", "नमस्ते", "धन्यवाद", "क्या", "ठीक")
                 : latinIsSpanish
                     ? Arrays.asList("El", "Yo", "En", "Hola", "Gracias", "Bueno")
                     : Arrays.asList("The", "I", "On", "Hello", "Thanks", "Good");
-        String defaultsLangCode = isArabic ? KeyboardPreferences.LANG_AR
-                : (latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
+        String defaultsLangCode = isArabic ? KeyboardPreferences.LANG_AR : activeLatinTag();
         java.util.Set<String> dismissed = keyboardPrefs.getDismissedDefaultWords(defaultsLangCode);
         if (dismissed.isEmpty()) return all;
         List<String> out = new ArrayList<>();

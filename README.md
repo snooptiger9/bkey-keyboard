@@ -33,7 +33,7 @@ If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22"
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
 instantly, and swipe sideways across the letter row (direction configurable) for quick deletion
-instead of repeated backspace taps. Fully supports Arabic, English, and Spanish with a carefully
+instead of repeated backspace taps. Fully supports Arabic, English, Spanish, and Hindi with a carefully
 tailored experience for each.
 
 <br>
@@ -61,7 +61,7 @@ tailored experience for each.
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
-- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish) without a separate language button.
+- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish/Hindi) without a separate language button.
 - Long-press any key: popup with alternate characters. On the English keyboard a lowercase letter gives its capital (BlackBerry-style), and the number row shows only while Shift or Caps Lock is on. Symbols already on the symbols page are not repeated, accented letters appear only on the Spanish keyboard, and Arabic-only symbols appear only when Arabic is enabled.
 
 <br>
@@ -80,6 +80,7 @@ tailored experience for each.
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for an automatic period + space.
 - Auto-capitalize the first letter of each sentence (English/Spanish).
+- **Hindi (Devanagari) keyboard:** the standard InScript layout with a Shift layer, conjuncts (क्ष, त्र, ज्ञ, श्र) and nukta letters on long-press, Devanagari digits, ₹ and the danda (।). It has its own dictionary, next-word prediction, emoji suggestions and learned words, kept apart from the other languages, and Hindi is never auto-corrected unless the misspelling is a certain one.
 - Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(bkey Plus only)*
 
 <br>

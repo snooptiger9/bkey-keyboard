@@ -33,7 +33,7 @@ final class VoiceInputController {
     // this language" (fall back to the regular online recognizer once) from
     // an online recognizer that genuinely has no network to work with.
     private boolean usingOnDevice = false;
-    private boolean pendingArabic = false;
+    private String pendingLanguageTag = "en-US";
 
     VoiceInputController(Context context, Callback callback) {
         this.context = context.getApplicationContext();
@@ -50,11 +50,11 @@ final class VoiceInputController {
 
     boolean isListening() { return listening; }
 
-    void toggle(boolean arabic) {
+    void toggle(String languageTag) {
         if (listening) {
             if (recognizer != null) recognizer.stopListening();
         } else {
-            start(arabic);
+            start(languageTag);
         }
     }
 
@@ -71,8 +71,8 @@ final class VoiceInputController {
         listening = false;
     }
 
-    private void start(boolean arabic) {
-        pendingArabic = arabic;
+    private void start(String languageTag) {
+        pendingLanguageTag = languageTag;
         if (recognizer == null) {
             // Prefer the on-device engine when the device actually has one --
             // it never touches the network (and needs no INTERNET permission
@@ -86,13 +86,13 @@ final class VoiceInputController {
                     : SpeechRecognizer.createSpeechRecognizer(context);
             recognizer.setRecognitionListener(listener);
         }
-        startListening(arabic);
+        startListening(languageTag);
     }
 
-    private void startListening(boolean arabic) {
+    private void startListening(String languageTag) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, arabic ? "ar-SA" : "en-US");
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageTag);
         intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.getPackageName());
@@ -108,7 +108,7 @@ final class VoiceInputController {
         if (recognizer != null) recognizer.destroy();
         recognizer = SpeechRecognizer.createSpeechRecognizer(context);
         recognizer.setRecognitionListener(listener);
-        startListening(pendingArabic);
+        startListening(pendingLanguageTag);
     }
 
     private void setListening(boolean value) {

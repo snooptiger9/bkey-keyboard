@@ -291,6 +291,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String code = keyboardView.getActiveLanguageCode();
         if (KeyboardPreferences.LANG_AR.equals(code)) return EMOJI_CAT_TITLES;
         if (KeyboardPreferences.LANG_ES.equals(code)) return EMOJI_CAT_TITLES_ES;
+        if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.EMOJI_CATEGORIES;
         return EMOJI_CAT_TITLES_EN;
     }
 
@@ -847,7 +848,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             Toast.makeText(this, "الكتابة بالصوت غير متوفرة على هذا الجهاز", Toast.LENGTH_SHORT).show();
             return;
         }
-        voice().toggle(keyboardView != null && keyboardView.isArabic());
+        String voiceLang = keyboardView != null ? keyboardView.getActiveLanguageCode() : KeyboardPreferences.LANG_EN;
+        voice().toggle(KeyboardPreferences.LANG_AR.equals(voiceLang) ? "ar-SA"
+                : KeyboardPreferences.LANG_ES.equals(voiceLang) ? "es-ES"
+                : KeyboardPreferences.LANG_HI.equals(voiceLang) ? "hi-IN" : "en-US");
     }
 
     private final ExecutorService predictionExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -1627,11 +1631,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String code = keyboardView.getActiveLanguageCode();
         if (KeyboardPreferences.LANG_AR.equals(code)) return ar;
         if (KeyboardPreferences.LANG_ES.equals(code)) return es;
+        if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.get(en);
         return en;
     }
 
+    private String lettersKeyLabel(boolean isArabic) {
+        if (isArabic) return "أبجد";
+        return keyboardView != null && keyboardView.isHindi() ? "अआइ" : "ABC";
+    }
+
     private void updateAbcBackLabels(boolean isArabic) {
-        String label = isArabic ? "أبجد" : "ABC";
+        String label = lettersKeyLabel(isArabic);
         if (clipAbcBackLabel != null) clipAbcBackLabel.setText(label);
         if (emojiAbcBackLabel != null) emojiAbcBackLabel.setText(label);
     }
@@ -1752,7 +1762,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void applyAutoCapitalizeAtStart() {
         try {
-            if (keyboardView == null || keyboardView.isArabic() || numericFieldActive) return;
+            if (keyboardView == null || keyboardView.isArabic() || keyboardView.isHindi() || numericFieldActive) return;
             EditorInfo ei = getCurrentInputEditorInfo();
             if (ei != null) {
                 int type = ei.inputType;
@@ -1902,7 +1912,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 CharSequence beforeTwo = textBefore(ic, 2);
                 if (beforeTwo != null && beforeTwo.length() >= 2 && beforeTwo.charAt(1) == ' ' && !Character.isWhitespace(beforeTwo.charAt(0))) {
                     ic.deleteSurroundingText(1, 0);
-                    ic.commitText(". ", 1);
+                    ic.commitText(keyboardView != null && keyboardView.isHindi() ? "। " : ". ", 1);
                     lastSpaceTapTime = 0L;
                     refreshPredictions();
                     return;
@@ -2338,7 +2348,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         refs.abcBg = abcBg;
 
         TextView abcLabel = new TextView(this);
-        abcLabel.setText((keyboardView == null || keyboardView.isArabic()) ? "أبجد" : "ABC");
+        abcLabel.setText(keyboardView == null ? "أبجد" : lettersKeyLabel(keyboardView.isArabic()));
         abcLabel.setTextColor(labelC());
         abcLabel.setTypeface(Typeface.DEFAULT_BOLD);
         abcLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
