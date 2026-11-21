@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-# bkey ⌨️
+# <img src="docs/icons/keyboard.svg" width="32" height="32" align="absmiddle" alt=""> bkey
 
 **An Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures — swipe up to pick a suggestion, swipe sideways to delete (direction configurable).**
 
@@ -19,16 +19,16 @@
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 
-If you find this useful, a ⭐ star would mean a lot.
+If you find this useful, a <img src="docs/icons/star.svg" width="20" height="20" align="absmiddle" alt=""> star would mean a lot.
 
 
 
 ---
 
 
-**🔗 Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Support](#en-support)
+<img src="docs/icons/link.svg" width="20" height="20" align="absmiddle" alt=""> **Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Support](#en-support)
 
-### Overview ✨
+### Overview <img src="docs/icons/sparkles.svg" width="20" height="20" align="absmiddle" alt="">
 
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
@@ -40,9 +40,9 @@ tailored experience for each.
 
 <a id="en-features"></a>
 
-### Features 🚀
+### Features <img src="docs/icons/rocket.svg" width="20" height="20" align="absmiddle" alt="">
 
-**✋ Gestures**
+<img src="docs/icons/gesture.svg" width="20" height="20" align="absmiddle" alt=""> **Gestures**
 - Swipe up on any suggestion: accept it instantly.
 
   ![Swipe up to accept a suggestion](docs/gifs/swipe_up_suggestion.gif?v=2)
@@ -61,12 +61,12 @@ tailored experience for each.
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
-- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish) without a separate 🌐 button.
+- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish) without a separate language button.
 - Long-press any key: popup with alternate characters. On the English keyboard a lowercase letter gives its capital (BlackBerry-style), and the number row shows only while Shift or Caps Lock is on. Symbols already on the symbols page are not repeated, accented letters appear only on the Spanish keyboard, and Arabic-only symbols appear only when Arabic is enabled.
 
 <br>
 
-**⌨️ Smart typing & prediction**
+<img src="docs/icons/keyboard.svg" width="20" height="20" align="absmiddle" alt=""> **Smart typing & prediction**
 - Silent auto-correct on space, and next-word prediction (up to 3 words).
 - On-the-fly word learning as you type, plus a manual trainer that saves a whole sentence instantly.
 - **The more it learns, the more you swipe:** as the keyboard learns your words, its suggestions get more accurate, so most of what you write becomes a quick swipe up on the right suggestion instead of typing every letter.
@@ -84,7 +84,7 @@ tailored experience for each.
 
 <br>
 
-**📋 Smart clipboard**
+<img src="docs/icons/clipboard.svg" width="20" height="20" align="absmiddle" alt=""> **Smart clipboard**
 - A full clipboard drawer: pin, delete, and auto-delete old items after a duration you choose
   (from 1 hour to 30 days, or never).
 - Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(bkey Plus only)*
@@ -93,14 +93,14 @@ tailored experience for each.
 
 <br>
 
-**😀 Emoji & GIF**
+<img src="docs/icons/smile.svg" width="20" height="20" align="absmiddle" alt=""> **Emoji & GIF**
 - Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
   remove a single emoji).
 - The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs, with a floating search pill that keeps the grid uncovered. *(bkey Plus only)*
 
 <br>
 
-**🎨 Full customization**
+<img src="docs/icons/palette.svg" width="20" height="20" align="absmiddle" alt=""> **Full customization**
 - 4 color themes plus **Auto** (half white, half black): it follows Android's day/night mode, using the white theme in light mode and Matte black in dark mode.
 - 9 key shapes and multiple fonts (System/Tajawal).
 - The suggestion bar uses the same font you pick for the keys.
@@ -111,13 +111,13 @@ tailored experience for each.
 
 <br>
 
-**🔊 Sound & vibration**
+<img src="docs/icons/speaker.svg" width="20" height="20" align="absmiddle" alt=""> **Sound & vibration**
 - Multiple typing tones + independent swipe/delete tones, each with its own volume level.
 - Optional haptic vibration on press and swipe, with an adjustable strength (5–50 ms, or the system default).
 
 <br>
 
-**⚙️ More preferences**
+<img src="docs/icons/sliders.svg" width="20" height="20" align="absmiddle" alt=""> **More preferences**
 - A persistent number row above the keyboard (plus a dedicated row shown in password fields even
   when the general one is off).
 - Optional Arabic-Indic digits (١٢٣).
@@ -132,7 +132,7 @@ tailored experience for each.
 
 <a id="en-privacy"></a>
 
-### Privacy & security 🔒
+### Privacy & security <img src="docs/icons/lock.svg" width="20" height="20" align="absmiddle" alt="">
 
 - **bkey** (the standard version) has no network access and can't read SMS, notifications, photos or storage — those
   permissions aren't in the app. Voice typing still works, handled entirely by your device's own
@@ -143,7 +143,7 @@ tailored experience for each.
   suggestions are off by default and only read a newly-arrived SMS/WhatsApp notification — never
   your message history — all processed on-device, never sent to any server.
 
-> ⚠️ **About the Play Protect warning on bkey Plus**
+> <img src="docs/icons/alert.svg" width="20" height="20" align="absmiddle" alt=""> **About the Play Protect warning on bkey Plus**
 >
 > bkey Plus has internet access (for GIF search and the in-app update checker) and photo
 > access (for image-pasting and the screenshot-to-clipboard suggestion), and that's what gets it
@@ -159,7 +159,7 @@ tailored experience for each.
 1. Open the **Google Play Store** app.
 2. Tap your profile picture, top right.
 3. Tap **Play Protect**.
-4. Tap the ⚙️ settings icon, top right.
+4. Tap the <img src="docs/icons/sliders.svg" width="20" height="20" align="absmiddle" alt=""> settings icon, top right.
 5. Turn off **Scan apps with Play Protect** — a prompt will ask "Pause app scanning instead?", pick **Pause**.
 6. Install the bkey Plus APK.
 7. Pause turns itself back on automatically after a day, but it's better to turn it back on yourself right after installing (recommended to keep it on for your other apps).
@@ -170,18 +170,18 @@ tailored experience for each.
 
 <a id="en-download"></a>
 
-### Download 📥
+### Download <img src="docs/icons/download.svg" width="20" height="20" align="absmiddle" alt="">
 
 Two builds — pick the one that fits you:
 
-| | 🟢 bkey (recommended) | 🔵 bkey Plus |
+| | <img src="docs/icons/dot-green.svg" width="16" height="16" align="absmiddle" alt=""> bkey (recommended) | <img src="docs/icons/dot-blue.svg" width="16" height="16" align="absmiddle" alt=""> bkey Plus |
 |---|:---:|:---:|
-| Installs with no Play Protect warning | ✅ | ⚠️ see note below |
-| GIF search & image/sticker pasting | — | ✅ |
-| In-app update checker | — | ✅ |
-| Verification-code (OTP) suggestions | — | ✅ (optional, off by default) |
-| Screenshot-to-clipboard | — | ✅ |
-| Copied-text suggestion | ✅ | ✅ |
+| Installs with no Play Protect warning | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="20" height="20" align="absmiddle" alt=""> see note below |
+| GIF search & image/sticker pasting | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
+| In-app update checker | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
+| Verification-code (OTP) suggestions | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> (optional, off by default) |
+| Screenshot-to-clipboard | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
+| Copied-text suggestion | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
 
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v304.apk"><img src="docs/images/badges/dl_bkey_en.png" alt="Download bkey (APK)" width="300"></a>
@@ -207,13 +207,13 @@ Prefer automatic updates? Add the build you use to [Obtainium](https://github.co
 > - **Updating bkey Plus:** from this page, from inside the app (Settings → **Update the app**), or through Obtainium using the **bkey Plus** button above. Whichever way you choose, it stays on bkey Plus, never the standard bkey version.
 > - **Obtainium:** both builds share one package name, so add only the one you actually use. Each button tracks only its own APK; adding the wrong one would replace your build with the other.
 
-### [Build it yourself](BUILDING.md) 🔧
+### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="20" height="20" align="absmiddle" alt="">
 
 <br>
 
 <a id="en-faq"></a>
 
-### FAQ ❓
+### FAQ <img src="docs/icons/help.svg" width="20" height="20" align="absmiddle" alt="">
 
 <details>
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
@@ -248,15 +248,15 @@ No — it's lightweight and runs fully on-device, with no background cloud proce
 
 <a id="en-community"></a>
 
-### Community & bug reports 🤝
+### Community & bug reports <img src="docs/icons/users.svg" width="20" height="20" align="absmiddle" alt="">
 
-Settings → **Error log** → **"📧 Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
+Settings → **Error log** → **"Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
 
 <br>
 
 <a id="en-support"></a>
 
-### Support 📩
+### Support <img src="docs/icons/mail.svg" width="20" height="20" align="absmiddle" alt="">
 
 If you like the project and want to support it, you can buy me a coffee on Ko-fi:
 
@@ -264,4 +264,4 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 ---
 
-<p align="center">Made with ❤️ — bkey</p>
+<p align="center">Made with <img src="docs/icons/heart.svg" width="20" height="20" align="absmiddle" alt=""> — bkey</p>

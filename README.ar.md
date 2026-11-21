@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-# bkey ⌨️
+# <img src="docs/icons/keyboard.svg" width="32" height="32" align="absmiddle" alt=""> bkey
 
 **كيبورد أندرويد مبني على إيماءات السحب في BlackBerry Keyboard - Classic — اسحب للأعلى لاختيار اقتراح، واسحب جانبياً للحذف (الاتجاه قابل للتخصيص).**
 
@@ -19,16 +19,16 @@
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 
-إذا أفادك المشروع، نجمة ⭐ تعني لنا الكثير.
+إذا أفادك المشروع، نجمة <img src="docs/icons/star.svg" width="20" height="20" align="absmiddle" alt=""> تعني لنا الكثير.
 
 
 
 ---
 
 
-**🔗 اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
+<img src="docs/icons/link.svg" width="20" height="20" align="absmiddle" alt=""> **اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
 
-### الوصف ✨
+### الوصف <img src="docs/icons/sparkles.svg" width="20" height="20" align="absmiddle" alt="">
 
 **bkey** كيبورد أندرويد (IME) مبني على إيماءات السحب في تطبيق **BlackBerry Keyboard - Classic**،
 بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب جانبياً على صف الحروف (الاتجاه
@@ -39,11 +39,11 @@
 
 <a id="ar-features"></a>
 
-### المميزات 🚀
+### المميزات <img src="docs/icons/rocket.svg" width="20" height="20" align="absmiddle" alt="">
 
 <div dir="rtl">
 
-**✋ الإيماءات (Gestures)**  
+<img src="docs/icons/gesture.svg" width="20" height="20" align="absmiddle" alt=""> **الإيماءات (Gestures)**  
 ‏• سحب للأعلى من أي اقتراح: قبوله فوراً‏.
 
 ![سحب للأعلى لقبول الاقتراح](docs/gifs/swipe_up_suggestion.gif?v=2)
@@ -66,12 +66,12 @@
 
 ![ضغط مطوّل وسحب زر المسافة لتحريك المؤشر](docs/gifs/cursor_move.gif?v=2)
 
-‏• سحب زر المسافة يميناً/يساراً: التبديل بين اللغات المفعّلة (عربي/إنجليزي/إسباني) بدون زر 🌐 منفصل‏.  
+‏• سحب زر المسافة يميناً/يساراً: التبديل بين اللغات المفعّلة (عربي/إنجليزي/إسباني) بدون زر لغة منفصل‏.  
 ‏• ضغط مطوّل على أي حرف: بوب أب الحروف البديلة. في الكيبورد الإنجليزي يعطيك الحرف الصغير نسخته الكبيرة (على طريقة بلاك بيري)، وصف الأرقام يظهر فقط مع تفعيل Shift أو Caps Lock. الرموز الموجودة أصلاً في صفحة الرموز ما تتكرر، والحروف المشكّلة تظهر فقط في الكيبورد الإسباني، والرموز العربية فقط (﷼ ، ؛ ؟) تظهر فقط لما تكون العربية مفعّلة‏.
 
 <br>
 
-**⌨️ الكتابة والتوقع الذكي**  
+<img src="docs/icons/keyboard.svg" width="20" height="20" align="absmiddle" alt=""> **الكتابة والتوقع الذكي**  
 ‏• تصحيح تلقائي صامت عند المسافة، وتوقع الكلمة التالية (حتى 3 كلمات)‏.  
 ‏• تعلّم الكلمات الجديدة أثناء الكتابة تلقائياً + مدرّب يدوي يحفظ جملة كاملة فوراً‏.  
 ‏• **كل ما تعلّم الكيبورد كلماتك أكثر، صارت أغلب كتابتك بالسحب:** تصير اقتراحاته أدق مع الوقت، فتكتب معظم كلامك بسحبة وحدة للأعلى على الاقتراح الصحيح بدل ما تكتب كل حرف‏.  
@@ -90,7 +90,7 @@
 
 <br>
 
-**📋 الحافظة الذكية**  
+<img src="docs/icons/clipboard.svg" width="20" height="20" align="absmiddle" alt=""> **الحافظة الذكية**  
 ‏• درج حافظة كامل: تثبيت، حذف، وحذف تلقائي للعناصر القديمة بعد مدة تختارها (من ساعة إلى 30 يوماً، أو بدون حذف)‏.  
 ‏• حفظ آخر لقطة شاشة تلقائياً (مصغّرة واحدة تحل محل القديمة) *(نسخة bkey Plus فقط)*‏.  
 ‏• آخر نص منسوخ يظهر مباشرة بمنتصف شريط الاقتراحات لإعادة لصقه بسرعة‏.  
@@ -98,13 +98,13 @@
 
 <br>
 
-**😀 إيموجي و GIF**  
+<img src="docs/icons/smile.svg" width="20" height="20" align="absmiddle" alt=""> **إيموجي و GIF**  
 ‏• لوحة إيموجي ورموز كاملة، مع قسم "مستخدم حديثاً" (قابل للحذف أو حذف عنصر واحد بالضغط المطول)‏.  
 ‏• تبويب GIF في لوحة الإيموجي مدعوم بـ KLIPY GIF — بحث ومعاينة صور GIF متحركة مع حقل بحث عائم ما يغطي الصور *(نسخة bkey Plus فقط)*‏.
 
 <br>
 
-**🎨 التخصيص الكامل**  
+<img src="docs/icons/palette.svg" width="20" height="20" align="absmiddle" alt=""> **التخصيص الكامل**  
 ‏• 4 ثيمات ألوان + **تلقائي** (نصفه أبيض ونصفه أسود): يتبع وضع أندرويد نهاري/ليلي، فيستخدم الثيم الأبيض نهاراً والأسود المطفي ليلاً‏.  
 ‏• 9 أشكال لأزرار الكيبورد وخطوط متعددة (افتراضي/Tajawal)‏.  
 ‏• خط شريط الاقتراحات يتبع نفس الخط اللي تختاره للأزرار‏.  
@@ -114,13 +114,13 @@
 
 <br>
 
-**🔊 الصوت والاهتزاز**  
+<img src="docs/icons/speaker.svg" width="20" height="20" align="absmiddle" alt=""> **الصوت والاهتزاز**  
 ‏• نغمات كتابة متعددة + نغمات مستقلة للسحب والحذف، كل مجموعة بمستوى صوت خاص بها‏.  
 ‏• اهتزاز لمسي اختياري عند الضغط والسحب، مع التحكم بقوته (من 5 إلى 50 ملي ثانية، أو افتراضي النظام)‏.
 
 <br>
 
-**⚙️ تفضيلات إضافية**  
+<img src="docs/icons/sliders.svg" width="20" height="20" align="absmiddle" alt=""> **تفضيلات إضافية**  
 ‏• صف أرقام دائم فوق الكيبورد (مع صف مخصص يظهر بحقول كلمات المرور حتى لو كان الصف العام مطفياً)‏.  
 ‏• أرقام عربية هندية (١٢٣) اختيارية‏.  
 ‏• وضع اليد الواحدة (يمين أو يسار)‏.  
@@ -135,7 +135,7 @@
 
 <a id="ar-privacy"></a>
 
-### الخصوصية والأمان 🔒
+### الخصوصية والأمان <img src="docs/icons/lock.svg" width="20" height="20" align="absmiddle" alt="">
 
 <div dir="rtl">
 
@@ -148,7 +148,7 @@
   التطبيق. اقتراح OTP معطّل افتراضياً ويفحص بس إشعار الرسالة أو واتساب الجديد اللحظي — أبداً
   الرسائل القديمة — وكل المعالجة على الجهاز فقط‏.
 
-> ⚠️ **ملاحظة عن تحذير Play Protect بنسخة bkey Plus**
+> <img src="docs/icons/alert.svg" width="20" height="20" align="absmiddle" alt=""> **ملاحظة عن تحذير Play Protect بنسخة bkey Plus**
 >
 > نسخة bkey Plus فيها صلاحية الإنترنت (لبحث GIF والتحديث من داخل التطبيق) وصلاحية الوصول للصور (للصق
 > الصور وآخر لقطة شاشة)، وهذا اللي يخلي Google Play Protect يصنفها "Harmful app"، تأكدنا بالتجربة.
@@ -167,7 +167,7 @@
 ‏1. افتح تطبيق **متجر Google Play**.  
 ‏2. اضغط صورة حسابك بأعلى يمين الشاشة.  
 ‏3. اختر **Play Protect**.  
-‏4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.  
+‏4. اضغط أيقونة الإعدادات <img src="docs/icons/sliders.svg" width="20" height="20" align="absmiddle" alt=""> بأعلى يمين الشاشة.  
 ‏5. أوقف خيار **Scan apps with Play Protect** — رح تطلع لك رسالة تسألك «Pause app scanning instead?»، اختر **Pause**.  
 ‏6. ثبّت ملف نسخة bkey Plus.  
 ‏7. خيار Pause يرجع يشتغل لوحده تلقائياً بعد يوم، لكن الأفضل ترجّعه بنفسك فوراً بعد التثبيت (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).
@@ -180,20 +180,20 @@
 
 <a id="ar-download"></a>
 
-### التحميل 📥
+### التحميل <img src="docs/icons/download.svg" width="20" height="20" align="absmiddle" alt="">
 
 نسختين — اختر اللي تناسبك:
 
 <div dir="rtl">
 
-| | 🟢 نسخة bkey (موصى بها) | 🔵 نسخة bkey Plus |
+| | <img src="docs/icons/dot-green.svg" width="16" height="16" align="absmiddle" alt=""> نسخة bkey (موصى بها) | <img src="docs/icons/dot-blue.svg" width="16" height="16" align="absmiddle" alt=""> نسخة bkey Plus |
 |---|:---:|:---:|
-| تتثبت بدون أي تحذير من Play Protect | ✅ | ⚠️ شوف الملاحظة تحت |
-| بحث GIF ولصق الصور/الستيكرات | — | ✅ |
-| تحديث تلقائي من داخل التطبيق | — | ✅ |
-| اقتراح رمز التحقق (OTP) | — | ✅ (اختياري، معطّل افتراضياً) |
-| حفظ لقطة الشاشة بالحافظة | — | ✅ |
-| اقتراح آخر نص منسوخ | ✅ | ✅ |
+| تتثبت بدون أي تحذير من Play Protect | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="20" height="20" align="absmiddle" alt=""> شوف الملاحظة تحت |
+| بحث GIF ولصق الصور/الستيكرات | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
+| تحديث تلقائي من داخل التطبيق | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
+| اقتراح رمز التحقق (OTP) | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> (اختياري، معطّل افتراضياً) |
+| حفظ لقطة الشاشة بالحافظة | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
+| اقتراح آخر نص منسوخ | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
 
 </div>
 
@@ -220,13 +220,13 @@
 > - **تحديث نسخة bkey Plus:** من هذه الصفحة، أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**)، أو عبر Obtainium بزر **bkey Plus** أعلاه. بأي طريقة تضل نسخة bkey Plus، ما تتحول لنسخة bkey الأساسية.
 > - **Obtainium:** النسختان لهما نفس اسم الحزمة، فأضف فقط النسخة اللي تستخدمها. كل زر يتابع ملفه فقط، وإضافة الزر الغلط تستبدل نسختك بالثانية.
 
-### [ابنِه بنفسك](BUILDING.md) 🔧
+### [ابنِه بنفسك](BUILDING.md) <img src="docs/icons/wrench.svg" width="20" height="20" align="absmiddle" alt="">
 
 <br>
 
 <a id="ar-faq"></a>
 
-### الأسئلة الشائعة ❓
+### الأسئلة الشائعة <img src="docs/icons/help.svg" width="20" height="20" align="absmiddle" alt="">
 
 <div dir="rtl">
 
@@ -265,11 +265,11 @@
 
 <a id="ar-community"></a>
 
-### المجتمع والإبلاغ عن الأخطاء 🤝
+### المجتمع والإبلاغ عن الأخطاء <img src="docs/icons/users.svg" width="20" height="20" align="absmiddle" alt="">
 
 <div dir="rtl">
 
-من الإعدادات ← **سجل الأخطاء** ← **"📧 إرسال للمطوّر"** يرسل تفاصيل أي خطأ مباشرة لـ **lvl60me@gmail.com** — نفس الإيميل للاقتراحات والملاحظات، وهو الطريقة الوحيدة للتواصل مع المطوّر.
+من الإعدادات ← **سجل الأخطاء** ← **"إرسال للمطوّر"** يرسل تفاصيل أي خطأ مباشرة لـ **lvl60me@gmail.com** — نفس الإيميل للاقتراحات والملاحظات، وهو الطريقة الوحيدة للتواصل مع المطوّر.
 
 </div>
 
@@ -277,7 +277,7 @@
 
 <a id="ar-support"></a>
 
-### الدعم 📩
+### الدعم <img src="docs/icons/mail.svg" width="20" height="20" align="absmiddle" alt="">
 
 إذا عجبك المشروع وتبي تدعمه، تقدر تدعمني عبر Ko-fi:
 
@@ -285,4 +285,4 @@
 
 ---
 
-<p align="center">Made with ❤️ — bkey</p>
+<p align="center">Made with <img src="docs/icons/heart.svg" width="20" height="20" align="absmiddle" alt=""> — bkey</p>
