@@ -2689,33 +2689,49 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // screenshot, copied texts go back to the plain two-per-row grid below.
         int startIdx = 0;
         if (hasShotThumb) {
-            LinearLayout combinedRow = new LinearLayout(this);
-            combinedRow.setOrientation(LinearLayout.HORIZONTAL);
-            combinedRow.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-            LinearLayout.LayoutParams combinedLp = new LinearLayout.LayoutParams(
+            // Two independent columns (text on the left, screenshot on the right, fixed LTR),
+            // so a tall screenshot doesn't stretch a shared row and leave an empty gap beside
+            // it: each column simply stacks its own cards. Text cards go to whichever column
+            // is estimated shorter; the screenshot counts as roughly four card-heights.
+            LinearLayout cols = new LinearLayout(this);
+            cols.setOrientation(LinearLayout.HORIZONTAL);
+            cols.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+            LinearLayout.LayoutParams colsLp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            combinedLp.bottomMargin = dp(7);
-            combinedRow.setLayoutParams(combinedLp);
+            colsLp.bottomMargin = dp(7);
+            cols.setLayoutParams(colsLp);
 
-            if (!clips.isEmpty()) {
-                View textCard = buildClipCard(clips.get(0));
-                LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-                textLp.rightMargin = dp(10);
-                textCard.setLayoutParams(textLp);
-                combinedRow.addView(textCard);
-                startIdx = 1;
+            LinearLayout leftCol = new LinearLayout(this);
+            leftCol.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams leftLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            leftLp.rightMargin = dp(10);
+            leftCol.setLayoutParams(leftLp);
+            LinearLayout rightCol = new LinearLayout(this);
+            rightCol.setOrientation(LinearLayout.VERTICAL);
+            rightCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            cols.addView(leftCol);
+            cols.addView(rightCol);
 
-                View shotCard = buildScreenshotThumbRow();
-                shotCard.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-                combinedRow.addView(shotCard);
-            } else {
-                combinedRow.setGravity(Gravity.CENTER_HORIZONTAL);
-                View shotCard = buildScreenshotThumbRow();
-                shotCard.setLayoutParams(new LinearLayout.LayoutParams(dp(170), ViewGroup.LayoutParams.WRAP_CONTENT));
-                combinedRow.addView(shotCard);
+            View shotCard = buildScreenshotThumbRow();
+            LinearLayout.LayoutParams shotLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            shotLp.bottomMargin = dp(7);
+            shotCard.setLayoutParams(shotLp);
+            rightCol.addView(shotCard);
+
+            float leftH = 0f, rightH = 4f;
+            for (int i = 0; i < clips.size(); i++) {
+                View card = buildClipCard(clips.get(i));
+                LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                cardLp.bottomMargin = dp(7);
+                card.setLayoutParams(cardLp);
+                float units = 1f + Math.min(2f, clips.get(i).text.length() / 40f);
+                if (leftH <= rightH) { leftCol.addView(card); leftH += units; }
+                else { rightCol.addView(card); rightH += units; }
             }
-
-            clipsListContainer.addView(combinedRow);
+            clipsListContainer.addView(cols);
+            return;
         }
 
         for (int i = startIdx; i < clips.size(); i += 2) {
