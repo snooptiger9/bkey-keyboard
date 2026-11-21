@@ -184,9 +184,9 @@ Dos versiones: elige la que mejor te venga:
 | Sugerencia del texto copiado | ✅ | ✅ |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v303.apk"><img src="https://img.shields.io/badge/Descargar_bkey_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Descargar bkey" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v304.apk"><img src="https://img.shields.io/badge/Descargar_bkey_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Descargar bkey" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v303.apk"><img src="https://img.shields.io/badge/Descargar_bkey_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Descargar bkey Plus" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v304.apk"><img src="https://img.shields.io/badge/Descargar_bkey_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Descargar bkey Plus" width="300" height="50"></a>
 </p>
 
 **bkey** solo pide lo estrictamente necesario para escribir (sin internet, sin fotos/almacenamiento, sin SMS); nada de lo anterior funciona aquí salvo la sugerencia del texto copiado, ya que el resto necesita internet o acceso a fotos.

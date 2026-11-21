@@ -184,9 +184,9 @@ Two builds — pick the one that fits you:
 | Copied-text suggestion | ✅ | ✅ |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v303.apk"><img src="https://img.shields.io/badge/Download_bkey_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Download bkey" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v304.apk"><img src="https://img.shields.io/badge/Download_bkey_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Download bkey" width="300" height="50"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v303.apk"><img src="https://img.shields.io/badge/Download_bkey_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download bkey Plus" width="300" height="50"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v304.apk"><img src="https://img.shields.io/badge/Download_bkey_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Download bkey Plus" width="300" height="50"></a>
 </p>
 
 **bkey** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
