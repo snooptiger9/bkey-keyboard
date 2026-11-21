@@ -207,10 +207,12 @@
 
 **نسخة bkey Plus** فيها كل شي، بس تثبيتها يسبب تحذير من Google Play Protect (متوقع، مو مشكلة حقيقية — شوف [الخصوصية والأمان](#ar-privacy) ليش).
 
-تبي تحديثات تلقائية؟ أضف **bkey** الأساسية إلى [Obtainium](https://github.com/ImranR98/Obtainium) بضغطة وحدة (الرابط يتجاهل ملف Plus تلقائياً).
+تبي تحديثات تلقائية؟ أضف النسخة اللي تستخدمها إلى [Obtainium](https://github.com/ImranR98/Obtainium) بضغطة وحدة: **bkey** أو **bkey Plus**. كل رابط يتابع ملفه فقط، فما تحل وحدة مكان الثانية. النسختان لهما نفس اسم الحزمة، فخلّ وحدة منهما فقط داخل Obtainium.
 
 <p>
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="https://img.shields.io/badge/احصل_عليه_عبر-Obtainium-6D28D9?style=for-the-badge&logo=android&logoColor=white" alt="احصل عليه عبر Obtainium" width="300" height="50"></a>
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="https://img.shields.io/badge/احصل_عليه_عبر-Obtainium-22C55E?style=for-the-badge&logo=android&logoColor=white" alt="احصل على bkey عبر Obtainium" width="300" height="50"></a>
+&nbsp;
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="https://img.shields.io/badge/احصل_على_Plus_عبر-Obtainium-3B82F6?style=for-the-badge&logo=android&logoColor=white" alt="احصل على bkey Plus عبر Obtainium" width="300" height="50"></a>
 </p>
 
 > [!CAUTION]
