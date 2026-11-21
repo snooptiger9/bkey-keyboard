@@ -62,7 +62,7 @@ tailored experience for each.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
 - Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish) without a separate 🌐 button.
-- Long-press any key: popup with alternate characters. On the English keyboard a lowercase letter gives its capital (BlackBerry-style), and the number row shows only while Shift or Caps Lock is on. Symbols already on the symbols page are not repeated, accented letters appear only on the Spanish keyboard, and Arabic-only symbols (﷼ ، ؛ ؟) appear only when Arabic is enabled.
+- Long-press any key: popup with alternate characters. On the English keyboard a lowercase letter gives its capital (BlackBerry-style), and the number row shows only while Shift or Caps Lock is on. Symbols already on the symbols page are not repeated, accented letters appear only on the Spanish keyboard, and Arabic-only symbols appear only when Arabic is enabled.
 
 <br>
 
