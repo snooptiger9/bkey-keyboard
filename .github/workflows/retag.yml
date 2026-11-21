@@ -1,0 +1,41 @@
+name: Retag after history rewrite (one-off)
+on:
+  push:
+    paths:
+      - '.github/workflows/retag.yml'
+permissions:
+  contents: write
+jobs:
+  retag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Move tags onto the rewritten commits
+        run: |
+          git config user.name "bkey-ci"
+          git config user.email "ci@bkey.local"
+          while read -r tag sha; do
+            git cat-file -e "$sha^{commit}" || { echo "missing $sha for $tag"; exit 1; }
+            git tag -f "$tag" "$sha"
+            git push -f origin "refs/tags/$tag"
+          done <<'MAP'
+          v288.0 85402f4e8cd1e83c4cd483714a48096a47b777ff
+          v289.0 105443085312476d04b900498f4a5c1aa389d6f4
+          v290.0 492caf2e83be99b936d783f74f8f5e7a0ea5da5d
+          v291.0 c0f670a37c98a268c36cf308399c8ab441a03844
+          v292.0 85076bffe8a20a13109c0d57ee37165a020f0541
+          v293.0 ab30f6af64e1d62eb10903e452eb139b11ec2fb7
+          v294.0 663cf43c5d4b0bf369e1e36ff76453bef5171e50
+          v295.0 f34887a5abaa168b529346bb1f40724ed082eb9c
+          v296.0 97275944f22de70ca9c88529bc64b7876ee5b44b
+          v297.0 d94bd8b890c3ef29be155c4de5ab549d621c9051
+          v298.0 69aec5119b6118e5d78f619f4ee55044d94b9c67
+          v299.0 18f0f4fb46c66ee4b1b0a8f5f72e5018774c6b78
+          v300.0 ba2016a1ec23d901586c6d0e8f4388f552204c44
+          v301.0 aeec8f9a613dfeae1cadec0338d0e3c2f82d6ee6
+          v302.0 b4c25df7b1ded8aa84f1b247a5786d38629b5ccd
+          v303.0 dc11fdedaa80ee4b3f06800d1e3ea86c6ee92531
+          v304.0 f9b5d428886f66648b7c10dec7e5d9a4df1c172e
+          MAP
