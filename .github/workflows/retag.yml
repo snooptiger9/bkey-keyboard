@@ -21,11 +21,11 @@ jobs:
             git tag -f "$tag" "$sha"
             git push -f origin "refs/tags/$tag"
           done <<'MAP'
-          v288.0 85402f4e8cd1e83c4cd483714a48096a47b777ff
-          v289.0 105443085312476d04b900498f4a5c1aa389d6f4
-          v290.0 492caf2e83be99b936d783f74f8f5e7a0ea5da5d
-          v291.0 c0f670a37c98a268c36cf308399c8ab441a03844
-          v292.0 85076bffe8a20a13109c0d57ee37165a020f0541
+          v288.0 e0484a634ce6c383179adb01993191fdbcb418c8
+          v289.0 bf171eca78d84bbdbe52d937a3859599e1a4d71d
+          v290.0 45fa694e8f73e1516f1e8076e6f4fecc76242a4f
+          v291.0 6a5279e1b91f5edadbca701046b422eaa7f0e4c1
+          v292.0 5e4a7ba70f1cf0cd12f18b55dd99e71ba3bd44b5
           v293.0 ab30f6af64e1d62eb10903e452eb139b11ec2fb7
           v294.0 663cf43c5d4b0bf369e1e36ff76453bef5171e50
           v295.0 f34887a5abaa168b529346bb1f40724ed082eb9c
@@ -39,4 +39,4 @@ jobs:
           v303.0 dc11fdedaa80ee4b3f06800d1e3ea86c6ee92531
           v304.0 f9b5d428886f66648b7c10dec7e5d9a4df1c172e
           MAP
-# trigger
+# trigger 2
