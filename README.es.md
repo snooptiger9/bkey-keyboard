@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-# <img src="docs/icons/keyboard.svg" width="32" height="32" align="absmiddle" alt=""> bkey
+# <img src="docs/icons/keyboard.svg" width="34" height="34" align="absmiddle" alt=""> bkey
 
 **Un teclado Android basado en los gestos de BlackBerry Keyboard - Classic: desliza hacia arriba para elegir una sugerencia y hacia los lados para borrar (la dirección es configurable).**
 
@@ -19,16 +19,16 @@
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 
-Si te resulta útil, una <img src="docs/icons/star.svg" width="20" height="20" align="absmiddle" alt=""> estrella significaría mucho.
+Si te resulta útil, una <img src="docs/icons/star.svg" width="22" height="22" align="absmiddle" alt=""> estrella significaría mucho.
 
 
 
 ---
 
 
-<img src="docs/icons/link.svg" width="20" height="20" align="absmiddle" alt=""> **Enlaces rápidos:** [Funciones](#es-features) · [Privacidad y seguridad](#es-privacy) · [Descarga](#es-download) · [Compílalo tú mismo](BUILDING.md) · [Preguntas frecuentes](#es-faq) · [Comunidad y errores](#es-community) · [Apoyo](#es-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Enlaces rápidos:** [Funciones](#es-features) · [Privacidad y seguridad](#es-privacy) · [Descarga](#es-download) · [Compílalo tú mismo](BUILDING.md) · [Preguntas frecuentes](#es-faq) · [Comunidad y errores](#es-community) · [Apoyo](#es-support)
 
-### Descripción <img src="docs/icons/sparkles.svg" width="20" height="20" align="absmiddle" alt="">
+### Descripción <img src="docs/icons/sparkles.svg" width="22" height="22" align="absmiddle" alt="">
 
 **bkey** es un teclado Android (IME) basado en los gestos de deslizamiento de la app **BlackBerry
 Keyboard - Classic**, con más personalización y funciones extra: desliza hacia arriba sobre cualquier
@@ -40,9 +40,9 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 
 <a id="es-features"></a>
 
-### Funciones <img src="docs/icons/rocket.svg" width="20" height="20" align="absmiddle" alt="">
+### Funciones <img src="docs/icons/rocket.svg" width="22" height="22" align="absmiddle" alt="">
 
-<img src="docs/icons/gesture.svg" width="20" height="20" align="absmiddle" alt=""> **Gestos**
+<img src="docs/icons/gesture.svg" width="22" height="22" align="absmiddle" alt=""> **Gestos**
 - Desliza hacia arriba sobre cualquier sugerencia: la aceptas al instante.
 
   ![Desliza hacia arriba para aceptar una sugerencia](docs/gifs/swipe_up_suggestion.gif?v=2)
@@ -66,7 +66,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 
 <br>
 
-<img src="docs/icons/keyboard.svg" width="20" height="20" align="absmiddle" alt=""> **Escritura inteligente y predicción**
+<img src="docs/icons/keyboard.svg" width="22" height="22" align="absmiddle" alt=""> **Escritura inteligente y predicción**
 - Autocorrección silenciosa al pulsar espacio y predicción de la palabra siguiente (hasta 3 palabras).
 - Aprendizaje de palabras al escribir, más un entrenador manual que guarda una frase entera al instante.
 - **Cuanto más aprende, más deslizas:** a medida que el teclado aprende tus palabras, sus sugerencias son más precisas, así que casi todo lo que escribes se vuelve un deslizamiento hacia arriba sobre la sugerencia correcta en vez de teclear cada letra.
@@ -84,7 +84,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 
 <br>
 
-<img src="docs/icons/clipboard.svg" width="20" height="20" align="absmiddle" alt=""> **Portapapeles inteligente**
+<img src="docs/icons/clipboard.svg" width="22" height="22" align="absmiddle" alt=""> **Portapapeles inteligente**
 - Un cajón de portapapeles completo: fijar, borrar y eliminar automáticamente los elementos antiguos
   tras el tiempo que elijas (de 1 hora a 30 días, o nunca).
 - Guarda automáticamente la última captura de pantalla (una sola miniatura que reemplaza a la anterior). *(solo bkey Plus)*
@@ -93,14 +93,14 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 
 <br>
 
-<img src="docs/icons/smile.svg" width="20" height="20" align="absmiddle" alt=""> **Emojis y GIF**
+<img src="docs/icons/smile.svg" width="22" height="22" align="absmiddle" alt=""> **Emojis y GIF**
 - Panel completo de emojis y símbolos con una sección de "Usados recientemente" (bórrala entera o
   mantén pulsado para quitar un solo emoji).
 - La pestaña GIF del panel de emojis funciona con KLIPY GIF: busca y previsualiza GIF animados, con un campo de búsqueda flotante que no tapa la cuadrícula. *(solo bkey Plus)*
 
 <br>
 
-<img src="docs/icons/palette.svg" width="20" height="20" align="absmiddle" alt=""> **Personalización total**
+<img src="docs/icons/palette.svg" width="22" height="22" align="absmiddle" alt=""> **Personalización total**
 - 4 temas de color más **Auto** (mitad blanco, mitad negro): sigue el modo día/noche de Android, usando el tema blanco de día y Negro mate de noche.
 - 9 formas de tecla y varias fuentes (Sistema/Tajawal).
 - La barra de sugerencias usa la misma fuente que elijas para las teclas.
@@ -111,13 +111,13 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 
 <br>
 
-<img src="docs/icons/speaker.svg" width="20" height="20" align="absmiddle" alt=""> **Sonido y vibración**
+<img src="docs/icons/speaker.svg" width="22" height="22" align="absmiddle" alt=""> **Sonido y vibración**
 - Varios tonos de escritura + tonos independientes para deslizar/borrar, cada uno con su propio volumen.
 - Vibración háptica opcional al pulsar y deslizar, con intensidad ajustable (5–50 ms, o la del sistema).
 
 <br>
 
-<img src="docs/icons/sliders.svg" width="20" height="20" align="absmiddle" alt=""> **Más preferencias**
+<img src="docs/icons/sliders.svg" width="22" height="22" align="absmiddle" alt=""> **Más preferencias**
 - Una fila de números permanente sobre el teclado (más una fila dedicada en los campos de contraseña
   aunque la general esté desactivada).
 - Dígitos indo-arábigos opcionales (١٢٣).
@@ -132,7 +132,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 
 <a id="es-privacy"></a>
 
-### Privacidad y seguridad <img src="docs/icons/lock.svg" width="20" height="20" align="absmiddle" alt="">
+### Privacidad y seguridad <img src="docs/icons/lock.svg" width="22" height="22" align="absmiddle" alt="">
 
 - **bkey** (la versión estándar) no tiene acceso a la red y no puede leer SMS, notificaciones, fotos ni almacenamiento: esos
   permisos no están en la app. El dictado por voz sigue funcionando, gestionado por completo por el servicio de
@@ -143,7 +143,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
   OTP vienen desactivadas por defecto y solo leen una notificación de SMS/WhatsApp recién llegada, nunca
   tu historial de mensajes; todo se procesa en el dispositivo y nunca se envía a ningún servidor.
 
-> <img src="docs/icons/alert.svg" width="20" height="20" align="absmiddle" alt=""> **Sobre la advertencia de Play Protect en bkey Plus**
+> <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> **Sobre la advertencia de Play Protect en bkey Plus**
 >
 > bkey Plus tiene acceso a internet (para la búsqueda de GIF y el buscador de actualizaciones) y acceso a fotos
 > (para pegar imágenes y la sugerencia de captura al portapapeles), y eso hace que Google Play Protect lo marque
@@ -159,7 +159,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 1. Abre la app **Google Play Store**.
 2. Toca tu foto de perfil, arriba a la derecha.
 3. Toca **Play Protect**.
-4. Toca el icono de ajustes <img src="docs/icons/sliders.svg" width="20" height="20" align="absmiddle" alt="">, arriba a la derecha.
+4. Toca el icono de ajustes <img src="docs/icons/sliders.svg" width="22" height="22" align="absmiddle" alt="">, arriba a la derecha.
 5. Desactiva **Analizar apps con Play Protect**; te preguntará "¿Pausar el análisis de apps?", elige **Pausar**.
 6. Instala el APK de bkey Plus.
 7. La pausa se reactiva sola tras un día, pero es mejor que la reactives tú mismo justo después de instalar (se recomienda mantenerlo activado para tus otras apps).
@@ -170,18 +170,18 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 
 <a id="es-download"></a>
 
-### Descarga <img src="docs/icons/download.svg" width="20" height="20" align="absmiddle" alt="">
+### Descarga <img src="docs/icons/download.svg" width="22" height="22" align="absmiddle" alt="">
 
 Dos versiones: elige la que mejor te venga:
 
-| | <img src="docs/icons/dot-green.svg" width="16" height="16" align="absmiddle" alt=""> bkey (recomendada) | <img src="docs/icons/dot-blue.svg" width="16" height="16" align="absmiddle" alt=""> bkey Plus |
+| | <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recomendada) | <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus |
 |---|:---:|:---:|
-| Se instala sin advertencia de Play Protect | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="20" height="20" align="absmiddle" alt=""> ver nota abajo |
-| Búsqueda de GIF y pegado de imágenes/stickers | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
-| Buscador de actualizaciones integrado | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
-| Sugerencias de códigos de verificación (OTP) | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> (opcional, desactivado por defecto) |
-| Captura de pantalla al portapapeles | — | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
-| Sugerencia del texto copiado | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="16" height="16" align="absmiddle" alt=""> |
+| Se instala sin advertencia de Play Protect | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> ver nota abajo |
+| Búsqueda de GIF y pegado de imágenes/stickers | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
+| Buscador de actualizaciones integrado | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
+| Sugerencias de códigos de verificación (OTP) | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> (opcional, desactivado por defecto) |
+| Captura de pantalla al portapapeles | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
+| Sugerencia del texto copiado | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v304.apk"><img src="docs/images/badges/dl_bkey_es.png" alt="Descargar bkey (APK)" width="300"></a>
@@ -206,13 +206,13 @@ Dos versiones: elige la que mejor te venga:
 > - **Actualizar bkey Plus:** desde esta página, desde dentro de la app (Ajustes → **Actualizar la app**) o con Obtainium usando el botón **bkey Plus** de arriba. De cualquier forma se queda en bkey Plus, nunca pasa a la versión estándar de bkey.
 > - **Obtainium:** ambas versiones comparten el mismo nombre de paquete, así que añade solo la que usas. Cada botón sigue únicamente su propio APK; añadir el equivocado reemplazaría tu versión por la otra.
 
-### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="20" height="20" align="absmiddle" alt="">
+### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
 
 <br>
 
 <a id="es-faq"></a>
 
-### Preguntas frecuentes <img src="docs/icons/help.svg" width="20" height="20" align="absmiddle" alt="">
+### Preguntas frecuentes <img src="docs/icons/help.svg" width="22" height="22" align="absmiddle" alt="">
 
 <details>
 <summary><b>¿El teclado envía a internet lo que escribo?</b></summary>
@@ -247,7 +247,7 @@ No: es ligero y funciona por completo en el dispositivo, sin procesamiento en la
 
 <a id="es-community"></a>
 
-### Comunidad y errores <img src="docs/icons/users.svg" width="20" height="20" align="absmiddle" alt="">
+### Comunidad y errores <img src="docs/icons/users.svg" width="22" height="22" align="absmiddle" alt="">
 
 Ajustes → **Error log** → **"Email developer"** envía los detalles del fallo directamente a **lvl60me@gmail.com**: la misma dirección sirve para sugerencias o comentarios, y es la única forma de contactar con el desarrollador.
 
@@ -255,7 +255,7 @@ Ajustes → **Error log** → **"Email developer"** envía los detalles del fall
 
 <a id="es-support"></a>
 
-### Apoyo <img src="docs/icons/mail.svg" width="20" height="20" align="absmiddle" alt="">
+### Apoyo <img src="docs/icons/mail.svg" width="22" height="22" align="absmiddle" alt="">
 
 Si te gusta el proyecto y quieres apoyarlo, puedes invitarme a un café en Ko-fi:
 
@@ -263,4 +263,4 @@ Si te gusta el proyecto y quieres apoyarlo, puedes invitarme a un café en Ko-fi
 
 ---
 
-<p align="center">Hecho con <img src="docs/icons/heart.svg" width="20" height="20" align="absmiddle" alt=""> — bkey</p>
+<p align="center">Hecho con <img src="docs/icons/heart.svg" width="22" height="22" align="absmiddle" alt=""> — bkey</p>
