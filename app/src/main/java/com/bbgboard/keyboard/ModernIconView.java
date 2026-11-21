@@ -44,6 +44,11 @@ public class ModernIconView extends View {
     public static final int ICON_SEARCH = 32;
     public static final int ICON_STATS = 33;
     public static final int ICON_BACKUP = 34;
+    public static final int ICON_POWER = 35;
+    public static final int ICON_SWITCH = 36;
+    public static final int ICON_SHIELD_CHECK = 37;
+    public static final int ICON_BOLT = 38;
+    public static final int ICON_SPARKLE = 39;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -536,6 +541,59 @@ public class ModernIconView extends View {
                 canvas.drawCircle(cx, cy, r * 0.88f, strokePaint);
                 canvas.drawLine(cx - r * 0.42f, cy + r * 0.02f, cx - r * 0.12f, cy + r * 0.34f, strokePaint);
                 canvas.drawLine(cx - r * 0.12f, cy + r * 0.34f, cx + r * 0.46f, cy - r * 0.30f, strokePaint);
+                break;
+            }
+            case ICON_POWER: {
+                RectF arc = new RectF(cx - r * 0.82f, cy - r * 0.78f, cx + r * 0.82f, cy + r * 0.86f);
+                canvas.drawArc(arc, -50f, 280f, false, strokePaint);
+                canvas.drawLine(cx, cy - r * 0.98f, cx, cy - r * 0.12f, strokePaint);
+                break;
+            }
+            case ICON_SWITCH: {
+                canvas.drawLine(cx - r * 0.85f, cy - r * 0.38f, cx + r * 0.85f, cy - r * 0.38f, strokePaint);
+                canvas.drawLine(cx + r * 0.85f, cy - r * 0.38f, cx + r * 0.45f, cy - r * 0.78f, strokePaint);
+                canvas.drawLine(cx + r * 0.85f, cy - r * 0.38f, cx + r * 0.45f, cy + r * 0.02f, strokePaint);
+                canvas.drawLine(cx + r * 0.85f, cy + r * 0.38f, cx - r * 0.85f, cy + r * 0.38f, strokePaint);
+                canvas.drawLine(cx - r * 0.85f, cy + r * 0.38f, cx - r * 0.45f, cy - r * 0.02f, strokePaint);
+                canvas.drawLine(cx - r * 0.85f, cy + r * 0.38f, cx - r * 0.45f, cy + r * 0.78f, strokePaint);
+                break;
+            }
+            case ICON_SHIELD_CHECK: {
+                Path sh = new Path();
+                sh.moveTo(cx, cy - r * 0.98f);
+                sh.lineTo(cx + r * 0.82f, cy - r * 0.62f);
+                sh.lineTo(cx + r * 0.82f, cy + r * 0.10f);
+                sh.quadTo(cx + r * 0.82f, cy + r * 0.62f, cx, cy + r * 0.98f);
+                sh.quadTo(cx - r * 0.82f, cy + r * 0.62f, cx - r * 0.82f, cy + r * 0.10f);
+                sh.lineTo(cx - r * 0.82f, cy - r * 0.62f);
+                sh.close();
+                canvas.drawPath(sh, strokePaint);
+                canvas.drawLine(cx - r * 0.36f, cy + r * 0.02f, cx - r * 0.08f, cy + r * 0.32f, strokePaint);
+                canvas.drawLine(cx - r * 0.08f, cy + r * 0.32f, cx + r * 0.40f, cy - r * 0.26f, strokePaint);
+                break;
+            }
+            case ICON_BOLT: {
+                Path b = new Path();
+                b.moveTo(cx + r * 0.22f, cy - r * 0.98f);
+                b.lineTo(cx - r * 0.56f, cy + r * 0.12f);
+                b.lineTo(cx - r * 0.04f, cy + r * 0.12f);
+                b.lineTo(cx - r * 0.22f, cy + r * 0.98f);
+                b.lineTo(cx + r * 0.56f, cy - r * 0.14f);
+                b.lineTo(cx + r * 0.04f, cy - r * 0.14f);
+                b.close();
+                canvas.drawPath(b, strokePaint);
+                break;
+            }
+            case ICON_SPARKLE: {
+                Path st = new Path();
+                st.moveTo(cx - r * 0.18f, cy - r * 0.98f);
+                st.quadTo(cx - r * 0.18f, cy - r * 0.18f, cx + r * 0.62f, cy - r * 0.18f);
+                st.quadTo(cx - r * 0.18f, cy - r * 0.18f, cx - r * 0.18f, cy + r * 0.62f);
+                st.quadTo(cx - r * 0.18f, cy - r * 0.18f, cx - r * 0.98f, cy - r * 0.18f);
+                st.quadTo(cx - r * 0.18f, cy - r * 0.18f, cx - r * 0.18f, cy - r * 0.98f);
+                canvas.drawPath(st, strokePaint);
+                canvas.drawLine(cx + r * 0.62f, cy + r * 0.42f, cx + r * 0.62f, cy + r * 0.92f, strokePaint);
+                canvas.drawLine(cx + r * 0.37f, cy + r * 0.67f, cx + r * 0.87f, cy + r * 0.67f, strokePaint);
                 break;
             }
             case ICON_SUN: {

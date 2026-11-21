@@ -510,7 +510,7 @@ public class MainActivity extends Activity {
 
         if (!imeEnabled) {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_BACK_KEYBOARD, dm("#059669"),
+                    ModernIconView.ICON_POWER, dm("#059669"),
                     tr("1. تفعيل الكيبورد", "1. Enable the keyboard"),
                     tr("يفتح إعدادات لوحات المفاتيح في النظام", "Opens the system's keyboard list"),
                     v -> startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
@@ -521,7 +521,7 @@ public class MainActivity extends Activity {
 
         if (imeSelected) {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_CHECK_CIRCLE, dm("#16A34A"),
+                    ModernIconView.ICON_SHIELD_CHECK, dm("#16A34A"),
                     tr("مفعّل ومختار حالياً", "Enabled and currently selected"),
                     "",
                     v -> {
@@ -531,7 +531,7 @@ public class MainActivity extends Activity {
             ));
         } else {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_SETTINGS_GEAR, dm("#2563EB"),
+                    ModernIconView.ICON_SWITCH, dm("#2563EB"),
                     imeEnabled ? tr("اختيار الكيبورد", "Switch to it") : tr("2. اختيار الكيبورد", "2. Switch to it"),
                     tr("يفتح قائمة اختيار لوحة المفاتيح الحالية", "Opens the input method picker"),
                     v -> {
@@ -621,7 +621,7 @@ public class MainActivity extends Activity {
                 this::openClipboardScreen
         ));
         group3.addView(createMenuRow(
-                ModernIconView.ICON_DICTIONARY_BOOK,
+                ModernIconView.ICON_BOLT,
                 tr("القاموس واختصارات الكلمات", "Dictionary & shortcuts"),
                 null,
                 false,
@@ -714,20 +714,30 @@ public class MainActivity extends Activity {
         return th + " • " + st;
     }
 
+    private int shade(int color, float f) {
+        return Color.argb(Color.alpha(color),
+                Math.min(255, Math.round(Color.red(color) * f)),
+                Math.min(255, Math.round(Color.green(color) * f)),
+                Math.min(255, Math.round(Color.blue(color) * f)));
+    }
+
     private View createSetupStepRow(int iconType, String colorHex, String title, String subtitle, View.OnClickListener onClick) {
+        int base = Color.parseColor(colorHex);
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setBackground(roundedCard(colorHex, 14));
-        row.setPadding(dp(14), dp(12), dp(14), dp(12));
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{base, shade(base, 0.78f)});
+        bg.setCornerRadius(dp(22));
+        row.setBackground(bg);
+        row.setPadding(dp(16), dp(14), dp(16), dp(14));
         row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         row.setOnClickListener(onClick);
 
-        ModernIconView icon = new ModernIconView(this, iconType, Color.WHITE, Color.parseColor(dm("#22FFFFFF")));
-        icon.setStyle(0.85f, 2.0f);
-        LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpIcon.rightMargin = dp(12);
-        lpIcon.leftMargin = dp(12);
+        ModernIconView icon = new ModernIconView(this, iconType, Color.WHITE, Color.argb(48, 255, 255, 255));
+        icon.setStyle(0.7f, 2.0f);
+        LinearLayout.LayoutParams lpIcon = new LinearLayout.LayoutParams(dp(46), dp(46));
+        lpIcon.setMarginEnd(dp(14));
         icon.setLayoutParams(lpIcon);
 
         LinearLayout textCol = new LinearLayout(this);
@@ -738,13 +748,13 @@ public class MainActivity extends Activity {
         titleTv.setText(title);
         titleTv.setTextColor(Color.WHITE);
         titleTv.setTypeface(Typeface.DEFAULT_BOLD);
-        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16.5f);
 
         TextView subTv = new TextView(this);
         subTv.setText(subtitle);
-        subTv.setTextColor(Color.parseColor(dm("#E5F0EA")));
-        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-        subTv.setPadding(0, dp(2), 0, 0);
+        subTv.setTextColor(Color.argb(215, 255, 255, 255));
+        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        subTv.setPadding(0, dp(3), 0, 0);
 
         textCol.addView(titleTv);
         if (subtitle != null && !subtitle.isEmpty()) textCol.addView(subTv);
@@ -752,6 +762,57 @@ public class MainActivity extends Activity {
         row.addView(icon);
         row.addView(textCol);
         return row;
+    }
+
+    /** Rounded input pill with a leading icon, shared by the training, shortcut and search fields. */
+    private LinearLayout createFieldPill(int iconType, String hint, int accent, EditText[] out) {
+        LinearLayout pill = new LinearLayout(this);
+        pill.setOrientation(LinearLayout.HORIZONTAL);
+        pill.setGravity(Gravity.CENTER_VERTICAL);
+        pill.setBackground(borderedBox(dm("#F9FAFB"), dm("#E5E7EB"), 22));
+        pill.setPadding(dp(14), dp(2), dp(14), dp(2));
+        ModernIconView ic = new ModernIconView(this, iconType, accent, Color.TRANSPARENT);
+        ic.setStyle(0.9f, 2.0f);
+        ic.setLayoutParams(new LinearLayout.LayoutParams(dp(22), dp(22)));
+        pill.addView(ic);
+        EditText et = new EditText(this);
+        et.setHint(hint);
+        et.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
+        et.setTextColor(Color.parseColor(dm("#111827")));
+        et.setBackground(null);
+        et.setPadding(dp(10), dp(12), dp(4), dp(12));
+        et.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        pill.addView(et);
+        out[0] = et;
+        return pill;
+    }
+
+    /** Full-width gradient button with a white icon, the same shape language as the action cards. */
+    private View createGradientButton(int iconType, String text, int from, int to, View.OnClickListener onClick) {
+        LinearLayout b = new LinearLayout(this);
+        b.setOrientation(LinearLayout.HORIZONTAL);
+        b.setGravity(Gravity.CENTER);
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{from, to});
+        bg.setCornerRadius(dp(22));
+        b.setBackground(bg);
+        b.setPadding(dp(16), dp(12), dp(16), dp(12));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(10);
+        b.setLayoutParams(lp);
+        ModernIconView ic = new ModernIconView(this, iconType, Color.WHITE, Color.TRANSPARENT);
+        ic.setStyle(0.9f, 2.0f);
+        LinearLayout.LayoutParams lpi = new LinearLayout.LayoutParams(dp(22), dp(22));
+        lpi.setMarginEnd(dp(8));
+        ic.setLayoutParams(lpi);
+        b.addView(ic);
+        TextView t = new TextView(this);
+        t.setText(text);
+        t.setTextColor(Color.WHITE);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
+        b.addView(t);
+        b.setOnClickListener(onClick);
+        return b;
     }
 
     private LinearLayout createGroupedWhiteCard() {
@@ -1617,8 +1678,8 @@ public class MainActivity extends Activity {
         ohHeader.setPadding(0, 0, 0, dp(8));
         oneHandCard.addView(ohHeader);
         oneHandCard.addView(createExclusiveRadioList(
-                tr(new String[]{"معطّل (عرض كامل)", "مصغّر جهة اليسار", "مصغّر جهة اليمين"},
-                        new String[]{"Off (full width)", "Compact, left side", "Compact, right side"}),
+                tr(new String[]{"معطّل (عرض كامل)", "جهة اليسار", "جهة اليمين"},
+                        new String[]{"Off (full width)", "Left side", "Right side"}),
                 prefs.getOneHandedMode(),
                 idx -> prefs.setOneHandedMode(idx)));
         root.addView(oneHandCard);
@@ -1696,16 +1757,19 @@ public class MainActivity extends Activity {
         themeCard.addView(tHeader);
 
         String[] themeNames = tr(
-                new String[]{"أسود مطفي", "أبيض ساطع", "كحلي داكن", "أخضر غابة", "تلقائي (النظام)"},
-                new String[]{"Matte black", "Clean white", "Midnight slate", "Forest green", "Auto (system)"});
+                new String[]{"أسود مطفي", "أبيض ساطع", "كحلي داكن", "أخضر غابة", "تلقائي"},
+                new String[]{"Matte black", "Clean white", "Midnight slate", "Forest green", "Auto"});
         String[] themeSwatches = new String[]{"#1C1C1E", "#FFFFFF", "#1E2A47", "#1B3126", "#FFFFFF"};
         List<View> themeTiles = new ArrayList<>();
-        for (int i = 0; i < themeNames.length; i++) {
+        // Auto first (leftmost), then the fixed themes in their usual order.
+        int[] themeOrder = {KeyboardPreferences.THEME_AUTO, 0, 1, 2, 3};
+        for (int oi = 0; oi < themeOrder.length; oi++) {
+            final int i = themeOrder[oi];
             final int idx = i;
             themeTiles.add(createPreviewTile(themeNames[i], themeSwatches[i], prefs.getRawThemeMode() == i,
                     v -> { prefs.setThemeMode(idx); refreshThemeScreen(root); }, i == KeyboardPreferences.THEME_AUTO));
         }
-        addTileGrid(themeCard, themeTiles, 2);
+        addTileGrid(themeCard, themeTiles, 5);
         root.addView(themeCard);
 
         LinearLayout styleCard = createGroupedWhiteCard();
@@ -2184,39 +2248,29 @@ public class MainActivity extends Activity {
         LinearLayout trainCard = createGroupedWhiteCard();
         trainCard.setPadding(dp(16), dp(16), dp(16), dp(16));
 
-        final EditText trainBox = new EditText(this);
-        trainBox.setHint(tr("أدخل جملة هنا لتدريب الكيبورد عليها فوراً...", "Type a sentence here to train the keyboard instantly..."));
-        trainBox.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
-        trainBox.setTextColor(Color.parseColor(dm("#111827")));
-        trainBox.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 12));
-        trainBox.setPadding(dp(12), dp(10), dp(12), dp(10));
-        trainCard.addView(trainBox);
+        final int indigoA = Color.parseColor("#6366F1"), indigoB = Color.parseColor("#4338CA");
+        EditText[] trainOut = new EditText[1];
+        trainCard.addView(createFieldPill(ModernIconView.ICON_SPARKLE,
+                tr("أدخل جملة هنا لتدريب الكيبورد عليها فوراً...", "Type a sentence here to train the keyboard instantly..."),
+                indigoA, trainOut));
+        final EditText trainBox = trainOut[0];
 
-        Button btnTrain = new Button(this);
-        btnTrain.setText(tr("حفظ وتدريب التوقعات على هذه الجملة", "Save & train predictions on this sentence"));
-        styleModernButton(btnTrain, dm("#2563EB"));
-        LinearLayout.LayoutParams lpTr = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
-        lpTr.topMargin = dp(8);
-        btnTrain.setLayoutParams(lpTr);
-        btnTrain.setOnClickListener(v -> {
+        trainCard.addView(createGradientButton(ModernIconView.ICON_SPARKLE,
+                tr("حفظ وتدريب التوقعات على هذه الجملة", "Save & train predictions on this sentence"),
+                indigoA, indigoB, v -> {
             String s = trainBox.getText().toString().trim();
             if (!s.isEmpty()) {
                 predictionEngine.learnFullSentence(s);
                 trainBox.setText("");
                 Toast.makeText(MainActivity.this, tr("تم حفظ الكلمات وتوقعات الكلمة التالية!", "Words and next-word predictions saved!"), Toast.LENGTH_SHORT).show();
             }
-        });
-        trainCard.addView(btnTrain);
+        }));
 
         final TextView[] learnedCountSubtitleHolder = new TextView[1];
 
-        Button btnClear = new Button(this);
-        btnClear.setText(tr("مسح جميع الكلمات المتعلمة", "Clear all learned words"));
-        styleModernButton(btnClear, dm("#DC2626"));
-        LinearLayout.LayoutParams lpCl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(40));
-        lpCl.topMargin = dp(8);
-        btnClear.setLayoutParams(lpCl);
-        btnClear.setOnClickListener(v -> {
+        trainCard.addView(createGradientButton(ModernIconView.ICON_TRASH,
+                tr("مسح جميع الكلمات المتعلمة", "Clear all learned words"),
+                Color.parseColor("#EF4444"), Color.parseColor("#B91C1C"), v -> {
             predictionEngine.clearAllLearnedData();
             prefs.clearAutoCorrectExceptions();
             if (learnedCountSubtitleHolder[0] != null) {
@@ -2225,12 +2279,11 @@ public class MainActivity extends Activity {
             Toast.makeText(MainActivity.this,
                     tr("تم مسح جميع الكلمات المتعلمة", "All learned words were cleared"),
                     Toast.LENGTH_SHORT).show();
-        });
-        trainCard.addView(btnClear);
+        }));
 
         root.addView(trainCard);
         root.addView(createMenuRow(
-                ModernIconView.ICON_SLIDERS_PREFS,
+                ModernIconView.ICON_DICTIONARY_BOOK,
                 tr("الكلمات المتعلمة", "Learned words"),
                 learnedWordsCountSubtitle(),
                 false,
@@ -3253,36 +3306,25 @@ public class MainActivity extends Activity {
         LinearLayout card = createGroupedWhiteCard();
         card.setPadding(dp(16), dp(16), dp(16), dp(16));
 
-        final EditText shortInput = new EditText(this);
-        shortInput.setHint(tr("الاختصار (مثال: سع)", "Shortcut (e.g. omw)"));
-        shortInput.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
-        shortInput.setTextColor(Color.parseColor(dm("#111827")));
-        shortInput.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 10));
-        shortInput.setPadding(dp(12), dp(10), dp(12), dp(10));
-        card.addView(shortInput);
-
-        final EditText phraseInput = new EditText(this);
-        phraseInput.setHint(tr("العبارة الكاملة (مثال: السلام عليكم ورحمة الله وبركاته)", "Full phrase (e.g. on my way)"));
-        phraseInput.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
-        phraseInput.setTextColor(Color.parseColor(dm("#111827")));
-        phraseInput.setBackground(borderedBox(dm("#F9FAFB"), dm("#D1D5DB"), 10));
-        phraseInput.setPadding(dp(12), dp(10), dp(12), dp(10));
+        final int tealA = Color.parseColor("#14B8A6"), tealB = Color.parseColor("#0F766E");
+        EditText[] o1 = new EditText[1], o2 = new EditText[1];
+        card.addView(createFieldPill(ModernIconView.ICON_BOLT,
+                tr("الاختصار (مثال: سع)", "Shortcut (e.g. omw)"), tealA, o1));
+        final EditText shortInput = o1[0];
+        LinearLayout phrasePill = createFieldPill(ModernIconView.ICON_MESSAGE_TEXT,
+                tr("العبارة الكاملة (مثال: السلام عليكم ورحمة الله وبركاته)", "Full phrase (e.g. on my way)"), tealA, o2);
         LinearLayout.LayoutParams lpPh = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lpPh.topMargin = dp(8);
-        phraseInput.setLayoutParams(lpPh);
-        card.addView(phraseInput);
+        phrasePill.setLayoutParams(lpPh);
+        card.addView(phrasePill);
+        final EditText phraseInput = o2[0];
 
         final LinearLayout scListMount = new LinearLayout(this);
         scListMount.setOrientation(LinearLayout.VERTICAL);
         scListMount.setPadding(0, dp(12), 0, 0);
 
-        Button btnSaveSc = new Button(this);
-        btnSaveSc.setText(tr("+ حفظ الاختصار", "+ Save shortcut"));
-        styleModernButton(btnSaveSc, dm("#059669"));
-        LinearLayout.LayoutParams lpBtn = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
-        lpBtn.topMargin = dp(8);
-        btnSaveSc.setLayoutParams(lpBtn);
-        btnSaveSc.setOnClickListener(v -> {
+        card.addView(createGradientButton(ModernIconView.ICON_BOLT,
+                tr("حفظ الاختصار", "Save shortcut"), tealA, tealB, v -> {
             String k = shortInput.getText().toString().trim();
             String val = phraseInput.getText().toString().trim();
             if (!k.isEmpty() && !val.isEmpty()) {
@@ -3291,8 +3333,7 @@ public class MainActivity extends Activity {
                 phraseInput.setText("");
                 populateShortcutsList(scListMount);
             }
-        });
-        card.addView(btnSaveSc);
+        }));
         populateShortcutsList(scListMount);
         card.addView(scListMount);
         root.addView(card);

@@ -1,0 +1,257 @@
+<p align="center"><a href="README.md">English</a> | <a href="README.ar.md">العربية</a> | <b>Español</b></p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/banner-light.png?v=2">
+    <img src="docs/images/banner.png?v=2" alt="bkey — un teclado Android al estilo BlackBerry: desliza hacia arriba para aceptar una sugerencia y hacia los lados para borrar" width="100%">
+  </picture>
+</p>
+
+# bkey ⌨️
+
+**Un teclado Android basado en los gestos de BlackBerry Keyboard - Classic: desliza hacia arriba para elegir una sugerencia y hacia los lados para borrar (la dirección es configurable).**
+
+![Build](https://github.com/snooptiger9/bkey-keyboard/actions/workflows/build.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
+![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
+![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
+![Languages](https://img.shields.io/badge/Trilingual-AR%20%7C%20EN%20%7C%20ES-blue)
+![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
+![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
+
+Si te resulta útil, una ⭐ estrella significaría mucho.
+
+
+
+---
+
+
+**🔗 Enlaces rápidos:** [Funciones](#es-features) · [Privacidad y seguridad](#es-privacy) · [Descarga](#es-download) · [Compílalo tú mismo](BUILDING.md) · [Preguntas frecuentes](#es-faq) · [Comunidad y errores](#es-community) · [Apoyo](#es-support)
+
+### Descripción ✨
+
+**bkey** es un teclado Android (IME) basado en los gestos de deslizamiento de la app **BlackBerry
+Keyboard - Classic**, con más personalización y funciones extra: desliza hacia arriba sobre cualquier
+sugerencia para aceptarla al instante, y desliza hacia los lados sobre la fila de letras (dirección
+configurable) para borrar rápido en lugar de pulsar la tecla de retroceso una y otra vez. Es
+totalmente compatible con árabe, inglés y español, con una experiencia cuidada para cada idioma.
+
+<br>
+
+<a id="es-features"></a>
+
+### Funciones 🚀
+
+**✋ Gestos**
+- Desliza hacia arriba sobre cualquier sugerencia: la aceptas al instante.
+
+  ![Desliza hacia arriba para aceptar una sugerencia](docs/gifs/swipe_up_suggestion.gif?v=2)
+- Desliza hacia los lados sobre las teclas: borra la última palabra completa de una vez (la dirección se elige en los ajustes).
+
+  ![Desliza hacia los lados para borrar la última palabra](docs/gifs/swipe_delete_word.gif?v=2)
+- Desliza en la dirección exactamente opuesta: selecciona todo el texto escrito de una vez.
+
+  ![Desliza en la dirección opuesta para seleccionar todo](docs/gifs/swipe_select_all.gif?v=2)
+- Desliza hacia abajo sobre las teclas: tú eliges qué hace (Ajustes → Gestos de deslizamiento; las dos
+  opciones son excluyentes, activar una desactiva la otra):
+  - **Copiar / pegar:** copia el texto seleccionado, y el mismo gesto se convierte en pegar durante un
+    minuto.
+  - **Números y símbolos:** abre el diseño de símbolos del idioma en el que escribes; desliza hacia abajo
+    otra vez en los símbolos para volver a las letras. Funciona por separado en cada idioma.
+- Mantén pulsada la barra espaciadora y arrastra: mueve el cursor carácter a carácter.
+
+  ![Mantén pulsada y arrastra la barra espaciadora para mover el cursor](docs/gifs/cursor_move.gif?v=2)
+- Desliza la barra espaciadora a izquierda/derecha: cambia entre tus idiomas activados (árabe/inglés/español) sin un botón 🌐 aparte.
+- Mantén pulsada cualquier tecla: ventana con caracteres alternativos. En el teclado inglés, una letra minúscula da su mayúscula (al estilo BlackBerry), y la fila de números solo aparece mientras Shift o Bloq Mayús está activo. Los símbolos que ya están en la página de símbolos no se repiten, las letras con acento aparecen solo en el teclado español, y los símbolos exclusivos del árabe (﷼ ، ؛ ؟) aparecen solo cuando el árabe está activado.
+
+<br>
+
+**⌨️ Escritura inteligente y predicción**
+- Autocorrección silenciosa al pulsar espacio y predicción de la palabra siguiente (hasta 3 palabras).
+- Aprendizaje de palabras al escribir, más un entrenador manual que guarda una frase entera al instante.
+- **Cuanto más aprende, más deslizas:** a medida que el teclado aprende tus palabras, sus sugerencias son más precisas, así que casi todo lo que escribes se vuelve un deslizamiento hacia arriba sobre la sugerencia correcta en vez de teclear cada letra.
+- **Límites de aprendizaje:** guarda hasta 8.000 palabras aprendidas (se eliminan primero las menos usadas) y hasta 32 posibles palabras siguientes por cada palabra (se eliminan primero las más débiles).
+- **Estadísticas de escritura:** una página en los ajustes muestra cuántas palabras ha aprendido el teclado y cuántas elegiste deslizando hacia arriba (solo recuentos; no se guarda ningún texto).
+- **Pantalla de palabras aprendidas:** busca tus palabras, mira cuántas veces se usa cada una y sus sugerencias siguientes, y elimina las que quieras.
+- **Copia de seguridad y restauración:** guarda tus palabras aprendidas y atajos de texto en un archivo JSON y restáuralos en un teléfono nuevo. Restaurar solo añade; nunca borra lo que ya tienes.
+- **Sugerencias automáticas de emojis** según el contexto de la palabra o la frase que escribes.
+
+  ![Sugerencia automática de emojis](docs/gifs/emoji_suggest.gif?v=2)
+- Atajos de texto: escribe un atajo (p. ej. "omw") y se expande a la frase completa al pulsar espacio.
+- Doble toque en espacio para punto + espacio automático.
+- Mayúscula automática al inicio de cada frase (inglés/español).
+- Sugerencias automáticas de códigos de verificación (OTP) desde SMS o WhatsApp — todo se procesa en el dispositivo. *(solo bkey Plus)*
+
+<br>
+
+**📋 Portapapeles inteligente**
+- Un cajón de portapapeles completo: fijar, borrar y eliminar automáticamente los elementos antiguos
+  tras el tiempo que elijas (de 1 hora a 30 días, o nunca).
+- Guarda automáticamente la última captura de pantalla (una sola miniatura que reemplaza a la anterior). *(solo bkey Plus)*
+- El último texto copiado aparece en la ranura central de sugerencias para volver a pegarlo rápido.
+- Los números de teléfono copiados muestran un botón de llamada de un toque que abre el marcador con el número ya escrito (nunca llama por ti).
+
+<br>
+
+**😀 Emojis y GIF**
+- Panel completo de emojis y símbolos con una sección de "Usados recientemente" (bórrala entera o
+  mantén pulsado para quitar un solo emoji).
+- La pestaña GIF del panel de emojis funciona con KLIPY GIF: busca y previsualiza GIF animados, con un campo de búsqueda flotante que no tapa la cuadrícula. *(solo bkey Plus)*
+
+<br>
+
+**🎨 Personalización total**
+- 4 temas de color más **Auto** (mitad blanco, mitad negro): sigue el modo día/noche de Android, usando el tema blanco de día y Negro mate de noche.
+- 9 formas de tecla y varias fuentes (Sistema/Tajawal).
+- La barra de sugerencias usa la misma fuente que elijas para las teclas.
+- Control total del tamaño: tamaño de las letras, altura del teclado, altura de la barra de sugerencias y
+  tamaño del texto de las sugerencias.
+- Color de la tecla Enter; las cápsulas flotantes ABC/Borrar combinan con tu tema automáticamente.
+- Animación de rebote de teclas y animación de la palabra voladora al aceptar una sugerencia, cada una activable por separado.
+
+<br>
+
+**🔊 Sonido y vibración**
+- Varios tonos de escritura + tonos independientes para deslizar/borrar, cada uno con su propio volumen.
+- Vibración háptica opcional al pulsar y deslizar, con intensidad ajustable (5–50 ms, o la del sistema).
+
+<br>
+
+**⚙️ Más preferencias**
+- Una fila de números permanente sobre el teclado (más una fila dedicada en los campos de contraseña
+  aunque la general esté desactivada).
+- Dígitos indo-arábigos opcionales (١٢٣).
+- Modo de una mano (izquierda o derecha).
+- Dictado por voz (botón de micrófono opcional).
+- Ventana de vista previa sobre la tecla al tocarla.
+- **Privacidad ante todo**: el modo incógnito desactiva por completo el aprendizaje y el guardado del
+  portapapeles; las contraseñas y los enlaces nunca se aprenden, ni siquiera fuera del modo incógnito.
+  Las direcciones de correo solo se guardan cuando están bien escritas.
+
+<br>
+
+<a id="es-privacy"></a>
+
+### Privacidad y seguridad 🔒
+
+- **bkey** (la versión estándar) no tiene acceso a la red y no puede leer SMS, notificaciones, fotos ni almacenamiento: esos
+  permisos no están en la app. El dictado por voz sigue funcionando, gestionado por completo por el servicio de
+  reconocimiento de voz de tu dispositivo: primero intenta el reconocimiento en el propio dispositivo (sin conexión) y solo
+  necesita internet como alternativa si tu dispositivo no lo admite.
+
+- **bkey Plus** añade búsqueda de GIF, pegado de imágenes/stickers, sugerencias OTP y el actualizador integrado. Las sugerencias
+  OTP vienen desactivadas por defecto y solo leen una notificación de SMS/WhatsApp recién llegada, nunca
+  tu historial de mensajes; todo se procesa en el dispositivo y nunca se envía a ningún servidor.
+
+> ⚠️ **Sobre la advertencia de Play Protect en bkey Plus**
+>
+> bkey Plus tiene acceso a internet (para la búsqueda de GIF y el buscador de actualizaciones) y acceso a fotos
+> (para pegar imágenes y la sugerencia de captura al portapapeles), y eso hace que Google Play Protect lo marque
+> como "aplicación dañina", algo que confirmamos con nuestras propias pruebas. Hemos apelado el falso positivo ante
+> Google; hasta que se resuelva, es un comportamiento esperado para una app instalada manualmente con estos permisos,
+> no malware. ¿Prefieres no verla? Instala la versión estándar de bkey.
+
+<details>
+<summary><b>Pasos para pausar el análisis de Play Protect, si aun así quieres instalar bkey Plus (toca para ver)</b></summary>
+
+<br>
+
+1. Abre la app **Google Play Store**.
+2. Toca tu foto de perfil, arriba a la derecha.
+3. Toca **Play Protect**.
+4. Toca el icono de ajustes ⚙️, arriba a la derecha.
+5. Desactiva **Analizar apps con Play Protect**; te preguntará "¿Pausar el análisis de apps?", elige **Pausar**.
+6. Instala el APK de bkey Plus.
+7. La pausa se reactiva sola tras un día, pero es mejor que la reactives tú mismo justo después de instalar (se recomienda mantenerlo activado para tus otras apps).
+
+</details>
+
+<br>
+
+<a id="es-download"></a>
+
+### Descarga 📥
+
+Dos versiones: elige la que mejor te venga:
+
+| | 🟢 bkey (recomendada) | 🔵 bkey Plus |
+|---|:---:|:---:|
+| Se instala sin advertencia de Play Protect | ✅ | ⚠️ ver nota abajo |
+| Búsqueda de GIF y pegado de imágenes/stickers | — | ✅ |
+| Buscador de actualizaciones integrado | — | ✅ |
+| Sugerencias de códigos de verificación (OTP) | — | ✅ (opcional, desactivado por defecto) |
+| Captura de pantalla al portapapeles | — | ✅ |
+| Sugerencia del texto copiado | ✅ | ✅ |
+
+<p>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v303.apk"><img src="https://img.shields.io/badge/Descargar_bkey_(.apk)-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Descargar bkey" width="300" height="50"></a>
+&nbsp;
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v303.apk"><img src="https://img.shields.io/badge/Descargar_bkey_Plus_(.apk)-3B82F6?style=for-the-badge&logo=github&logoColor=white" alt="Descargar bkey Plus" width="300" height="50"></a>
+</p>
+
+**bkey** solo pide lo estrictamente necesario para escribir (sin internet, sin fotos/almacenamiento, sin SMS); nada de lo anterior funciona aquí salvo la sugerencia del texto copiado, ya que el resto necesita internet o acceso a fotos.
+
+**bkey Plus** lo tiene todo, pero al instalarlo aparece una advertencia de Google Play Protect (esperada, no es un problema real; mira [Privacidad y seguridad](#es-privacy) para saber por qué).
+
+> [!CAUTION]
+> - **Actualizar bkey:** solo desde esta página.
+> - **Actualizar bkey Plus:** desde esta página o desde dentro de la app (Ajustes → **Actualizar la app**); en ambos casos se queda en bkey Plus, nunca pasa a la versión estándar de bkey.
+
+### [Compílalo tú mismo](BUILDING.md) 🔧
+
+<br>
+
+<a id="es-faq"></a>
+
+### Preguntas frecuentes ❓
+
+<details>
+<summary><b>¿El teclado envía a internet lo que escribo?</b></summary>
+<br>
+
+No, nunca: todo el aprendizaje, la corrección y la predicción ocurren localmente en tu dispositivo. Consulta [Privacidad y seguridad](#es-privacy) para ver exactamente a qué puede acceder cada versión, bkey y bkey Plus.
+
+</details>
+<details>
+<summary><b>¿Por qué Google Play Protect me avisa al instalar bkey Plus?</b></summary>
+<br>
+
+El acceso a internet y a fotos juntos lo activa en cualquier app instalada manualmente: es esperado, no es malware. Consulta [Privacidad y seguridad](#es-privacy) para saber por qué o para pausar el análisis.
+
+</details>
+<details>
+<summary><b>¿Dónde se guardan mis palabras aprendidas y cómo las borro?</b></summary>
+<br>
+
+Se guardan solo en tu dispositivo. En los ajustes de la app, en la sección de entrenamiento de predicciones, el botón **"Clear all learned words"** (Borrar todas las palabras aprendidas) las elimina al instante.
+
+</details>
+<details>
+<summary><b>¿Gasta mucha batería o memoria?</b></summary>
+<br>
+
+No: es ligero y funciona por completo en el dispositivo, sin procesamiento en la nube en segundo plano.
+
+</details>
+
+<br>
+
+<a id="es-community"></a>
+
+### Comunidad y errores 🤝
+
+Ajustes → **Error log** → **"📧 Email developer"** envía los detalles del fallo directamente a **lvl60me@gmail.com**: la misma dirección sirve para sugerencias o comentarios, y es la única forma de contactar con el desarrollador.
+
+<br>
+
+<a id="es-support"></a>
+
+### Apoyo 📩
+
+Si te gusta el proyecto y quieres apoyarlo, puedes invitarme a un café en Ko-fi:
+
+[![Apóyame en Ko-fi](https://img.shields.io/badge/Ko--fi-Apoya_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
+
+---
+
+<p align="center">Hecho con ❤️ — bkey</p>

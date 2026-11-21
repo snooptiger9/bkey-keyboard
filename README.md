@@ -1,4 +1,4 @@
-<p align="center"><b>English</b> | <a href="README.ar.md">العربية</a></p>
+<p align="center"><b>English</b> | <a href="README.ar.md">العربية</a> | <a href="README.es.md">Español</a></p>
 
 <p align="center">
   <picture>
@@ -62,7 +62,7 @@ tailored experience for each.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
 - Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish) without a separate 🌐 button.
-- Long-press any key: popup with alternate characters (diacritics, accented letters...).
+- Long-press any key: popup with alternate characters. On the English keyboard a lowercase letter gives its capital (BlackBerry-style), and the number row shows only while Shift or Caps Lock is on. Symbols already on the symbols page are not repeated, accented letters appear only on the Spanish keyboard, and Arabic-only symbols (﷼ ، ؛ ؟) appear only when Arabic is enabled.
 
 <br>
 
@@ -72,6 +72,7 @@ tailored experience for each.
 - **The more it learns, the more you swipe:** as the keyboard learns your words, its suggestions get more accurate, so most of what you write becomes a quick swipe up on the right suggestion instead of typing every letter.
 - **Learning limits:** it keeps up to 8,000 learned words (the least-used are dropped first) and up to 32 likely next words for each word (the weakest are dropped first).
 - **Typing stats:** a page in the settings shows how many words the keyboard has learned and how many you picked by swiping up (counts only; no text is stored).
+- **Learned words screen:** search your words, see how often each is used and its next-word suggestions, and delete any of them.
 - **Backup & restore:** save your learned words and word shortcuts to a JSON file and restore them on a new phone. Restoring only adds; it never deletes what you already have.
 - **Automatic emoji suggestions** based on the word or sentence context you're typing.
 
@@ -88,19 +89,20 @@ tailored experience for each.
   (from 1 hour to 30 days, or never).
 - Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(bkey Plus only)*
 - The last copied text shows right in the middle suggestion slot for a quick re-paste.
+- Copied phone numbers get a one-tap dial chip that opens the dialer with the number filled in (it never places the call for you).
 
 <br>
 
 **😀 Emoji & GIF**
 - Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
   remove a single emoji).
-- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs. *(bkey Plus only)*
+- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs, with a floating search pill that keeps the grid uncovered. *(bkey Plus only)*
 
 <br>
 
 **🎨 Full customization**
-- 4 color themes, 9 key shapes, multiple fonts (System/Tajawal).
-- **Auto (light/dark):** optionally switch automatically with Android's day/night mode.
+- 4 color themes plus **Auto** (half white, half black): it follows Android's day/night mode, using the white theme in light mode and Matte black in dark mode.
+- 9 key shapes and multiple fonts (System/Tajawal).
 - The suggestion bar uses the same font you pick for the keys.
 - Full size control: key letter size, keyboard height, suggestion bar height, and suggestion
   text size.
@@ -119,7 +121,7 @@ tailored experience for each.
 - A persistent number row above the keyboard (plus a dedicated row shown in password fields even
   when the general one is off).
 - Optional Arabic-Indic digits (١٢٣).
-- One-handed mode (compact, left or right).
+- One-handed mode (left or right).
 - Voice typing (optional mic button).
 - Key-preview popup above the key on touch.
 - **Privacy-first**: Incognito mode disables learning and clipboard saving entirely; passwords
