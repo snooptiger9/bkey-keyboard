@@ -177,9 +177,9 @@
 | कॉपी किए टेक्स्ट का सुझाव | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v305.apk"><img src="docs/images/badges/dl_bkey_en.png" alt="bkey (APK) डाउनलोड करें" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v306.apk"><img src="docs/images/badges/dl_bkey_en.png" alt="bkey (APK) डाउनलोड करें" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v305.apk"><img src="docs/images/badges/dl_plus_en.png" alt="bkey Plus (APK) डाउनलोड करें" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v306.apk"><img src="docs/images/badges/dl_plus_en.png" alt="bkey Plus (APK) डाउनलोड करें" width="300"></a>
 </p>
 
 **bkey** केवल वही अनुमतियाँ माँगता है जो टाइपिंग के लिए ज़रूरी हैं (इंटरनेट नहीं, फ़ोटो/स्टोरेज नहीं, SMS नहीं); ऊपर की कोई भी सुविधा यहाँ काम नहीं करती सिवाय कॉपी किए टेक्स्ट के सुझाव के, क्योंकि बाक़ी के लिए इंटरनेट या फ़ोटो एक्सेस चाहिए।
