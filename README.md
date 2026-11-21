@@ -70,7 +70,7 @@ tailored experience for each.
 - Silent auto-correct on space, and next-word prediction (up to 3 words).
 - On-the-fly word learning as you type, plus a manual trainer that saves a whole sentence instantly.
 - **The more it learns, the more you swipe:** as the keyboard learns your words, its suggestions get more accurate, so most of what you write becomes a quick swipe up on the right suggestion instead of typing every letter.
-- **Learning limits:** it keeps up to 8,000 learned words (the least-used are dropped first) and up to 32 likely next words for each word (the weakest are dropped first).
+- **Learning limits:** it keeps up to 10,000 learned words (the least-used are dropped first) and up to 32 likely next words for each word (the weakest are dropped first).
 - **Typing stats:** a page in the settings shows how many words the keyboard has learned, how many you picked by swiping up, your share of swiped words, taps saved, words deleted with one swipe, and your split between languages (counts only; no text is stored).
 - **Learned words screen:** search your words, see how often each is used and its next-word suggestions, and delete any of them.
 - **Backup & restore:** save your learned words and word shortcuts to a JSON file and restore them on a new phone. Restoring only adds; it never deletes what you already have.

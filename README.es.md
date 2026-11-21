@@ -70,7 +70,7 @@ totalmente compatible con árabe, inglés y español, con una experiencia cuidad
 - Autocorrección silenciosa al pulsar espacio y predicción de la palabra siguiente (hasta 3 palabras).
 - Aprendizaje de palabras al escribir, más un entrenador manual que guarda una frase entera al instante.
 - **Cuanto más aprende, más deslizas:** a medida que el teclado aprende tus palabras, sus sugerencias son más precisas, así que casi todo lo que escribes se vuelve un deslizamiento hacia arriba sobre la sugerencia correcta en vez de teclear cada letra.
-- **Límites de aprendizaje:** guarda hasta 8.000 palabras aprendidas (se eliminan primero las menos usadas) y hasta 32 posibles palabras siguientes por cada palabra (se eliminan primero las más débiles).
+- **Límites de aprendizaje:** guarda hasta 10.000 palabras aprendidas (se eliminan primero las menos usadas) y hasta 32 posibles palabras siguientes por cada palabra (se eliminan primero las más débiles).
 - **Estadísticas de escritura:** una página en los ajustes muestra cuántas palabras ha aprendido el teclado, cuántas elegiste deslizando hacia arriba, tu proporción de palabras deslizadas, las pulsaciones ahorradas, las palabras borradas con un solo deslizamiento y tu reparto entre idiomas (solo recuentos; no se guarda ningún texto).
 - **Pantalla de palabras aprendidas:** busca tus palabras, mira cuántas veces se usa cada una y sus sugerencias siguientes, y elimina las que quieras.
 - **Copia de seguridad y restauración:** guarda tus palabras aprendidas y atajos de texto en un archivo JSON y restáuralos en un teléfono nuevo. Restaurar solo añade; nunca borra lo que ya tienes.

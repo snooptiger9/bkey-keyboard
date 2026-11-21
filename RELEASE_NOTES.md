@@ -1,10 +1,10 @@
-<!-- versionCode: 304 -->
-### Release v304.0
+<!-- versionCode: 305 -->
+### Release v305.0
 
-- **Smarter auto-correct:** Added about 390 certain misspellings across English, Spanish and Arabic, and fixed 30 existing English entries that never fired because the dictionary already contained them.
-- **Richer typing stats:** New cards for your share of words typed by swiping, taps saved, words deleted with one swipe, and your split between languages.
-- **Themes in one row:** All color themes now sit in a single row, with Auto as the first choice.
-- **Refreshed setup and training screens:** New icons and gradient cards for enabling and switching the keyboard, rounded input fields with icons for shortcuts and sentence training, and matching buttons for saving and clearing learned words.
-- **Arabic-only symbols stay out of the way:** The riyal sign, Arabic question mark, comma and semicolon appear on the symbols page and in long-press menus only when Arabic is enabled.
-- **One-handed mode labels:** Simplified to "Left side" and "Right side".
-- **Spanish README:** Added a full Spanish page, and brought all three READMEs in line with the latest features.
+- **Colorful settings icons:** Every row in Settings now has its own accent color on a soft tinted tile, with thinner icon lines, a new palette icon for Theme and a new hand icon for Swipe gestures. The field and button icons on the shortcut and training screens are thinner too.
+- **Smaller key letters:** Key letter size can now go down to 50%.
+- **New size defaults:** Letters 100%, keyboard height 100%, suggestion bar 100% and suggestion text +2. The Default and Reset buttons use them.
+- **More learned words:** The keyboard now keeps up to 10,000 learned words, up to 8,000 before.
+- **Cleaner clipboard:** With a screenshot preview, the clipboard uses two independent columns, so a tall screenshot no longer leaves an empty gap beside it.
+- **Sharper app icon:** Re-rendered launcher and store icons, plus a themed monochrome icon for Android 13 and later.
+- **Safer updates:** In-app updates download only from the GitHub Release, and APK files are no longer stored in the repository.

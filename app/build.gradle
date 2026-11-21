@@ -27,8 +27,8 @@ android {
         minSdk 24
         targetSdk 34
 
-        versionCode 304
-        versionName "304.0"
+        versionCode 305
+        versionName "305.0"
 
         buildConfigField "String", "KLIPY_API_KEY", "\"${klipyProps.getProperty('KLIPY_API_KEY', '')}\""
     }
