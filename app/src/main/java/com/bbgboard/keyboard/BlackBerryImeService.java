@@ -1352,8 +1352,29 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateOneHandedSwitchButton();
     }
 
+    /** Keeps the two side buttons readable on any theme: dark icon on light shells, white on dark. */
+    private void styleOneHandedButtons() {
+        int shell = shellC();
+        double lum = (0.299 * Color.red(shell) + 0.587 * Color.green(shell) + 0.114 * Color.blue(shell)) / 255.0;
+        int ink = lum > 0.55 ? Color.parseColor("#374151") : Color.WHITE;
+        int fill = (ink & 0x00FFFFFF) | 0x26000000;
+        int ring = (ink & 0x00FFFFFF) | 0x80000000;
+        FrameLayout[] btns = {oneHandedSwitchBtn, oneHandedRestoreBtn};
+        for (FrameLayout b : btns) {
+            if (b == null) continue;
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.OVAL);
+            bg.setColor(fill);
+            bg.setStroke(dp(1), ring);
+            b.setBackground(bg);
+            View icon = b.getChildAt(0);
+            if (icon instanceof ModernIconView) ((ModernIconView) icon).setColors(ink, Color.TRANSPARENT);
+        }
+    }
+
     private void updateOneHandedSwitchButton() {
         if (oneHandedSwitchBtn == null) return;
+        styleOneHandedButtons();
         int mode = keyboardPrefs.getOneHandedMode();
         boolean keyboardShown = keyboardView != null && keyboardView.getVisibility() == View.VISIBLE;
         if (mode == 0 || !keyboardShown) {
