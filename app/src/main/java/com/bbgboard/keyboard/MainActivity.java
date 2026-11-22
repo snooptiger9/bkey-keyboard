@@ -624,7 +624,7 @@ public class MainActivity extends Activity {
         ));
         group3.addView(createMenuRow(
                 ModernIconView.ICON_BOLT,
-                tr("القاموس واختصارات الكلمات", "Dictionary & shortcuts"),
+                tr("اختصارات الكلمات", "Text shortcuts"),
                 null,
                 false,
                 this::openShortcutsScreen
@@ -3560,7 +3560,7 @@ public class MainActivity extends Activity {
     }
 
     private void openShortcutsScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("القاموس واختصارات الكلمات", "Dictionary & Text Shortcuts"));
+        LinearLayout root = createSubScreenTemplate(tr("اختصارات الكلمات", "Text shortcuts"));
 
         root.addView(createSwitchTile(
                 tr("توسيع الاختصار تلقائياً فور ضغط المسافة", "Auto-expand shortcut on space"),
