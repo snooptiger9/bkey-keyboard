@@ -461,10 +461,12 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         TextView pageTitle = new TextView(this);
-        pageTitle.setText(tr("إعدادات bkey", "bkey settings"));
-        pageTitle.setTextColor(Color.parseColor(dm("#1F2937")));
-        pageTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f);
-        pageTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        pageTitle.setText(BuildConfig.OTP_FEATURES_ENABLED
+                ? tr("إعدادات bkey Plus", "bkey Plus settings")
+                : tr("إعدادات bkey", "bkey settings"));
+        pageTitle.setTextColor(Color.parseColor(dm("#111827")));
+        pageTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        pageTitle.setTypeface(Typeface.DEFAULT_BOLD);
         pageTitle.setPadding(dp(6), dp(6), dp(6), dp(16));
         pageTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         titleRowTop.addView(pageTitle);
