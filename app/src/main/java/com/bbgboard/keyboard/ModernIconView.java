@@ -53,6 +53,8 @@ public class ModernIconView extends View {
     public static final int ICON_HAND_SWIPE = 41;
     public static final int ICON_ONE_HAND = 42;
     public static final int ICON_EXPAND_CORNERS = 43;
+    public static final int ICON_SHARE = 44;
+    public static final int ICON_INFO = 45;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -615,6 +617,23 @@ public class ModernIconView extends View {
                 ah.lineTo(cx - r * 0.02f, cy);
                 ah.lineTo(cx - r * 0.30f, cy + r * 0.30f);
                 canvas.drawPath(ah, strokePaint);
+                break;
+            }
+            case ICON_SHARE: {
+                float ax = cx + r * 0.62f, ay = cy - r * 0.62f;
+                float bx = cx - r * 0.62f, by = cy;
+                float dx = cx + r * 0.62f, dy = cy + r * 0.62f;
+                canvas.drawLine(bx, by, ax, ay, strokePaint);
+                canvas.drawLine(bx, by, dx, dy, strokePaint);
+                canvas.drawCircle(ax, ay, r * 0.26f, fillPaint);
+                canvas.drawCircle(bx, by, r * 0.26f, fillPaint);
+                canvas.drawCircle(dx, dy, r * 0.26f, fillPaint);
+                break;
+            }
+            case ICON_INFO: {
+                canvas.drawCircle(cx, cy, r * 0.95f, strokePaint);
+                canvas.drawCircle(cx, cy - r * 0.45f, r * 0.12f, fillPaint);
+                canvas.drawLine(cx, cy - r * 0.10f, cx, cy + r * 0.50f, strokePaint);
                 break;
             }
             case ICON_EXPAND_CORNERS: {

@@ -648,37 +648,13 @@ public class MainActivity extends Activity {
         root.addView(groupStats);
 
         LinearLayout group4 = createGroupedWhiteCard();
-        if (BuildConfig.OTP_FEATURES_ENABLED) {
-            // The in-app updater needs INTERNET, which the bkey (lite) build
-            // intentionally doesn't request -- so this row would just be a
-            // button that can never work there. Shown in Plus (full) only;
-            // bkey is updated manually from GitHub.
-            group4.addView(createMenuRow(
-                    ModernIconView.ICON_REFRESH_UPDATE,
-                    tr("تحديث التطبيق", "Update the app"),
-                    tr("الإصدار " + BuildConfig.VERSION_NAME + " • نسخة bkey Plus"
-                                    + "\nاضغط لتنزيل أي تحديث جديد",
-                            "Version " + BuildConfig.VERSION_NAME + " • bkey Plus build"
-                                    + "\ntap to download the latest update"),
-                    true,
-                    this::checkForAppUpdate
-            ));
-        }
         group4.addView(createMenuRow(
-                ModernIconView.ICON_BACKUP,
-                tr("النسخ الاحتياطي والاستعادة", "Backup & restore"),
-                tr("احفظ كلماتك واختصاراتك في ملف واستعدها في أي جهاز",
-                        "Save your words and shortcuts to a file and restore them on any device"),
-                true,
-                this::openBackupScreen
-        ));
-        group4.addView(createMenuRow(
-                ModernIconView.ICON_SETTINGS_GEAR,
-                tr("سجل الأخطاء", "Error log"),
-                tr("لعرض أي خطأ صار بالتطبيق وإرساله مباشرة لإيميل المطوّر",
-                        "View any error the app ran into and send it straight to the developer's email"),
+                ModernIconView.ICON_INFO,
+                tr("حول التطبيق والصيانة", "About & maintenance"),
+                tr("الإصدار " + BuildConfig.VERSION_NAME.replace("-full", ""),
+                        "Version " + BuildConfig.VERSION_NAME.replace("-full", "")),
                 false,
-                this::openErrorLogScreen
+                this::openAboutScreen
         ));
         root.addView(group4);
 
@@ -854,6 +830,9 @@ public class MainActivity extends Activity {
             case ModernIconView.ICON_STATS: return Color.parseColor("#3B82F6");
             case ModernIconView.ICON_REFRESH_UPDATE: return Color.parseColor("#22C55E");
             case ModernIconView.ICON_BACKUP: return Color.parseColor("#0891B2");
+            case ModernIconView.ICON_SHARE: return Color.parseColor("#0EA5E9");
+            case ModernIconView.ICON_INFO: return Color.parseColor("#64748B");
+            case ModernIconView.ICON_SPARKLE: return Color.parseColor("#8B5CF6");
             case ModernIconView.ICON_SETTINGS_GEAR: return Color.parseColor("#EF4444");
             default: return Color.parseColor(dm("#5F6368"));
         }
@@ -1084,7 +1063,7 @@ public class MainActivity extends Activity {
     }
 
     private void openErrorLogScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("سجل الأخطاء", "Error log"));
+        LinearLayout root = createSubScreenTemplate(tr("سجل الأخطاء", "Error log"), this::openAboutScreen);
 
         String logText = AppLogger.readLog(this);
         boolean empty = logText == null || logText.trim().isEmpty();
@@ -3055,8 +3034,155 @@ public class MainActivity extends Activity {
         return card;
     }
 
+    private void openAboutScreen() {
+        LinearLayout root = createSubScreenTemplate(tr("حول التطبيق والصيانة", "About & maintenance"));
+        final String ver = BuildConfig.VERSION_NAME.replace("-full", "");
+
+        LinearLayout head = createGroupedWhiteCard();
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setPadding(dp(16), dp(14), dp(16), dp(14));
+        android.widget.ImageView appIcon = new android.widget.ImageView(this);
+        try { appIcon.setImageDrawable(getPackageManager().getApplicationIcon(getPackageName())); } catch (Exception ignored) {}
+        head.addView(appIcon, new LinearLayout.LayoutParams(dp(52), dp(52)));
+        LinearLayout hTexts = new LinearLayout(this);
+        hTexts.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lpHt = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lpHt.setMarginStart(dp(14));
+        hTexts.setLayoutParams(lpHt);
+        TextView hName = new TextView(this);
+        hName.setText(BuildConfig.OTP_FEATURES_ENABLED ? "bkey Plus" : "bkey");
+        hName.setTextColor(Color.parseColor(dm("#111827")));
+        hName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        hName.setTypeface(Typeface.DEFAULT_BOLD);
+        hTexts.addView(hName);
+        TextView hVer = new TextView(this);
+        hVer.setText(tr("الإصدار ", "Version ") + ver);
+        hVer.setTextColor(Color.parseColor(dm("#6B7280")));
+        hVer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        hVer.setPadding(0, dp(2), 0, 0);
+        hTexts.addView(hVer);
+        head.addView(hTexts);
+        root.addView(head);
+
+        LinearLayout appCard = createGroupedWhiteCard();
+        if (BuildConfig.OTP_FEATURES_ENABLED) {
+            // The in-app updater needs INTERNET, which the bkey (lite) build intentionally
+            // doesn't request, so this row is shown in Plus only.
+            appCard.addView(createMenuRow(
+                    ModernIconView.ICON_REFRESH_UPDATE,
+                    tr("تحديث التطبيق", "Update the app"),
+                    tr("اضغط لتنزيل أي تحديث جديد", "Tap to download the latest update"),
+                    true,
+                    this::checkForAppUpdate
+            ));
+        }
+        appCard.addView(createMenuRow(
+                ModernIconView.ICON_SPARKLE,
+                tr("ما الجديد في v", "What's new in v") + ver,
+                null,
+                true,
+                this::openWhatsNewScreen
+        ));
+        appCard.addView(createMenuRow(
+                ModernIconView.ICON_SHARE,
+                tr("مشاركة التطبيق", "Share the app"),
+                null,
+                false,
+                () -> {
+                    try {
+                        Intent send = new Intent(Intent.ACTION_SEND);
+                        send.setType("text/plain");
+                        send.putExtra(Intent.EXTRA_TEXT, "bkey keyboard\nhttps://github.com/snooptiger9/bkey-keyboard");
+                        startActivity(Intent.createChooser(send, tr("مشاركة التطبيق", "Share the app")));
+                    } catch (Exception e) {
+                        AppLogger.log("MainActivity", "openAboutScreen() share", e);
+                    }
+                }
+        ));
+        root.addView(appCard);
+
+        LinearLayout dataCard = createGroupedWhiteCard();
+        dataCard.addView(createMenuRow(
+                ModernIconView.ICON_BACKUP,
+                tr("النسخ الاحتياطي والاستعادة", "Backup & restore"),
+                tr("احفظ كلماتك واختصاراتك في ملف واستعدها في أي جهاز",
+                        "Save your words and shortcuts to a file and restore them on any device"),
+                true,
+                this::openBackupScreen
+        ));
+        dataCard.addView(createMenuRow(
+                ModernIconView.ICON_SETTINGS_GEAR,
+                tr("سجل الأخطاء", "Error log"),
+                tr("لعرض أي خطأ صار بالتطبيق وإرساله مباشرة لإيميل المطوّر",
+                        "View any error the app ran into and send it straight to the developer's email"),
+                false,
+                this::openErrorLogScreen
+        ));
+        root.addView(dataCard);
+    }
+
+    private void openWhatsNewScreen() {
+        LinearLayout root = createSubScreenTemplate(
+                tr("ما الجديد", "What's new"), this::openAboutScreen);
+        String notes = "";
+        try (java.io.InputStream in = getAssets().open("release_notes.md");
+             java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+            byte[] buf = new byte[2048];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            notes = out.toString("UTF-8");
+        } catch (Exception e) {
+            AppLogger.log("MainActivity", "openWhatsNewScreen() read", e);
+        }
+
+        LinearLayout card = createGroupedWhiteCard();
+        card.setPadding(dp(16), dp(14), dp(16), dp(10));
+        boolean any = false;
+        for (String line : notes.split("\n")) {
+            line = line.trim();
+            if (line.isEmpty() || line.startsWith("<!--")) continue;
+            TextView tv = new TextView(this);
+            tv.setTextColor(Color.parseColor(dm("#374151")));
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+            tv.setLineSpacing(dp(2), 1f);
+            if (line.startsWith("#")) {
+                tv.setText(line.replaceFirst("^#+\\s*", ""));
+                tv.setTextColor(Color.parseColor(dm("#111827")));
+                tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+                tv.setTypeface(Typeface.DEFAULT_BOLD);
+                tv.setPadding(0, 0, 0, dp(8));
+            } else {
+                String body = line.replaceFirst("^[-*]\\s*", "");
+                SpannableStringBuilder sb = new SpannableStringBuilder();
+                String[] parts = body.split("\\*\\*", -1);
+                for (int i = 0; i < parts.length; i++) {
+                    int st = sb.length();
+                    sb.append(parts[i]);
+                    if (i % 2 == 1) {
+                        sb.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), st, sb.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        sb.setSpan(new ForegroundColorSpan(Color.parseColor(dm("#111827"))), st, sb.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                }
+                tv.setText(sb);
+                tv.setPadding(0, 0, 0, dp(10));
+            }
+            card.addView(tv);
+            any = true;
+        }
+        if (!any) {
+            TextView empty = new TextView(this);
+            empty.setText(tr("لا توجد ملاحظات لهذا الإصدار", "No notes for this version"));
+            empty.setTextColor(Color.parseColor(dm("#6B7280")));
+            card.addView(empty);
+        }
+        root.addView(card);
+    }
+
     private void openBackupScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("النسخ الاحتياطي والاستعادة", "Backup & restore"));
+        LinearLayout root = createSubScreenTemplate(tr("النسخ الاحتياطي والاستعادة", "Backup & restore"), this::openAboutScreen);
 
         int learned = 0;
         try { learned = predictionEngine.getLearnedWordCount(); } catch (Exception ignored) {}

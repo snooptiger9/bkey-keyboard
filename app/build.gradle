@@ -83,6 +83,14 @@ android {
     }
 }
 
+// Bundles RELEASE_NOTES.md into the app so "What's new" works offline (no INTERNET needed).
+def copyNotes = tasks.register('copyReleaseNotes', Copy) {
+    from rootProject.file('RELEASE_NOTES.md')
+    rename { 'release_notes.md' }
+    into layout.buildDirectory.dir('generated/release_notes')
+}
+android.sourceSets.main.assets.srcDir(copyNotes)
+
 configurations.all {
     // بعض الاعتمادات تجر نسخة قديمة منفصلة من kotlin-stdlib-jdk7/jdk8 بينما
     // androidx.core الحديثة تحتوي نفس الدوال مدمجة داخل kotlin-stdlib نفسها،
