@@ -178,7 +178,7 @@ Want automatic updates? Add the build you use to [Obtainium](https://github.com/
 </p>
 
 > [!NOTE]
-> bkey Plus can also update from inside the app (Settings → **Update the app**).
+> bkey Plus can also update from inside the app (Settings → **About & maintenance** → **Update the app**).
 
 ### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -223,7 +223,7 @@ No — it's lightweight and runs fully on-device, with no background cloud proce
 
 ### Community & bug reports <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
-Settings → **Error log** → **"Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
+Settings → **About & maintenance** → **Error log** → **"Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
 
 <br>
 

@@ -178,7 +178,7 @@ Dos versiones: elige la que mejor te venga:
 </p>
 
 > [!NOTE]
-> bkey Plus también se actualiza desde dentro de la app (Ajustes → **Actualizar la app**).
+> bkey Plus también se actualiza desde dentro de la app (Ajustes → **Acerca de y mantenimiento** → **Actualizar la app**).
 
 ### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -223,7 +223,7 @@ No: es ligero y funciona por completo en el dispositivo, sin procesamiento en la
 
 ### Comunidad y errores <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
-Ajustes → **Error log** → **"Email developer"** envía los detalles del fallo directamente a **lvl60me@gmail.com**: la misma dirección sirve para sugerencias o comentarios, y es la única forma de contactar con el desarrollador.
+Ajustes → **Acerca de y mantenimiento** → **Error log** → **"Email developer"** envía los detalles del fallo directamente a **lvl60me@gmail.com**: la misma dirección sirve para sugerencias o comentarios, y es la única forma de contactar con el desarrollador.
 
 <br>
 
