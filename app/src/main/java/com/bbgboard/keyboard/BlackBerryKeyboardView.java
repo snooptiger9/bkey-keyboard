@@ -2837,7 +2837,13 @@ public class BlackBerryKeyboardView extends View {
             mainTextPaint.setColor(Color.parseColor("#3B82F6"));
         }
         float textY = rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
+        Paint.Style prevStyle = mainTextPaint.getStyle();
+        float prevStroke = mainTextPaint.getStrokeWidth();
+        mainTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        mainTextPaint.setStrokeWidth(1.3f * density);
         canvas.drawText("⬆", rect.centerX(), textY, mainTextPaint);
+        mainTextPaint.setStyle(prevStyle);
+        mainTextPaint.setStrokeWidth(prevStroke);
         mainTextPaint.setTypeface(prevTypeface);
         mainTextPaint.setFakeBoldText(false);
 

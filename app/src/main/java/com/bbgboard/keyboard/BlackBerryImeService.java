@@ -2552,7 +2552,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         clipCountTv = new TextView(this);
         clipCountTv.setTextColor(labelC());
         clipCountTv.setTypeface(Typeface.DEFAULT_BOLD);
-        clipCountTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        clipCountTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
         clipCountTv.setGravity(Gravity.LEFT);
         titleRow.addView(clipCountTv);
 
@@ -2566,8 +2566,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         settingsIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpSet.leftMargin = dp(7);
-        lpSet.rightMargin = dp(7);
+        lpSet.leftMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
+        lpSet.rightMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
         settingsIconBtn.setLayoutParams(lpSet);
         settingsIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2578,8 +2578,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         micIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpMic.leftMargin = dp(7);
-        lpMic.rightMargin = dp(7);
+        lpMic.leftMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
+        lpMic.rightMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
         micIconBtn.setLayoutParams(lpMic);
         micIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2595,8 +2595,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         resizeIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpRes.leftMargin = dp(7);
-        lpRes.rightMargin = dp(7);
+        lpRes.leftMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
+        lpRes.rightMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
         resizeIconBtn.setLayoutParams(lpRes);
         resizeIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2625,8 +2625,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         oneHandIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpOne = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpOne.leftMargin = dp(7);
-        lpOne.rightMargin = dp(7);
+        lpOne.leftMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
+        lpOne.rightMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
         oneHandIconBtn.setLayoutParams(lpOne);
         oneHandIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
