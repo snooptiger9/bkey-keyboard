@@ -3542,6 +3542,20 @@ public class MainActivity extends Activity {
                 checked -> prefs.setClipChipEnabled(checked)
         ));
 
+        root.addView(createSwitchTile(
+                tr("زر الاتصال للأرقام المنسوخة", "Call button for copied numbers"),
+                tr("يظهر بجانب الرقم في الحافظة، ويفتح تطبيق الاتصال والرقم مكتوب فيه دون أن يتصل", "Shows next to a number in the clipboard and opens the dialer with it filled in, without calling"),
+                prefs.isClipPhoneButtonEnabled(),
+                checked -> prefs.setClipPhoneButtonEnabled(checked)
+        ));
+
+        root.addView(createSwitchTile(
+                tr("زر البريد للإيميلات المنسوخة", "Mail button for copied emails"),
+                tr("يظهر بجانب البريد في الحافظة، ويفتح رسالة جديدة والبريد في خانة المستلم دون أن يرسل", "Shows next to an email in the clipboard and opens a new message with it in the To field, without sending"),
+                prefs.isClipMailButtonEnabled(),
+                checked -> prefs.setClipMailButtonEnabled(checked)
+        ));
+
         root.addView(createClipRetentionTile());
     }
 

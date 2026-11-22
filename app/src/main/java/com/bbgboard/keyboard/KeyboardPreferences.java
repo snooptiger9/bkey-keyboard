@@ -684,6 +684,22 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("clip_chip_enabled", enabled).apply();
     }
 
+    public boolean isClipPhoneButtonEnabled() {
+        return prefs.getBoolean("clip_phone_button", true);
+    }
+
+    public void setClipPhoneButtonEnabled(boolean enabled) {
+        prefs.edit().putBoolean("clip_phone_button", enabled).apply();
+    }
+
+    public boolean isClipMailButtonEnabled() {
+        return prefs.getBoolean("clip_mail_button", true);
+    }
+
+    public void setClipMailButtonEnabled(boolean enabled) {
+        prefs.edit().putBoolean("clip_mail_button", enabled).apply();
+    }
+
     public int getClipRetentionHours() {
         if (prefs.contains("clip_retention_hours")) return prefs.getInt("clip_retention_hours", 168);
         if (prefs.contains("clip_retention_days")) return prefs.getInt("clip_retention_days", 7) * 24;
