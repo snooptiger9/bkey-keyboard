@@ -2796,7 +2796,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
         textTv.setPadding(dp(10), dp(10), dp(10), dp(10));
         final String phone = phoneNumberOrNull(clip.text);
-        textTv.setLayoutParams(phone == null
+        final String email = phone == null ? emailOrNull(clip.text) : null;
+        textTv.setLayoutParams(phone == null && email == null
                 ? new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 : new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         textTv.setOnClickListener(v -> {
@@ -2847,7 +2848,38 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             });
             row.addView(callBtn);
         }
+        if (email != null) {
+            // Email addresses only: opens a new message with just the address in "To".
+            // ACTION_SENDTO with a mailto: URI sends nothing by itself; the user writes and sends.
+            TextView mailBtn = new TextView(this);
+            mailBtn.setText("✉️");
+            mailBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+            mailBtn.setGravity(Gravity.CENTER);
+            mailBtn.setBackground(roundedBg(pressedC(), 12));
+            LinearLayout.LayoutParams lpMail = new LinearLayout.LayoutParams(dp(40), dp(36));
+            lpMail.setMargins(dp(4), 0, dp(6), 0);
+            mailBtn.setLayoutParams(lpMail);
+            mailBtn.setOnClickListener(v -> {
+                soundController.playKeyClick();
+                try {
+                    Intent mail = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + Uri.encode(email, "@")));
+                    mail.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(mail);
+                } catch (Exception e) {
+                    AppLogger.log("BlackBerryImeService", "buildClipCard() mail", e);
+                }
+            });
+            row.addView(mailBtn);
+        }
         return row;
+    }
+
+    /** Returns the address if the whole text is a single plain email address, else null. */
+    static String emailOrNull(String text) {
+        if (text == null) return null;
+        String t = text.trim();
+        if (t.length() < 6 || t.length() > 254) return null;
+        return t.matches("[A-Za-z0-9._%+\\-]+@[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)*\\.[A-Za-z]{2,}") ? t : null;
     }
 
     /** Returns the number (digits, optional leading +) if the whole text is a phone number, else null. */
