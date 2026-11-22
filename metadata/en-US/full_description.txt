@@ -4,7 +4,7 @@ Gestures:
 
 * Swipe up on any suggestion to accept it instantly
 * Swipe sideways across the letter row to delete the last whole word at once (direction configurable in settings)
-* Swipe down over the keys to copy selected text -- the same gesture turns into paste for one minute afterward
+* Swipe down over the keys for copy/paste or the symbols layout (your choice in settings)
 * Press-and-hold and drag the space bar to move the cursor character by character
 
 Other features:
@@ -13,4 +13,4 @@ Other features:
 * Smart clipboard with pin, delete, and auto-delete
 * Emoji panel, a persistent number row, custom themes, and key sounds
 
-This is the Clean build: it has no network access at all, and does not request SMS, notification, photo, or storage permissions -- it only does what a keyboard needs to type.
+This build has no internet access and does not request SMS, notification, photo, or storage permissions. The only sensitive permission is the microphone, used only by the optional voice-typing button.
