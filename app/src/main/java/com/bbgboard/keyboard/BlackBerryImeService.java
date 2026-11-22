@@ -3307,8 +3307,92 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     fillEmojiGrid(grid, keyboardPrefs.getRecentEmojis(), true);
                     return true;
                 });
+            } else if (supportsSkinTone(em)) {
+                tv.setOnLongClickListener(v -> {
+                    showSkinTonePopup(tv, em);
+                    return true;
+                });
             }
             grid.addView(tv);
+        }
+    }
+
+    // ---- Skin tones: long-press an emoji that has tones to pick medium (wheat) or dark.
+    private static final int[][] SKIN_BASES = {
+        {0x261D,0x261D},{0x26F9,0x26F9},{0x270A,0x270D},{0x1F385,0x1F385},{0x1F3C2,0x1F3C4},
+        {0x1F3C7,0x1F3C7},{0x1F3CA,0x1F3CC},{0x1F442,0x1F443},{0x1F446,0x1F450},{0x1F466,0x1F469},
+        {0x1F46B,0x1F46E},{0x1F470,0x1F478},{0x1F47C,0x1F47C},{0x1F481,0x1F483},{0x1F485,0x1F487},
+        {0x1F4AA,0x1F4AA},{0x1F574,0x1F575},{0x1F57A,0x1F57A},{0x1F590,0x1F590},{0x1F595,0x1F596},
+        {0x1F645,0x1F647},{0x1F64B,0x1F64F},{0x1F6A3,0x1F6A3},{0x1F6B4,0x1F6B6},{0x1F6C0,0x1F6C0},
+        {0x1F6CC,0x1F6CC},{0x1F90C,0x1F90C},{0x1F90F,0x1F90F},{0x1F918,0x1F91F},{0x1F926,0x1F926},
+        {0x1F930,0x1F939},{0x1F93C,0x1F93E},{0x1F977,0x1F977},{0x1F9B5,0x1F9B6},{0x1F9B8,0x1F9B9},
+        {0x1F9BB,0x1F9BB},{0x1F9CD,0x1F9CF},{0x1F9D1,0x1F9DD},{0x1FAC3,0x1FAC5},{0x1FAF0,0x1FAF8}
+    };
+    private static final int SKIN_MEDIUM = 0x1F3FD; // wheat
+    private static final int SKIN_DARK = 0x1F3FF;
+
+    private static boolean isSkinBase(int cp) {
+        for (int[] r : SKIN_BASES) if (cp >= r[0] && cp <= r[1]) return true;
+        return false;
+    }
+
+    private static boolean supportsSkinTone(String em) {
+        if (em == null || em.isEmpty()) return false;
+        int i = 0;
+        while (i < em.length()) {
+            int cp = em.codePointAt(i);
+            if (cp >= 0x1F3FB && cp <= 0x1F3FF) return false; // already toned
+            i += Character.charCount(cp);
+        }
+        return isSkinBase(em.codePointAt(0));
+    }
+
+    private static String withSkinTone(String em, int tone) {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        while (i < em.length()) {
+            int cp = em.codePointAt(i);
+            i += Character.charCount(cp);
+            sb.appendCodePoint(cp);
+            if (isSkinBase(cp)) {
+                if (i < em.length() && em.charAt(i) == 0xFE0F) i++; // drop the variation selector
+                sb.appendCodePoint(tone);
+            }
+        }
+        return sb.toString();
+    }
+
+    private void showSkinTonePopup(final View anchor, final String em) {
+        try {
+            final android.widget.PopupWindow[] pw = new android.widget.PopupWindow[1];
+            LinearLayout box = new LinearLayout(this);
+            box.setOrientation(LinearLayout.HORIZONTAL);
+            box.setPadding(dp(6), dp(4), dp(6), dp(4));
+            box.setBackground(roundedBg(pressedC(), 16));
+            String[] options = {em, withSkinTone(em, SKIN_MEDIUM), withSkinTone(em, SKIN_DARK)};
+            for (final String opt : options) {
+                TextView t = new TextView(this);
+                t.setText(opt);
+                t.setGravity(Gravity.CENTER);
+                t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26f);
+                t.setLayoutParams(new LinearLayout.LayoutParams(dp(48), dp(48)));
+                t.setOnClickListener(v -> {
+                    InputConnection ic = getCurrentInputConnection();
+                    if (ic != null) ic.commitText(opt, 1);
+                    soundController.playKeyClick();
+                    keyboardPrefs.recordUsedEmoji(opt);
+                    if (pw[0] != null) pw[0].dismiss();
+                });
+                box.addView(t);
+            }
+            int w = dp(48) * 3 + dp(12), h = dp(56);
+            pw[0] = new android.widget.PopupWindow(box, w, h, false);
+            pw[0].setOutsideTouchable(true);
+            pw[0].setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+            pw[0].setElevation(dp(8));
+            pw[0].showAsDropDown(anchor, (anchor.getWidth() - w) / 2, -(anchor.getHeight() + h));
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "showSkinTonePopup()", e);
         }
     }
 
