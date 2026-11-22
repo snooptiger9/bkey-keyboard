@@ -602,7 +602,8 @@ public class PredictionEngine {
                     for (Map.Entry<String, Integer> e : lNext.entrySet()) {
                         String nw = e.getKey();
                         if (fold(nw).startsWith(prefixLower) && !nw.equals(prefix) && isTrustedWord(nw)
-                                && (isArabic || latinWordAllowed(nw))) {
+                                && (isArabic || latinWordAllowed(nw))
+                                && !(prefixLower.length() < 2 && nw.indexOf('@') >= 0)) {
                             int cur = scored.containsKey(nw) ? scored.get(nw) : 0;
                             scored.put(nw, cur + e.getValue() * 60 + 250);
                         }
@@ -625,6 +626,8 @@ public class PredictionEngine {
                 for (String w : candidates) {
                     if (!isTrustedWord(w)) continue;
                     if (!isArabic && !latinWordAllowed(w)) continue;
+                    // Saved email addresses only show once at least two characters are typed.
+                    if (prefixLower.length() < 2 && w.indexOf('@') >= 0) continue;
                     Integer cnt = learnedWords.get(w);
                     if (cnt == null) continue;
                     int cur = scored.containsKey(w) ? scored.get(w) : 0;
