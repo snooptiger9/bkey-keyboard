@@ -1844,15 +1844,9 @@ public class MainActivity extends Activity {
     private void fillThemeAndStyleScreen(final LinearLayout root) {
 
         LinearLayout fontCard = createGroupedWhiteCard();
-        fontCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        fontCard.setPadding(dp(14), dp(12), dp(14), dp(12));
 
-        TextView fHeader = new TextView(this);
-        fHeader.setText(tr("1. خط الحروف", "1. Letter font"));
-        fHeader.setTextColor(Color.parseColor(dm("#111827")));
-        fHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        fHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        fHeader.setPadding(0, 0, 0, dp(10));
-        fontCard.addView(fHeader);
+        fontCard.addView(sectionHeader(tr("خط الحروف", "Letter font")));
 
         int[] fontIds = {
                 KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD,
@@ -1879,15 +1873,9 @@ public class MainActivity extends Activity {
         root.addView(fontCard);
 
         LinearLayout themeCard = createGroupedWhiteCard();
-        themeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        themeCard.setPadding(dp(14), dp(12), dp(14), dp(12));
 
-        TextView tHeader = new TextView(this);
-        tHeader.setText(tr("2. لون السمة", "2. Theme color"));
-        tHeader.setTextColor(Color.parseColor(dm("#111827")));
-        tHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        tHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        tHeader.setPadding(0, 0, 0, dp(10));
-        themeCard.addView(tHeader);
+        themeCard.addView(sectionHeader(tr("لون السمة", "Theme color")));
 
         String[] themeNames = tr(
                 new String[]{"أسود مطفي", "أبيض ساطع", "كحلي داكن", "أخضر غابة", "تلقائي"},
@@ -1906,15 +1894,9 @@ public class MainActivity extends Activity {
         root.addView(themeCard);
 
         LinearLayout styleCard = createGroupedWhiteCard();
-        styleCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        styleCard.setPadding(dp(14), dp(12), dp(14), dp(12));
 
-        TextView sHeader = new TextView(this);
-        sHeader.setText(tr("3. شكل أزرار الكيبورد", "3. Key shape"));
-        sHeader.setTextColor(Color.parseColor(dm("#111827")));
-        sHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        sHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        sHeader.setPadding(0, 0, 0, dp(10));
-        styleCard.addView(sHeader);
+        styleCard.addView(sectionHeader(tr("شكل أزرار الكيبورد", "Key shape")));
 
         String[] styleNames = tr(
                 new String[]{"bkey", "bkey حديث", "كبسولات", "bkey ماتيريال", "بدون إطار", "إطار خفيف", "بارز ناعم", "دوائر", "زجاجي"},
@@ -1931,14 +1913,8 @@ public class MainActivity extends Activity {
         root.addView(styleCard);
 
         LinearLayout enterCard = createGroupedWhiteCard();
-        enterCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        TextView eHeader = new TextView(this);
-        eHeader.setText(tr("4. لون زر الإدخال", "4. Enter key color"));
-        eHeader.setTextColor(Color.parseColor(dm("#111827")));
-        eHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        eHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        eHeader.setPadding(0, 0, 0, dp(10));
-        enterCard.addView(eHeader);
+        enterCard.setPadding(dp(14), dp(12), dp(14), dp(12));
+        enterCard.addView(sectionHeader(tr("لون زر الإدخال", "Enter key color")));
         String[] enterNames = tr(
                 new String[]{"افتراضي", "أزرق", "أخضر", "أحمر", "عنابي"},
                 new String[]{"Default", "Blue", "Green", "Red", "Burgundy"});
@@ -1953,25 +1929,25 @@ public class MainActivity extends Activity {
         root.addView(enterCard);
 
         root.addView(buildSizerCard(
-                tr("5. حجم الحروف داخل المربعات", "5. Key letter size"),
+                tr("حجم الحروف داخل المربعات", "Key letter size"),
                 Math.round(prefs.getKeyFontScale() * 100), 100, 50, 150,
                 pct -> prefs.setKeyFontScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
-                tr("6. ارتفاع الكيبورد العام", "6. Overall keyboard height"),
+                tr("ارتفاع الكيبورد العام", "Overall keyboard height"),
                 Math.round(prefs.getKeyboardScale() * 100), 100, 70, 145,
                 pct -> prefs.setKeyboardScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
-                tr("7. ارتفاع صف الاقتراحات العلوي", "7. Suggestion bar height"),
+                tr("ارتفاع صف الاقتراحات العلوي", "Suggestion bar height"),
                 Math.round(prefs.getSuggestionBarScale() * 100), 100, 70, 125,
                 pct -> prefs.setSuggestionBarScale(pct / 100f),
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
-                tr("8. حجم خط الاقتراحات", "8. Suggestion text size"),
+                tr("حجم خط الاقتراحات", "Suggestion text size"),
                 prefs.getSuggestionTextLevel(), 2, 0, 5,
                 lv -> prefs.setSuggestionTextLevel(lv),
                 lv -> lv == 0 ? tr("بدون تكبير", "No enlargement") : "+" + lv));
@@ -1980,33 +1956,37 @@ public class MainActivity extends Activity {
     private interface IntSetter { void set(int value); }
     private interface IntLabelFormatter { String format(int value); }
 
+    private TextView sectionHeader(String text) {
+        TextView h = new TextView(this);
+        h.setText(text);
+        h.setTextColor(Color.parseColor(dm("#111827")));
+        h.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        h.setTypeface(Typeface.DEFAULT_BOLD);
+        h.setPadding(0, 0, 0, dp(2));
+        return h;
+    }
+
     private LinearLayout buildSizerCard(String title, int currentValue, int defaultValue,
                                          int min, int max, IntSetter setter, IntLabelFormatter formatter) {
         LinearLayout card = createGroupedWhiteCard();
-        card.setPadding(dp(16), dp(16), dp(16), dp(16));
-
-        TextView header = new TextView(this);
-        header.setText(title);
-        header.setTextColor(Color.parseColor(dm("#111827")));
-        header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-        header.setTypeface(Typeface.DEFAULT_BOLD);
-        header.setPadding(0, 0, 0, dp(10));
-        card.addView(header);
-
+        card.setPadding(dp(14), dp(12), dp(14), dp(12));
         boolean isCustom = currentValue != defaultValue;
 
         final TextView valueLabel = new TextView(this);
-        valueLabel.setTextColor(Color.parseColor(dm("#6B7280")));
+        valueLabel.setTextColor(Color.parseColor(dm("#2563EB")));
         valueLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-        valueLabel.setPadding(dp(2), dp(8), 0, dp(2));
+        valueLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        valueLabel.setGravity(Gravity.CENTER);
+        valueLabel.setMinWidth(dp(46));
         valueLabel.setText(formatter.format(currentValue));
-        valueLabel.setVisibility(isCustom ? View.VISIBLE : View.GONE);
 
         final SeekBar seek = new SeekBar(this);
         seek.setMax(max - min);
         seek.setProgress(Math.max(0, Math.min(max - min, currentValue - min)));
-        seek.setPadding(dp(14), dp(2), dp(14), dp(8));
-        seek.setVisibility(isCustom ? View.VISIBLE : View.GONE);
+        seek.setPadding(dp(10), dp(2), dp(10), dp(2));
+        android.content.res.ColorStateList blue = android.content.res.ColorStateList.valueOf(Color.parseColor("#2563EB"));
+        seek.setProgressTintList(blue);
+        seek.setThumbTintList(blue);
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -2018,23 +1998,36 @@ public class MainActivity extends Activity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
+        final LinearLayout sliderRow = new LinearLayout(this);
+        sliderRow.setOrientation(LinearLayout.HORIZONTAL);
+        sliderRow.setGravity(Gravity.CENTER_VERTICAL);
+        sliderRow.setPadding(0, dp(6), 0, 0);
+        sliderRow.addView(seek, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        sliderRow.addView(valueLabel);
+        sliderRow.setVisibility(isCustom ? View.VISIBLE : View.GONE);
+
         final TextView[] toggleBtns = new TextView[2];
         View.OnClickListener onDefaultClick = v -> {
             setter.set(defaultValue);
             seek.setProgress(Math.max(0, Math.min(max - min, defaultValue - min)));
             valueLabel.setText(formatter.format(defaultValue));
-            valueLabel.setVisibility(View.GONE);
-            seek.setVisibility(View.GONE);
+            sliderRow.setVisibility(View.GONE);
             setSizerToggleSelected(toggleBtns, 0);
         };
         View.OnClickListener onCustomClick = v -> {
-            valueLabel.setVisibility(View.VISIBLE);
-            seek.setVisibility(View.VISIBLE);
+            sliderRow.setVisibility(View.VISIBLE);
             setSizerToggleSelected(toggleBtns, 1);
         };
-        card.addView(buildDefaultCustomToggle(isCustom, onDefaultClick, onCustomClick, toggleBtns));
-        card.addView(valueLabel);
-        card.addView(seek);
+
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        TextView t = sectionHeader(title);
+        t.setPadding(0, 0, dp(8), 0);
+        head.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        head.addView(buildDefaultCustomToggle(isCustom, onDefaultClick, onCustomClick, toggleBtns));
+        card.addView(head);
+        card.addView(sliderRow);
         return card;
     }
 
@@ -2042,15 +2035,12 @@ public class MainActivity extends Activity {
                                                    View.OnClickListener onCustom, TextView[] outButtons) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(dp(2), dp(2), dp(2), dp(2));
+        row.setBackground(roundedCard(dm("#F3F4F6"), 11));
         TextView defBtn = sizerToggleButton(tr("افتراضي", "Default"), !customSelected);
         TextView curBtn = sizerToggleButton(tr("مخصص", "Custom"), customSelected);
         defBtn.setOnClickListener(onDefault);
         curBtn.setOnClickListener(onCustom);
-        LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        lp1.rightMargin = dp(8);
-        defBtn.setLayoutParams(lp1);
-        LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        curBtn.setLayoutParams(lp2);
         row.addView(defBtn);
         row.addView(curBtn);
         outButtons[0] = defBtn;
@@ -2059,23 +2049,23 @@ public class MainActivity extends Activity {
     }
 
     private void setSizerToggleSelected(TextView[] btns, int selectedIdx) {
-        for (int i = 0; i < btns.length; i++) {
-            boolean sel = i == selectedIdx;
-            btns[i].setTypeface(sel ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-            btns[i].setTextColor(Color.parseColor(sel ? dm("#FFFFFF") : dm("#374151")));
-            btns[i].setBackground(roundedCard(sel ? dm("#2563EB") : dm("#F3F4F6"), 10));
-        }
+        for (int i = 0; i < btns.length; i++) styleSizerToggle(btns[i], i == selectedIdx);
+    }
+
+    private void styleSizerToggle(TextView btn, boolean sel) {
+        btn.setTypeface(sel ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+        btn.setTextColor(Color.parseColor(sel ? "#FFFFFF" : dm("#374151")));
+        if (sel) btn.setBackground(roundedCard("#2563EB", 9));
+        else btn.setBackground(null);
     }
 
     private TextView sizerToggleButton(String text, boolean selected) {
         TextView btn = new TextView(this);
         btn.setText(text);
         btn.setGravity(Gravity.CENTER);
-        btn.setPadding(dp(10), dp(8), dp(10), dp(8));
-        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-        btn.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-        btn.setTextColor(Color.parseColor(selected ? dm("#FFFFFF") : dm("#374151")));
-        btn.setBackground(roundedCard(selected ? dm("#2563EB") : dm("#F3F4F6"), 10));
+        btn.setPadding(dp(12), dp(5), dp(12), dp(5));
+        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        styleSizerToggle(btn, selected);
         return btn;
     }
 
@@ -2089,40 +2079,12 @@ public class MainActivity extends Activity {
         tile.setGravity(Gravity.CENTER_HORIZONTAL);
         tile.setOnClickListener(onClick);
 
-        int holderSize = dp(58);
-        int circleSize = dp(46);
-        FrameLayout swatchHolder = new FrameLayout(this);
-        swatchHolder.setLayoutParams(new LinearLayout.LayoutParams(holderSize, holderSize));
+        FrameLayout holder = new FrameLayout(this);
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(62), dp(54)));
+        holder.setBackground(roundedCard(selected ? dm("#EFF6FF") : dm("#F3F4F6"), 13));
+        holder.setElevation(selected ? dp(3) : dp(1));
 
-        if (selected) {
-            // A dark swatch (e.g. the near-black "Matte black" theme) sitting right next to a
-            // plain blue ring gave almost no sense of "this one is selected" -- the ring was
-            // there, but nothing about it stood out against a dark circle the way it does
-            // against a light one. Checking the swatch's own brightness and switching to a
-            // lighter, higher-contrast ring color for dark swatches fixes that without changing
-            // how light/colorful swatches look.
-            int swatchRgb = Color.parseColor(colorHex);
-            double luminance = (0.299 * Color.red(swatchRgb) + 0.587 * Color.green(swatchRgb) + 0.114 * Color.blue(swatchRgb)) / 255.0;
-            boolean darkSwatch = luminance < 0.35;
-            String ringColorHex = darkSwatch ? "#93C5FD" : dm("#2563EB");
-
-            GradientDrawable ring = new GradientDrawable();
-            ring.setShape(GradientDrawable.OVAL);
-            ring.setColor(Color.TRANSPARENT);
-            ring.setStroke(dp(darkSwatch ? 3 : 2), Color.parseColor(ringColorHex));
-            View ringView = new View(this);
-            ringView.setBackground(ring);
-            FrameLayout.LayoutParams lpRing = new FrameLayout.LayoutParams(holderSize, holderSize);
-            lpRing.gravity = Gravity.CENTER;
-            ringView.setLayoutParams(lpRing);
-            swatchHolder.addView(ringView);
-        }
-
-        View circle = new View(this);
-        GradientDrawable swatch = new GradientDrawable();
-        swatch.setShape(GradientDrawable.OVAL);
-        swatch.setColor(Color.parseColor(colorHex));
-        swatch.setStroke(dp(1), Color.parseColor(dm("#E5E7EB")));
+        View circle;
         if (halfAndHalf) {
             // "Auto" swatch: left half white, right half black.
             final int strokeColor = Color.parseColor(dm("#E5E7EB"));
@@ -2148,25 +2110,35 @@ public class MainActivity extends Activity {
                 }
             };
         } else {
+            circle = new View(this);
+            GradientDrawable swatch = new GradientDrawable();
+            swatch.setShape(GradientDrawable.OVAL);
+            swatch.setColor(Color.parseColor(colorHex));
+            swatch.setStroke(dp(1), Color.parseColor(dm("#E5E7EB")));
             circle.setBackground(swatch);
         }
-        circle.setElevation(selected ? dp(3) : dp(1));
-        FrameLayout.LayoutParams lpCircle = new FrameLayout.LayoutParams(circleSize, circleSize);
+        FrameLayout.LayoutParams lpCircle = new FrameLayout.LayoutParams(dp(32), dp(32));
         lpCircle.gravity = Gravity.CENTER;
-        circle.setLayoutParams(lpCircle);
-        swatchHolder.addView(circle);
+        holder.addView(circle, lpCircle);
 
+        GradientDrawable frame = new GradientDrawable();
+        frame.setCornerRadius(dp(13));
+        frame.setColor(Color.TRANSPARENT);
+        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
+        holder.setForeground(frame);
         if (selected) {
-            TextView check = new TextView(this);
-            check.setText("✓");
-            check.setTextColor(halfAndHalf ? Color.parseColor("#2563EB")
-                    : colorHex.equals("#FFFFFF") ? Color.parseColor("#2563EB") : Color.WHITE);
-            check.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-            check.setTypeface(Typeface.DEFAULT_BOLD);
-            FrameLayout.LayoutParams lpCheck = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lpCheck.gravity = Gravity.CENTER;
-            check.setLayoutParams(lpCheck);
-            swatchHolder.addView(check);
+            TextView badge = new TextView(this);
+            badge.setText("✓");
+            badge.setTextColor(Color.WHITE);
+            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+            badge.setTypeface(Typeface.DEFAULT_BOLD);
+            badge.setGravity(Gravity.CENTER);
+            badge.setBackground(roundedCard(dm("#2563EB"), 7));
+            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
+            lpB.gravity = Gravity.TOP | Gravity.END;
+            lpB.topMargin = dp(2);
+            lpB.rightMargin = dp(2);
+            holder.addView(badge, lpB);
         }
 
         TextView labelTv = new TextView(this);
@@ -2178,7 +2150,7 @@ public class MainActivity extends Activity {
         labelTv.setPadding(0, dp(5), 0, 0);
         labelTv.setMaxLines(2);
 
-        tile.addView(swatchHolder);
+        tile.addView(holder);
         tile.addView(labelTv);
         return tile;
     }
@@ -2297,7 +2269,7 @@ public class MainActivity extends Activity {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lpRow.topMargin = dp(10);
+            lpRow.topMargin = dp(8);
             row.setLayoutParams(lpRow);
             int rowCount = Math.min(i + perRow, tiles.size()) - i;
             for (int j = i; j < Math.min(i + perRow, tiles.size()); j++) {
