@@ -489,7 +489,8 @@ public class MainActivity extends Activity {
         lpToggle.leftMargin = dp(6);
         lpToggle.rightMargin = dp(6);
         themeToggleBtn.setLayoutParams(lpToggle);
-        themeToggleBtn.setTranslationY(-dp(8));
+        themeToggleBtn.setTranslationY(-dp(4));
+        titleRowTop.setClipChildren(false);
         themeToggleBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             prefs.setAppDarkMode(!prefs.isAppDarkMode());
