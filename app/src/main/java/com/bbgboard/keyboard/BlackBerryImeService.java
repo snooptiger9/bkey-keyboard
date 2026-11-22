@@ -3286,7 +3286,24 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         int cellW = emojiGridCellW > 0 ? emojiGridCellW
                 : Math.max(dp(38), (getResources().getDisplayMetrics().widthPixels - dp(20)) / 8);
         for (final String em : emojis) {
-            TextView tv = new TextView(this);
+            final boolean toned = !recent && supportsSkinTone(em);
+            final android.graphics.Paint markPaint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+            markPaint.setColor(subC());
+            final android.graphics.Path markPath = new android.graphics.Path();
+            TextView tv = new TextView(this) {
+                @Override protected void onDraw(android.graphics.Canvas canvas) {
+                    super.onDraw(canvas);
+                    if (!toned) return;
+                    // Tiny corner triangle: this emoji has skin tones (long-press).
+                    float s = dp(6), r = getWidth() - dp(5), b = getHeight() - dp(5);
+                    markPath.reset();
+                    markPath.moveTo(r, b - s);
+                    markPath.lineTo(r, b);
+                    markPath.lineTo(r - s, b);
+                    markPath.close();
+                    canvas.drawPath(markPath, markPaint);
+                }
+            };
             tv.setText(em);
             tv.setGravity(Gravity.CENTER);
             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, keyboardPrefs.getEmojiSizeSp());
