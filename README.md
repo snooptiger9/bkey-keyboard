@@ -52,81 +52,60 @@ tailored experience for each.
 - Swipe in the exact opposite direction: select all typed text at once.
 
   ![Swipe the opposite direction to select all](docs/gifs/swipe_select_all.gif?v=2)
-- Swipe down over the keys — you choose what it does (Settings → Swipe Gestures; the two options are
-  mutually exclusive, turning one on turns the other off):
-  - **Copy / paste:** copies the selected text, and the same gesture turns into paste for one minute
-    afterward.
-  - **Numbers & symbols:** opens the symbols layout of the language you are typing in; swipe down again
-    on the symbols layout to return to the letters. Works separately for every language.
+- Swipe down over the keys: copy/paste or the symbols layout (your choice in Settings → Swipe Gestures).
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
 - Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish/Hindi) without a separate language button.
-- Long-press any key: popup with alternate characters. On the English keyboard a lowercase letter gives its capital (BlackBerry-style), and the number row shows only while Shift or Caps Lock is on. Symbols already on the symbols page are not repeated, accented letters appear only on the Spanish keyboard, and Arabic-only symbols appear only when Arabic is enabled.
+- Long-press any key: popup with alternate characters (capitals, accents and symbols that fit the active language).
 
 <br>
 
 <img src="docs/icons/keyboard.svg" width="22" height="22" align="absmiddle" alt=""> **Smart typing & prediction**
 - Silent auto-correct on space, and next-word prediction (up to 3 words).
 - On-the-fly word learning as you type, plus a manual trainer that saves a whole sentence instantly.
-- **The more it learns, the more you swipe:** as the keyboard learns your words, its suggestions get more accurate, so most of what you write becomes a quick swipe up on the right suggestion instead of typing every letter.
-- **Learning limits:** it keeps up to 10,000 learned words (the least-used are dropped first) and up to 32 likely next words for each word (the weakest are dropped first).
-- **Typing stats:** a page in the settings shows how many words the keyboard has learned, how many you picked by swiping up, your share of swiped words, taps saved, words deleted with one swipe, and your split between languages (counts only; no text is stored).
-- **Learned words screen:** search your words, see how often each is used and its next-word suggestions, and delete any of them.
-- **Backup & restore:** save your learned words and word shortcuts to a JSON file and restore them on a new phone. Restoring only adds; it never deletes what you already have.
+- **The more it learns, the more you swipe:** suggestions get more accurate as it learns your words.
+- **Learning:** keeps up to 10,000 learned words, with a typing-stats page (counts only), a screen to search and delete learned words, and backup/restore to a JSON file.
 - **Automatic emoji suggestions** based on the word or sentence context you're typing.
 
   ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif?v=2)
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
-- Double-tap space for an automatic period + space.
-- Auto-capitalize the first letter of each sentence (English/Spanish).
+- Double-tap space for period + space, and auto-capitalize sentences (English/Spanish).
 - Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(bkey Plus only)*
 
 <br>
 
 <img src="docs/icons/clipboard.svg" width="22" height="22" align="absmiddle" alt=""> **Smart clipboard**
-- A full clipboard drawer: pin, delete, and auto-delete old items after a duration you choose
-  (from 1 hour to 30 days, or never).
+- Clipboard drawer: pin, delete, and auto-delete old items after a time you choose.
 - Automatically saves the last screenshot (a single thumbnail that replaces the previous one). *(bkey Plus only)*
 - The last copied text shows right in the middle suggestion slot for a quick re-paste.
-- Copied phone numbers get a one-tap dial chip that opens the dialer with the number filled in (it never places the call for you).
+- Copied phone numbers and email addresses get a one-tap call / new-mail button (it never calls or sends for you).
 
 <br>
 
 <img src="docs/icons/smile.svg" width="22" height="22" align="absmiddle" alt=""> **Emoji & GIF**
-- Full emoji and symbols panel with a "Recently used" section (clear it all or long-press to
-  remove a single emoji).
-- The emoji panel's GIF tab is powered by KLIPY GIF — search and preview animated GIFs, with a floating search pill that keeps the grid uncovered. *(bkey Plus only)*
+- Emoji and symbols panel with a "Recently used" section.
+- GIF search powered by KLIPY. *(bkey Plus only)*
 
 <br>
 
 <img src="docs/icons/palette.svg" width="22" height="22" align="absmiddle" alt=""> **Full customization**
-- 4 color themes plus **Auto** (half white, half black): it follows Android's day/night mode, using the white theme in light mode and Matte black in dark mode.
-- 9 key shapes and multiple fonts (System/Tajawal).
-- The suggestion bar uses the same font you pick for the keys.
-- Full size control: key letter size, keyboard height, suggestion bar height, and suggestion
-  text size.
-- Enter-key color; the floating ABC/Delete capsules match your theme automatically.
-- Key-bounce animation and the suggestion-accept flying-word animation — each toggleable on its own.
+- 4 color themes plus **Auto** (follows Android's light/dark mode).
+- 9 key shapes and multiple fonts.
+- Size control for key letters, keyboard and suggestions.
+- Enter-key color, key-bounce and flying-word animations (each toggleable).
 
 <br>
 
 <img src="docs/icons/speaker.svg" width="22" height="22" align="absmiddle" alt=""> **Sound & vibration**
-- Multiple typing tones + independent swipe/delete tones, each with its own volume level.
-- Optional haptic vibration on press and swipe, with an adjustable strength (5–50 ms, or the system default).
+- Typing tones and swipe/delete tones with separate volumes.
+- Optional haptic vibration with adjustable strength.
 
 <br>
 
 <img src="docs/icons/sliders.svg" width="22" height="22" align="absmiddle" alt=""> **More preferences**
-- A persistent number row above the keyboard (plus a dedicated row shown in password fields even
-  when the general one is off).
-- Optional Arabic-Indic digits (١٢٣).
-- One-handed mode (left or right).
-- Voice typing (optional mic button).
-- Key-preview popup above the key on touch.
-- **Privacy-first**: Incognito mode disables learning and clipboard saving entirely; passwords
-  and links are never learned from, even outside Incognito mode. Email addresses are saved only
-  when they are written correctly.
+- Persistent number row, optional Arabic-Indic digits (١٢٣), one-handed mode, voice typing (optional mic button) and a key-preview popup.
+- **Privacy-first:** Incognito mode stops learning and clipboard saving; passwords and links are never learned.
 
 <br>
 
@@ -205,7 +184,6 @@ Prefer automatic updates? Add the build you use to [Obtainium](https://github.co
 > [!CAUTION]
 > - **Updating bkey:** from this page, or through Obtainium using the **bkey** button above.
 > - **Updating bkey Plus:** from this page, from inside the app (Settings → **Update the app**), or through Obtainium using the **bkey Plus** button above. Whichever way you choose, it stays on bkey Plus, never the standard bkey version.
-> - **Obtainium:** both builds share one package name, so add only the one you actually use. Each button tracks only its own APK; adding the wrong one would replace your build with the other.
 
 ### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
 

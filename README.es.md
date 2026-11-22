@@ -52,82 +52,60 @@ totalmente compatible con árabe, inglés, español e hindi, con una experiencia
 - Desliza en la dirección exactamente opuesta: selecciona todo el texto escrito de una vez.
 
   ![Desliza en la dirección opuesta para seleccionar todo](docs/gifs/swipe_select_all.gif?v=2)
-- Desliza hacia abajo sobre las teclas: tú eliges qué hace (Ajustes → Gestos de deslizamiento; las dos
-  opciones son excluyentes, activar una desactiva la otra):
-  - **Copiar / pegar:** copia el texto seleccionado, y el mismo gesto se convierte en pegar durante un
-    minuto.
-  - **Números y símbolos:** abre el diseño de símbolos del idioma en el que escribes; desliza hacia abajo
-    otra vez en los símbolos para volver a las letras. Funciona por separado en cada idioma.
+- Desliza hacia abajo sobre las teclas: copiar/pegar o el diseño de símbolos (lo eliges en Ajustes → Gestos de deslizamiento).
 - Mantén pulsada la barra espaciadora y arrastra: mueve el cursor carácter a carácter.
 
   ![Mantén pulsada y arrastra la barra espaciadora para mover el cursor](docs/gifs/cursor_move.gif?v=2)
 - Desliza la barra espaciadora a izquierda/derecha: cambia entre tus idiomas activados (árabe/inglés/español/hindi) sin un botón de idioma aparte.
-- Mantén pulsada cualquier tecla: ventana con caracteres alternativos. En el teclado inglés, una letra minúscula da su mayúscula (al estilo BlackBerry), y la fila de números solo aparece mientras Shift o Bloq Mayús está activo. Los símbolos que ya están en la página de símbolos no se repiten, las letras con acento aparecen solo en el teclado español, y los símbolos exclusivos del árabe (﷼ ، ؛ ؟) aparecen solo cuando el árabe está activado.
+- Mantén pulsada cualquier tecla: ventana con caracteres alternativos (mayúsculas, acentos y símbolos según el idioma activo).
 
 <br>
 
 <img src="docs/icons/keyboard.svg" width="22" height="22" align="absmiddle" alt=""> **Escritura inteligente y predicción**
 - Autocorrección silenciosa al pulsar espacio y predicción de la palabra siguiente (hasta 3 palabras).
 - Aprendizaje de palabras al escribir, más un entrenador manual que guarda una frase entera al instante.
-- **Cuanto más aprende, más deslizas:** a medida que el teclado aprende tus palabras, sus sugerencias son más precisas, así que casi todo lo que escribes se vuelve un deslizamiento hacia arriba sobre la sugerencia correcta en vez de teclear cada letra.
-- **Límites de aprendizaje:** guarda hasta 10.000 palabras aprendidas (se eliminan primero las menos usadas) y hasta 32 posibles palabras siguientes por cada palabra (se eliminan primero las más débiles).
-- **Estadísticas de escritura:** una página en los ajustes muestra cuántas palabras ha aprendido el teclado, cuántas elegiste deslizando hacia arriba, tu proporción de palabras deslizadas, las pulsaciones ahorradas, las palabras borradas con un solo deslizamiento y tu reparto entre idiomas (solo recuentos; no se guarda ningún texto).
-- **Pantalla de palabras aprendidas:** busca tus palabras, mira cuántas veces se usa cada una y sus sugerencias siguientes, y elimina las que quieras.
-- **Copia de seguridad y restauración:** guarda tus palabras aprendidas y atajos de texto en un archivo JSON y restáuralos en un teléfono nuevo. Restaurar solo añade; nunca borra lo que ya tienes.
+- **Cuanto más aprende, más deslizas:** las sugerencias son más precisas a medida que aprende tus palabras.
+- **Aprendizaje:** guarda hasta 10.000 palabras aprendidas, con una página de estadísticas (solo recuentos), una pantalla para buscar y eliminar palabras aprendidas, y copia de seguridad/restauración en un archivo JSON.
 - **Sugerencias automáticas de emojis** según el contexto de la palabra o la frase que escribes.
 
   ![Sugerencia automática de emojis](docs/gifs/emoji_suggest.gif?v=2)
 - Atajos de texto: escribe un atajo (p. ej. "omw") y se expande a la frase completa al pulsar espacio.
-- Doble toque en espacio para punto + espacio automático.
-- Mayúscula automática al inicio de cada frase (inglés/español).
-- **Teclado hindi (devanagari):** disposición InScript estándar con capa Shift, conjuntos (क्ष, त्र, ज्ञ, श्र) y letras con nukta con pulsación larga, dígitos devanagari, ₹ y el danda (।). Tiene su propio diccionario, predicción de palabra siguiente, sugerencias de emojis y palabras aprendidas, separados de los otros idiomas, y el hindi solo se autocorrige cuando el error es seguro.
+- Doble toque en espacio para punto + espacio, y mayúscula automática al inicio de frase (inglés/español).
 - Sugerencias automáticas de códigos de verificación (OTP) desde SMS o WhatsApp — todo se procesa en el dispositivo. *(solo bkey Plus)*
 
 <br>
 
 <img src="docs/icons/clipboard.svg" width="22" height="22" align="absmiddle" alt=""> **Portapapeles inteligente**
-- Un cajón de portapapeles completo: fijar, borrar y eliminar automáticamente los elementos antiguos
-  tras el tiempo que elijas (de 1 hora a 30 días, o nunca).
+- Cajón de portapapeles: fijar, borrar y eliminar automáticamente los elementos antiguos tras el tiempo que elijas.
 - Guarda automáticamente la última captura de pantalla (una sola miniatura que reemplaza a la anterior). *(solo bkey Plus)*
 - El último texto copiado aparece en la ranura central de sugerencias para volver a pegarlo rápido.
-- Los números de teléfono copiados muestran un botón de llamada de un toque que abre el marcador con el número ya escrito (nunca llama por ti).
+- Los teléfonos y correos copiados muestran un botón de un toque para llamar / redactar un correo (nunca llama ni envía por ti).
 
 <br>
 
 <img src="docs/icons/smile.svg" width="22" height="22" align="absmiddle" alt=""> **Emojis y GIF**
-- Panel completo de emojis y símbolos con una sección de "Usados recientemente" (bórrala entera o
-  mantén pulsado para quitar un solo emoji).
-- La pestaña GIF del panel de emojis funciona con KLIPY GIF: busca y previsualiza GIF animados, con un campo de búsqueda flotante que no tapa la cuadrícula. *(solo bkey Plus)*
+- Panel de emojis y símbolos con una sección de «Usados recientemente».
+- Búsqueda de GIF con KLIPY. *(solo bkey Plus)*
 
 <br>
 
 <img src="docs/icons/palette.svg" width="22" height="22" align="absmiddle" alt=""> **Personalización total**
-- 4 temas de color más **Auto** (mitad blanco, mitad negro): sigue el modo día/noche de Android, usando el tema blanco de día y Negro mate de noche.
-- 9 formas de tecla y varias fuentes (Sistema/Tajawal).
-- La barra de sugerencias usa la misma fuente que elijas para las teclas.
-- Control total del tamaño: tamaño de las letras, altura del teclado, altura de la barra de sugerencias y
-  tamaño del texto de las sugerencias.
-- Color de la tecla Enter; las cápsulas flotantes ABC/Borrar combinan con tu tema automáticamente.
-- Animación de rebote de teclas y animación de la palabra voladora al aceptar una sugerencia, cada una activable por separado.
+- 4 temas de color más **Auto** (sigue el modo claro/oscuro de Android).
+- 9 formas de tecla y varias fuentes.
+- Control del tamaño de las letras, el teclado y las sugerencias.
+- Color de la tecla Enter y animaciones de rebote de teclas y de palabra voladora (activables por separado).
 
 <br>
 
 <img src="docs/icons/speaker.svg" width="22" height="22" align="absmiddle" alt=""> **Sonido y vibración**
-- Varios tonos de escritura + tonos independientes para deslizar/borrar, cada uno con su propio volumen.
-- Vibración háptica opcional al pulsar y deslizar, con intensidad ajustable (5–50 ms, o la del sistema).
+- Varios tonos de escritura y de deslizar/borrar, con volumen independiente.
+- Vibración háptica opcional con intensidad ajustable.
 
 <br>
 
 <img src="docs/icons/sliders.svg" width="22" height="22" align="absmiddle" alt=""> **Más preferencias**
-- Una fila de números permanente sobre el teclado (más una fila dedicada en los campos de contraseña
-  aunque la general esté desactivada).
-- Dígitos indo-arábigos opcionales (١٢٣).
-- Modo de una mano (izquierda o derecha).
-- Dictado por voz (botón de micrófono opcional).
-- Ventana de vista previa sobre la tecla al tocarla.
-- **Privacidad ante todo**: el modo incógnito desactiva por completo el aprendizaje y el guardado del
-  portapapeles; las contraseñas y los enlaces nunca se aprenden, ni siquiera fuera del modo incógnito.
-  Las direcciones de correo solo se guardan cuando están bien escritas.
+- Fila de números permanente, dígitos indo-arábigos (١٢٣) opcionales, modo de una mano, dictado por voz (botón de micrófono opcional) y ventana de vista previa de tecla.
+- **Privacidad ante todo**: el modo incógnito desactiva el aprendizaje y el guardado del portapapeles; las contraseñas y los enlaces nunca se aprenden.
 
 <br>
 
@@ -205,7 +183,6 @@ Dos versiones: elige la que mejor te venga:
 > [!CAUTION]
 > - **Actualizar bkey:** desde esta página o con Obtainium usando el botón **bkey** de arriba.
 > - **Actualizar bkey Plus:** desde esta página, desde dentro de la app (Ajustes → **Actualizar la app**) o con Obtainium usando el botón **bkey Plus** de arriba. De cualquier forma se queda en bkey Plus, nunca pasa a la versión estándar de bkey.
-> - **Obtainium:** ambas versiones comparten el mismo nombre de paquete, así que añade solo la que usas. Cada botón sigue únicamente su propio APK; añadir el equivocado reemplazaría tu versión por la otra.
 
 ### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
 
