@@ -390,6 +390,10 @@ public class KeyboardPreferences {
     public static final int FONT_SYSTEM_DEFAULT_BOLD = 3;
     public static final int FONT_TAJAWAL_REGULAR = 4;
     public static final int FONT_ALMARAI_REGULAR = 5;
+    public static final int FONT_INTER = 6;
+    public static final int FONT_POPPINS = 7;
+    public static final int FONT_OPEN_SANS = 8;
+    public static final int FONT_LATO = 9;
 
     public int getKeyFont() {
         return prefs.getInt("key_font", FONT_SYSTEM_DEFAULT);

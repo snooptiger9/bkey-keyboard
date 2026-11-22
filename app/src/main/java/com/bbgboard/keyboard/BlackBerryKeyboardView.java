@@ -637,6 +637,10 @@ public class BlackBerryKeyboardView extends View {
             case KeyboardPreferences.FONT_ALMARAI: assetPath = "fonts/almarai_bold.ttf"; break;
             case KeyboardPreferences.FONT_TAJAWAL_REGULAR: assetPath = "fonts/tajawal_regular.ttf"; break;
             case KeyboardPreferences.FONT_ALMARAI_REGULAR: assetPath = "fonts/almarai_regular.ttf"; break;
+            case KeyboardPreferences.FONT_INTER: assetPath = "fonts/inter_semibold.ttf"; break;
+            case KeyboardPreferences.FONT_POPPINS: assetPath = "fonts/poppins_medium.ttf"; break;
+            case KeyboardPreferences.FONT_OPEN_SANS: assetPath = "fonts/opensans_semibold.ttf"; break;
+            case KeyboardPreferences.FONT_LATO: assetPath = "fonts/lato_bold.ttf"; break;
             case KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD:
                 return Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
             default: return Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);

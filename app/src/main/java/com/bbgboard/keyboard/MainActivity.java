@@ -1850,12 +1850,16 @@ public class MainActivity extends Activity {
 
         int[] fontIds = {
                 KeyboardPreferences.FONT_SYSTEM_DEFAULT, KeyboardPreferences.FONT_SYSTEM_DEFAULT_BOLD,
+                KeyboardPreferences.FONT_INTER, KeyboardPreferences.FONT_POPPINS,
+                KeyboardPreferences.FONT_OPEN_SANS, KeyboardPreferences.FONT_LATO,
                 KeyboardPreferences.FONT_TAJAWAL_REGULAR, KeyboardPreferences.FONT_TAJAWAL};
         String[] fontNames = tr(
-                new String[]{"افتراضي", "افتراضي بولد", "Tajawal", "Tajawal بولد"},
-                new String[]{"Default", "Default Bold", "Tajawal", "Tajawal Bold"});
+                new String[]{"افتراضي", "افتراضي بولد", "Inter", "Poppins", "Open Sans", "Lato", "Tajawal", "Tajawal بولد"},
+                new String[]{"Default", "Default Bold", "Inter", "Poppins", "Open Sans", "Lato", "Tajawal", "Tajawal Bold"});
         String[] fontAssets = {
                 null, null,
+                "fonts/inter_semibold.ttf", "fonts/poppins_medium.ttf",
+                "fonts/opensans_semibold.ttf", "fonts/lato_bold.ttf",
                 "fonts/tajawal_regular.ttf", "fonts/tajawal_bold.ttf"};
         List<View> fontTiles = new ArrayList<>();
         for (int i = 0; i < fontIds.length; i++) {
