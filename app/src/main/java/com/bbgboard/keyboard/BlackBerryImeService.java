@@ -74,6 +74,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             } catch (Exception ignored) {}
         }
         rebuildDrawersIfThemeChanged();
+        // Repaint the area around the keyboard and the one-hand buttons right away.
+        applyNavigationBarColor();
+        styleOneHandedButtons();
     };
 
     private FrameLayout oneHandedSwitchBtn;
