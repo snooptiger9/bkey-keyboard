@@ -2525,7 +2525,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         LinearLayout titleBox = new LinearLayout(this);
         titleBox.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams lpTitleBox = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        lpTitleBox.leftMargin = dp(8);
+        lpTitleBox.leftMargin = 0;
         lpTitleBox.rightMargin = dp(6);
         titleBox.setLayoutParams(lpTitleBox);
 
