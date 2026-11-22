@@ -2095,10 +2095,10 @@ public class MainActivity extends Activity {
         holder.setElevation(selected ? dp(3) : dp(1));
 
         TextView sample = new TextView(this);
-        sample.setText("أب Ab");
+        sample.setText("Ab");
         sample.setTypeface(typeface);
         sample.setTextColor(Color.parseColor(dm("#111827")));
-        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         sample.setGravity(Gravity.CENTER);
         holder.addView(sample, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
