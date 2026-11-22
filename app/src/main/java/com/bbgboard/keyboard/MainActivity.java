@@ -1010,16 +1010,23 @@ public class MainActivity extends Activity {
         pendingTitleSrc = null;
         if (returningBack || !fresh) return;
 
-        // Cards rise in, one after another (the first child is the title bar).
-        final android.view.animation.Interpolator decel = new android.view.animation.DecelerateInterpolator(1.6f);
-        for (int i = 1; i < root.getChildCount(); i++) {
-            View c = root.getChildAt(i);
-            c.setAlpha(0f);
-            c.setTranslationY(dp(26));
-            c.animate().alpha(1f).translationY(0f)
-                    .setStartDelay(70L + 45L * Math.min(i - 1, 7))
-                    .setDuration(300).setInterpolator(decel).start();
-        }
+        // Cards rise in, one after another (the first child is the title bar). The caller adds
+        // the cards after this template returns, so wait for the first draw to see them.
+        root.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+            @Override public boolean onPreDraw() {
+                root.getViewTreeObserver().removeOnPreDrawListener(this);
+                final android.view.animation.Interpolator decel = new android.view.animation.DecelerateInterpolator(1.6f);
+                for (int i = 1; i < root.getChildCount(); i++) {
+                    View c = root.getChildAt(i);
+                    c.setAlpha(0f);
+                    c.setTranslationY(dp(26));
+                    c.animate().alpha(1f).translationY(0f)
+                            .setStartDelay(70L + 45L * Math.min(i - 1, 7))
+                            .setDuration(300).setInterpolator(decel).start();
+                }
+                return true;
+            }
+        });
 
         titleTv.setAlpha(0f);
         titleTv.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
