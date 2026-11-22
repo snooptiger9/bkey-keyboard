@@ -78,6 +78,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private FrameLayout oneHandedSwitchBtn;
     private ModernIconView oneHandedSwitchIcon;
+    private FrameLayout oneHandedRestoreBtn;
     private LinearLayout clipboardDrawerView;
     private LinearLayout clipsListContainer;
     private TextView clipCountTv;
@@ -627,6 +628,24 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         FrameLayout.LayoutParams lpOneHandedBtn = new FrameLayout.LayoutParams(dp(40), dp(40));
         rootContainer.addView(oneHandedSwitchBtn, lpOneHandedBtn);
+
+        ModernIconView oneHandedRestoreIcon = new ModernIconView(this, ModernIconView.ICON_EXPAND_CORNERS, Color.WHITE, Color.parseColor("#33FFFFFF"));
+        oneHandedRestoreIcon.setStyle(0.85f, 2.0f);
+        oneHandedRestoreBtn = new FrameLayout(this);
+        GradientDrawable oneHandedRestoreBg = new GradientDrawable();
+        oneHandedRestoreBg.setShape(GradientDrawable.OVAL);
+        oneHandedRestoreBg.setColor(Color.parseColor("#33FFFFFF"));
+        oneHandedRestoreBtn.setBackground(oneHandedRestoreBg);
+        FrameLayout.LayoutParams lpRestoreIcon = new FrameLayout.LayoutParams(dp(22), dp(22));
+        lpRestoreIcon.gravity = Gravity.CENTER;
+        oneHandedRestoreBtn.addView(oneHandedRestoreIcon, lpRestoreIcon);
+        oneHandedRestoreBtn.setVisibility(View.GONE);
+        oneHandedRestoreBtn.setOnClickListener(v -> {
+            keyboardPrefs.setOneHandedMode(0);
+            applyOneHandedMode();
+            soundController.playKeyClick();
+        });
+        rootContainer.addView(oneHandedRestoreBtn, new FrameLayout.LayoutParams(dp(40), dp(40)));
 
         gifSearchBar = new FrameLayout(this);
         gifSearchBar.setBackgroundColor(Color.TRANSPARENT); // floating: the app shows around the pill
@@ -1325,7 +1344,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (mode == 0) {
             lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         } else {
-            int w = (int) (getResources().getDisplayMetrics().widthPixels * 0.80f);
+            int w = (int) (getResources().getDisplayMetrics().widthPixels * 0.85f);
             lp = new FrameLayout.LayoutParams(w, ViewGroup.LayoutParams.MATCH_PARENT);
             lp.gravity = (mode == 1) ? Gravity.LEFT : Gravity.RIGHT;
         }
@@ -1339,6 +1358,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         boolean keyboardShown = keyboardView != null && keyboardView.getVisibility() == View.VISIBLE;
         if (mode == 0 || !keyboardShown) {
             oneHandedSwitchBtn.setVisibility(View.GONE);
+            if (oneHandedRestoreBtn != null) oneHandedRestoreBtn.setVisibility(View.GONE);
             return;
         }
 
@@ -1349,6 +1369,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         oneHandedSwitchBtn.setLayoutParams(lp);
         oneHandedSwitchIcon.setIconType(mode == 1 ? ModernIconView.ICON_FORWARD_ARROW : ModernIconView.ICON_BACK_ARROW);
         oneHandedSwitchBtn.setVisibility(View.VISIBLE);
+        if (oneHandedRestoreBtn != null) {
+            FrameLayout.LayoutParams lpR = new FrameLayout.LayoutParams(dp(40), dp(40));
+            lpR.gravity = lp.gravity;
+            lpR.rightMargin = lp.rightMargin;
+            lpR.leftMargin = lp.leftMargin;
+            oneHandedRestoreBtn.setLayoutParams(lpR);
+            oneHandedRestoreBtn.setTranslationY(-dp(48));
+            oneHandedRestoreBtn.setVisibility(View.VISIBLE);
+        }
     }
 
     private void matchDrawerHeightToKeyboard(View drawer) {
@@ -2536,9 +2565,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ModernIconView settingsIconBtn = new ModernIconView(this, ModernIconView.ICON_SETTINGS_GEAR,
                 dimIconC, pillCLight());
         settingsIconBtn.setStyle(0.64f, 1.7f);
-        LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(40), dp(40));
-        lpSet.leftMargin = dp(10);
-        lpSet.rightMargin = dp(10);
+        LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(38), dp(38));
+        lpSet.leftMargin = dp(3);
+        lpSet.rightMargin = dp(3);
         settingsIconBtn.setLayoutParams(lpSet);
         settingsIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2548,9 +2577,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ModernIconView micIconBtn = new ModernIconView(this, ModernIconView.ICON_MIC,
                 dimIconC, pillCLight());
         micIconBtn.setStyle(0.64f, 1.7f);
-        LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(40), dp(40));
-        lpMic.leftMargin = dp(10);
-        lpMic.rightMargin = dp(10);
+        LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(38), dp(38));
+        lpMic.leftMargin = dp(3);
+        lpMic.rightMargin = dp(3);
         micIconBtn.setLayoutParams(lpMic);
         micIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2565,9 +2594,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ModernIconView resizeIconBtn = new ModernIconView(this, ModernIconView.ICON_RESIZE_HEIGHT,
                 dimIconC, pillCLight());
         resizeIconBtn.setStyle(0.64f, 1.7f);
-        LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(40), dp(40));
-        lpRes.leftMargin = dp(10);
-        lpRes.rightMargin = dp(10);
+        LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(38), dp(38));
+        lpRes.leftMargin = dp(3);
+        lpRes.rightMargin = dp(3);
         resizeIconBtn.setLayoutParams(lpRes);
         resizeIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2583,16 +2612,31 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 labelC(), pillC());
         backIconBtn.setPillBackground(true);
         backIconBtn.setStyle(0.85f, 2.3f);
-        LinearLayout.LayoutParams lpBackClip = new LinearLayout.LayoutParams(dp(62), dp(42));
+        LinearLayout.LayoutParams lpBackClip = new LinearLayout.LayoutParams(dp(58), dp(42));
 
-        lpBackClip.leftMargin = dp(30);
+        lpBackClip.leftMargin = dp(10);
         backIconBtn.setLayoutParams(lpBackClip);
         backIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             showKeyboardMain();
         });
 
+        ModernIconView oneHandIconBtn = new ModernIconView(this, ModernIconView.ICON_ONE_HAND,
+                dimIconC, pillCLight());
+        oneHandIconBtn.setStyle(0.64f, 1.7f);
+        LinearLayout.LayoutParams lpOne = new LinearLayout.LayoutParams(dp(38), dp(38));
+        lpOne.leftMargin = dp(3);
+        lpOne.rightMargin = dp(3);
+        oneHandIconBtn.setLayoutParams(lpOne);
+        oneHandIconBtn.setOnClickListener(v -> {
+            soundController.playKeyClick();
+            keyboardPrefs.setOneHandedMode(2);
+            applyOneHandedMode();
+            showKeyboardMain();
+        });
+
         header.addView(titleBox);
+        header.addView(oneHandIconBtn);
         header.addView(settingsIconBtn);
         header.addView(resizeIconBtn);
         header.addView(micIconBtn);

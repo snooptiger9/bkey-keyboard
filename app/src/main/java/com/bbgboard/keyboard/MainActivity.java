@@ -306,14 +306,19 @@ public class MainActivity extends Activity {
         root.addView(floatingTestEdit);
 
         FrameLayout fab = new FrameLayout(this);
-        fab.setBackground(roundedCard(dm("#2563EB"), 28));
-        fab.setElevation(dp(8));
+        GradientDrawable fabBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{Color.parseColor("#3B82F6"), Color.parseColor("#2563EB")});
+        fabBg.setShape(GradientDrawable.OVAL);
+        fabBg.setStroke(dp(1), Color.argb(70, 255, 255, 255));
+        fab.setBackground(fabBg);
+        fab.setElevation(dp(4));
+        fab.setAlpha(0.8f);
         ModernIconView fabIcon = new ModernIconView(this, ModernIconView.ICON_BACK_KEYBOARD, Color.WHITE, Color.parseColor(dm("#33FFFFFF")));
-        fabIcon.setStyle(0.9f, 2.0f);
+        fabIcon.setStyle(0.9f, 1.7f);
         FrameLayout.LayoutParams lpFabIcon = new FrameLayout.LayoutParams(dp(26), dp(26));
         lpFabIcon.gravity = Gravity.CENTER;
         fab.addView(fabIcon, lpFabIcon);
-        FrameLayout.LayoutParams lpFab = new FrameLayout.LayoutParams(dp(56), dp(56));
+        FrameLayout.LayoutParams lpFab = new FrameLayout.LayoutParams((int) (dp(56) * 0.99f), (int) (dp(56) * 0.99f));
         lpFab.gravity = Gravity.BOTTOM | (isDeviceArabic() ? Gravity.START : Gravity.END);
         lpFab.setMargins(dp(16), 0, dp(16), dp(16));
         fab.setLayoutParams(lpFab);

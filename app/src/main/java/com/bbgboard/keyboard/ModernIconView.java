@@ -51,6 +51,8 @@ public class ModernIconView extends View {
     public static final int ICON_SPARKLE = 39;
     public static final int ICON_PALETTE_BRUSH = 40;
     public static final int ICON_HAND_SWIPE = 41;
+    public static final int ICON_ONE_HAND = 42;
+    public static final int ICON_EXPAND_CORNERS = 43;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -598,6 +600,28 @@ public class ModernIconView extends View {
                 canvas.drawCircle(cx - r * 0.15f, cy - r * 0.50f, d, fillPaint);
                 canvas.drawCircle(cx + r * 0.32f, cy - r * 0.42f, d, fillPaint);
                 canvas.drawCircle(cx - r * 0.30f, cy + r * 0.42f, d, fillPaint);
+                break;
+            }
+            case ICON_ONE_HAND: {
+                RectF ph = new RectF(cx - r * 0.62f, cy - r * 0.95f, cx + r * 0.62f, cy + r * 0.95f);
+                canvas.drawRoundRect(ph, r * 0.28f, r * 0.28f, strokePaint);
+                // thumb reach: a quarter arc from the bottom-right corner ending in a dot
+                RectF reach = new RectF(cx - r * 0.38f, cy - r * 0.10f, cx + r * 0.38f, cy + r * 0.66f);
+                canvas.drawArc(reach, 180f, 90f, false, strokePaint);
+                canvas.drawCircle(cx + r * 0.30f, cy + r * 0.58f, r * 0.10f, fillPaint);
+                break;
+            }
+            case ICON_EXPAND_CORNERS: {
+                float[][] dirs = {{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+                for (float[] d : dirs) {
+                    float tx = cx + d[0] * r * 0.82f, ty = cy + d[1] * r * 0.82f;
+                    canvas.drawLine(cx + d[0] * r * 0.22f, cy + d[1] * r * 0.22f, tx, ty, strokePaint);
+                    Path head = new Path();
+                    head.moveTo(tx - d[0] * r * 0.46f, ty);
+                    head.lineTo(tx, ty);
+                    head.lineTo(tx, ty - d[1] * r * 0.46f);
+                    canvas.drawPath(head, strokePaint);
+                }
                 break;
             }
             case ICON_HAND_SWIPE: {
