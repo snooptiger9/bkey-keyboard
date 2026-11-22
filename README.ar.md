@@ -22,7 +22,6 @@
 إذا أفادك المشروع، نجمة <img src="docs/icons/star.svg" width="22" height="22" align="absmiddle" alt=""> تعني لنا الكثير.
 
 
-
 ---
 
 
@@ -188,11 +187,9 @@
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v306.apk"><img src="docs/images/badges/dl_plus_ar.png" alt="تحميل bkey Plus (APK)" width="300"></a>
 </p>
 
-**نسخة bkey** ما تطلب إلا أقل صلاحيات يحتاجها أي كيبورد للكتابة فقط (بدون إنترنت، بدون صور/تخزين، بدون رسائل) — كل ميزات الجدول فوق غير متوفرة فيها إلا اقتراح النص المنسوخ، لأن الباقي يحتاج إنترنت أو صلاحية صور.
+**نسخة bkey** ما تطلب إلا صلاحيات الكتابة فقط (بدون إنترنت أو صور/تخزين أو رسائل)، فميزات Plus في الجدول غير موجودة فيها. **نسخة bkey Plus** فيها كل شي، بس تثبيتها يسبب تحذير من Google Play Protect (متوقع، مو مشكلة حقيقية — شوف [الخصوصية والأمان](#ar-privacy)).
 
-**نسخة bkey Plus** فيها كل شي، بس تثبيتها يسبب تحذير من Google Play Protect (متوقع، مو مشكلة حقيقية — شوف [الخصوصية والأمان](#ar-privacy) ليش).
-
-تبي تحديثات تلقائية؟ أضف النسخة اللي تستخدمها إلى [Obtainium](https://github.com/ImranR98/Obtainium) بضغطة وحدة: **bkey** أو **bkey Plus**. كل رابط يتابع ملفه فقط، فما تحل وحدة مكان الثانية. النسختان لهما نفس اسم الحزمة، فخلّ وحدة منهما فقط داخل Obtainium.
+تبي تحديثات تلقائية؟ أضف النسخة اللي تستخدمها إلى [Obtainium](https://github.com/ImranR98/Obtainium) بضغطة وحدة، وأضف وحدة فقط (النسختان لهما نفس اسم الحزمة).
 
 <p>
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_ar.png" alt="أضف bkey إلى Obtainium" width="300"></a>
@@ -200,9 +197,8 @@
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_ar.png" alt="أضف bkey Plus إلى Obtainium" width="300"></a>
 </p>
 
-> [!CAUTION]
-> - **تحديث نسخة bkey:** من هذه الصفحة، أو عبر Obtainium بزر **bkey** أعلاه.
-> - **تحديث نسخة bkey Plus:** من هذه الصفحة، أو من داخل التطبيق (الإعدادات ← **تحديث التطبيق**)، أو عبر Obtainium بزر **bkey Plus** أعلاه. بأي طريقة تضل نسخة bkey Plus، ما تتحول لنسخة bkey الأساسية.
+> [!NOTE]
+> نسخة bkey Plus تتحدث أيضاً من داخل التطبيق (الإعدادات ← **تحديث التطبيق**).
 
 ### [ابنِه بنفسك](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
 

@@ -22,7 +22,6 @@
 If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22" align="absmiddle" alt=""> star would mean a lot.
 
 
-
 ---
 
 
@@ -168,12 +167,9 @@ Two builds — pick the one that fits you:
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v306.apk"><img src="docs/images/badges/dl_plus_en.png" alt="Download bkey Plus (APK)" width="300"></a>
 </p>
 
-**bkey** requests only what a keyboard strictly needs to type (no internet, no photos/storage, no SMS) — nothing else above works here except the copied-text suggestion, since the rest needs internet or photo access.
+**bkey** needs only the permissions a keyboard needs to type (no internet, photos/storage or SMS), so the Plus-only features in the table are not included. **bkey Plus** has everything, but Google Play Protect warns when you install it (expected, not a real problem; see [Privacy & security](#en-privacy)).
 
-**bkey Plus** has everything, but installing it triggers a Google Play Protect warning (expected, not a real problem — see [Privacy & security](#en-privacy) for why).
-
-
-Prefer automatic updates? Add the build you use to [Obtainium](https://github.com/ImranR98/Obtainium) with one tap: **bkey** or **bkey Plus**. Each link tracks only its own APK, so one never replaces the other.
+Want automatic updates? Add the build you use to [Obtainium](https://github.com/ImranR98/Obtainium) with one tap, and add only one of them (both share the same package name).
 
 <p>
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_en.png" alt="Add bkey to Obtainium" width="300"></a>
@@ -181,9 +177,8 @@ Prefer automatic updates? Add the build you use to [Obtainium](https://github.co
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_en.png" alt="Add bkey Plus to Obtainium" width="300"></a>
 </p>
 
-> [!CAUTION]
-> - **Updating bkey:** from this page, or through Obtainium using the **bkey** button above.
-> - **Updating bkey Plus:** from this page, from inside the app (Settings → **Update the app**), or through Obtainium using the **bkey Plus** button above. Whichever way you choose, it stays on bkey Plus, never the standard bkey version.
+> [!NOTE]
+> bkey Plus can also update from inside the app (Settings → **Update the app**).
 
 ### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
 

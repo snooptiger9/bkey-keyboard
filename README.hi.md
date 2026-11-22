@@ -22,7 +22,6 @@
 अगर यह आपके काम आए, तो एक <img src="docs/icons/star.svg" width="22" height="22" align="absmiddle" alt=""> स्टार से बहुत हौसला मिलेगा।
 
 
-
 ---
 
 
@@ -167,11 +166,9 @@
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v306.apk"><img src="docs/images/badges/dl_plus_en.png" alt="bkey Plus (APK) डाउनलोड करें" width="300"></a>
 </p>
 
-**bkey** केवल वही अनुमतियाँ माँगता है जो टाइपिंग के लिए ज़रूरी हैं (इंटरनेट नहीं, फ़ोटो/स्टोरेज नहीं, SMS नहीं); ऊपर की कोई भी सुविधा यहाँ काम नहीं करती सिवाय कॉपी किए टेक्स्ट के सुझाव के, क्योंकि बाक़ी के लिए इंटरनेट या फ़ोटो एक्सेस चाहिए।
+**bkey** केवल वही अनुमतियाँ माँगता है जो कीबोर्ड को टाइप करने के लिए चाहिए (इंटरनेट, फ़ोटो/स्टोरेज या SMS नहीं), इसलिए तालिका की केवल-Plus सुविधाएँ इसमें नहीं हैं। **bkey Plus** में सब कुछ है, लेकिन इंस्टॉल करते समय Google Play Protect चेतावनी देता है (अपेक्षित है, असली समस्या नहीं; देखें [गोपनीयता और सुरक्षा](#hi-privacy))।
 
-**bkey Plus** में सब कुछ है, लेकिन इंस्टॉल करते समय Google Play Protect की चेतावनी आती है (अपेक्षित है, कोई असली समस्या नहीं; कारण जानने के लिए [गोपनीयता और सुरक्षा](#hi-privacy) देखें)।
-
-अपने-आप अपडेट चाहिए? जो संस्करण आप इस्तेमाल करते हैं उसे एक टैप में [Obtainium](https://github.com/ImranR98/Obtainium) में जोड़ें: **bkey** या **bkey Plus**। हर लिंक केवल अपना APK फ़ॉलो करता है, इसलिए एक दूसरे को कभी नहीं बदलता। दोनों का पैकेज नाम एक ही है, इसलिए Obtainium में केवल एक ही रखें।
+अपने-आप अपडेट चाहिए? जो संस्करण आप इस्तेमाल करते हैं उसे एक टैप में [Obtainium](https://github.com/ImranR98/Obtainium) में जोड़ें, और केवल एक ही जोड़ें (दोनों का पैकेज नाम एक ही है)।
 
 <p>
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_en.png" alt="bkey को Obtainium में जोड़ें" width="300"></a>
@@ -179,9 +176,8 @@
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_en.png" alt="bkey Plus को Obtainium में जोड़ें" width="300"></a>
 </p>
 
-> [!CAUTION]
-> - **bkey अपडेट करना:** इसी पृष्ठ से या ऊपर के **bkey** बटन से Obtainium के ज़रिए।
-> - **bkey Plus अपडेट करना:** इसी पृष्ठ से, ऐप के अंदर से (सेटिंग्स → **ऐप अपडेट करें**) या ऊपर के **bkey Plus** बटन से Obtainium के ज़रिए। किसी भी तरह यह bkey Plus ही रहता है, कभी मानक bkey नहीं बनता।
+> [!NOTE]
+> bkey Plus ऐप के अंदर से भी अपडेट हो सकता है (सेटिंग्स → **ऐप अपडेट करें**)।
 
 ### [खुद बनाएँ](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
 
