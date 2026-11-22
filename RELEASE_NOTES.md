@@ -1,9 +1,11 @@
-<!-- versionCode: 307 -->
-### Release v307.0
+<!-- versionCode: 308 -->
+### Release v308.0
 
-- **Skin tones:** Long-press an emoji that has skin tones (hands, people) to pick a medium (wheat) or dark tone. A small corner mark shows which emojis support it.
-- **Mail button in the clipboard:** A copied email address now shows a one-tap button that opens a new message with that address filled in. It never sends anything for you.
-- **Smoother settings:** The title now glides into the next screen and the cards slide in one after another.
-- **Restyled emoji settings:** The emoji size and clear-recent screen now uses the same gradient cards as the stats and learned-words screens.
-- **Clearer headers:** The main settings title uses the same font as the other screens, and the Plus build shows "bkey Plus settings".
-- **Small touches:** The emoji key now shows 😀, and the letter-font previews show Latin letters only.
+- **One-handed mode shortcut:** A new button in the clipboard header switches to one-handed mode on the right, and a four-arrow button brings the full keyboard back. The side shift is a little smaller.
+- **More key fonts:** Four new Latin fonts (Inter, Poppins, Open Sans, Lato) join the font options.
+- **Refreshed theme page:** Theme, key style and size now share one clean look, with compact size controls and a shorter page.
+- **About & maintenance:** Update, What's new, Share, Backup and Error log now live in one tidy page. The Share button sends the right download link for your build.
+- **Clipboard buttons:** Separate switches for the call and mail buttons.
+- **Smarter email suggestions:** Saved emails show up only after two typed characters.
+- **Smoother cards:** Fixed the card slide-in animation in settings.
+- **Small touches:** The shortcuts screen is now called "Word shortcuts", and the floating test button has a lighter, modern look.
