@@ -603,12 +603,18 @@ public class ModernIconView extends View {
                 break;
             }
             case ICON_ONE_HAND: {
-                RectF ph = new RectF(cx - r * 0.62f, cy - r * 0.95f, cx + r * 0.62f, cy + r * 0.95f);
-                canvas.drawRoundRect(ph, r * 0.28f, r * 0.28f, strokePaint);
-                // thumb reach: a quarter arc from the bottom-right corner ending in a dot
-                RectF reach = new RectF(cx - r * 0.38f, cy - r * 0.10f, cx + r * 0.38f, cy + r * 0.66f);
-                canvas.drawArc(reach, 180f, 90f, false, strokePaint);
-                canvas.drawCircle(cx + r * 0.30f, cy + r * 0.58f, r * 0.10f, fillPaint);
+                // Full-width keyboard outline with a narrower keyboard docked to the right,
+                // and an arrow showing it squeezed toward that side.
+                RectF outer = new RectF(cx - r * 1.05f, cy - r * 0.78f, cx + r * 1.05f, cy + r * 0.78f);
+                canvas.drawRoundRect(outer, r * 0.22f, r * 0.22f, strokePaint);
+                RectF docked = new RectF(cx + r * 0.18f, cy - r * 0.50f, cx + r * 0.82f, cy + r * 0.50f);
+                canvas.drawRoundRect(docked, r * 0.14f, r * 0.14f, fillPaint);
+                canvas.drawLine(cx - r * 0.70f, cy, cx - r * 0.02f, cy, strokePaint);
+                Path ah = new Path();
+                ah.moveTo(cx - r * 0.30f, cy - r * 0.30f);
+                ah.lineTo(cx - r * 0.02f, cy);
+                ah.lineTo(cx - r * 0.30f, cy + r * 0.30f);
+                canvas.drawPath(ah, strokePaint);
                 break;
             }
             case ICON_EXPAND_CORNERS: {

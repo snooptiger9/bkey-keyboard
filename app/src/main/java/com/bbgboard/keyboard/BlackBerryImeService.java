@@ -2566,8 +2566,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         settingsIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpSet = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpSet.leftMargin = dp(3);
-        lpSet.rightMargin = dp(3);
+        lpSet.leftMargin = dp(7);
+        lpSet.rightMargin = dp(7);
         settingsIconBtn.setLayoutParams(lpSet);
         settingsIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2578,8 +2578,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         micIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpMic = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpMic.leftMargin = dp(3);
-        lpMic.rightMargin = dp(3);
+        lpMic.leftMargin = dp(7);
+        lpMic.rightMargin = dp(7);
         micIconBtn.setLayoutParams(lpMic);
         micIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2595,8 +2595,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         resizeIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpRes = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpRes.leftMargin = dp(3);
-        lpRes.rightMargin = dp(3);
+        lpRes.leftMargin = dp(7);
+        lpRes.rightMargin = dp(7);
         resizeIconBtn.setLayoutParams(lpRes);
         resizeIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
@@ -2625,8 +2625,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 dimIconC, pillCLight());
         oneHandIconBtn.setStyle(0.64f, 1.7f);
         LinearLayout.LayoutParams lpOne = new LinearLayout.LayoutParams(dp(38), dp(38));
-        lpOne.leftMargin = dp(3);
-        lpOne.rightMargin = dp(3);
+        lpOne.leftMargin = dp(7);
+        lpOne.rightMargin = dp(7);
         oneHandIconBtn.setLayoutParams(lpOne);
         oneHandIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
