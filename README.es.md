@@ -162,9 +162,9 @@ Dos versiones: elige la que mejor te venga:
 | Sugerencia del texto copiado | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v307.apk"><img src="docs/images/badges/dl_bkey_es.png" alt="Descargar bkey (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v308.apk"><img src="docs/images/badges/dl_bkey_es.png" alt="Descargar bkey (APK)" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v307.apk"><img src="docs/images/badges/dl_plus_es.png" alt="Descargar bkey Plus (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v308.apk"><img src="docs/images/badges/dl_plus_es.png" alt="Descargar bkey Plus (APK)" width="300"></a>
 </p>
 
 **bkey** solo pide los permisos que un teclado necesita para escribir (sin internet, fotos/almacenamiento ni SMS), por eso no incluye las funciones solo de Plus de la tabla. **bkey Plus** lo tiene todo, pero Google Play Protect muestra una advertencia al instalarlo (esperada, no es un problema real; mira [Privacidad y seguridad](#es-privacy)).
