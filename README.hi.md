@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-# <img src="docs/icons/keyboard.svg" width="34" height="34" align="absmiddle" alt=""> bkey
+# <img src="docs/icons/keyboard.svg" width="36" height="36" align="absmiddle" alt=""> bkey
 
 **BlackBerry Keyboard - Classic के जेस्चर पर आधारित एक Android कीबोर्ड: सुझाव चुनने के लिए ऊपर स्वाइप करें और मिटाने के लिए बग़ल में स्वाइप करें (दिशा बदली जा सकती है)।**
 
@@ -27,7 +27,7 @@
 
 <img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **त्वरित लिंक:** [सुविधाएँ](#hi-features) · [गोपनीयता और सुरक्षा](#hi-privacy) · [डाउनलोड](#hi-download) · [खुद बनाएँ](BUILDING.md) · [अक्सर पूछे जाने वाले प्रश्न](#hi-faq) · [समुदाय और बग](#hi-community) · [सहयोग](#hi-support)
 
-### परिचय <img src="docs/icons/sparkles.svg" width="22" height="22" align="absmiddle" alt="">
+### परिचय <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
 **bkey** एक Android कीबोर्ड (IME) है जो **BlackBerry Keyboard - Classic** ऐप के स्वाइप जेस्चर पर आधारित है, और
 इसमें ज़्यादा कस्टमाइज़ेशन और अतिरिक्त सुविधाएँ हैं: किसी भी सुझाव पर ऊपर स्वाइप करके उसे तुरंत स्वीकार करें,
@@ -38,7 +38,7 @@
 
 <a id="hi-features"></a>
 
-### सुविधाएँ <img src="docs/icons/rocket.svg" width="22" height="22" align="absmiddle" alt="">
+### सुविधाएँ <img src="docs/icons/rocket.svg" width="24" height="24" align="absmiddle" alt="">
 
 <img src="docs/icons/gesture.svg" width="22" height="22" align="absmiddle" alt=""> **जेस्चर**
 - किसी भी सुझाव पर ऊपर स्वाइप करें: वह तुरंत स्वीकार हो जाता है।
@@ -109,7 +109,7 @@
 
 <a id="hi-privacy"></a>
 
-### गोपनीयता और सुरक्षा <img src="docs/icons/lock.svg" width="22" height="22" align="absmiddle" alt="">
+### गोपनीयता और सुरक्षा <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
 
 - **bkey** (मानक संस्करण) के पास नेटवर्क एक्सेस नहीं है और यह SMS, नोटिफ़िकेशन, फ़ोटो या स्टोरेज नहीं पढ़ सकता: ये
   अनुमतियाँ ऐप में हैं ही नहीं। आवाज़ से टाइपिंग फिर भी काम करती है, जिसे पूरी तरह आपके डिवाइस की
@@ -147,7 +147,7 @@
 
 <a id="hi-download"></a>
 
-### डाउनलोड <img src="docs/icons/download.svg" width="22" height="22" align="absmiddle" alt="">
+### डाउनलोड <img src="docs/icons/download.svg" width="24" height="24" align="absmiddle" alt="">
 
 दो संस्करण: जो आपके लिए बेहतर हो वह चुनें:
 
@@ -179,13 +179,13 @@
 > [!NOTE]
 > bkey Plus ऐप के अंदर से भी अपडेट हो सकता है (सेटिंग्स → **ऐप अपडेट करें**)।
 
-### [खुद बनाएँ](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
+### [खुद बनाएँ](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>
 
 <a id="hi-faq"></a>
 
-### अक्सर पूछे जाने वाले प्रश्न <img src="docs/icons/help.svg" width="22" height="22" align="absmiddle" alt="">
+### अक्सर पूछे जाने वाले प्रश्न <img src="docs/icons/help.svg" width="24" height="24" align="absmiddle" alt="">
 
 <details>
 <summary><b>क्या कीबोर्ड मेरा टाइप किया इंटरनेट पर भेजता है?</b></summary>
@@ -220,7 +220,7 @@
 
 <a id="hi-community"></a>
 
-### समुदाय और बग <img src="docs/icons/users.svg" width="22" height="22" align="absmiddle" alt="">
+### समुदाय और बग <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 सेटिंग्स → **Error log** → **"Email developer"** क्रैश का विवरण सीधे **lvl60me@gmail.com** पर भेजता है: सुझाव या फ़ीडबैक के लिए भी यही पता है, और डेवलपर से संपर्क का यही एकमात्र तरीक़ा है।
 
@@ -228,7 +228,7 @@
 
 <a id="hi-support"></a>
 
-### सहयोग <img src="docs/icons/mail.svg" width="22" height="22" align="absmiddle" alt="">
+### सहयोग <img src="docs/icons/mail.svg" width="24" height="24" align="absmiddle" alt="">
 
 अगर आपको प्रोजेक्ट पसंद है और आप उसका साथ देना चाहते हैं, तो Ko-fi पर मुझे एक कॉफ़ी पिला सकते हैं:
 

@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-# <img src="docs/icons/keyboard.svg" width="34" height="34" align="absmiddle" alt=""> bkey
+# <img src="docs/icons/keyboard.svg" width="36" height="36" align="absmiddle" alt=""> bkey
 
 **An Android keyboard built on BlackBerry Keyboard - Classic's swipe gestures — swipe up to pick a suggestion, swipe sideways to delete (direction configurable).**
 
@@ -27,7 +27,7 @@ If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22"
 
 <img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Support](#en-support)
 
-### Overview <img src="docs/icons/sparkles.svg" width="22" height="22" align="absmiddle" alt="">
+### Overview <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
@@ -39,7 +39,7 @@ tailored experience for each.
 
 <a id="en-features"></a>
 
-### Features <img src="docs/icons/rocket.svg" width="22" height="22" align="absmiddle" alt="">
+### Features <img src="docs/icons/rocket.svg" width="24" height="24" align="absmiddle" alt="">
 
 <img src="docs/icons/gesture.svg" width="22" height="22" align="absmiddle" alt=""> **Gestures**
 - Swipe up on any suggestion: accept it instantly.
@@ -110,7 +110,7 @@ tailored experience for each.
 
 <a id="en-privacy"></a>
 
-### Privacy & security <img src="docs/icons/lock.svg" width="22" height="22" align="absmiddle" alt="">
+### Privacy & security <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
 
 - **bkey** (the standard version) has no network access and can't read SMS, notifications, photos or storage — those
   permissions aren't in the app. Voice typing still works, handled entirely by your device's own
@@ -148,7 +148,7 @@ tailored experience for each.
 
 <a id="en-download"></a>
 
-### Download <img src="docs/icons/download.svg" width="22" height="22" align="absmiddle" alt="">
+### Download <img src="docs/icons/download.svg" width="24" height="24" align="absmiddle" alt="">
 
 Two builds — pick the one that fits you:
 
@@ -180,13 +180,13 @@ Want automatic updates? Add the build you use to [Obtainium](https://github.com/
 > [!NOTE]
 > bkey Plus can also update from inside the app (Settings → **Update the app**).
 
-### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
+### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>
 
 <a id="en-faq"></a>
 
-### FAQ <img src="docs/icons/help.svg" width="22" height="22" align="absmiddle" alt="">
+### FAQ <img src="docs/icons/help.svg" width="24" height="24" align="absmiddle" alt="">
 
 <details>
 <summary><b>Does the keyboard send anything I type to the internet?</b></summary>
@@ -221,7 +221,7 @@ No — it's lightweight and runs fully on-device, with no background cloud proce
 
 <a id="en-community"></a>
 
-### Community & bug reports <img src="docs/icons/users.svg" width="22" height="22" align="absmiddle" alt="">
+### Community & bug reports <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 Settings → **Error log** → **"Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
 
@@ -229,7 +229,7 @@ Settings → **Error log** → **"Email developer"** sends crash details straigh
 
 <a id="en-support"></a>
 
-### Support <img src="docs/icons/mail.svg" width="22" height="22" align="absmiddle" alt="">
+### Support <img src="docs/icons/mail.svg" width="24" height="24" align="absmiddle" alt="">
 
 If you like the project and want to support it, you can buy me a coffee on Ko-fi:
 

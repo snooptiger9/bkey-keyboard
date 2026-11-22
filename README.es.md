@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-# <img src="docs/icons/keyboard.svg" width="34" height="34" align="absmiddle" alt=""> bkey
+# <img src="docs/icons/keyboard.svg" width="36" height="36" align="absmiddle" alt=""> bkey
 
 **Un teclado Android basado en los gestos de BlackBerry Keyboard - Classic: desliza hacia arriba para elegir una sugerencia y hacia los lados para borrar (la dirección es configurable).**
 
@@ -27,7 +27,7 @@ Si te resulta útil, una <img src="docs/icons/star.svg" width="22" height="22" a
 
 <img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Enlaces rápidos:** [Funciones](#es-features) · [Privacidad y seguridad](#es-privacy) · [Descarga](#es-download) · [Compílalo tú mismo](BUILDING.md) · [Preguntas frecuentes](#es-faq) · [Comunidad y errores](#es-community) · [Apoyo](#es-support)
 
-### Descripción <img src="docs/icons/sparkles.svg" width="22" height="22" align="absmiddle" alt="">
+### Descripción <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
 **bkey** es un teclado Android (IME) basado en los gestos de deslizamiento de la app **BlackBerry
 Keyboard - Classic**, con más personalización y funciones extra: desliza hacia arriba sobre cualquier
@@ -39,7 +39,7 @@ totalmente compatible con árabe, inglés, español e hindi, con una experiencia
 
 <a id="es-features"></a>
 
-### Funciones <img src="docs/icons/rocket.svg" width="22" height="22" align="absmiddle" alt="">
+### Funciones <img src="docs/icons/rocket.svg" width="24" height="24" align="absmiddle" alt="">
 
 <img src="docs/icons/gesture.svg" width="22" height="22" align="absmiddle" alt=""> **Gestos**
 - Desliza hacia arriba sobre cualquier sugerencia: la aceptas al instante.
@@ -110,7 +110,7 @@ totalmente compatible con árabe, inglés, español e hindi, con una experiencia
 
 <a id="es-privacy"></a>
 
-### Privacidad y seguridad <img src="docs/icons/lock.svg" width="22" height="22" align="absmiddle" alt="">
+### Privacidad y seguridad <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
 
 - **bkey** (la versión estándar) no tiene acceso a la red y no puede leer SMS, notificaciones, fotos ni almacenamiento: esos
   permisos no están en la app. El dictado por voz sigue funcionando, gestionado por completo por el servicio de
@@ -148,7 +148,7 @@ totalmente compatible con árabe, inglés, español e hindi, con una experiencia
 
 <a id="es-download"></a>
 
-### Descarga <img src="docs/icons/download.svg" width="22" height="22" align="absmiddle" alt="">
+### Descarga <img src="docs/icons/download.svg" width="24" height="24" align="absmiddle" alt="">
 
 Dos versiones: elige la que mejor te venga:
 
@@ -180,13 +180,13 @@ Dos versiones: elige la que mejor te venga:
 > [!NOTE]
 > bkey Plus también se actualiza desde dentro de la app (Ajustes → **Actualizar la app**).
 
-### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
+### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>
 
 <a id="es-faq"></a>
 
-### Preguntas frecuentes <img src="docs/icons/help.svg" width="22" height="22" align="absmiddle" alt="">
+### Preguntas frecuentes <img src="docs/icons/help.svg" width="24" height="24" align="absmiddle" alt="">
 
 <details>
 <summary><b>¿El teclado envía a internet lo que escribo?</b></summary>
@@ -221,7 +221,7 @@ No: es ligero y funciona por completo en el dispositivo, sin procesamiento en la
 
 <a id="es-community"></a>
 
-### Comunidad y errores <img src="docs/icons/users.svg" width="22" height="22" align="absmiddle" alt="">
+### Comunidad y errores <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 Ajustes → **Error log** → **"Email developer"** envía los detalles del fallo directamente a **lvl60me@gmail.com**: la misma dirección sirve para sugerencias o comentarios, y es la única forma de contactar con el desarrollador.
 
@@ -229,7 +229,7 @@ Ajustes → **Error log** → **"Email developer"** envía los detalles del fall
 
 <a id="es-support"></a>
 
-### Apoyo <img src="docs/icons/mail.svg" width="22" height="22" align="absmiddle" alt="">
+### Apoyo <img src="docs/icons/mail.svg" width="24" height="24" align="absmiddle" alt="">
 
 Si te gusta el proyecto y quieres apoyarlo, puedes invitarme a un café en Ko-fi:
 

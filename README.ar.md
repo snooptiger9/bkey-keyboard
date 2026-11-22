@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-# <img src="docs/icons/keyboard.svg" width="34" height="34" align="absmiddle" alt=""> bkey
+# <img src="docs/icons/keyboard.svg" width="36" height="36" align="absmiddle" alt=""> bkey
 
 **كيبورد أندرويد مبني على إيماءات السحب في BlackBerry Keyboard - Classic — اسحب للأعلى لاختيار اقتراح، واسحب جانبياً للحذف (الاتجاه قابل للتخصيص).**
 
@@ -27,7 +27,7 @@
 
 <img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
 
-### الوصف <img src="docs/icons/sparkles.svg" width="22" height="22" align="absmiddle" alt="">
+### الوصف <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
 **bkey** كيبورد أندرويد (IME) مبني على إيماءات السحب في تطبيق **BlackBerry Keyboard - Classic**،
 بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب جانبياً على صف الحروف (الاتجاه
@@ -38,7 +38,7 @@
 
 <a id="ar-features"></a>
 
-### المميزات <img src="docs/icons/rocket.svg" width="22" height="22" align="absmiddle" alt="">
+### المميزات <img src="docs/icons/rocket.svg" width="24" height="24" align="absmiddle" alt="">
 
 <div dir="rtl">
 
@@ -119,7 +119,7 @@
 
 <a id="ar-privacy"></a>
 
-### الخصوصية والأمان <img src="docs/icons/lock.svg" width="22" height="22" align="absmiddle" alt="">
+### الخصوصية والأمان <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
 
 <div dir="rtl">
 
@@ -164,7 +164,7 @@
 
 <a id="ar-download"></a>
 
-### التحميل <img src="docs/icons/download.svg" width="22" height="22" align="absmiddle" alt="">
+### التحميل <img src="docs/icons/download.svg" width="24" height="24" align="absmiddle" alt="">
 
 نسختين — اختر اللي تناسبك:
 
@@ -200,13 +200,13 @@
 > [!NOTE]
 > نسخة bkey Plus تتحدث أيضاً من داخل التطبيق (الإعدادات ← **تحديث التطبيق**).
 
-### [ابنِه بنفسك](BUILDING.md) <img src="docs/icons/wrench.svg" width="22" height="22" align="absmiddle" alt="">
+### [ابنِه بنفسك](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>
 
 <a id="ar-faq"></a>
 
-### الأسئلة الشائعة <img src="docs/icons/help.svg" width="22" height="22" align="absmiddle" alt="">
+### الأسئلة الشائعة <img src="docs/icons/help.svg" width="24" height="24" align="absmiddle" alt="">
 
 <div dir="rtl">
 
@@ -245,7 +245,7 @@
 
 <a id="ar-community"></a>
 
-### المجتمع والإبلاغ عن الأخطاء <img src="docs/icons/users.svg" width="22" height="22" align="absmiddle" alt="">
+### المجتمع والإبلاغ عن الأخطاء <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 <div dir="rtl">
 
@@ -257,7 +257,7 @@
 
 <a id="ar-support"></a>
 
-### الدعم <img src="docs/icons/mail.svg" width="22" height="22" align="absmiddle" alt="">
+### الدعم <img src="docs/icons/mail.svg" width="24" height="24" align="absmiddle" alt="">
 
 إذا عجبك المشروع وتبي تدعمه، تقدر تدعمني عبر Ko-fi:
 
