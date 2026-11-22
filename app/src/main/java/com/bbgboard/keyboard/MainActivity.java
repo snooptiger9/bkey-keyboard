@@ -921,7 +921,10 @@ public class MainActivity extends Activity {
         TypedValue ripple = new TypedValue();
         getTheme().resolveAttribute(android.R.attr.selectableItemBackground, ripple, true);
         row.setBackgroundResource(ripple.resourceId);
-        row.setOnClickListener(v -> onClick.run());
+        row.setOnClickListener(v -> {
+            captureTitleForTransition(titleTv);
+            onClick.run();
+        });
         wrapper.addView(row);
 
         if (showBottomDivider) {
@@ -975,7 +978,95 @@ public class MainActivity extends Activity {
         scroll.addView(root);
         mainFrame.addView(scroll);
         restoreScroll(scroll);
+        playScreenEnter(root, titleTv);
         return root;
+    }
+
+    // ---- Screen-enter transition: the row title glides into the new screen's header
+    // and the cards rise in one after another. Text only; icons stay put.
+    private float[] pendingTitleSrc; // left, right, top (window px), text size px
+    private CharSequence pendingTitleText;
+    private long pendingTitleTime;
+
+    private void captureTitleForTransition(TextView tv) {
+        try {
+            int[] loc = new int[2];
+            tv.getLocationInWindow(loc);
+            pendingTitleSrc = new float[]{loc[0], loc[0] + tv.getWidth(), loc[1], tv.getTextSize()};
+            pendingTitleText = tv.getText();
+            pendingTitleTime = android.os.SystemClock.uptimeMillis();
+        } catch (Exception e) {
+            pendingTitleSrc = null;
+        }
+    }
+
+    private void playScreenEnter(final LinearLayout root, final TextView titleTv) {
+        final float[] src = pendingTitleSrc;
+        final CharSequence srcText = pendingTitleText;
+        final boolean fresh = src != null
+                && android.os.SystemClock.uptimeMillis() - pendingTitleTime < 800;
+        pendingTitleSrc = null;
+        if (returningBack || !fresh) return;
+
+        // Cards rise in, one after another (the first child is the title bar).
+        final android.view.animation.Interpolator decel = new android.view.animation.DecelerateInterpolator(1.6f);
+        for (int i = 1; i < root.getChildCount(); i++) {
+            View c = root.getChildAt(i);
+            c.setAlpha(0f);
+            c.setTranslationY(dp(26));
+            c.animate().alpha(1f).translationY(0f)
+                    .setStartDelay(70L + 45L * Math.min(i - 1, 7))
+                    .setDuration(300).setInterpolator(decel).start();
+        }
+
+        titleTv.setAlpha(0f);
+        titleTv.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+            @Override public boolean onPreDraw() {
+                titleTv.getViewTreeObserver().removeOnPreDrawListener(this);
+                try {
+                    final boolean rtl = titleTv.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+                    int[] tl = new int[2];
+                    titleTv.getLocationInWindow(tl);
+                    int[] ml = new int[2];
+                    mainFrame.getLocationInWindow(ml);
+                    final int w = Math.max(titleTv.getWidth(), 1);
+                    final TextView ghost = new TextView(MainActivity.this);
+                    ghost.setText(srcText);
+                    ghost.setTextColor(titleTv.getCurrentTextColor());
+                    ghost.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleTv.getTextSize());
+                    ghost.setTypeface(titleTv.getTypeface());
+                    ghost.setLayoutDirection(titleTv.getLayoutDirection());
+                    ghost.setSingleLine(true);
+                    ghost.setLayoutParams(new FrameLayout.LayoutParams(w, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    ghost.setPivotX(rtl ? w : 0f);
+                    ghost.setPivotY(0f);
+                    float tgtStartX = rtl ? tl[0] + w : tl[0];
+                    float srcStartX = rtl ? src[1] : src[0];
+                    float endX = tgtStartX - (rtl ? w : 0f) - ml[0];
+                    float startX = srcStartX - (rtl ? w : 0f) - ml[0];
+                    float endY = tl[1] - ml[1];
+                    float startY = src[2] - ml[1];
+                    float scale0 = Math.max(0.5f, Math.min(1f, src[3] / Math.max(titleTv.getTextSize(), 1f)));
+                    ghost.setTranslationX(startX);
+                    ghost.setTranslationY(startY);
+                    ghost.setScaleX(scale0);
+                    ghost.setScaleY(scale0);
+                    mainFrame.addView(ghost);
+                    ghost.animate().translationX(endX).translationY(endY).scaleX(1f).scaleY(1f)
+                            .setDuration(320)
+                            .setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0f, 1f))
+                            .withEndAction(() -> {
+                                titleTv.setAlpha(1f);
+                                mainFrame.removeView(ghost);
+                            }).start();
+                    // Safety net: never leave the real title hidden.
+                    titleTv.postDelayed(() -> titleTv.setAlpha(1f), 600);
+                } catch (Exception e) {
+                    titleTv.setAlpha(1f);
+                }
+                return true;
+            }
+        });
     }
 
     private void openErrorLogScreen() {
