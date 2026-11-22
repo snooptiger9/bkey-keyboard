@@ -2693,71 +2693,74 @@ public class MainActivity extends Activity {
     }
 
     private void fillEmojiScreen(final LinearLayout root) {
-        LinearLayout sizeCard = createGroupedWhiteCard();
-        sizeCard.setPadding(dp(16), dp(16), dp(16), dp(16));
-        final TextView sizeLabel = new TextView(this);
-        sizeLabel.setText(tr("حجم الإيموجي في القائمة: ", "Emoji size in the list: ") + prefs.getEmojiSizeSp());
-        sizeLabel.setTextColor(Color.parseColor(dm("#111827")));
+        LinearLayout sizeCard = new LinearLayout(this);
+        sizeCard.setOrientation(LinearLayout.VERTICAL);
+        sizeCard.setPadding(dp(22), dp(22), dp(22), dp(18));
+        GradientDrawable sizeBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{Color.parseColor("#F59E0B"), Color.parseColor("#F97316")});
+        sizeBg.setCornerRadius(dp(26));
+        sizeCard.setBackground(sizeBg);
+        LinearLayout.LayoutParams lpSize = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpSize.bottomMargin = dp(14);
+        sizeCard.setLayoutParams(lpSize);
+
+        TextView sizeLabel = new TextView(this);
+        sizeLabel.setText(tr("حجم الإيموجي في القائمة", "Emoji size in the list"));
+        sizeLabel.setTextColor(Color.argb(230, 255, 255, 255));
         sizeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         sizeLabel.setTypeface(Typeface.DEFAULT_BOLD);
         sizeCard.addView(sizeLabel);
+
+        final TextView sizeNum = new TextView(this);
+        sizeNum.setText(String.valueOf(prefs.getEmojiSizeSp()));
+        sizeNum.setTextColor(Color.WHITE);
+        sizeNum.setTextSize(TypedValue.COMPLEX_UNIT_SP, 52f);
+        sizeNum.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
+        sizeNum.setIncludeFontPadding(false);
+        sizeNum.setPadding(0, dp(6), 0, dp(10));
+        sizeCard.addView(sizeNum);
 
         final TextView preview = new TextView(this);
         preview.setText("😀 😍 👍 🔥 🌙");
         preview.setTextSize(TypedValue.COMPLEX_UNIT_SP, prefs.getEmojiSizeSp());
         preview.setGravity(Gravity.CENTER);
-        preview.setPadding(0, dp(10), 0, dp(4));
+        preview.setPadding(dp(8), dp(10), dp(8), dp(10));
+        GradientDrawable previewBg = new GradientDrawable();
+        previewBg.setColor(Color.argb(46, 255, 255, 255));
+        previewBg.setCornerRadius(dp(18));
+        preview.setBackground(previewBg);
         sizeCard.addView(preview);
 
         SeekBar sizeSeek = new SeekBar(this);
         sizeSeek.setMax(18);
         sizeSeek.setProgress(prefs.getEmojiSizeSp() - 16);
-        sizeSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        sizeSeek.setPadding(dp(8), dp(16), dp(8), dp(4));
+        android.content.res.ColorStateList white = android.content.res.ColorStateList.valueOf(Color.WHITE);
+        sizeSeek.setProgressTintList(white);
+        sizeSeek.setThumbTintList(white);
+        sizeSeek.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.argb(90, 255, 255, 255)));
         sizeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int sp = 16 + progress;
                 prefs.setEmojiSizeSp(sp);
-                sizeLabel.setText(tr("حجم الإيموجي في القائمة: ", "Emoji size in the list: ") + sp);
+                sizeNum.setText(String.valueOf(sp));
                 preview.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
             }
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
         sizeCard.addView(sizeSeek);
-
-        LinearLayout clearBtn = new LinearLayout(this);
-        clearBtn.setOrientation(LinearLayout.HORIZONTAL);
-        clearBtn.setGravity(Gravity.CENTER);
-        clearBtn.setBackground(roundedCard(dm("#FEE2E2"), 14));
-        clearBtn.setPadding(dp(14), dp(12), dp(14), dp(12));
-        LinearLayout.LayoutParams lpClearBtn = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lpClearBtn.topMargin = dp(14);
-        clearBtn.setLayoutParams(lpClearBtn);
-
-        ModernIconView clearIcon = new ModernIconView(this, ModernIconView.ICON_TRASH,
-                Color.parseColor(dm("#DC2626")), Color.TRANSPARENT);
-        clearIcon.setStyle(0.85f, 1.8f);
-        LinearLayout.LayoutParams lpClearIcon = new LinearLayout.LayoutParams(dp(20), dp(20));
-        lpClearIcon.rightMargin = dp(8);
-        lpClearIcon.leftMargin = dp(8);
-        clearIcon.setLayoutParams(lpClearIcon);
-
-        TextView clearLabel = new TextView(this);
-        clearLabel.setText(tr("مسح قسم «مستخدم حديثاً»", "Clear \"Recently used\" section"));
-        clearLabel.setTextColor(Color.parseColor(dm("#DC2626")));
-        clearLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
-        clearLabel.setTypeface(Typeface.DEFAULT_BOLD);
-
-        clearBtn.addView(clearIcon);
-        clearBtn.addView(clearLabel);
-        clearBtn.setOnClickListener(v -> {
-            prefs.clearRecentEmojis();
-            android.widget.Toast.makeText(this, tr("تم مسح الإيموجي الأخيرة", "Recent emojis cleared"), android.widget.Toast.LENGTH_SHORT).show();
-        });
-        sizeCard.addView(clearBtn);
         root.addView(sizeCard);
+
+        root.addView(createActionCard(ModernIconView.ICON_TRASH,
+                tr("مسح قسم «مستخدم حديثاً»", "Clear \"Recently used\" section"),
+                tr("يحذف الإيموجي الأخيرة من اللوحة", "Removes the recent emojis from the panel"),
+                Color.parseColor("#F43F5E"), Color.parseColor("#DC2626"), 120L, v -> {
+                    prefs.clearRecentEmojis();
+                    android.widget.Toast.makeText(this, tr("تم مسح الإيموجي الأخيرة", "Recent emojis cleared"), android.widget.Toast.LENGTH_SHORT).show();
+                }));
         // The old "Floating capsules color" picker (Black / Light gray) used to live here.
         // Its default (black) was nearly invisible on the Matte Black and Midnight Slate
         // themes' own dark background, so the floating ABC/Delete capsules now use a fixed
