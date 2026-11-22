@@ -80,7 +80,6 @@ tailored experience for each.
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for an automatic period + space.
 - Auto-capitalize the first letter of each sentence (English/Spanish).
-- **Hindi (Devanagari) keyboard:** the standard InScript layout with a Shift layer, conjuncts (क्ष, त्र, ज्ञ, श्र) and nukta letters on long-press, Devanagari digits, ₹ and the danda (।). It has its own dictionary, next-word prediction, emoji suggestions and learned words, kept apart from the other languages, and Hindi is never auto-corrected unless the misspelling is a certain one.
 - Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(bkey Plus only)*
 
 <br>
