@@ -1055,8 +1055,8 @@ public class MainActivity extends Activity {
                     ghost.setScaleY(scale0);
                     mainFrame.addView(ghost);
                     ghost.animate().translationX(endX).translationY(endY).scaleX(1f).scaleY(1f)
-                            .setDuration(320)
-                            .setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0f, 1f))
+                            .setDuration(380)
+                            .setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0.4f, 1f))
                             .withEndAction(() -> {
                                 titleTv.setAlpha(1f);
                                 mainFrame.removeView(ghost);
