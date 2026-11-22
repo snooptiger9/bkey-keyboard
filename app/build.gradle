@@ -84,15 +84,11 @@ android {
 }
 
 // Bundles RELEASE_NOTES.md into the app so "What's new" works offline (no INTERNET needed).
-def notesDir = layout.buildDirectory.dir('generated/release_notes')
-def copyNotes = tasks.register('copyReleaseNotes', Copy) {
-    from rootProject.file('RELEASE_NOTES.md')
-    rename { 'release_notes.md' }
-    into notesDir
-}
-android.sourceSets.main.assets.srcDir(notesDir)
-tasks.configureEach { t ->
-    if (t.name.startsWith('merge') && t.name.endsWith('Assets')) t.dependsOn(copyNotes)
+// Copied at configuration time into the assets folder (git-ignored), so no task wiring is needed.
+def notesSrc = rootProject.file('RELEASE_NOTES.md')
+def notesDst = file('src/main/assets/release_notes.md')
+if (notesSrc.exists()) {
+    notesDst.text = notesSrc.getText('UTF-8')
 }
 
 configurations.all {

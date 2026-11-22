@@ -7,3 +7,5 @@ app/keystore.properties
 app/bkey_release.keystore
 app/klipy.properties
 release/*.apk
+
+app/src/main/assets/release_notes.md
