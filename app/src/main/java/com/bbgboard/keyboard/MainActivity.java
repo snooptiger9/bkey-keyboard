@@ -2191,7 +2191,12 @@ public class MainActivity extends Activity {
         FrameLayout wrap = new FrameLayout(this);
         wrap.setClipChildren(false);
         wrap.setClipToPadding(false);
-        wrap.setLayoutParams(holder.getLayoutParams());
+        // Room above and below for the ring, which sits outside the square: without it the row
+        // clips the top of the frame.
+        LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams((LinearLayout.LayoutParams) holder.getLayoutParams());
+        wlp.topMargin = dp(5);
+        wlp.bottomMargin = dp(2);
+        wrap.setLayoutParams(wlp);
         holder.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         wrap.addView(holder);
