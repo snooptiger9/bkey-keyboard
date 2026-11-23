@@ -1953,6 +1953,8 @@ public class MainActivity extends Activity {
     /** While a slider is being dragged, shows its value in a small bubble above the thumb so the
      *  finger never hides it. The slider itself is untouched (the touch is not consumed). */
     private void attachValueBubble(final SeekBar seek, final IntLabelFormatter fmt) {
+        seek.setScaleX(1.01f); // 1% bigger track and thumb; layout size is unchanged
+        seek.setScaleY(1.01f);
         final PopupWindow[] pop = new PopupWindow[1];
         final TextView[] tv = new TextView[1];
         final Runnable update = () -> {
@@ -2844,6 +2846,8 @@ public class MainActivity extends Activity {
         sizeSeek.setProgress(prefs.getEmojiSizeSp() - 16);
         sizeSeek.setPadding(dp(8), dp(10), dp(8), dp(2));
         android.content.res.ColorStateList white = android.content.res.ColorStateList.valueOf(Color.WHITE);
+        sizeSeek.setScaleX(1.01f);
+        sizeSeek.setScaleY(1.01f);
         sizeSeek.setProgressTintList(white);
         sizeSeek.setThumbTintList(white);
         sizeSeek.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.argb(90, 255, 255, 255)));
