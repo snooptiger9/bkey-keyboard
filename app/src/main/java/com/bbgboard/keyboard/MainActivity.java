@@ -2235,7 +2235,7 @@ public class MainActivity extends Activity {
         // higher-contrast blue specifically while a dark theme is selected fixes that without
         // changing how it looks on the light theme.
         boolean darkThemeNow = prefs.getThemeMode() != 1;
-        String selectionColorHex = darkThemeNow ? "#93C5FD" : dm("#2563EB");
+        String selectionColorHex = dm("#2563EB"); // same blue as every other choice on the page
 
         FrameLayout holder = new FrameLayout(this);
         holder.setLayoutParams(new LinearLayout.LayoutParams(dp(82), dp(68)));
@@ -2247,7 +2247,7 @@ public class MainActivity extends Activity {
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected && darkThemeNow ? 3 : selected ? 2 : 1),
+        frame.setStroke(dp(selected ? 2 : 1),
                 Color.parseColor(selected ? selectionColorHex : dm("#E5E7EB")));
         holder.setForeground(frame);
 
