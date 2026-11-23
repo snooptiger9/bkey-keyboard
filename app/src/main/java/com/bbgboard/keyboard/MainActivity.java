@@ -549,20 +549,8 @@ public class MainActivity extends Activity {
             ));
         }
 
-        quickTestEdit = new EditText(this);
-        quickTestEdit.setHint(tr("اضغط هنا لتجربة الكيبورد والبوب أب وأصوات السحب...", "Tap here to try the keyboard, popups and swipe sounds..."));
-        quickTestEdit.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
-        quickTestEdit.setTextColor(Color.parseColor(dm("#111827")));
-        quickTestEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-        quickTestEdit.setBackground(borderedBox(dm("#F9FAFB"), dm("#E5E7EB"), 12));
-        quickTestEdit.setPadding(dp(12), dp(10), dp(12), dp(10));
-        LinearLayout.LayoutParams lpQt = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        lpQt.topMargin = dp(10);
-        quickTestEdit.setLayoutParams(lpQt);
-        quickSetupCard.addView(quickTestEdit);
+        // The in-page test field is gone: the floating button opens the tester instead.
+        quickTestEdit = null;
         root.addView(quickSetupCard);
 
         LinearLayout group1 = createGroupedWhiteCard();
