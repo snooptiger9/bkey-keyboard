@@ -1,8 +1,8 @@
 # Dictionary credits
-app/src/main/assets/dict_ar.txt, dict_en.txt, dict_es.txt and dict_hi.txt are derived from the
+app/src/main/assets/dict_ar.txt, dict_en.txt, dict_es.txt, dict_fr.txt and dict_hi.txt are derived from the
 OpenSubtitles-based frequency lists of hermitdave/FrequencyWords
 (https://github.com/hermitdave/FrequencyWords), licensed CC-BY-SA-4.0. Lists were filtered
-(length, characters) and re-ranked. dict_es.txt has not been filtered for profanity the way
+(length, characters) and re-ranked. dict_es.txt and dict_fr.txt (letters only, a short list of vulgar words removed) have not been fully filtered for profanity the way
 dict_ar.txt and dict_en.txt were.
 
 dict_hi.txt (Hindi, Devanagari) combines two sources: the Hindi list of the same FrequencyWords

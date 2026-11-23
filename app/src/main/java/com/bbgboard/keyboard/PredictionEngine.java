@@ -33,12 +33,15 @@ public class PredictionEngine {
     private final Map<String, Map<String, Integer>> baseEnBigrams = new HashMap<>();
     private final Map<String, Integer> baseEsWords = new HashMap<>();
     private final Map<String, Map<String, Integer>> baseEsBigrams = new HashMap<>();
+    private final Map<String, Integer> baseFrWords = new HashMap<>();
+    private final Map<String, Map<String, Integer>> baseFrBigrams = new HashMap<>();
     private final Map<String, Integer> baseHiWords = new HashMap<>();
     private final Map<String, Map<String, Integer>> baseHiBigrams = new HashMap<>();
 
     private final java.util.TreeMap<String, List<String>> baseArByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseEnByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseEsByFold = new java.util.TreeMap<>();
+    private final java.util.TreeMap<String, List<String>> baseFrByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseHiByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> learnedByFold = new java.util.TreeMap<>();
 
@@ -48,8 +51,10 @@ public class PredictionEngine {
     // Hindi (Devanagari) is not Latin and not Arabic: it rides the same "not Arabic" branch as
     // English/Spanish, with its own dictionary, learned-word tag, typo map and default words.
     private volatile boolean latinIsHindi = false;
+    private volatile boolean latinIsFrench = false;
 
     public void setActiveLatinLanguage(String languageCode) {
+        latinIsFrench = KeyboardPreferences.LANG_FR.equals(languageCode);
         latinIsSpanish = KeyboardPreferences.LANG_ES.equals(languageCode);
         latinIsHindi = KeyboardPreferences.LANG_HI.equals(languageCode);
     }
@@ -57,12 +62,13 @@ public class PredictionEngine {
     /** The language code of the active non-Arabic language (en / es / hi). */
     private String activeLatinTag() {
         return latinIsHindi ? KeyboardPreferences.LANG_HI
+                : latinIsFrench ? KeyboardPreferences.LANG_FR
                 : (latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
     }
 
-    private Map<String, Integer> currentLatinWords() { return latinIsHindi ? baseHiWords : (latinIsSpanish ? baseEsWords : baseEnWords); }
-    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsHindi ? baseHiBigrams : (latinIsSpanish ? baseEsBigrams : baseEnBigrams); }
-    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsHindi ? baseHiByFold : (latinIsSpanish ? baseEsByFold : baseEnByFold); }
+    private Map<String, Integer> currentLatinWords() { return latinIsHindi ? baseHiWords : latinIsFrench ? baseFrWords : (latinIsSpanish ? baseEsWords : baseEnWords); }
+    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsHindi ? baseHiBigrams : latinIsFrench ? baseFrBigrams : (latinIsSpanish ? baseEsBigrams : baseEnBigrams); }
+    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsHindi ? baseHiByFold : latinIsFrench ? baseFrByFold : (latinIsSpanish ? baseEsByFold : baseEnByFold); }
 
     // learnedWords/learnedBigrams/learnedByFold below are shared across every language --
     // that's fine between Arabic and Latin (different Unicode ranges keep them apart
@@ -81,7 +87,7 @@ public class PredictionEngine {
     private boolean latinWordAllowed(String word) {
         String tag = learnedWordLatinTag.get(word);
         String active = activeLatinTag();
-        // Untagged words predate Spanish/Hindi and could only have been English.
+        // Untagged words predate Spanish/Hindi/French and could only have been English.
         return tag == null ? KeyboardPreferences.LANG_EN.equals(active) : tag.equals(active);
     }
 
@@ -140,15 +146,18 @@ public class PredictionEngine {
         loadBundledDictionary(context, "dict_en.txt", baseEnWords, 60, 20);
         loadBundledDictionary(context, "dict_es.txt", baseEsWords, 60, 20);
         loadBundledDictionary(context, "dict_hi.txt", baseHiWords, 60, 20);
+        loadBundledDictionary(context, "dict_fr.txt", baseFrWords, 60, 20);
         buildFoldIndex(baseArWords, baseArByFold);
         buildFoldIndex(baseEnWords, baseEnByFold);
         buildFoldIndex(baseEsWords, baseEsByFold);
         buildFoldIndex(baseHiWords, baseHiByFold);
+        buildFoldIndex(baseFrWords, baseFrByFold);
 
         knownFolded.addAll(baseArByFold.keySet());
         knownFolded.addAll(baseEnByFold.keySet());
         knownFolded.addAll(baseEsByFold.keySet());
         knownFolded.addAll(baseHiByFold.keySet());
+        knownFolded.addAll(baseFrByFold.keySet());
         synchronized (this) {
             loadFromPrefs();
             dirty = false;
@@ -785,6 +794,7 @@ public class PredictionEngine {
         String wordLower = fold(word);
         String sure = isArabic ? COMMON_AR_TYPOS.get(wordLower)
                 : (latinIsHindi ? COMMON_HI_TYPOS.get(wordLower)
+                : latinIsFrench ? COMMON_FR_TYPOS.get(wordLower)
                 : latinIsSpanish ? COMMON_ES_TYPOS.get(wordLower)
                 : (EN_NOT_SURE.contains(wordLower) ? null : COMMON_EN_TYPOS.get(wordLower)));
         if (sure != null) return isArabic ? sure : matchCase(word, sure);
@@ -793,7 +803,7 @@ public class PredictionEngine {
         // doesn't know must never be silently swapped for a "close" one. Only the certain-typo
         // map above corrects Hindi on its own; everything else stays a suggestion in the bar.
         if (latinIsHindi && !isArabic) return null;
-        if (!isArabic && !latinIsSpanish && !latinIsHindi) {
+        if (!isArabic && !latinIsSpanish && !latinIsHindi && !latinIsFrench) {
             String fixed = COMMON_EN_TYPOS.get(wordLower);
             if (fixed != null) return matchCase(word, fixed);
         }
@@ -903,6 +913,7 @@ public class PredictionEngine {
     private static final Map<String, String> COMMON_ES_TYPOS = new HashMap<>();
     private static final Map<String, String> COMMON_AR_TYPOS = new HashMap<>();
     private static final Map<String, String> COMMON_HI_TYPOS = new HashMap<>();
+    private static final Map<String, String> COMMON_FR_TYPOS = new HashMap<>();
     // Real words that sit in the English map: they only use the old trusted-word path.
     private static final java.util.Set<String> EN_NOT_SURE = new java.util.HashSet<>(Arrays.asList("cant", "wont"));
     static {
@@ -978,6 +989,37 @@ public class PredictionEngine {
         };
         for (int i = 0; i + 1 < es.length; i += 2) {
             COMMON_ES_TYPOS.put(foldUncached(es[i]), es[i + 1]);
+        }
+        String[] fr = {
+            "tres","très", "deja","déjà", "apres","après", "etre","être", "etait","était", "etaient","étaient",
+            "ete","été", "ecole","école", "eleve","élève", "equipe","équipe", "etude","étude", "etudes","études",
+            "etat","état", "etranger","étranger", "elle-meme","elle-même", "lui-meme","lui-même", "aujourdhui","aujourd'hui", "aujourd'hui","aujourd'hui",
+            "quelquun","quelqu'un", "jusquau","jusqu'au", "pourqoui","pourquoi", "pourquio","pourquoi", "bonjoure","bonjour", "bonjuor","bonjour",
+            "merci beaucoup","merci beaucoup", "beacoup","beaucoup", "beaucou","beaucoup", "baucoup","beaucoup", "vraiement","vraiment", "vraimant","vraiment",
+            "evidement","évidemment", "evidemment","évidemment", "completement","complètement", "probleme","problème", "problemes","problèmes",
+            "systeme","système", "theatre","théâtre", "arret","arrêt", "fenetre","fenêtre", "tete","tête", "fete","fête",
+            "foret","forêt", "interet","intérêt", "hopital","hôpital", "role","rôle", "plutot","plutôt", "bientot","bientôt",
+            "ca va","ça va", "francais","français", "francaise","française", "garcon","garçon", "lecon","leçon", "facon","façon",
+            "recu","reçu", "decu","déçu", "ca","ça", "voila","voilà", "colere","colère", "mere","mère",
+            "pere","père", "frere","frère", "soeur","sœur", "coeur","cœur", "oeuvre","œuvre", "oeil","œil",
+            "developpement","développement", "dévelopement","développement", "developper","développer", "telephone","téléphone", "numero","numéro",
+            "societe","société", "securite","sécurité", "qualite","qualité", "realite","réalité", "liberte","liberté", "verite","vérité",
+            "identite","identité", "activite","activité", "universite","université", "difficulte","difficulté", "possibilite","possibilité", "generalement","généralement",
+            "reponse","réponse", "repondre","répondre", "message recu","message reçu", "desole","désolé", "desolee","désolée", 
+            "mauvaie","mauvaise", "diférent","différent", "diferent","différent", "different","différent", "interessant","intéressant",
+            "interessante","intéressante", "enchante","enchanté", "ecouter","écouter", "ecrire","écrire", "ecrit","écrit", "eviter","éviter",
+            "presenter","présenter", "preferer","préférer", "prefere","préféré", "premiere","première", "derniere","dernière", "entiere","entière",
+            "maniere","manière", "matiere","matière", "lumiere","lumière", "riviere","rivière", "frontiere","frontière", "grace","grâce",
+            "ame","âme", "gout","goût", "diner","dîner", "ile","île", "maitre","maître",
+            "connaitre","connaître", "paraitre","paraître", "naitre","naître", "reussir","réussir", "reussi","réussi", "reveil","réveil",
+            "reunion","réunion", "region","région", "decision","décision", "decider","décider", 
+            "demain matin","demain matin", "mecontent","mécontent", "medecin","médecin", "medicament","médicament", "memoire","mémoire", "menage","ménage",
+            "cinema","cinéma", "bebe","bébé", "cafe","café", "ecran","écran", "energie","énergie",
+            "annee","année", "annees","années", "journee","journée", "soiree","soirée", "idee","idée", "idees","idées",
+            "arrivee","arrivée", "entree","entrée", "denree","denrée", "armee","armée", "musee","musée", "lycee","lycée"
+        };
+        for (int i = 0; i + 1 < fr.length; i += 2) {
+            if (!fr[i].equals(fr[i + 1]) && fr[i].indexOf(' ') < 0) COMMON_FR_TYPOS.put(foldUncached(fr[i]), fr[i + 1]);
         }
         String[] hi = {
             "कृप्या","कृपया", "परिक्षा","परीक्षा", "बिमार","बीमार", "उज्जवल","उज्ज्वल", "अत्याधिक","अत्यधिक",
@@ -1125,6 +1167,8 @@ public class PredictionEngine {
                 ? Arrays.asList("السلام", "بسم", "مرحبا", "إن", "صباح", "الحمد")
                 : latinIsHindi
                     ? Arrays.asList("मैं", "आप", "नमस्ते", "धन्यवाद", "क्या", "ठीक")
+                : latinIsFrench
+                    ? Arrays.asList("Le", "Je", "Et", "Bonjour", "Merci", "Salut")
                 : latinIsSpanish
                     ? Arrays.asList("El", "Yo", "En", "Hola", "Gracias", "Bueno")
                     : Arrays.asList("The", "I", "On", "Hello", "Thanks", "Good");

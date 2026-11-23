@@ -32,7 +32,7 @@ If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22"
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
 instantly, and swipe sideways across the letter row (direction configurable) for quick deletion
-instead of repeated backspace taps. Fully supports Arabic, English, Spanish, and Hindi with a carefully
+instead of repeated backspace taps. Fully supports Arabic, English, Spanish, Hindi, and French with a carefully
 tailored experience for each.
 
 <br>
@@ -55,7 +55,7 @@ tailored experience for each.
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
-- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish/Hindi) without a separate language button.
+- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish/Hindi/French) without a separate language button.
 - Long-press any key: popup with alternate characters (capitals, accents and symbols that fit the active language).
 
 <br>
@@ -69,7 +69,7 @@ tailored experience for each.
 
   ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif?v=2)
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
-- Double-tap space for period + space, and auto-capitalize sentences (English/Spanish).
+- Double-tap space for period + space, and auto-capitalize sentences (English/Spanish/French).
 - Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(bkey Plus only)*
 
 <br>

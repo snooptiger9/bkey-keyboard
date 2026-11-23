@@ -10,6 +10,8 @@ final class EmojiSuggester {
     // Spanish-only: many of these words (no, sol, pan, mar...) are ordinary English words,
     // so they are only consulted while the Spanish layout is active.
     private static final Map<String, String> ES_MAP = new HashMap<>();
+    // French-only, for the same reason (pain, mer, plat, sol...).
+    private static final Map<String, String> FR_MAP = new HashMap<>();
     static {
 
         put("مبروك", "🎉");
@@ -148,6 +150,17 @@ final class EmojiSuggester {
 
     }
 
+    static {
+        addAllTo(FR_MAP,
+            "amour|❤️ je t'aime|❤️ jtm|❤️ chéri|❤️ chérie|❤️ coeur|❤️ cœur|❤️ bisou|😘 bisous|😘 câlin|🤗 câlins|🤗 heureux|😊 heureuse|😊 content|😊 contente|😊 joie|😄 sourire|😊 rire|😂 mdr|😂 lol|😂 haha|😂 hahaha|😂 drôle|😂 triste|😢 tristesse|😢 pleurer|😭 pleure|😭 fâché|😠 fâchée|😠 colère|😡 peur|😨 surprise|😮 gêne|😳 fatigué|😴 fatiguée|😴 sommeil|😴 dormir|😴 ennui|😐 malade|🤒 fièvre|🤒 cool|😎 génial|🤩 super|🤩 incroyable|🤩 parfait|👌 bravo|👏",
+            "merci|🙏 beaucoup|🙏 s'il te plaît|🙏 s'il vous plaît|🙏 svp|🙏 pardon|🙏 désolé|🙏 désolée|🙏 excuse|🙏 bienvenue|🤝 bonjour|👋 salut|👋 coucou|👋 au revoir|👋 adieu|👋 à bientôt|👋 bonne journée|☀️ bonsoir|🌆 bonne nuit|🌙 félicitations|🎉 anniversaire|🎂 fête|🎉 gâteau|🎂 cadeau|🎁 noël|🎄 dieu|🙏 prière|🙏 prier|🙏 ami|🤝 amie|🤝 amis|🤝 famille|👨‍👩‍👧 maman|👩 papa|👨 bébé|👶 fils|👦 fille|👧 grand-mère|👵 grand-père|👴 mariage|💒",
+            "nourriture|🍽️ manger|🍽️ déjeuner|🍛 dîner|🍽️ petit-déjeuner|🍳 faim|🍽️ pizza|🍕 burger|🍔 poulet|🍗 viande|🥩 poisson|🐟 pain|🍞 baguette|🥖 croissant|🥐 fromage|🧀 gâteau|🍰 chocolat|🍫 glace|🍦 café|☕ thé|🍵 eau|💧 jus|🧃 lait|🥛 bière|🍺 vin|🍷 pomme|🍎 banane|🍌 fraise|🍓 orange|🍊 citron|🍋 pizza|🍕 frites|🍟 salade|🥗 riz|🍚 pâtes|🍝 oeuf|🥚 œuf|🥚",
+            "maison|🏠 école|🏫 université|🎓 travail|💼 bureau|🏢 réunion|📅 hôpital|🏥 médecin|👨‍⚕️ docteur|👨‍⚕️ voiture|🚗 avion|✈️ train|🚆 vélo|🚲 bus|🚌 plage|🏖️ montagne|🏔️ ville|🏙️ voyage|🧳 vacances|🏝️ argent|💰 téléphone|📱 ordinateur|💻 musique|🎵 film|🎬 football|⚽ jeu|🎮 livre|📚",
+            "soleil|☀️ chaud|🥵 froid|🥶 pluie|🌧️ pleut|🌧️ neige|❄️ vent|💨 orage|⛈️ lune|🌙 étoile|⭐ nuit|🌙 matin|🌅 soir|🌆 chien|🐶 chat|🐱 cheval|🐴 vache|🐄 oiseau|🐦 lion|🦁 ours|🐻 singe|🐒 lapin|🐰 fleur|🌸 fleurs|🌹 rose|🌹 arbre|🌳 feu|🔥 coeur|❤️",
+            "france|🇫🇷 paris|🇫🇷 belgique|🇧🇪 suisse|🇨🇭 canada|🇨🇦 maroc|🇲🇦 algérie|🇩🇿 tunisie|🇹🇳 sénégal|🇸🇳 espagne|🇪🇸 italie|🇮🇹 allemagne|🇩🇪 arabie saoudite|🇸🇦 égypte|🇪🇬"
+        );
+    }
+
     private static void addAll(String... chunks) {
         addAllTo(MAP, chunks);
     }
@@ -178,6 +191,10 @@ final class EmojiSuggester {
             String e = ES_MAP.get(k);
             if (e != null) return e;
         }
+        if (KeyboardPreferences.LANG_FR.equals(langCode)) {
+            String e = FR_MAP.get(k);
+            if (e != null) return e;
+        }
         return MAP.get(k);
     }
 
@@ -195,6 +212,14 @@ final class EmojiSuggester {
             else if (c == 'ó') c = 'o';
             else if (c == 'ú' || c == 'ü') c = 'u';
             else if (c == 'ñ') c = 'n';
+            else if (c == 'è' || c == 'ê' || c == 'ë') c = 'e';
+            else if (c == 'à' || c == 'â') c = 'a';
+            else if (c == 'î' || c == 'ï') c = 'i';
+            else if (c == 'ô') c = 'o';
+            else if (c == 'ù' || c == 'û') c = 'u';
+            else if (c == 'ç') c = 'c';
+            else if (c == 'œ') c = 'o';
+            else if (c == '’') c = '\'';
             else if (c == 0x093C || c == 0x200C || c == 0x200D) continue;
             else if (c == 0x0901) c = (char) 0x0902;
             sb.append(c);

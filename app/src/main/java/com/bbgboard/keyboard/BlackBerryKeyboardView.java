@@ -22,7 +22,9 @@ import android.widget.PopupWindow;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 
 public class BlackBerryKeyboardView extends View {
@@ -523,6 +525,7 @@ public class BlackBerryKeyboardView extends View {
 
             String resetLabel = isArabic ? "استعادة"
                     : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "Restablecer"
+                    : KeyboardPreferences.LANG_FR.equals(currentLangCode) ? "Réinitialiser"
                     : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "रीसेट"
                     : "Reset";
             drawResizePill(canvas, resizeResetButtonRect, resizeResetButtonPressed ? resizeResetBarPressedPaint : resizeResetBarPaint,
@@ -530,6 +533,7 @@ public class BlackBerryKeyboardView extends View {
 
             String doneLabel = isArabic ? "تم"
                     : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "Listo"
+                    : KeyboardPreferences.LANG_FR.equals(currentLangCode) ? "Terminé"
                     : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "हो गया"
                     : "Done";
             drawResizePill(canvas, resizeDoneButtonRect, resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint,
@@ -1486,8 +1490,20 @@ public class BlackBerryKeyboardView extends View {
      * are dropped; accented letters only appear on the Spanish layout; and while Shift/Caps is
      * off, the capital version of the letter is offered (so it never conflicts with Shift).
      */
+    private static final Map<String, String> FRENCH_ALTS = new HashMap<>();
+    static {
+        FRENCH_ALTS.put("a", "à,â,æ");
+        FRENCH_ALTS.put("e", "é,è,ê,ë");
+        FRENCH_ALTS.put("i", "î,ï");
+        FRENCH_ALTS.put("o", "ô,œ");
+        FRENCH_ALTS.put("u", "ù,û,ü");
+        FRENCH_ALTS.put("c", "ç");
+        FRENCH_ALTS.put("y", "ÿ");
+    }
+
     private List<String> latinAlts(String letter, List<String> raw) {
-        boolean spanish = KeyboardPreferences.LANG_ES.equals(currentLangCode);
+        boolean french = KeyboardPreferences.LANG_FR.equals(currentLangCode);
+        boolean spanish = KeyboardPreferences.LANG_ES.equals(currentLangCode) || french;
         boolean shifted = isShift || isCapsLock;
         // English: lowercase keys long-press to their capital only; the numbers show up only
         // while Shift/Caps is on.
@@ -1500,7 +1516,16 @@ public class BlackBerryKeyboardView extends View {
         for (String a : raw) {
             if (a.length() == 1 && SYMBOL_PAGE_CHARS.indexOf(a.charAt(0)) >= 0) continue;
             if (!spanish && a.length() > 0 && Character.isLetter(a.charAt(0))) continue;
+            // French has its own accent set; the Spanish/German extras are replaced below.
+            if (french && a.length() > 0 && Character.isLetter(a.charAt(0))) continue;
             out.add(a);
+        }
+        if (french) {
+            String fr = FRENCH_ALTS.get(letter.toLowerCase(Locale.ROOT));
+            if (fr != null) {
+                boolean up = isShift || isCapsLock;
+                for (String f : fr.split(",")) out.add(up ? f.toUpperCase(Locale.ROOT) : f);
+            }
         }
         if (!isShift && !isCapsLock) out.add(letter.toUpperCase(Locale.ROOT));
         return out;
@@ -2519,6 +2544,7 @@ public class BlackBerryKeyboardView extends View {
     private String languageDisplayName(String code) {
         if (KeyboardPreferences.LANG_AR.equals(code)) return "العربية";
         if (KeyboardPreferences.LANG_ES.equals(code)) return "Español";
+        if (KeyboardPreferences.LANG_FR.equals(code)) return "Français";
         if (KeyboardPreferences.LANG_HI.equals(code)) return "हिन्दी";
         return "English";
     }

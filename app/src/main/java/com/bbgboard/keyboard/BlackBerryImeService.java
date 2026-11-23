@@ -303,6 +303,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_AR.equals(code)) return EMOJI_CAT_TITLES;
         if (KeyboardPreferences.LANG_ES.equals(code)) return EMOJI_CAT_TITLES_ES;
         if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.EMOJI_CATEGORIES;
+        if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.EMOJI_CATEGORIES;
         return EMOJI_CAT_TITLES_EN;
     }
 
@@ -903,6 +904,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String voiceLang = keyboardView != null ? keyboardView.getActiveLanguageCode() : KeyboardPreferences.LANG_EN;
         voice().toggle(KeyboardPreferences.LANG_AR.equals(voiceLang) ? "ar-SA"
                 : KeyboardPreferences.LANG_ES.equals(voiceLang) ? "es-ES"
+                : KeyboardPreferences.LANG_FR.equals(voiceLang) ? "fr-FR"
                 : KeyboardPreferences.LANG_HI.equals(voiceLang) ? "hi-IN" : "en-US");
     }
 
@@ -1758,6 +1760,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_AR.equals(code)) return ar;
         if (KeyboardPreferences.LANG_ES.equals(code)) return es;
         if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.get(en);
+        if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.get(en);
         return en;
     }
 
