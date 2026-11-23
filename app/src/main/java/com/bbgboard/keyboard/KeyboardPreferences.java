@@ -722,6 +722,15 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("incognito_mode", enabled).apply();
     }
 
+    /** While incognito is on, also hide the words the keyboard learned earlier (base dictionary only). */
+    public boolean isHideLearnedInIncognito() {
+        return prefs.getBoolean("incognito_hide_learned", true);
+    }
+
+    public void setHideLearnedInIncognito(boolean enabled) {
+        prefs.edit().putBoolean("incognito_hide_learned", enabled).apply();
+    }
+
     /** Dark/light mode for the app's own settings screens (not the keyboard's color theme). */
     public boolean isAppDarkMode() {
         return prefs.getBoolean("app_dark_mode", false);
@@ -844,19 +853,6 @@ public class KeyboardPreferences {
         if (count > 0 && (set.size() < cap)) set.add(word + "|" + count);
         prefs.edit().putStringSet(key, set).apply();
         return count;
-    }
-
-    // Ready-made English reply templates: which ones the user added, and which ones they removed
-    // (a removed template never comes back, not even after an update).
-    public java.util.Set<String> getTemplateSet(String name) {
-        java.util.Set<String> s = prefs.getStringSet("tpl_" + name, null);
-        return s == null ? new java.util.HashSet<>() : new java.util.HashSet<>(s);
-    }
-
-    public void setTemplateFlag(String name, String id, boolean on) {
-        java.util.Set<String> s = getTemplateSet(name);
-        if (on) s.add(id); else s.remove(id);
-        prefs.edit().putStringSet("tpl_" + name, s).apply();
     }
 
     public void clearAutoCorrectExceptions() {

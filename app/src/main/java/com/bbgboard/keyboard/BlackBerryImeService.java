@@ -656,40 +656,26 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         rootContainer.addView(oneHandedRestoreBtn, new FrameLayout.LayoutParams(dp(40), dp(40)));
 
-        // Small "private" badge shown while nothing you type is being learned or saved.
+        // Tiny shield badge (icon only) in the very top corner, so it never covers suggestions.
         privacyPill = new LinearLayout(this);
         privacyPill.setOrientation(LinearLayout.HORIZONTAL);
-        privacyPill.setGravity(Gravity.CENTER_VERTICAL);
-        privacyPill.setPadding(dp(7), 0, dp(8), 0);
-        GradientDrawable pillBg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[]{Color.parseColor("#E61E293B"), Color.parseColor("#E60F172A")});
-        pillBg.setCornerRadius(dp(8));
-        pillBg.setStroke(dp(1), Color.parseColor("#6622C55E"));
+        privacyPill.setGravity(Gravity.CENTER);
+        GradientDrawable pillBg = new GradientDrawable();
+        pillBg.setShape(GradientDrawable.OVAL);
+        pillBg.setColor(Color.parseColor("#E60F172A"));
+        pillBg.setStroke(dp(1), Color.parseColor("#9922C55E"));
         privacyPill.setBackground(pillBg);
         privacyPill.setElevation(dp(2));
-        privacyDot = new View(this);
-        GradientDrawable dotBg = new GradientDrawable();
-        dotBg.setShape(GradientDrawable.OVAL);
-        dotBg.setColor(Color.parseColor("#22C55E"));
-        privacyDot.setBackground(dotBg);
-        privacyPill.addView(privacyDot, new LinearLayout.LayoutParams(dp(5), dp(5)));
-        ModernIconView privacyIcon = new ModernIconView(this, ModernIconView.ICON_SHIELD_CHECK, Color.WHITE, Color.TRANSPARENT);
-        privacyIcon.setStyle(0.8f, 1.6f);
-        LinearLayout.LayoutParams lpPi = new LinearLayout.LayoutParams(dp(11), dp(11));
-        lpPi.leftMargin = dp(5);
-        lpPi.rightMargin = dp(4);
-        privacyPill.addView(privacyIcon, lpPi);
-        privacyText = new TextView(this);
-        privacyText.setTextColor(Color.WHITE);
-        privacyText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-        privacyText.setTypeface(Typeface.DEFAULT_BOLD);
-        privacyText.setLetterSpacing(0.06f);
-        privacyPill.addView(privacyText);
-        FrameLayout.LayoutParams lpPill = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, dp(16));
+        privacyDot = privacyPill; // the whole badge breathes softly
+        ModernIconView privacyIcon = new ModernIconView(this, ModernIconView.ICON_SHIELD_CHECK,
+                Color.parseColor("#4ADE80"), Color.TRANSPARENT);
+        privacyIcon.setStyle(0.8f, 1.7f);
+        privacyPill.addView(privacyIcon, new LinearLayout.LayoutParams(dp(9), dp(9)));
+        privacyText = new TextView(this); // kept only for the accessibility label
+        FrameLayout.LayoutParams lpPill = new FrameLayout.LayoutParams(dp(14), dp(14));
         lpPill.gravity = Gravity.TOP | Gravity.END;
-        lpPill.topMargin = dp(2);
-        lpPill.rightMargin = dp(8);
+        lpPill.topMargin = dp(1);
+        lpPill.rightMargin = dp(3);
         privacyPill.setVisibility(View.GONE);
         rootContainer.addView(privacyPill, lpPill);
 
@@ -1411,15 +1397,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
         boolean ar = "ar".equals(java.util.Locale.getDefault().getLanguage());
-        privacyText.setText(incognito ? (ar ? "وضع الخصوصية" : "INCOGNITO") : (ar ? "حقل محمي" : "PROTECTED"));
+        privacyPill.setContentDescription(incognito ? (ar ? "وضع الخصوصية" : "Incognito") : (ar ? "حقل محمي" : "Protected field"));
         if (privacyPill.getVisibility() != View.VISIBLE) {
             privacyPill.setAlpha(0f);
             privacyPill.setVisibility(View.VISIBLE);
             privacyPill.animate().alpha(1f).setDuration(220).start();
         }
         if (privacyPulse == null) {
-            privacyPulse = android.animation.ObjectAnimator.ofFloat(privacyDot, "alpha", 1f, 0.25f);
-            privacyPulse.setDuration(900);
+            privacyPulse = android.animation.ObjectAnimator.ofFloat(privacyDot, "alpha", 1f, 0.45f);
+            privacyPulse.setDuration(1100);
             privacyPulse.setRepeatMode(android.animation.ValueAnimator.REVERSE);
             privacyPulse.setRepeatCount(android.animation.ValueAnimator.INFINITE);
             privacyPulse.start();

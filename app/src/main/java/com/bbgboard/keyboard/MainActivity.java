@@ -1785,6 +1785,12 @@ public class MainActivity extends Activity {
                 prefs.isIncognitoMode(),
                 checked -> prefs.setIncognitoMode(checked)
         ));
+        root.addView(createSwitchTile(
+                tr("إخفاء كلماتي المتعلَّمة أثناء التخفي", "Hide my learned words while incognito"),
+                tr("في وضع التخفي تظهر اقتراحات القاموس الأساسي فقط، بدون الكلمات والبريد الذي تعلّمه الكيبورد منك", "In incognito only base-dictionary suggestions show, without the words and emails the keyboard learned from you"),
+                prefs.isHideLearnedInIncognito(),
+                checked -> prefs.setHideLearnedInIncognito(checked)
+        ));
 
         LinearLayout oneHandCard = createGroupedWhiteCard();
         oneHandCard.setPadding(dp(16), dp(16), dp(16), dp(16));
@@ -3442,16 +3448,30 @@ public class MainActivity extends Activity {
         root.addView(note);
     }
 
-    private LinearLayout createTypoCard() {
-        LinearLayout card = createGroupedWhiteCard();
-        card.setPadding(dp(16), dp(14), dp(16), dp(10));
-        card.addView(sectionHeader(tr("أكثر كلمات تخطئ فيها", "Words you mistype most")));
-        TextView sub = new TextView(this);
-        sub.setText(tr("كلمات صحّحها لك الكيبورد أكثر من غيرها", "Words the keyboard corrected for you most often"));
-        sub.setTextColor(Color.parseColor(dm("#6B7280")));
-        sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-        sub.setPadding(0, 0, 0, dp(8));
-        card.addView(sub);
+    private View createTypoCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(22), dp(22), dp(22), dp(18));
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{Color.parseColor("#F43F5E"), Color.parseColor("#9D174D")});
+        bg.setCornerRadius(dp(26));
+        card.setBackground(bg);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(14);
+        card.setLayoutParams(lp);
+
+        TextView lab = new TextView(this);
+        lab.setText(tr("أكثر كلمات تخطئ فيها", "Words you mistype most"));
+        lab.setTextColor(Color.argb(230, 255, 255, 255));
+        lab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        lab.setTypeface(Typeface.DEFAULT_BOLD);
+        card.addView(lab);
+        TextView cap = new TextView(this);
+        cap.setText(tr("كلمات صحّحها لك الكيبورد أكثر من غيرها", "Words the keyboard corrected for you most often"));
+        cap.setTextColor(Color.argb(200, 255, 255, 255));
+        cap.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        cap.setPadding(0, dp(2), 0, dp(10));
+        card.addView(cap);
 
         // Fewer rows on narrow screens so the card never feels cramped.
         int rows = getResources().getConfiguration().screenWidthDp < 360 ? 3 : 5;
@@ -3459,50 +3479,52 @@ public class MainActivity extends Activity {
         if (top.isEmpty()) {
             TextView empty = new TextView(this);
             empty.setText(tr("لا توجد أخطاء بعد، ستظهر هنا مع الكتابة", "Nothing yet, it fills in as you type"));
-            empty.setTextColor(Color.parseColor(dm("#9CA3AF")));
-            empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-            empty.setPadding(0, dp(2), 0, dp(6));
+            empty.setTextColor(Color.argb(220, 255, 255, 255));
+            empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+            empty.setPadding(0, dp(2), 0, dp(4));
             card.addView(empty);
-            return card;
-        }
-        final int max = Integer.parseInt(top.get(0)[1]);
-        for (String[] t : top) {
-            LinearLayout row = new LinearLayout(this);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(0, dp(4), 0, dp(4));
-            TextView w = new TextView(this);
-            w.setText(t[0]);
-            w.setTextColor(Color.parseColor(dm("#1F2937")));
-            w.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-            w.setTypeface(Typeface.DEFAULT_BOLD);
-            w.setSingleLine(true);
-            w.setEllipsize(android.text.TextUtils.TruncateAt.END);
-            row.addView(w, new LinearLayout.LayoutParams(dp(96), ViewGroup.LayoutParams.WRAP_CONTENT));
+        } else {
+            final int max = Integer.parseInt(top.get(0)[1]);
+            for (String[] t : top) {
+                LinearLayout row = new LinearLayout(this);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding(0, dp(5), 0, dp(5));
+                TextView w = new TextView(this);
+                w.setText(t[0]);
+                w.setTextColor(Color.WHITE);
+                w.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+                w.setTypeface(Typeface.DEFAULT_BOLD);
+                w.setSingleLine(true);
+                w.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                row.addView(w, new LinearLayout.LayoutParams(dp(96), ViewGroup.LayoutParams.WRAP_CONTENT));
 
-            FrameLayout track = new FrameLayout(this);
-            track.setBackground(roundedCard(dm("#F3F4F6"), 4));
-            View bar = new View(this);
-            bar.setBackground(roundedCard("#F97316", 4));
-            int n = Integer.parseInt(t[1]);
-            LinearLayout.LayoutParams lpTr = new LinearLayout.LayoutParams(0, dp(8), 1f);
-            lpTr.leftMargin = dp(8);
-            lpTr.rightMargin = dp(8);
-            row.addView(track, lpTr);
-            track.post(() -> {
-                int full = track.getWidth();
-                track.addView(bar, new FrameLayout.LayoutParams(Math.max(dp(8), full * n / max), dp(8)));
-            });
+                FrameLayout track = new FrameLayout(this);
+                track.setBackground(roundedCard("#33FFFFFF", 4));
+                View bar = new View(this);
+                bar.setBackground(roundedCard("#FFFFFF", 4));
+                int n = Integer.parseInt(t[1]);
+                LinearLayout.LayoutParams lpTr = new LinearLayout.LayoutParams(0, dp(8), 1f);
+                lpTr.leftMargin = dp(8);
+                lpTr.rightMargin = dp(8);
+                row.addView(track, lpTr);
+                track.post(() -> track.addView(bar,
+                        new FrameLayout.LayoutParams(Math.max(dp(8), track.getWidth() * n / max), dp(8))));
 
-            TextView c = new TextView(this);
-            c.setText("×" + n);
-            c.setTextColor(Color.parseColor(dm("#6B7280")));
-            c.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-            c.setMinWidth(dp(28));
-            c.setGravity(Gravity.END);
-            row.addView(c);
-            card.addView(row);
+                TextView c = new TextView(this);
+                c.setText("×" + n);
+                c.setTextColor(Color.argb(230, 255, 255, 255));
+                c.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+                c.setMinWidth(dp(30));
+                c.setGravity(Gravity.END);
+                row.addView(c);
+                card.addView(row);
+            }
         }
+        card.setAlpha(0f);
+        card.setTranslationY(dp(24));
+        card.animate().alpha(1f).translationY(0f).setStartDelay(900L).setDuration(420)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
         return card;
     }
 
@@ -3779,111 +3801,6 @@ public class MainActivity extends Activity {
         card.addView(scListMount);
         root.addView(card);
 
-        final LinearLayout tplMount = new LinearLayout(this);
-        tplMount.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout tplCard = createGroupedWhiteCard();
-        tplCard.setPadding(dp(16), dp(14), dp(16), dp(8));
-        tplCard.addView(sectionHeader(tr("ردود إنجليزية جاهزة", "Ready-made English replies")));
-        TextView tplSub = new TextView(this);
-        tplSub.setText(tr("اضغط + لإضافة الرد إلى اختصاراتك. الرد المحذوف لا يعود حتى بعد التحديثات.",
-                "Tap + to add a reply to your shortcuts. A reply you delete never comes back, even after updates."));
-        tplSub.setTextColor(Color.parseColor(dm("#6B7280")));
-        tplSub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-        tplSub.setPadding(0, 0, 0, dp(8));
-        tplCard.addView(tplSub);
-        tplCard.addView(tplMount);
-        root.addView(tplCard);
-        populateTemplates(tplMount, scListMount);
-    }
-
-    // 9 English reply templates: {id/shortcut, phrase}. The ids never change, so a template the
-    // user deleted stays deleted across app updates.
-    private static final String[][] TEMPLATES = {
-            {"omw", "On my way, see you soon."},
-            {"brb", "Be right back, give me a minute."},
-            {"tyvm", "Thank you very much, I really appreciate it."},
-            {"lmk", "Let me know if you need anything else."},
-            {"ttyl", "Talk to you later."},
-            {"nvm", "Never mind, I sorted it out."},
-            {"np", "No problem, happy to help."},
-            {"mtg", "Can we move the meeting to later today?"},
-            {"rn", "I'm busy right now, I'll get back to you shortly."},
-    };
-
-    private void populateTemplates(final LinearLayout mount, final LinearLayout shortcutsMount) {
-        mount.removeAllViews();
-        java.util.Set<String> hidden = prefs.getTemplateSet("hidden");
-        java.util.Map<String, String> mine = prefs.getShortcuts();
-        for (final String[] t : TEMPLATES) {
-            if (hidden.contains(t[0])) continue;
-            final boolean added = t[1].equals(mine.get(t[0]));
-            LinearLayout row = new LinearLayout(this);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackground(borderedBox(dm("#F8FAFC"), dm("#E2E8F0"), 10));
-            row.setPadding(dp(12), dp(8), dp(8), dp(8));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = dp(6);
-            row.setLayoutParams(lp);
-
-            LinearLayout texts = new LinearLayout(this);
-            texts.setOrientation(LinearLayout.VERTICAL);
-            texts.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            TextView phrase = new TextView(this);
-            phrase.setText(t[1]);
-            phrase.setTextColor(Color.parseColor(dm("#1F2937")));
-            phrase.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-            phrase.setTextDirection(View.TEXT_DIRECTION_LTR);
-            texts.addView(phrase);
-            TextView ex = new TextView(this);
-            ex.setText("Example: " + t[0] + " + space");
-            ex.setTextColor(Color.parseColor(dm("#6B7280")));
-            ex.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-            ex.setTextDirection(View.TEXT_DIRECTION_LTR);
-            ex.setPadding(0, dp(2), 0, 0);
-            texts.addView(ex);
-            row.addView(texts);
-
-            ModernIconView add = new ModernIconView(this,
-                    added ? ModernIconView.ICON_CHECK_CIRCLE : ModernIconView.ICON_PIN,
-                    Color.parseColor(added ? "#16A34A" : "#2563EB"), Color.TRANSPARENT);
-            add.setStyle(0.85f, 1.6f);
-            LinearLayout.LayoutParams lpAdd = new LinearLayout.LayoutParams(dp(34), dp(34));
-            lpAdd.leftMargin = dp(6);
-            add.setLayoutParams(lpAdd);
-            add.setPadding(dp(7), dp(7), dp(7), dp(7));
-            if (!added) {
-                add.setOnClickListener(v -> {
-                    prefs.addShortcut(t[0], t[1]);
-                    prefs.setTemplateFlag("added", t[0], true);
-                    populateShortcutsList(shortcutsMount);
-                    populateTemplates(mount, shortcutsMount);
-                });
-            }
-            row.addView(add);
-
-            ModernIconView del = new ModernIconView(this, ModernIconView.ICON_TRASH,
-                    Color.parseColor(dm("#9CA3AF")), Color.TRANSPARENT);
-            del.setStyle(0.85f, 1.5f);
-            LinearLayout.LayoutParams lpDel = new LinearLayout.LayoutParams(dp(34), dp(34));
-            del.setLayoutParams(lpDel);
-            del.setPadding(dp(7), dp(7), dp(7), dp(7));
-            del.setOnClickListener(v -> {
-                prefs.setTemplateFlag("hidden", t[0], true);
-                if (t[1].equals(prefs.getShortcuts().get(t[0]))) prefs.removeShortcut(t[0]);
-                populateShortcutsList(shortcutsMount);
-                populateTemplates(mount, shortcutsMount);
-            });
-            row.addView(del);
-            mount.addView(row);
-        }
-        if (mount.getChildCount() == 0) {
-            TextView none = new TextView(this);
-            none.setText(tr("لا توجد ردود جاهزة", "No ready-made replies left"));
-            none.setTextColor(Color.parseColor(dm("#9CA3AF")));
-            none.setPadding(0, 0, 0, dp(8));
-            mount.addView(none);
-        }
     }
 
     private void populateShortcutsList(final LinearLayout container) {
@@ -3917,21 +3834,10 @@ public class MainActivity extends Activity {
             lpDel.leftMargin = dp(16);
             del.setLayoutParams(lpDel);
             del.setOnClickListener(v -> {
-                // A deleted template stays deleted (it is also hidden from the replies card).
-                if (prefs.getTemplateSet("added").contains(e.getKey())) prefs.setTemplateFlag("hidden", e.getKey(), true);
                 prefs.removeShortcut(e.getKey());
                 populateShortcutsList(container);
             });
 
-            if (prefs.getTemplateSet("added").contains(e.getKey())) {
-                ModernIconView pin = new ModernIconView(this, ModernIconView.ICON_PUSHPIN,
-                        Color.parseColor("#2563EB"), Color.TRANSPARENT);
-                pin.setStyle(0.85f, 1.5f);
-                LinearLayout.LayoutParams lpPin = new LinearLayout.LayoutParams(dp(18), dp(18));
-                lpPin.rightMargin = dp(8);
-                pin.setLayoutParams(lpPin);
-                row.addView(pin);
-            }
             row.addView(tv);
             row.addView(del);
             container.addView(row);

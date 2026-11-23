@@ -214,6 +214,11 @@ public class PredictionEngine {
         prefs.edit().putBoolean("cleanup_v17_done", true).apply();
     }
 
+    /** Incognito + "hide learned words": suggestions come from the base dictionary only. */
+    private boolean personalOff() {
+        return keyboardPrefs != null && keyboardPrefs.isIncognitoMode() && keyboardPrefs.isHideLearnedInIncognito();
+    }
+
     private boolean isTrustedWord(String w) {
         if (looksLikeEmail(w)) return true;
         if (knownFolded.contains(fold(w))) return true;
@@ -596,8 +601,8 @@ public class PredictionEngine {
 
             if (!lastWord.isEmpty()) {
                 String prevKey = fold(lastWord);
-                Map<String, Integer> lNext = learnedBigrams.get(prevKey);
-                if (lNext == null) lNext = learnedBigrams.get(lastWord);
+                Map<String, Integer> lNext = personalOff() ? null : learnedBigrams.get(prevKey);
+                if (lNext == null && !personalOff()) lNext = learnedBigrams.get(lastWord);
                 if (lNext != null) {
                     for (Map.Entry<String, Integer> e : lNext.entrySet()) {
                         String nw = e.getKey();
@@ -622,7 +627,7 @@ public class PredictionEngine {
             }
 
             String prefixUpperBound = prefixLower + "￿";
-            for (List<String> candidates : learnedByFold.subMap(prefixLower, prefixUpperBound).values()) {
+            for (List<String> candidates : (personalOff() ? java.util.Collections.<List<String>>emptyList() : learnedByFold.subMap(prefixLower, prefixUpperBound).values())) {
                 for (String w : candidates) {
                     if (!isTrustedWord(w)) continue;
                     if (!isArabic && !latinWordAllowed(w)) continue;
@@ -640,7 +645,7 @@ public class PredictionEngine {
 
             boolean hadCompletions = !scored.isEmpty();
             if (scored.isEmpty() && prefixLower.length() >= 3) {
-                collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, scored, 30, !isArabic);
+                if (!personalOff()) collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, scored, 30, !isArabic);
                 if (scored.isEmpty()) {
                     collectNearMissCandidates(prefixLower, baseByFold, baseWords, scored, 1);
                 }
@@ -673,7 +678,7 @@ public class PredictionEngine {
             String bestTrigramWord = null;
             if (!lastWord2.isEmpty()) {
                 String triKey = fold(lastWord2) + "\u001F" + prevKey;
-                Map<String, Integer> triNext = learnedTrigrams.get(triKey);
+                Map<String, Integer> triNext = personalOff() ? null : learnedTrigrams.get(triKey);
                 if (triNext != null) {
                     int bestCount = -1;
                     for (Map.Entry<String, Integer> e : triNext.entrySet()) {
@@ -690,8 +695,8 @@ public class PredictionEngine {
                 }
             }
 
-            Map<String, Integer> lNext = learnedBigrams.get(prevKey);
-                if (lNext == null) lNext = learnedBigrams.get(lastWord);
+            Map<String, Integer> lNext = personalOff() ? null : learnedBigrams.get(prevKey);
+            if (lNext == null && !personalOff()) lNext = learnedBigrams.get(lastWord);
             if (lNext != null) {
                 for (Map.Entry<String, Integer> e : lNext.entrySet()) {
                     String nw = e.getKey();
@@ -793,7 +798,7 @@ public class PredictionEngine {
             if (fixed != null) return matchCase(word, fixed);
         }
         Map<String, Integer> candidates = new HashMap<>();
-        collectNearMissCandidates(wordLower, learnedByFold, learnedWords, candidates, 30, !isArabic);
+        if (!personalOff()) collectNearMissCandidates(wordLower, learnedByFold, learnedWords, candidates, 30, !isArabic);
         int baseScore = 30;
         if (candidates.isEmpty()) {
             java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
@@ -997,7 +1002,7 @@ public class PredictionEngine {
     private String findInlineFix(String prefix, String prefixLower, boolean isArabic) {
         if (prefixLower.length() < 3 || isProtectedToken(prefix) || isTrustedWord(prefix)) return null;
         Map<String, Integer> cand = new HashMap<>();
-        collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, cand, 30, !isArabic);
+        if (!personalOff()) collectNearMissCandidates(prefixLower, learnedByFold, learnedWords, cand, 30, !isArabic);
         if (cand.isEmpty()) {
             java.util.TreeMap<String, List<String>> baseByFold = isArabic ? baseArByFold : currentLatinByFold();
             Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
@@ -1150,7 +1155,7 @@ public class PredictionEngine {
             if (seenFolded.add(fold(c))) combined.add(c);
         }
 
-        for (String t : getTopLearnedWords(isArabic, 8)) {
+        for (String t : (personalOff() ? java.util.Collections.<String>emptyList() : getTopLearnedWords(isArabic, 8))) {
             if (combined.size() >= 3) break;
             if (seenFolded.add(fold(t))) combined.add(t);
         }
