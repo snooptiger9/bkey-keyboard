@@ -247,7 +247,6 @@ public class MainActivity extends Activity {
         soundController = new SoundController(this, prefs);
         predictionEngine = new PredictionEngine(this, prefs);
         clipboardRepo = new ClipboardRepository(this);
-        checkFlavorSwitch();
         applyWindowBackground();
 
         mainFrame = new FrameLayout(this);
@@ -265,6 +264,7 @@ public class MainActivity extends Activity {
         rootContainer.addView(mainFrame);
         addFloatingKeyboardTester(rootContainer);
         setContentView(rootContainer);
+        checkFlavorSwitch();
     }
 
     /** bkey and Plus share one applicationId, so sideloading one over the other replaces the
@@ -280,10 +280,8 @@ public class MainActivity extends Activity {
                     : "bkey";
             // Kept short on purpose so it fits on one line on the toast instead of
             // wrapping to two.
-            android.widget.Toast.makeText(this,
-                    tr("تحوّلت إلى " + switchedToName + " — إعداداتك وكلماتك محفوظة",
-                            "Switched to " + switchedToName + " — settings and words kept"),
-                    android.widget.Toast.LENGTH_LONG).show();
+            showCoolToast(tr("تحوّلت إلى " + switchedToName + " — إعداداتك وكلماتك محفوظة",
+                            "Switched to " + switchedToName + " — settings and words kept"), true);
         }
         prefs.setLastKnownFlavor(currentFlavor);
     }
@@ -1702,7 +1700,7 @@ public class MainActivity extends Activity {
         if (requestCode == 77) {
             if (!ScreenshotClip.hasPermission(this)) {
                 prefs.setScreenshotClipEnabled(false);
-                Toast.makeText(this, tr("لم يُمنح إذن الصور، فلا يمكن حفظ لقطات الشاشة", "Photos permission was not granted, so screenshots can't be saved"), Toast.LENGTH_LONG).show();
+                showCoolToast(tr("لم يُمنح إذن الصور، فلا يمكن حفظ لقطات الشاشة", "Photos permission was not granted, so screenshots can't be saved"), true);
             }
             openClipboardScreen();
         }
@@ -1710,7 +1708,7 @@ public class MainActivity extends Activity {
             boolean granted = checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED;
             prefs.setOtpSuggestEnabled(granted);
             if (!granted) {
-                Toast.makeText(this, tr("لم يُمنح إذن الرسائل، فلن يُقترح رمز التحقق تلقائياً", "SMS permission wasn't granted, so the code won't be suggested automatically"), Toast.LENGTH_LONG).show();
+                showCoolToast(tr("لم يُمنح إذن الرسائل، فلن يُقترح رمز التحقق تلقائياً", "SMS permission wasn't granted, so the code won't be suggested automatically"), true);
             }
             openOtpSettingsScreen();
         }
@@ -2309,7 +2307,7 @@ public class MainActivity extends Activity {
             if (!s.isEmpty()) {
                 predictionEngine.learnFullSentence(s);
                 trainBox.setText("");
-                Toast.makeText(MainActivity.this, tr("تم حفظ الكلمات وتوقعات الكلمة التالية!", "Words and next-word predictions saved!"), Toast.LENGTH_SHORT).show();
+                showCoolToast(tr("تم حفظ الكلمات وتوقعات الكلمة التالية!", "Words and next-word predictions saved!"), false);
             }
         }));
 
@@ -2323,9 +2321,7 @@ public class MainActivity extends Activity {
             if (learnedCountSubtitleHolder[0] != null) {
                 learnedCountSubtitleHolder[0].setText(learnedWordsCountSubtitle());
             }
-            Toast.makeText(MainActivity.this,
-                    tr("تم مسح جميع الكلمات المتعلمة", "All learned words were cleared"),
-                    Toast.LENGTH_SHORT).show();
+            showCoolToast(tr("تم مسح جميع الكلمات المتعلمة", "All learned words were cleared"), false);
         }));
 
         root.addView(trainCard);
@@ -2343,58 +2339,97 @@ public class MainActivity extends Activity {
         return tr(count + " كلمة محفوظة • بحث وحذف", count + " saved words • search & delete");
     }
 
-    private Handler downloadToastHandler;
-    private Runnable downloadToastRunnable;
-    private Toast downloadToast;
+    private View coolToastView;
+    private final Runnable coolToastHide = () -> hideCoolToast();
 
-    // Toast.LENGTH_SHORT/LENGTH_LONG always auto-dismiss after a couple of
-    // seconds, so a single .show() made it look like the download had
-    // already stopped while it was still running in the background. This
-    // keeps re-showing the same toast every couple of seconds until the
-    // download actually finishes (success or failure), so it stays visible
-    // the whole time.
+    /** Styled in-app message (replaces the system toast on the settings pages). */
+    private void showCoolToast(CharSequence msg, boolean longer) {
+        showCoolToastFor(msg, longer ? 3600L : 2400L);
+    }
+
+    /** ms <= 0 keeps it up until hideCoolToast(). */
+    private void showCoolToastFor(CharSequence msg, long ms) {
+        if (mainFrame == null) return;
+        hideCoolToastNow();
+        LinearLayout pill = new LinearLayout(this);
+        pill.setOrientation(LinearLayout.HORIZONTAL);
+        pill.setGravity(Gravity.CENTER_VERTICAL);
+        pill.setPadding(dp(14), dp(11), dp(18), dp(11));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.parseColor("#F2111827"));
+        bg.setCornerRadius(dp(24));
+        bg.setStroke(dp(1), Color.parseColor("#4D60A5FA"));
+        pill.setBackground(bg);
+        pill.setElevation(dp(8));
+        View dot = new View(this);
+        GradientDrawable dg = new GradientDrawable();
+        dg.setShape(GradientDrawable.OVAL);
+        dg.setColor(Color.parseColor("#60A5FA"));
+        dot.setBackground(dg);
+        LinearLayout.LayoutParams lpDot = new LinearLayout.LayoutParams(dp(8), dp(8));
+        lpDot.rightMargin = dp(10);
+        pill.addView(dot, lpDot);
+        TextView tv = new TextView(this);
+        tv.setText(msg);
+        tv.setTextColor(Color.WHITE);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
+        tv.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        tv.setMaxLines(3);
+        pill.addView(tv, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+        lp.bottomMargin = dp(40);
+        lp.leftMargin = dp(24);
+        lp.rightMargin = dp(24);
+        mainFrame.addView(pill, lp);
+        coolToastView = pill;
+        pill.setAlpha(0f);
+        pill.setTranslationY(dp(14));
+        pill.animate().alpha(1f).translationY(0f).setDuration(220).start();
+        mainFrame.removeCallbacks(coolToastHide);
+        if (ms > 0) mainFrame.postDelayed(coolToastHide, ms);
+    }
+
+    private void hideCoolToastNow() {
+        mainFrame.removeCallbacks(coolToastHide);
+        if (coolToastView != null) {
+            coolToastView.animate().cancel();
+            mainFrame.removeView(coolToastView);
+            coolToastView = null;
+        }
+    }
+
+    private void hideCoolToast() {
+        final View v = coolToastView;
+        if (v == null) return;
+        coolToastView = null;
+        v.animate().alpha(0f).translationY(dp(10)).setDuration(200)
+                .withEndAction(() -> { if (mainFrame != null) mainFrame.removeView(v); }).start();
+    }
+
+    // The download message stays up the whole time the download runs, until stop is called.
     private void startPersistentDownloadToast() {
-        stopPersistentDownloadToast();
-        downloadToast = Toast.makeText(this, tr("جاري تنزيل التحديث الآن...", "Downloading the update now..."), Toast.LENGTH_LONG);
-        downloadToastHandler = new Handler(Looper.getMainLooper());
-        downloadToastRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (downloadToast == null) return;
-                downloadToast.show();
-                downloadToastHandler.postDelayed(this, 2500);
-            }
-        };
-        downloadToastHandler.post(downloadToastRunnable);
+        showCoolToastFor(tr("جاري تنزيل التحديث الآن...", "Downloading the update now..."), 0L);
     }
 
     private void stopPersistentDownloadToast() {
-        if (downloadToastHandler != null && downloadToastRunnable != null) {
-            downloadToastHandler.removeCallbacks(downloadToastRunnable);
-        }
-        if (downloadToast != null) {
-            downloadToast.cancel();
-            downloadToast = null;
-        }
+        if (mainFrame != null && coolToastView != null) hideCoolToast();
     }
 
     private void checkForAppUpdate() {
-        Toast.makeText(this, tr("جاري التحقق من وجود تحديث...", "Checking for an update..."), Toast.LENGTH_SHORT).show();
+        showCoolToast(tr("جاري التحقق من وجود تحديث...", "Checking for an update..."), false);
         AppUpdater.fetchRemoteVersionCode(remoteVersionCode -> {
             if (remoteVersionCode != null && remoteVersionCode <= BuildConfig.VERSION_CODE) {
-                Toast.makeText(MainActivity.this,
-                        tr("التطبيق محدّث لآخر إصدار بالفعل", "The app is already up to date"),
-                        Toast.LENGTH_SHORT).show();
+                showCoolToast(tr("التطبيق محدّث لآخر إصدار بالفعل", "The app is already up to date"), false);
                 return;
             }
             startPersistentDownloadToast();
             AppUpdater.downloadAndInstall(getApplicationContext(), success -> {
                 stopPersistentDownloadToast();
                 if (!success) {
-                    Toast.makeText(MainActivity.this,
-                            tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
-                                    "Automatic download failed, opening the link in your browser instead"),
-                            Toast.LENGTH_LONG).show();
+                    showCoolToast(tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
+                                    "Automatic download failed, opening the link in your browser instead"), true);
                     try {
                         String url = "https://github.com/snooptiger9/bkey-keyboard/releases/latest";
                         startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)));
@@ -2448,7 +2483,7 @@ public class MainActivity extends Activity {
                     checked -> {
                         prefs.setWhatsAppOtpSuggestEnabled(checked);
                         if (checked && !isNotificationAccessGranted()) {
-                            Toast.makeText(this, tr("فعّل الوصول للإشعارات لتطبيق bkey من الشاشة اللي بتفتح", "Enable notification access for bkey on the screen that opens"), Toast.LENGTH_LONG).show();
+                            showCoolToast(tr("فعّل الوصول للإشعارات لتطبيق bkey من الشاشة اللي بتفتح", "Enable notification access for bkey on the screen that opens"), true);
                             try {
                                 prefs.setPendingReturnToOtpScreen(true);
                                 startActivity(new android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
@@ -2514,10 +2549,8 @@ public class MainActivity extends Activity {
                 AppUpdater.downloadAndInstall(getApplicationContext(), true, success -> {
                     stopPersistentDownloadToast();
                     if (!success) {
-                        Toast.makeText(MainActivity.this,
-                                tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
-                                        "Automatic download failed, opening the link in your browser instead"),
-                                Toast.LENGTH_LONG).show();
+                        showCoolToast(tr("تعذّر التنزيل التلقائي، سيفتح الرابط بالمتصفح بدلاً منه",
+                                        "Automatic download failed, opening the link in your browser instead"), true);
                         try {
                             startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
                                     "https://github.com/snooptiger9/bkey-keyboard/releases/latest")));
@@ -2773,7 +2806,7 @@ public class MainActivity extends Activity {
                 tr("يحذف الإيموجي الأخيرة من اللوحة", "Removes the recent emojis from the panel"),
                 Color.parseColor("#F43F5E"), Color.parseColor("#DC2626"), 120L, v -> {
                     prefs.clearRecentEmojis();
-                    android.widget.Toast.makeText(this, tr("تم مسح الإيموجي الأخيرة", "Recent emojis cleared"), android.widget.Toast.LENGTH_SHORT).show();
+                    showCoolToast(tr("تم مسح الإيموجي الأخيرة", "Recent emojis cleared"), false);
                 });
         clearCard.setPadding(dp(14), dp(10), dp(14), dp(10));
         root.addView(clearCard);
@@ -3175,7 +3208,7 @@ public class MainActivity extends Activity {
                         startActivityForResult(i, REQ_BACKUP_SAVE);
                     } catch (Exception e) {
                         AppLogger.log("MainActivity", "openBackupScreen() save", e);
-                        Toast.makeText(this, tr("تعذّر فتح منتقي الملفات", "Couldn't open the file picker"), Toast.LENGTH_LONG).show();
+                        showCoolToast(tr("تعذّر فتح منتقي الملفات", "Couldn't open the file picker"), true);
                     }
                 }));
         root.addView(createActionCard(ModernIconView.ICON_REFRESH_UPDATE,
@@ -3189,7 +3222,7 @@ public class MainActivity extends Activity {
                         startActivityForResult(i, REQ_BACKUP_OPEN);
                     } catch (Exception e) {
                         AppLogger.log("MainActivity", "openBackupScreen() open", e);
-                        Toast.makeText(this, tr("تعذّر فتح منتقي الملفات", "Couldn't open the file picker"), Toast.LENGTH_LONG).show();
+                        showCoolToast(tr("تعذّر فتح منتقي الملفات", "Couldn't open the file picker"), true);
                     }
                 }));
 
@@ -3221,10 +3254,10 @@ public class MainActivity extends Activity {
                     if (os == null) throw new java.io.IOException("no stream");
                     os.write(out.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 }
-                Toast.makeText(this, tr("تم حفظ النسخة الاحتياطية", "Backup saved"), Toast.LENGTH_LONG).show();
+                showCoolToast(tr("تم حفظ النسخة الاحتياطية", "Backup saved"), true);
             } catch (Exception e) {
                 AppLogger.log("MainActivity", "backup save", e);
-                Toast.makeText(this, tr("تعذّر حفظ النسخة الاحتياطية", "Couldn't save the backup"), Toast.LENGTH_LONG).show();
+                showCoolToast(tr("تعذّر حفظ النسخة الاحتياطية", "Couldn't save the backup"), true);
             }
         } else if (requestCode == REQ_BACKUP_OPEN) {
             try {
@@ -3241,7 +3274,7 @@ public class MainActivity extends Activity {
                 }
                 org.json.JSONObject in = new org.json.JSONObject(new String(bos.toByteArray(), java.nio.charset.StandardCharsets.UTF_8));
                 if (!"bkey-backup".equals(in.optString("format")) || in.optInt("version", 0) != 1) {
-                    Toast.makeText(this, tr("هذا ليس ملف نسخة احتياطية من bkey", "This isn't a bkey backup file"), Toast.LENGTH_LONG).show();
+                    showCoolToast(tr("هذا ليس ملف نسخة احتياطية من bkey", "This isn't a bkey backup file"), true);
                     return;
                 }
                 int words = predictionEngine.importBackup(in.optJSONObject("learned"));
@@ -3257,12 +3290,12 @@ public class MainActivity extends Activity {
                         sc++;
                     }
                 }
-                Toast.makeText(this, tr("تمت الاستعادة: " + words + " كلمة و" + sc + " اختصار",
-                        "Restored " + words + " words and " + sc + " shortcuts"), Toast.LENGTH_LONG).show();
+                showCoolToast(tr("تمت الاستعادة: " + words + " كلمة و" + sc + " اختصار",
+                        "Restored " + words + " words and " + sc + " shortcuts"), true);
                 openBackupScreen();
             } catch (Exception e) {
                 AppLogger.log("MainActivity", "backup restore", e);
-                Toast.makeText(this, tr("تعذّرت الاستعادة: الملف غير صالح", "Couldn't restore: the file isn't valid"), Toast.LENGTH_LONG).show();
+                showCoolToast(tr("تعذّرت الاستعادة: الملف غير صالح", "Couldn't restore: the file isn't valid"), true);
             }
         }
     }

@@ -880,7 +880,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     }
                 }
                 @Override public void onError(String message) {
-                    if (message != null) Toast.makeText(BlackBerryImeService.this, message, Toast.LENGTH_SHORT).show();
+                    if (message != null) showKbToast(message);
                 }
             });
         }
@@ -898,7 +898,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
         if (!VoiceInputController.isAvailable(this)) {
-            Toast.makeText(this, "الكتابة بالصوت غير متوفرة على هذا الجهاز", Toast.LENGTH_SHORT).show();
+            showKbToast("الكتابة بالصوت غير متوفرة على هذا الجهاز");
             return;
         }
         String voiceLang = keyboardView != null ? keyboardView.getActiveLanguageCode() : KeyboardPreferences.LANG_EN;
@@ -1637,6 +1637,47 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    private View kbToastView;
+    private final Runnable kbToastHide = () -> {
+        View v = kbToastView;
+        if (v == null) return;
+        kbToastView = null;
+        v.animate().alpha(0f).setDuration(180).withEndAction(() -> {
+            if (rootContainer != null) rootContainer.removeView(v);
+        }).start();
+    };
+
+    /** Small themed message shown inside the keyboard window (a system toast can end up hidden behind it). */
+    private void showKbToast(CharSequence msg) {
+        if (rootContainer == null) return;
+        uiHandler.removeCallbacks(kbToastHide);
+        if (kbToastView != null) { rootContainer.removeView(kbToastView); kbToastView = null; }
+        TextView tv = new TextView(this);
+        tv.setText(msg);
+        tv.setTextColor(Color.WHITE);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        tv.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        tv.setGravity(Gravity.CENTER);
+        tv.setMaxLines(3);
+        tv.setPadding(dp(16), dp(10), dp(16), dp(10));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.parseColor("#F2111827"));
+        bg.setCornerRadius(dp(22));
+        bg.setStroke(dp(1), Color.parseColor("#4D60A5FA"));
+        tv.setBackground(bg);
+        tv.setElevation(dp(10));
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.gravity = Gravity.CENTER;
+        lp.leftMargin = dp(20);
+        lp.rightMargin = dp(20);
+        rootContainer.addView(tv, lp);
+        kbToastView = tv;
+        tv.setAlpha(0f);
+        tv.animate().alpha(1f).setDuration(180).start();
+        uiHandler.postDelayed(kbToastHide, 2200);
+    }
+
     /** True when the focused field accepts GIFs (image/gif or image/*). Unknown (old Android or no
      *  editor info) counts as yes so nothing that worked before is blocked. */
     private boolean editorAcceptsGif() {
@@ -1674,9 +1715,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             try {
                 ClipData cd = ClipData.newUri(getContentResolver(), "Screenshot", uri);
                 if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
-                Toast.makeText(this, uiText("تم نسخ لقطة الشاشة — اضغط لصق هنا",
+                showKbToast(uiText("تم نسخ لقطة الشاشة — اضغط لصق هنا",
                         "Screenshot copied — paste it here",
-                        "Captura copiada — toca para pegarla aquí"), Toast.LENGTH_SHORT).show();
+                        "Captura copiada — toca para pegarla aquí"));
             } catch (Exception e) {
                 AppLogger.log("BlackBerryImeService", "useScreenshotClip()", e);
             }
@@ -3279,9 +3320,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifTab.setOnClickListener(v -> {
                 soundController.playKeyClick();
                 if (!editorAcceptsGif()) {
-                    Toast.makeText(this, uiText("هذا التطبيق لا يتيح إرسال GIF هنا",
+                    showKbToast(uiText("هذا التطبيق لا يتيح إرسال GIF هنا",
                             "This app doesn't allow sending GIFs here",
-                            "Esta aplicación no permite enviar GIF aquí"), Toast.LENGTH_SHORT).show();
+                            "Esta aplicación no permite enviar GIF aquí"));
                     return;
                 }
                 showGifPanel();
@@ -3910,7 +3951,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             String fileName = GifDownloadCache.downloadBlocking(this, url);
             uiHandler.post(() -> {
                 if (fileName == null) {
-                    Toast.makeText(this, uiText("تعذّر تحميل الصورة المتحركة", "Couldn't load GIF", "No se pudo cargar el GIF"), Toast.LENGTH_SHORT).show();
+                    showKbToast(uiText("تعذّر تحميل الصورة المتحركة", "Couldn't load GIF", "No se pudo cargar el GIF"));
                     return;
                 }
                 Uri uri = Uri.parse("content://" + GifCacheProvider.AUTHORITY + "/" + fileName);
@@ -3936,9 +3977,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     try {
                         ClipData cd = ClipData.newUri(getContentResolver(), "GIF", uri);
                         if (clipboardManager != null) clipboardManager.setPrimaryClip(cd);
-                        Toast.makeText(this, uiText("تم نسخ الصورة المتحركة — اضغط لصق هنا",
+                        showKbToast(uiText("تم نسخ الصورة المتحركة — اضغط لصق هنا",
                                 "GIF copied — paste it here",
-                                "GIF copiado — toca para pegarlo aquí"), Toast.LENGTH_SHORT).show();
+                                "GIF copiado — toca para pegarlo aquí"));
                     } catch (Exception e) {
                         AppLogger.log("BlackBerryImeService", "sendGif()", e);
                     }
