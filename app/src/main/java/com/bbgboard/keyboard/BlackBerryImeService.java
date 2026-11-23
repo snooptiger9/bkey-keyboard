@@ -2471,9 +2471,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (theme == KeyboardPreferences.THEME_GBOARD_WHITE) {
             // White theme: match the exact pill style used by the back-arrow buttons in
             // the clipboard/emoji drawers (pillC()) instead of the old black-tinted look.
-            return (labelC() & 0x00FFFFFF) | 0x36000000; // pillC() alpha 0x33 + 1%
+            return (labelC() & 0x00FFFFFF) | 0x39000000; // pillC() alpha 0x33 + 2%
         }
-        int alpha = Math.round(255 * 29 / 100f); // was 28%: 1% less transparent
+        int alpha = Math.round(255 * 30 / 100f); // was 28%: 2% less transparent
         return (0x9CA3AF) | (alpha << 24);
     }
 
