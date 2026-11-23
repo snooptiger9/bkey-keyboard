@@ -77,11 +77,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // Repaint the area around the keyboard and the one-hand buttons right away.
         applyNavigationBarColor();
         styleOneHandedButtons();
+        if (predictionEngine != null) updateLearningPolicy(getCurrentInputEditorInfo());
     };
 
     private FrameLayout oneHandedSwitchBtn;
     private ModernIconView oneHandedSwitchIcon;
     private FrameLayout oneHandedRestoreBtn;
+    private LinearLayout privacyPill;
+    private View privacyDot;
+    private TextView privacyText;
+    private android.animation.ObjectAnimator privacyPulse;
+    private boolean privateFieldNow = false;
     private LinearLayout clipboardDrawerView;
     private LinearLayout clipsListContainer;
     private TextView clipCountTv;
@@ -649,6 +655,43 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             soundController.playKeyClick();
         });
         rootContainer.addView(oneHandedRestoreBtn, new FrameLayout.LayoutParams(dp(40), dp(40)));
+
+        // Small "private" badge shown while nothing you type is being learned or saved.
+        privacyPill = new LinearLayout(this);
+        privacyPill.setOrientation(LinearLayout.HORIZONTAL);
+        privacyPill.setGravity(Gravity.CENTER_VERTICAL);
+        privacyPill.setPadding(dp(7), 0, dp(8), 0);
+        GradientDrawable pillBg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{Color.parseColor("#E61E293B"), Color.parseColor("#E60F172A")});
+        pillBg.setCornerRadius(dp(8));
+        pillBg.setStroke(dp(1), Color.parseColor("#6622C55E"));
+        privacyPill.setBackground(pillBg);
+        privacyPill.setElevation(dp(2));
+        privacyDot = new View(this);
+        GradientDrawable dotBg = new GradientDrawable();
+        dotBg.setShape(GradientDrawable.OVAL);
+        dotBg.setColor(Color.parseColor("#22C55E"));
+        privacyDot.setBackground(dotBg);
+        privacyPill.addView(privacyDot, new LinearLayout.LayoutParams(dp(5), dp(5)));
+        ModernIconView privacyIcon = new ModernIconView(this, ModernIconView.ICON_SHIELD_CHECK, Color.WHITE, Color.TRANSPARENT);
+        privacyIcon.setStyle(0.8f, 1.6f);
+        LinearLayout.LayoutParams lpPi = new LinearLayout.LayoutParams(dp(11), dp(11));
+        lpPi.leftMargin = dp(5);
+        lpPi.rightMargin = dp(4);
+        privacyPill.addView(privacyIcon, lpPi);
+        privacyText = new TextView(this);
+        privacyText.setTextColor(Color.WHITE);
+        privacyText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+        privacyText.setTypeface(Typeface.DEFAULT_BOLD);
+        privacyText.setLetterSpacing(0.06f);
+        privacyPill.addView(privacyText);
+        FrameLayout.LayoutParams lpPill = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(16));
+        lpPill.gravity = Gravity.TOP | Gravity.END;
+        lpPill.topMargin = dp(2);
+        lpPill.rightMargin = dp(8);
+        privacyPill.setVisibility(View.GONE);
+        rootContainer.addView(privacyPill, lpPill);
 
         gifSearchBar = new FrameLayout(this);
         gifSearchBar.setBackgroundColor(Color.TRANSPARENT); // floating: the app shows around the pill
@@ -1330,8 +1373,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 allowed = false;
             }
         }
+        privateFieldNow = !allowed;
         if (keyboardPrefs.isIncognitoMode()) allowed = false;
         predictionEngine.setLearningAllowed(allowed);
+        updatePrivacyIndicator();
         numericFieldActive = numericOnly;
         passwordFieldActive = passwordField;
         if (keyboardView != null) {
@@ -1356,6 +1401,31 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     }
 
     /** Keeps the two side buttons readable on any theme: dark icon on light shells, white on dark. */
+    private void updatePrivacyIndicator() {
+        if (privacyPill == null) return;
+        boolean incognito = keyboardPrefs.isIncognitoMode();
+        boolean show = incognito || privateFieldNow;
+        if (!show) {
+            if (privacyPulse != null) { privacyPulse.cancel(); privacyPulse = null; }
+            privacyPill.setVisibility(View.GONE);
+            return;
+        }
+        boolean ar = "ar".equals(java.util.Locale.getDefault().getLanguage());
+        privacyText.setText(incognito ? (ar ? "وضع الخصوصية" : "INCOGNITO") : (ar ? "حقل محمي" : "PROTECTED"));
+        if (privacyPill.getVisibility() != View.VISIBLE) {
+            privacyPill.setAlpha(0f);
+            privacyPill.setVisibility(View.VISIBLE);
+            privacyPill.animate().alpha(1f).setDuration(220).start();
+        }
+        if (privacyPulse == null) {
+            privacyPulse = android.animation.ObjectAnimator.ofFloat(privacyDot, "alpha", 1f, 0.25f);
+            privacyPulse.setDuration(900);
+            privacyPulse.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            privacyPulse.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            privacyPulse.start();
+        }
+    }
+
     private void styleOneHandedButtons() {
         int shell = shellC();
         double lum = (0.299 * Color.red(shell) + 0.587 * Color.green(shell) + 0.114 * Color.blue(shell)) / 255.0;
@@ -1982,6 +2052,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     predictionEngine.learnWordAndTransition(correction, prevWord, prevWord2, keyboardView.isArabic());
                     keyboardPrefs.recordWord(keyboardView.getCurrentLangCode());
                     keyboardPrefs.addStat("stat_autocorrects", 1);
+                    if (!keyboardPrefs.isIncognitoMode() && !passwordFieldActive) keyboardPrefs.addTypo(currentPrefix, 1);
                     lastAutoCorrectOriginal = currentPrefix;
                     lastAutoCorrectResult = correction;
                     lastSpaceTapTime = 0L;
@@ -2064,7 +2135,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ic.commitText(lastAutoCorrectOriginal, 1);
         rejectedAutoCorrectWord = lastAutoCorrectOriginal;
         // Remember it for good (not just until the next correction), unless nothing is being saved.
-        if (!keyboardPrefs.isIncognitoMode()) keyboardPrefs.addAutoCorrectException(lastAutoCorrectOriginal);
+        // It only becomes permanent after the 3rd reversal of the same word.
+        if (!keyboardPrefs.isIncognitoMode()) {
+            keyboardPrefs.addTypo(lastAutoCorrectOriginal, -1);
+            if (keyboardPrefs.bumpAutoCorrectUndo(lastAutoCorrectOriginal) >= KeyboardPreferences.AUTOCORRECT_UNDOS_TO_STOP) {
+                keyboardPrefs.addAutoCorrectException(lastAutoCorrectOriginal);
+            }
+        }
         return true;
     }
 

@@ -791,8 +791,76 @@ public class KeyboardPreferences {
         prefs.edit().putStringSet(KEY_AUTOCORRECT_EXCEPTIONS, set).apply();
     }
 
+    // How many times the user reversed the auto-correction of a word. At 3 the word is never
+    // auto-corrected again (a single accidental Backspace shouldn't switch the correction off).
+    private static final String KEY_AUTOCORRECT_UNDOS = "autocorrect_undo_counts";
+    public static final int AUTOCORRECT_UNDOS_TO_STOP = 3;
+
+    public int bumpAutoCorrectUndo(String word) {
+        if (word == null || word.isEmpty()) return 0;
+        return bumpCountSet(KEY_AUTOCORRECT_UNDOS, word.toLowerCase(java.util.Locale.ROOT), 1, 500);
+    }
+
+    // Words the user mistyped that got auto-corrected (on this device only, never in incognito).
+    private static final String KEY_TYPO_COUNTS = "typo_counts";
+
+    public void addTypo(String word, int delta) {
+        if (word == null || word.isEmpty()) return;
+        bumpCountSet(KEY_TYPO_COUNTS, word.toLowerCase(java.util.Locale.ROOT), delta, 300);
+    }
+
+    /** Most frequent mistyped words, as {word, count}, highest first. */
+    public java.util.List<String[]> getTopTypos(int limit) {
+        java.util.List<String[]> out = new java.util.ArrayList<>();
+        java.util.Set<String> set = prefs.getStringSet(KEY_TYPO_COUNTS, null);
+        if (set == null) return out;
+        for (String s : set) {
+            int i = s.lastIndexOf('|');
+            if (i <= 0) continue;
+            try {
+                int n = Integer.parseInt(s.substring(i + 1));
+                if (n > 0) out.add(new String[]{s.substring(0, i), String.valueOf(n)});
+            } catch (NumberFormatException ignored) {}
+        }
+        java.util.Collections.sort(out, (a, b) -> Integer.parseInt(b[1]) - Integer.parseInt(a[1]));
+        return out.size() > limit ? new java.util.ArrayList<>(out.subList(0, limit)) : out;
+    }
+
+    private int bumpCountSet(String key, String word, int delta, int cap) {
+        java.util.Set<String> old = prefs.getStringSet(key, null);
+        java.util.Set<String> set = new java.util.HashSet<>();
+        int count = 0;
+        if (old != null) {
+            for (String s : old) {
+                int i = s.lastIndexOf('|');
+                if (i > 0 && s.substring(0, i).equals(word)) {
+                    try { count = Integer.parseInt(s.substring(i + 1)); } catch (NumberFormatException ignored) {}
+                } else {
+                    set.add(s);
+                }
+            }
+        }
+        count = Math.max(0, count + delta);
+        if (count > 0 && (set.size() < cap)) set.add(word + "|" + count);
+        prefs.edit().putStringSet(key, set).apply();
+        return count;
+    }
+
+    // Ready-made English reply templates: which ones the user added, and which ones they removed
+    // (a removed template never comes back, not even after an update).
+    public java.util.Set<String> getTemplateSet(String name) {
+        java.util.Set<String> s = prefs.getStringSet("tpl_" + name, null);
+        return s == null ? new java.util.HashSet<>() : new java.util.HashSet<>(s);
+    }
+
+    public void setTemplateFlag(String name, String id, boolean on) {
+        java.util.Set<String> s = getTemplateSet(name);
+        if (on) s.add(id); else s.remove(id);
+        prefs.edit().putStringSet("tpl_" + name, s).apply();
+    }
+
     public void clearAutoCorrectExceptions() {
-        prefs.edit().remove(KEY_AUTOCORRECT_EXCEPTIONS).apply();
+        prefs.edit().remove(KEY_AUTOCORRECT_EXCEPTIONS).remove(KEY_AUTOCORRECT_UNDOS).apply();
     }
 
     // Sub-option of silent auto-correct: false (default) only corrects when the best candidate
