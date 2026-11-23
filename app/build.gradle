@@ -35,8 +35,6 @@ android {
 
         versionCode 308
         versionName "308.0"
-
-        buildConfigField "String", "KLIPY_API_KEY", "\"${klipyProps.getProperty('KLIPY_API_KEY', '')}\""
     }
 
     buildFeatures {
@@ -48,11 +46,15 @@ android {
         lite {
             dimension "features"
             buildConfigField "boolean", "OTP_FEATURES_ENABLED", "false"
+            // The lite build has no INTERNET permission, so it never gets the GIF API key.
+            // This keeps its APK identical for anyone who rebuilds it from source.
+            buildConfigField "String", "KLIPY_API_KEY", "\"\""
         }
         full {
             dimension "features"
             versionNameSuffix "-full"
             buildConfigField "boolean", "OTP_FEATURES_ENABLED", "true"
+            buildConfigField "String", "KLIPY_API_KEY", "\"${klipyProps.getProperty('KLIPY_API_KEY', '')}\""
         }
     }
 
