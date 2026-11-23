@@ -84,6 +84,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private ModernIconView oneHandedSwitchIcon;
     private FrameLayout oneHandedRestoreBtn;
     private LinearLayout privacyPill;
+    private View oneHandHeaderBtn;
     private View privacyDot;
     private TextView privacyText;
     private android.animation.ObjectAnimator privacyPulse;
@@ -1383,10 +1384,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             lp.gravity = (mode == 1) ? Gravity.LEFT : Gravity.RIGHT;
         }
         keyboardView.setLayoutParams(lp);
+        // The emoji and clipboard panels follow the keyboard sideways.
+        matchDrawerHeightToKeyboard(clipboardDrawerView);
+        matchDrawerHeightToKeyboard(emojiDrawerView);
+        // The "one-hand" shortcut in the clipboard header is pointless once it is already on.
+        if (oneHandHeaderBtn != null) oneHandHeaderBtn.setVisibility(mode == 0 ? View.VISIBLE : View.GONE);
         updateOneHandedSwitchButton();
     }
 
-    /** Keeps the two side buttons readable on any theme: dark icon on light shells, white on dark. */
     private void updatePrivacyIndicator() {
         if (privacyPill == null) return;
         boolean incognito = keyboardPrefs.isIncognitoMode();
@@ -1412,6 +1417,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    /** Keeps the two side buttons readable on any theme: dark icon on light shells, white on dark. */
     private void styleOneHandedButtons() {
         int shell = shellC();
         double lum = (0.299 * Color.red(shell) + 0.587 * Color.green(shell) + 0.114 * Color.blue(shell)) / 255.0;
@@ -1462,6 +1468,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void matchDrawerHeightToKeyboard(View drawer) {
         if (keyboardView == null || drawer == null) return;
+        ViewGroup.LayoutParams kbLp = keyboardView.getLayoutParams();
+        ViewGroup.LayoutParams dLp = drawer.getLayoutParams();
+        if (kbLp instanceof FrameLayout.LayoutParams && dLp instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams k = (FrameLayout.LayoutParams) kbLp;
+            FrameLayout.LayoutParams d = (FrameLayout.LayoutParams) dLp;
+            if (d.width != k.width || d.gravity != k.gravity) {
+                d.width = k.width;
+                d.gravity = k.gravity;
+                drawer.setLayoutParams(d);
+            }
+        }
         int h = keyboardView.getHeight();
         if (h <= 0) h = keyboardView.getMeasuredHeight();
         if (h <= 0) return;
@@ -2720,6 +2737,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         lpOne.leftMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
         lpOne.rightMargin = (int) (5.5f * getResources().getDisplayMetrics().density);
         oneHandIconBtn.setLayoutParams(lpOne);
+        oneHandHeaderBtn = oneHandIconBtn;
+        oneHandIconBtn.setVisibility(keyboardPrefs.getOneHandedMode() == 0 ? View.VISIBLE : View.GONE);
         oneHandIconBtn.setOnClickListener(v -> {
             soundController.playKeyClick();
             keyboardPrefs.setOneHandedMode(2);
