@@ -2049,6 +2049,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             lastSpaceTapTime = now;
         } else {
             lastSpaceTapTime = 0L;
+            // The user kept going after a correction, so they accepted it: forget earlier undos
+            // of that word (only 3 undos in a row switch its correction off).
+            if (lastAutoCorrectOriginal != null && !keyboardPrefs.isIncognitoMode()) {
+                keyboardPrefs.resetAutoCorrectUndo(lastAutoCorrectOriginal);
+            }
             lastAutoCorrectOriginal = null;
             lastAutoCorrectResult = null;
         }

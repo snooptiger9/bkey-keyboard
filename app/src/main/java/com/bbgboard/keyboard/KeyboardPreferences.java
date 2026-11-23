@@ -810,6 +810,16 @@ public class KeyboardPreferences {
         return bumpCountSet(KEY_AUTOCORRECT_UNDOS, word.toLowerCase(java.util.Locale.ROOT), 1, 500);
     }
 
+    public void resetAutoCorrectUndo(String word) {
+        if (word == null || word.isEmpty()) return;
+        String w = word.toLowerCase(java.util.Locale.ROOT);
+        java.util.Set<String> set = prefs.getStringSet(KEY_AUTOCORRECT_UNDOS, null);
+        if (set == null) return;
+        for (String s : set) {
+            if (s.startsWith(w + "|")) { bumpCountSet(KEY_AUTOCORRECT_UNDOS, w, -1000, 500); return; }
+        }
+    }
+
     // Words the user mistyped that got auto-corrected (on this device only, never in incognito).
     private static final String KEY_TYPO_COUNTS = "typo_counts";
 
