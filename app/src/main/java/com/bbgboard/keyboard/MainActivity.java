@@ -396,7 +396,7 @@ public class MainActivity extends Activity {
         }
 
         if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) == homeMenuView) {
-            showHomeGboardSettingsMenu();
+            reopenKeepingScroll(this::showHomeGboardSettingsMenu);
         }
     }
 
@@ -409,7 +409,7 @@ public class MainActivity extends Activity {
         // home screen stayed stale until the page was closed and reopened.
         if (hasFocus && mainFrame != null && mainFrame.getChildCount() > 0
                 && mainFrame.getChildAt(0) == homeMenuView) {
-            showHomeGboardSettingsMenu();
+            reopenKeepingScroll(this::showHomeGboardSettingsMenu);
         }
     }
 
@@ -496,7 +496,7 @@ public class MainActivity extends Activity {
             prefs.setAppDarkMode(!prefs.isAppDarkMode());
             applyWindowBackground();
             mainFrame.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
-            showHomeGboardSettingsMenu();
+            reopenKeepingScroll(this::showHomeGboardSettingsMenu);
         });
         titleRowTop.addView(themeToggleBtn);
 
