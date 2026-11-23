@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
@@ -1949,6 +1950,62 @@ public class MainActivity extends Activity {
         return h;
     }
 
+    /** While a slider is being dragged, shows its value in a small bubble above the thumb so the
+     *  finger never hides it. The slider itself is untouched (the touch is not consumed). */
+    private void attachValueBubble(final SeekBar seek, final IntLabelFormatter fmt) {
+        final PopupWindow[] pop = new PopupWindow[1];
+        final TextView[] tv = new TextView[1];
+        final Runnable update = () -> {
+            if (pop[0] == null) return;
+            tv[0].setText(fmt.format(seek.getProgress()));
+            tv[0].measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            int avail = seek.getWidth() - seek.getPaddingLeft() - seek.getPaddingRight();
+            float frac = seek.getMax() > 0 ? seek.getProgress() / (float) seek.getMax() : 0f;
+            if (seek.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) frac = 1f - frac;
+            int[] loc = new int[2];
+            seek.getLocationOnScreen(loc);
+            int w = tv[0].getMeasuredWidth(), h = tv[0].getMeasuredHeight();
+            int x = loc[0] + seek.getPaddingLeft() + Math.round(avail * frac) - w / 2;
+            int y = loc[1] - h - dp(6);
+            pop[0].update(x, y, -2, -2);
+        };
+        seek.setOnTouchListener((v, e) -> {
+            int a = e.getActionMasked();
+            if (a == MotionEvent.ACTION_DOWN && pop[0] == null) {
+                TextView t = new TextView(this);
+                t.setTextColor(Color.WHITE);
+                t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+                t.setTypeface(Typeface.DEFAULT_BOLD);
+                t.setGravity(Gravity.CENTER);
+                t.setPadding(dp(14), dp(7), dp(14), dp(7));
+                GradientDrawable bg = new GradientDrawable();
+                bg.setColor(Color.parseColor("#F2111827"));
+                bg.setCornerRadius(dp(16));
+                bg.setStroke(dp(1), Color.parseColor("#4D60A5FA"));
+                t.setBackground(bg);
+                t.setText(fmt.format(seek.getProgress()));
+                tv[0] = t;
+                PopupWindow pw = new PopupWindow(t, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                pw.setTouchable(false);
+                pw.setFocusable(false);
+                pw.setElevation(dp(6));
+                pop[0] = pw;
+                try {
+                    pw.showAtLocation(seek, Gravity.TOP | Gravity.START, 0, 0);
+                } catch (Exception ex) { pop[0] = null; }
+                seek.post(update);
+            } else if (a == MotionEvent.ACTION_MOVE) {
+                seek.post(update);
+            } else if (a == MotionEvent.ACTION_UP || a == MotionEvent.ACTION_CANCEL) {
+                if (pop[0] != null) {
+                    try { pop[0].dismiss(); } catch (Exception ignored) {}
+                    pop[0] = null;
+                }
+            }
+            return false;
+        });
+    }
+
     private LinearLayout buildSizerCard(String title, int currentValue, int defaultValue,
                                          int min, int max, IntSetter setter, IntLabelFormatter formatter) {
         LinearLayout card = createGroupedWhiteCard();
@@ -1970,6 +2027,7 @@ public class MainActivity extends Activity {
         android.content.res.ColorStateList blue = android.content.res.ColorStateList.valueOf(Color.parseColor("#2563EB"));
         seek.setProgressTintList(blue);
         seek.setThumbTintList(blue);
+        attachValueBubble(seek, pr -> formatter.format(min + pr));
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -3565,6 +3623,7 @@ public class MainActivity extends Activity {
         vibSeek.setMax(46); // 0 = system default, 1..46 = 5..50 ms
         vibSeek.setProgress(prefs.getVibrationMs() == 0 ? 0 : prefs.getVibrationMs() - 4);
         vibSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        attachValueBubble(vibSeek, pr -> pr == 0 ? tr("افتراضي", "Default") : (pr + 4) + " ms");
         vibSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -3603,6 +3662,7 @@ public class MainActivity extends Activity {
         volSeek.setMax(100);
         volSeek.setProgress(prefs.getSoundVolume());
         volSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        attachValueBubble(volSeek, pr -> pr + "%");
         volSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -3631,6 +3691,7 @@ public class MainActivity extends Activity {
         swipeVolSeek.setMax(100);
         swipeVolSeek.setProgress(prefs.getSwipeSoundVolume());
         swipeVolSeek.setPadding(dp(14), dp(12), dp(14), dp(8));
+        attachValueBubble(swipeVolSeek, pr -> pr + "%");
         swipeVolSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
