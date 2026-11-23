@@ -1,11 +1,10 @@
-<!-- versionCode: 308 -->
-### Release v308.0
+<!-- versionCode: 309 -->
+### Release v309.0
 
-- **One-handed mode shortcut:** A new button in the clipboard header switches to one-handed mode on the right, and a four-arrow button brings the full keyboard back. The side shift is a little smaller.
-- **More key fonts:** Four new Latin fonts (Inter, Poppins, Open Sans, Lato) join the font options.
-- **Refreshed theme page:** Theme, key style and size now share one clean look, with compact size controls and a shorter page.
-- **About & maintenance:** Update, What's new, Share, Backup and Error log now live in one tidy page. The Share button sends the right download link for your build.
-- **Clipboard buttons:** Separate switches for the call and mail buttons.
-- **Smarter email suggestions:** Saved emails show up only after two typed characters.
-- **Smoother cards:** Fixed the card slide-in animation in settings.
-- **Small touches:** The shortcuts screen is now called "Word shortcuts", and the floating test button has a lighter, modern look.
+- **Smarter incognito:** Incognito now also hides the words the keyboard learned from you, so only base-dictionary suggestions show (you can turn this off in settings). A small shield badge shows when nothing is being learned or saved.
+- **Auto-correct that learns:** If you undo the correction of a word three times, it is never auto-corrected again.
+- **Mistyped words in stats:** A new card shows the words you mistype most, so you can see what trips you up.
+- **One-hand mode, clearer:** The side buttons are now easy to see on light themes and change instantly when you switch theme.
+- **Clipboard header polish:** Better spacing between the icons and a slightly smaller item counter.
+- **Bolder Shift arrow** and a fix for the dark-mode icon being cut off in settings.
+- **Reproducible standard build:** The standard (lite) build no longer contains the GIF API key, so anyone can rebuild it from source and get an identical APK.
