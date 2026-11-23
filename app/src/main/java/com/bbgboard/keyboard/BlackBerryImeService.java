@@ -1752,7 +1752,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         ImageView thumb = new ImageView(this);
         // Taller than wide, like the portrait screenshot it's previewing — not a flat landscape strip.
-        thumb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(150)));
+        thumb.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(140)));
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
         thumb.setBackground(roundedBg(shellC(), 12));
         thumb.setClipToOutline(true);
