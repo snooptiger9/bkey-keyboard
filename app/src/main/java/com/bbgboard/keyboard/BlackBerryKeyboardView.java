@@ -480,14 +480,15 @@ public class BlackBerryKeyboardView extends View {
                 canvas.drawPath(ck, resizeIconPaint);
             } else {
                 RectF arc = new RectF(cx - ir * 0.8f, cy - ir * 0.8f, cx + ir * 0.8f, cy + ir * 0.8f);
-                canvas.drawArc(arc, 30f, 290f, false, resizeIconPaint);
-                // arrowhead at the arc's end (330 degrees), pointing along the sweep
-                double a = Math.toRadians(320);
-                float px = cx + (float) (ir * 0.8f * Math.cos(a)), py = cy + (float) (ir * 0.8f * Math.sin(a));
+                canvas.drawArc(arc, 30f, 275f, false, resizeIconPaint);
+                // open arrowhead at the arc's end, clearly apart from the tail
+                double a = Math.toRadians(305);
+                float rr = ir * 0.8f;
                 float dx = (float) -Math.sin(a), dy = (float) Math.cos(a);
-                float nx = -dy, ny = dx, hl = ir * 0.65f;
-                canvas.drawLine(px, py, px - dx * hl + nx * hl * 0.8f, py - dy * hl + ny * hl * 0.8f, resizeIconPaint);
-                canvas.drawLine(px, py, px - dx * hl - nx * hl * 0.8f, py - dy * hl - ny * hl * 0.8f, resizeIconPaint);
+                float nx = -dy, ny = dx, hl = ir * 0.5f;
+                float px = cx + (float) (rr * Math.cos(a)) + dx * ir * 0.2f, py = cy + (float) (rr * Math.sin(a)) + dy * ir * 0.2f;
+                canvas.drawLine(px, py, px - dx * hl + nx * hl, py - dy * hl + ny * hl, resizeIconPaint);
+                canvas.drawLine(px, py, px - dx * hl - nx * hl, py - dy * hl - ny * hl, resizeIconPaint);
             }
             float ty = r.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
             canvas.drawText(label, startX + iconSize + gap, ty, sugPrimaryTextPaint);

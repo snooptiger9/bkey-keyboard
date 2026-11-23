@@ -1047,14 +1047,14 @@ public class MainActivity extends Activity {
                     ghost.setScaleY(scale0);
                     mainFrame.addView(ghost);
                     ghost.animate().translationX(endX).translationY(endY).scaleX(1f).scaleY(1f)
-                            .setDuration(400)
+                            .setDuration(560)
                             .setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0.4f, 1f))
                             .withEndAction(() -> {
                                 titleTv.setAlpha(1f);
                                 mainFrame.removeView(ghost);
                             }).start();
                     // Safety net: never leave the real title hidden.
-                    titleTv.postDelayed(() -> titleTv.setAlpha(1f), 600);
+                    titleTv.postDelayed(() -> titleTv.setAlpha(1f), 800);
                 } catch (Exception e) {
                     titleTv.setAlpha(1f);
                 }
