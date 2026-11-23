@@ -2167,7 +2167,7 @@ public class MainActivity extends Activity {
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
+        frame.setStroke(dp(1), selected ? Color.TRANSPARENT : Color.parseColor(dm("#E5E7EB")));
         holder.setForeground(frame);
 
         TextView labelTv = new TextView(this);
@@ -2179,9 +2179,35 @@ public class MainActivity extends Activity {
         labelTv.setPadding(0, dp(5), 0, 0);
         labelTv.setMaxLines(2);
 
-        tile.addView(holder);
+        tile.setClipChildren(false);
+        tile.addView(selectionFrameWrap(holder, selected));
         tile.addView(labelTv);
         return tile;
+    }
+
+    /** Wraps a tile's square so the selection frame sits just outside it (a small gap all round)
+     *  instead of touching it. The wrapper keeps the square's size, so the layout does not move. */
+    private View selectionFrameWrap(FrameLayout holder, boolean selected) {
+        FrameLayout wrap = new FrameLayout(this);
+        wrap.setClipChildren(false);
+        wrap.setClipToPadding(false);
+        wrap.setLayoutParams(holder.getLayoutParams());
+        holder.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        wrap.addView(holder);
+        if (selected) {
+            View ring = new View(this);
+            GradientDrawable g = new GradientDrawable();
+            g.setCornerRadius(dp(16));
+            g.setColor(Color.TRANSPARENT);
+            g.setStroke(dp(2), Color.parseColor(dm("#2563EB")));
+            ring.setBackground(g);
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            lp.setMargins(-dp(4), -dp(4), -dp(4), -dp(4));
+            wrap.addView(ring, lp);
+        }
+        return wrap;
     }
 
     private View createFontPreviewTile(String label, Typeface typeface, boolean selected, View.OnClickListener onClick) {
@@ -2206,7 +2232,7 @@ public class MainActivity extends Activity {
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
+        frame.setStroke(dp(1), selected ? Color.TRANSPARENT : Color.parseColor(dm("#E5E7EB")));
         holder.setForeground(frame);
 
         TextView labelTv = new TextView(this);
@@ -2218,7 +2244,8 @@ public class MainActivity extends Activity {
         labelTv.setPadding(0, dp(5), 0, 0);
         labelTv.setMaxLines(2);
 
-        tile.addView(holder);
+        tile.setClipChildren(false);
+        tile.addView(selectionFrameWrap(holder, selected));
         tile.addView(labelTv);
         return tile;
     }
@@ -2247,8 +2274,7 @@ public class MainActivity extends Activity {
         GradientDrawable frame = new GradientDrawable();
         frame.setCornerRadius(dp(13));
         frame.setColor(Color.TRANSPARENT);
-        frame.setStroke(dp(selected ? 2 : 1),
-                Color.parseColor(selected ? selectionColorHex : dm("#E5E7EB")));
+        frame.setStroke(dp(1), selected ? Color.TRANSPARENT : Color.parseColor(dm("#E5E7EB")));
         holder.setForeground(frame);
 
         TextView labelTv = new TextView(this);
@@ -2260,7 +2286,8 @@ public class MainActivity extends Activity {
         labelTv.setPadding(0, dp(5), 0, 0);
         labelTv.setMaxLines(2);
 
-        tile.addView(holder);
+        tile.setClipChildren(false);
+        tile.addView(selectionFrameWrap(holder, selected));
         tile.addView(labelTv);
         return tile;
     }
