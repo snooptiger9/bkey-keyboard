@@ -3250,9 +3250,16 @@ public class BlackBerryKeyboardView extends View {
                     if (Math.abs(dxMove) > 8f * density || longPressPopupBoxRect.contains(x, y)) {
                         hasSlidDuringLongPress = true;
 
-                        int steps = longPressCellW > 0f
-                                ? Math.round((x - longPressDragBaseX) / (longPressCellW * 1.4f))
-                                : 0;
+                        // One option per ~0.8 cell of finger travel, shrunk when needed so the last
+                        // option is always reachable before the screen edge (either side).
+                        int last = Math.max(1, longPressOptions.size() - 1);
+                        float stepW = longPressCellW * 0.8f;
+                        float room = (x >= longPressDragBaseX)
+                                ? (getWidth() - 24f * density - longPressDragBaseX)
+                                : (longPressDragBaseX - 24f * density);
+                        if (room > 0f) stepW = Math.min(stepW, room / last);
+                        stepW = Math.max(stepW, 8f * density);
+                        int steps = Math.round((x - longPressDragBaseX) / stepW);
                         int newIdx = Math.max(0, Math.min(longPressOptions.size() - 1, longPressBaseIndex + steps));
                         if (newIdx != longPressHighlightedIndex) {
                             longPressHighlightedIndex = newIdx;
