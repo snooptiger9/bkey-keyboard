@@ -30,6 +30,7 @@ final class FrenchUi {
         TEXT.put("Recently used", "Récemment utilisés");
         TEXT.put("Search results", "Résultats de recherche");
         TEXT.put("Trending now", "Tendances du moment");
+        TEXT.put("This app doesn't allow sending GIFs here", "Cette application ne permet pas d’envoyer des GIF ici");
         TEXT.put("Couldn't load GIF", "Impossible de charger le GIF");
         TEXT.put("GIF copied — paste it here", "GIF copié — collez-le ici");
     }

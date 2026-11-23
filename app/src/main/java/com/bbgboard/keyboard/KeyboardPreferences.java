@@ -689,6 +689,15 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("voice_button_enabled", enabled).apply();
     }
 
+    /** Plus only: whether the emoji panel shows its GIF tab. */
+    public boolean isGifTabEnabled() {
+        return prefs.getBoolean("gif_tab_enabled", true);
+    }
+
+    public void setGifTabEnabled(boolean enabled) {
+        prefs.edit().putBoolean("gif_tab_enabled", enabled).apply();
+    }
+
     public boolean isClipChipEnabled() {
         // Needs no special permission (just the system clipboard listener),
         // so unlike screenshot-to-clipboard this works the same in both the

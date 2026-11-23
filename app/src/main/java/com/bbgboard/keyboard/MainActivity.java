@@ -2831,6 +2831,15 @@ public class MainActivity extends Activity {
                 });
         clearCard.setPadding(dp(14), dp(10), dp(14), dp(10));
         root.addView(clearCard);
+        // GIF search only exists in bkey Plus, so its tab switch does too.
+        if (BuildConfig.OTP_FEATURES_ENABLED) {
+            root.addView(createSwitchTile(
+                    tr("إظهار تبويب GIF في نافذة الإيموجي", "Show the GIF tab in the emoji panel"),
+                    tr("أطفئه لإخفاء تبويب GIF من النافذة", "Turn off to hide the GIF tab from the panel"),
+                    prefs.isGifTabEnabled(),
+                    checked -> prefs.setGifTabEnabled(checked)
+            ));
+        }
         // The old "Floating capsules color" picker (Black / Light gray) used to live here.
         // Its default (black) was nearly invisible on the Matte Black and Midnight Slate
         // themes' own dark background, so the floating ABC/Delete capsules now use a fixed

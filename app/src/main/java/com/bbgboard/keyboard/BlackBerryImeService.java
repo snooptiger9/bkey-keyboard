@@ -1637,6 +1637,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    /** True when the focused field accepts GIFs (image/gif or image/*). Unknown (old Android or no
+     *  editor info) counts as yes so nothing that worked before is blocked. */
+    private boolean editorAcceptsGif() {
+        EditorInfo info = getCurrentInputEditorInfo();
+        if (info == null || Build.VERSION.SDK_INT < 25) return true;
+        if (info.contentMimeTypes == null) return false;
+        for (String mime : info.contentMimeTypes) {
+            if (mime != null && (mime.equalsIgnoreCase("image/gif") || mime.equalsIgnoreCase("image/*"))) return true;
+        }
+        return false;
+    }
+
     private void useScreenshotClip() {
         if (!ScreenshotClip.exists(this)) return;
         Uri uri = ScreenshotClip.contentUri(this);
@@ -1723,6 +1735,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         matchDrawerHeightToKeyboard(emojiDrawerView);
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
+        if (gifTabView != null) gifTabView.setVisibility(keyboardPrefs.isGifTabEnabled() ? View.VISIBLE : View.GONE);
         emojiDrawerView.setVisibility(View.VISIBLE);
         fadeIn(emojiDrawerView, 10, 260);
         updateInlineStripVisibility();
@@ -3265,6 +3278,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             gifTabView = gifTab;
             gifTab.setOnClickListener(v -> {
                 soundController.playKeyClick();
+                if (!editorAcceptsGif()) {
+                    Toast.makeText(this, uiText("هذا التطبيق لا يتيح إرسال GIF هنا",
+                            "This app doesn't allow sending GIFs here",
+                            "Esta aplicación no permite enviar GIF aquí"), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 showGifPanel();
             });
             tabsRow.addView(gifTab);
