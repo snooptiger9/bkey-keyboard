@@ -1,4 +1,4 @@
-<p align="center"><a href="README.md">English</a> | <a href="README.ar.md">العربية</a> | <b>Español</b> | <a href="README.hi.md">हिन्दी</a></p>
+<p align="center"><a href="README.md">English</a> | <a href="README.ar.md">العربية</a> | <b>Español</b> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a></p>
 
 <p align="center">
   <picture>
@@ -15,7 +15,7 @@
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI-blue)
+![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 
