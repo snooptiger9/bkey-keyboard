@@ -1411,7 +1411,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void updatePrivacyIndicator() {
         if (privacyPill == null) return;
         boolean incognito = keyboardPrefs.isIncognitoMode();
-        boolean show = incognito || privateFieldNow;
+        boolean show = incognito;
         if (!show) {
             if (privacyPulse != null) { privacyPulse.cancel(); privacyPulse = null; }
             privacyPill.setVisibility(View.GONE);
