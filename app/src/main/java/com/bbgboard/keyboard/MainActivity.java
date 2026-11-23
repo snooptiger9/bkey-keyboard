@@ -261,6 +261,7 @@ public class MainActivity extends Activity {
         FrameLayout rootContainer = new FrameLayout(this);
         rootContainer.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        toastHost = rootContainer; // outside mainFrame, so rebuilding a page never removes a toast
         rootContainer.addView(mainFrame);
         addFloatingKeyboardTester(rootContainer);
         setContentView(rootContainer);
@@ -2339,6 +2340,7 @@ public class MainActivity extends Activity {
         return tr(count + " كلمة محفوظة • بحث وحذف", count + " saved words • search & delete");
     }
 
+    private FrameLayout toastHost;
     private View coolToastView;
     private final Runnable coolToastHide = () -> hideCoolToast();
 
@@ -2349,7 +2351,7 @@ public class MainActivity extends Activity {
 
     /** ms <= 0 keeps it up until hideCoolToast(). */
     private void showCoolToastFor(CharSequence msg, long ms) {
-        if (mainFrame == null) return;
+        if (toastHost == null) return;
         hideCoolToastNow();
         LinearLayout pill = new LinearLayout(this);
         pill.setOrientation(LinearLayout.HORIZONTAL);
@@ -2382,20 +2384,20 @@ public class MainActivity extends Activity {
         lp.bottomMargin = dp(40);
         lp.leftMargin = dp(24);
         lp.rightMargin = dp(24);
-        mainFrame.addView(pill, lp);
+        toastHost.addView(pill, lp);
         coolToastView = pill;
         pill.setAlpha(0f);
         pill.setTranslationY(dp(14));
         pill.animate().alpha(1f).translationY(0f).setDuration(220).start();
-        mainFrame.removeCallbacks(coolToastHide);
-        if (ms > 0) mainFrame.postDelayed(coolToastHide, ms);
+        toastHost.removeCallbacks(coolToastHide);
+        if (ms > 0) toastHost.postDelayed(coolToastHide, ms);
     }
 
     private void hideCoolToastNow() {
-        mainFrame.removeCallbacks(coolToastHide);
+        toastHost.removeCallbacks(coolToastHide);
         if (coolToastView != null) {
             coolToastView.animate().cancel();
-            mainFrame.removeView(coolToastView);
+            toastHost.removeView(coolToastView);
             coolToastView = null;
         }
     }
@@ -2405,7 +2407,7 @@ public class MainActivity extends Activity {
         if (v == null) return;
         coolToastView = null;
         v.animate().alpha(0f).translationY(dp(10)).setDuration(200)
-                .withEndAction(() -> { if (mainFrame != null) mainFrame.removeView(v); }).start();
+                .withEndAction(() -> { if (toastHost != null) toastHost.removeView(v); }).start();
     }
 
     // The download message stays up the whole time the download runs, until stop is called.
@@ -2414,7 +2416,7 @@ public class MainActivity extends Activity {
     }
 
     private void stopPersistentDownloadToast() {
-        if (mainFrame != null && coolToastView != null) hideCoolToast();
+        if (toastHost != null && coolToastView != null) hideCoolToast();
     }
 
     private void checkForAppUpdate() {
