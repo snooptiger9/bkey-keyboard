@@ -54,6 +54,14 @@ public class PredictionEngine {
     private volatile boolean latinIsFrench = false;
 
     public void setActiveLatinLanguage(String languageCode) {
+        activeLangCode = languageCode;
+        // A language that was not loaded at start (turned on later) loads in the background now.
+        if (ready && languageCode != null && !loadedLangs.contains(languageCode)) {
+            final String lang = languageCode;
+            Thread t = new Thread(() -> loadLanguage(lang), "bkey-dict-load");
+            t.setPriority(Thread.NORM_PRIORITY - 1);
+            t.start();
+        }
         latinIsFrench = KeyboardPreferences.LANG_FR.equals(languageCode);
         latinIsSpanish = KeyboardPreferences.LANG_ES.equals(languageCode);
         latinIsHindi = KeyboardPreferences.LANG_HI.equals(languageCode);
@@ -91,7 +99,12 @@ public class PredictionEngine {
         return tag == null ? KeyboardPreferences.LANG_EN.equals(active) : tag.equals(active);
     }
 
-    private final java.util.Set<String> knownFolded = new java.util.HashSet<>();
+    // Only the languages the user has turned on keep their dictionary in memory.
+    private final java.util.Set<String> loadedLangs = java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
+    private volatile String activeLangCode;
+    private Context appContext;
+    private final java.util.Set<String> knownFolded =
+            java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<String, Boolean>());
     private volatile boolean learningAllowed = true;
     private volatile boolean dirty = true;
     private volatile String lastSavedWords = "";
@@ -142,22 +155,10 @@ public class PredictionEngine {
 
     private void initialize(Context context) {
         initBaseDictionaries();
-        loadBundledDictionary(context, "dict_ar.txt", baseArWords, 60, 20);
-        loadBundledDictionary(context, "dict_en.txt", baseEnWords, 60, 20);
-        loadBundledDictionary(context, "dict_es.txt", baseEsWords, 60, 20);
-        loadBundledDictionary(context, "dict_hi.txt", baseHiWords, 60, 20);
-        loadBundledDictionary(context, "dict_fr.txt", baseFrWords, 60, 20);
-        buildFoldIndex(baseArWords, baseArByFold);
-        buildFoldIndex(baseEnWords, baseEnByFold);
-        buildFoldIndex(baseEsWords, baseEsByFold);
-        buildFoldIndex(baseHiWords, baseHiByFold);
-        buildFoldIndex(baseFrWords, baseFrByFold);
-
-        knownFolded.addAll(baseArByFold.keySet());
-        knownFolded.addAll(baseEnByFold.keySet());
-        knownFolded.addAll(baseEsByFold.keySet());
-        knownFolded.addAll(baseHiByFold.keySet());
-        knownFolded.addAll(baseFrByFold.keySet());
+        appContext = context;
+        for (String lang : keyboardPrefs.getEnabledLanguages()) loadLanguage(lang);
+        String act = activeLangCode;
+        if (act != null) loadLanguage(act);
         synchronized (this) {
             loadFromPrefs();
             dirty = false;
@@ -167,6 +168,36 @@ public class PredictionEngine {
         ready = true;
         Runnable l = onReadyListener;
         if (l != null) l.run();
+    }
+
+    /** Loads one language's bundled dictionary and fold index (once). The heavy work happens on a
+     *  private copy and is swapped in under the engine lock, so suggestions never see half a list. */
+    private void loadLanguage(String lang) {
+        if (appContext == null || lang == null) return;
+        String asset; Map<String, Integer> words; java.util.TreeMap<String, List<String>> idx;
+        if (KeyboardPreferences.LANG_AR.equals(lang)) { asset = "dict_ar.txt"; words = baseArWords; idx = baseArByFold; }
+        else if (KeyboardPreferences.LANG_EN.equals(lang)) { asset = "dict_en.txt"; words = baseEnWords; idx = baseEnByFold; }
+        else if (KeyboardPreferences.LANG_ES.equals(lang)) { asset = "dict_es.txt"; words = baseEsWords; idx = baseEsByFold; }
+        else if (KeyboardPreferences.LANG_HI.equals(lang)) { asset = "dict_hi.txt"; words = baseHiWords; idx = baseHiByFold; }
+        else if (KeyboardPreferences.LANG_FR.equals(lang)) { asset = "dict_fr.txt"; words = baseFrWords; idx = baseFrByFold; }
+        else return;
+        if (!loadedLangs.add(lang)) return;
+        try {
+            Map<String, Integer> copy;
+            synchronized (this) { copy = new HashMap<>(words); }
+            loadBundledDictionary(appContext, asset, copy, 60, 20);
+            java.util.TreeMap<String, List<String>> tmpIdx = new java.util.TreeMap<>();
+            buildFoldIndex(copy, tmpIdx);
+            synchronized (this) {
+                words.putAll(copy);
+                idx.clear();
+                idx.putAll(tmpIdx);
+            }
+            knownFolded.addAll(tmpIdx.keySet());
+        } catch (Throwable t) {
+            loadedLangs.remove(lang);
+            AppLogger.log("PredictionEngine", "loadLanguage(" + lang + ")", t instanceof Exception ? (Exception) t : new Exception(t));
+        }
     }
 
     public void setOnReadyListener(Runnable listener) {
