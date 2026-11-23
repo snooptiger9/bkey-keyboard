@@ -161,9 +161,9 @@
 | कॉपी किए टेक्स्ट का सुझाव | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v308.apk"><img src="docs/images/badges/dl_bkey_en.png" alt="bkey (APK) डाउनलोड करें" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v309.apk"><img src="docs/images/badges/dl_bkey_en.png" alt="bkey (APK) डाउनलोड करें" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v308.apk"><img src="docs/images/badges/dl_plus_en.png" alt="bkey Plus (APK) डाउनलोड करें" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v309.apk"><img src="docs/images/badges/dl_plus_en.png" alt="bkey Plus (APK) डाउनलोड करें" width="300"></a>
 </p>
 
 **bkey** केवल वही अनुमतियाँ माँगता है जो कीबोर्ड को टाइप करने के लिए चाहिए (इंटरनेट, फ़ोटो/स्टोरेज या SMS नहीं), इसलिए तालिका की केवल-Plus सुविधाएँ इसमें नहीं हैं। **bkey Plus** में सब कुछ है, लेकिन इंस्टॉल करते समय Google Play Protect चेतावनी देता है (अपेक्षित है, असली समस्या नहीं; देखें [गोपनीयता और सुरक्षा](#hi-privacy))।
