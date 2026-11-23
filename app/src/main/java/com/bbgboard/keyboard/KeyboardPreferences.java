@@ -800,10 +800,10 @@ public class KeyboardPreferences {
         prefs.edit().putStringSet(KEY_AUTOCORRECT_EXCEPTIONS, set).apply();
     }
 
-    // How many times the user reversed the auto-correction of a word. At 3 the word is never
+    // How many times the user reversed the auto-correction of a word. At 2 the word is never
     // auto-corrected again (a single accidental Backspace shouldn't switch the correction off).
     private static final String KEY_AUTOCORRECT_UNDOS = "autocorrect_undo_counts";
-    public static final int AUTOCORRECT_UNDOS_TO_STOP = 3;
+    public static final int AUTOCORRECT_UNDOS_TO_STOP = 2;
 
     public int bumpAutoCorrectUndo(String word) {
         if (word == null || word.isEmpty()) return 0;
