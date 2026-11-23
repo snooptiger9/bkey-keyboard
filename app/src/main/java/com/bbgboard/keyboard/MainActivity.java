@@ -529,7 +529,7 @@ public class MainActivity extends Activity {
 
         if (imeSelected) {
             quickSetupCard.addView(createSetupStepRow(
-                    ModernIconView.ICON_SHIELD_CHECK, dm("#16A34A"),
+                    ModernIconView.ICON_KEYBOARD_CHECK, dm("#16A34A"),
                     tr("مفعّل ومختار حالياً", "Enabled and currently selected"),
                     "",
                     v -> {

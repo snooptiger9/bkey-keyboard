@@ -55,6 +55,7 @@ public class ModernIconView extends View {
     public static final int ICON_EXPAND_CORNERS = 43;
     public static final int ICON_SHARE = 44;
     public static final int ICON_INFO = 45;
+    public static final int ICON_KEYBOARD_CHECK = 46;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -576,6 +577,15 @@ public class ModernIconView extends View {
                 canvas.drawPath(sh, strokePaint);
                 canvas.drawLine(cx - r * 0.36f, cy + r * 0.02f, cx - r * 0.08f, cy + r * 0.32f, strokePaint);
                 canvas.drawLine(cx - r * 0.08f, cy + r * 0.32f, cx + r * 0.40f, cy - r * 0.26f, strokePaint);
+                break;
+            }
+            case ICON_KEYBOARD_CHECK: {
+                // An empty keyboard outline with a check inside it, and a short space bar at the foot.
+                float hw = r * 1.02f, hh = r * 0.74f;
+                canvas.drawRoundRect(new RectF(cx - hw, cy - hh, cx + hw, cy + hh), r * 0.34f, r * 0.34f, strokePaint);
+                canvas.drawLine(cx - r * 0.36f, cy - r * 0.12f, cx - r * 0.10f, cy + r * 0.14f, strokePaint);
+                canvas.drawLine(cx - r * 0.10f, cy + r * 0.14f, cx + r * 0.40f, cy - r * 0.40f, strokePaint);
+                canvas.drawLine(cx - r * 0.38f, cy + r * 0.46f, cx + r * 0.38f, cy + r * 0.46f, strokePaint);
                 break;
             }
             case ICON_BOLT: {
