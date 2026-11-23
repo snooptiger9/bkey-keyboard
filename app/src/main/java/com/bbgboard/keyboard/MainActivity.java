@@ -2088,10 +2088,10 @@ public class MainActivity extends Activity {
             circle = new View(this) {
                 @Override
                 protected void onDraw(android.graphics.Canvas c) {
-                    float w = getWidth(), h = getHeight(), r = Math.min(w, h) / 2f;
+                    float w = getWidth(), h = getHeight(), r = dp(13);
                     android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
                     android.graphics.Path circlePath = new android.graphics.Path();
-                    circlePath.addCircle(w / 2f, h / 2f, r - sw / 2f, android.graphics.Path.Direction.CW);
+                    circlePath.addRoundRect(new android.graphics.RectF(0, 0, w, h), r, r, android.graphics.Path.Direction.CW);
                     c.save();
                     c.clipPath(circlePath);
                     p.setColor(Color.WHITE);
@@ -2102,19 +2102,19 @@ public class MainActivity extends Activity {
                     p.setStyle(android.graphics.Paint.Style.STROKE);
                     p.setStrokeWidth(sw);
                     p.setColor(strokeColor);
-                    c.drawCircle(w / 2f, h / 2f, r - sw / 2f, p);
+                    c.drawRoundRect(new android.graphics.RectF(sw / 2f, sw / 2f, w - sw / 2f, h - sw / 2f), r, r, p);
                 }
             };
         } else {
             circle = new View(this);
             GradientDrawable swatch = new GradientDrawable();
-            swatch.setShape(GradientDrawable.OVAL);
+            swatch.setCornerRadius(dp(13));
             swatch.setColor(Color.parseColor(colorHex));
             swatch.setStroke(dp(1), Color.parseColor(dm("#E5E7EB")));
             circle.setBackground(swatch);
         }
-        FrameLayout.LayoutParams lpCircle = new FrameLayout.LayoutParams(dp(32), dp(32));
-        lpCircle.gravity = Gravity.CENTER;
+        FrameLayout.LayoutParams lpCircle = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         holder.addView(circle, lpCircle);
 
         GradientDrawable frame = new GradientDrawable();
@@ -2122,20 +2122,6 @@ public class MainActivity extends Activity {
         frame.setColor(Color.TRANSPARENT);
         frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
         holder.setForeground(frame);
-        if (selected) {
-            TextView badge = new TextView(this);
-            badge.setText("✓");
-            badge.setTextColor(Color.WHITE);
-            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-            badge.setTypeface(Typeface.DEFAULT_BOLD);
-            badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard(dm("#2563EB"), 7));
-            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
-            lpB.gravity = Gravity.TOP | Gravity.END;
-            lpB.topMargin = dp(2);
-            lpB.rightMargin = dp(2);
-            holder.addView(badge, lpB);
-        }
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
@@ -2166,7 +2152,7 @@ public class MainActivity extends Activity {
         sample.setText("Ab");
         sample.setTypeface(typeface);
         sample.setTextColor(Color.parseColor(dm("#111827")));
-        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        sample.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19f);
         sample.setGravity(Gravity.CENTER);
         holder.addView(sample, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -2175,20 +2161,6 @@ public class MainActivity extends Activity {
         frame.setColor(Color.TRANSPARENT);
         frame.setStroke(dp(selected ? 2 : 1), Color.parseColor(selected ? dm("#2563EB") : dm("#E5E7EB")));
         holder.setForeground(frame);
-        if (selected) {
-            TextView badge = new TextView(this);
-            badge.setText("✓");
-            badge.setTextColor(Color.WHITE);
-            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-            badge.setTypeface(Typeface.DEFAULT_BOLD);
-            badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard(dm("#2563EB"), 7));
-            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
-            lpB.gravity = Gravity.TOP | Gravity.END;
-            lpB.topMargin = dp(2);
-            lpB.rightMargin = dp(2);
-            holder.addView(badge, lpB);
-        }
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
@@ -2219,7 +2191,7 @@ public class MainActivity extends Activity {
         String selectionColorHex = darkThemeNow ? "#93C5FD" : dm("#2563EB");
 
         FrameLayout holder = new FrameLayout(this);
-        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(72), dp(60)));
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(82), dp(68)));
         holder.setBackground(roundedCard(selected ? dm("#EFF6FF") : dm("#F3F4F6"), 13));
         holder.setElevation(selected ? dp(3) : dp(1));
         holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
@@ -2231,20 +2203,6 @@ public class MainActivity extends Activity {
         frame.setStroke(dp(selected && darkThemeNow ? 3 : selected ? 2 : 1),
                 Color.parseColor(selected ? selectionColorHex : dm("#E5E7EB")));
         holder.setForeground(frame);
-        if (selected) {
-            TextView badge = new TextView(this);
-            badge.setText("✓");
-            badge.setTextColor(darkThemeNow ? Color.parseColor("#1E293B") : Color.WHITE);
-            badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-            badge.setTypeface(Typeface.DEFAULT_BOLD);
-            badge.setGravity(Gravity.CENTER);
-            badge.setBackground(roundedCard(selectionColorHex, 7));
-            FrameLayout.LayoutParams lpB = new FrameLayout.LayoutParams(dp(14), dp(14));
-            lpB.gravity = Gravity.TOP | Gravity.END;
-            lpB.topMargin = dp(2);
-            lpB.rightMargin = dp(2);
-            holder.addView(badge, lpB);
-        }
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
