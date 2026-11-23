@@ -1320,11 +1320,12 @@ public class BlackBerryKeyboardView extends View {
         }
 
         longPressCellW = cellW;
-        longPressDragBaseX = key.rect.centerX();
-        int centerIdx = findLongPressOptionIndexAtX(longPressDragBaseX);
-        longPressBaseIndex = (centerIdx >= 0) ? centerIdx : 0;
-
+        // Drag is measured from where the finger is now, starting at the highlighted (first)
+        // option, so sliding steps through the options one by one. Starting from the cell under
+        // the key's centre while the highlight sat on the first one made the first move skip ahead.
         longPressHighlightedIndex = 0;
+        longPressBaseIndex = 0;
+        longPressDragBaseX = startX;
         invalidate();
     }
 
