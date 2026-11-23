@@ -210,6 +210,8 @@ public class BlackBerryKeyboardView extends View {
     private final Paint stylePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private boolean enterCustom = false;
     private final Paint shiftActiveAccentPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint resizeRingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint resizeIconPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint resizeBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint resizeBarPressedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint resizePillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -436,7 +438,7 @@ public class BlackBerryKeyboardView extends View {
             // their own label -- so the two pills always read as a matched pair however
             // long either language's word for "Reset" turns out to be (Arabic
             // "استعادة" is much longer than "تم").
-            float btnW = 54f * density;
+            float btnW = 78f * density;
             float btnTop = boundaryTopY + (barH - btnH) / 2f;
 
             resizeResetButtonRect.set(8f * density, btnTop, 8f * density + btnW, btnTop + btnH);
@@ -445,6 +447,50 @@ public class BlackBerryKeyboardView extends View {
             float pillSize = 34f * density;
             float pillTop = boundaryTopY + (barH - pillSize) / 2f;
             resizeDragHandlePillRect.set((w - pillSize) / 2f, pillTop, (w + pillSize) / 2f, pillTop + pillSize);
+        }
+
+        // One modern pill: rounded fill, hairline ring, a drawn icon (check or reset arrow)
+        // and a bold label, centred as a group. Text shrinks if a language's word is long.
+        private void drawResizePill(Canvas canvas, RectF r, Paint fill, boolean check, String label) {
+            float rad = r.height() / 2f;
+            canvas.drawRoundRect(r, rad, rad, fill);
+            resizeRingPaint.setStrokeWidth(1f * density);
+            canvas.drawRoundRect(r, rad, rad, resizeRingPaint);
+
+            float iconSize = 12f * density, gap = 5f * density;
+            float maxText = r.width() - iconSize - gap - 18f * density;
+            float size = 11.5f * scaledDensity;
+            sugPrimaryTextPaint.setTextSize(size);
+            float tw = sugPrimaryTextPaint.measureText(label);
+            if (tw > maxText) {
+                size = size * maxText / tw;
+                sugPrimaryTextPaint.setTextSize(size);
+                tw = sugPrimaryTextPaint.measureText(label);
+            }
+            float total = iconSize + gap + tw;
+            float startX = r.centerX() - total / 2f;
+            float cx = startX + iconSize / 2f, cy = r.centerY();
+            float ir = iconSize / 2f;
+            resizeIconPaint.setStrokeWidth(1.9f * density);
+            if (check) {
+                Path ck = new Path();
+                ck.moveTo(cx - ir * 0.75f, cy + ir * 0.05f);
+                ck.lineTo(cx - ir * 0.2f, cy + ir * 0.6f);
+                ck.lineTo(cx + ir * 0.8f, cy - ir * 0.55f);
+                canvas.drawPath(ck, resizeIconPaint);
+            } else {
+                RectF arc = new RectF(cx - ir * 0.8f, cy - ir * 0.8f, cx + ir * 0.8f, cy + ir * 0.8f);
+                canvas.drawArc(arc, 30f, 290f, false, resizeIconPaint);
+                // arrowhead at the arc's end (330 degrees), pointing along the sweep
+                double a = Math.toRadians(320);
+                float px = cx + (float) (ir * 0.8f * Math.cos(a)), py = cy + (float) (ir * 0.8f * Math.sin(a));
+                float dx = (float) -Math.sin(a), dy = (float) Math.cos(a);
+                float nx = -dy, ny = dx, hl = ir * 0.65f;
+                canvas.drawLine(px, py, px - dx * hl + nx * hl * 0.8f, py - dy * hl + ny * hl * 0.8f, resizeIconPaint);
+                canvas.drawLine(px, py, px - dx * hl - nx * hl * 0.8f, py - dy * hl - ny * hl * 0.8f, resizeIconPaint);
+            }
+            float ty = r.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
+            canvas.drawText(label, startX + iconSize + gap, ty, sugPrimaryTextPaint);
         }
 
         @Override
@@ -466,46 +512,42 @@ public class BlackBerryKeyboardView extends View {
             canvas.drawLine(0f, boundaryTop, 0f, h, resizeFrameBorderPaint);
             canvas.drawLine(w, boundaryTop, w, h, resizeFrameBorderPaint);
 
-            float resetRadius = resizeResetButtonRect.height() / 2f;
-            canvas.drawRoundRect(resizeResetButtonRect, resetRadius, resetRadius,
-                    resizeResetButtonPressed ? resizeResetBarPressedPaint : resizeResetBarPaint);
-
-            float doneRadius = resizeDoneButtonRect.height() / 2f;
-            canvas.drawRoundRect(resizeDoneButtonRect, doneRadius, doneRadius,
-                    resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint);
-
-            float pillRadius = resizeDragHandlePillRect.height() / 2f;
-            canvas.drawRoundRect(resizeDragHandlePillRect, pillRadius, pillRadius, resizePillPaint);
             int prevHandleColor = sugPrimaryTextPaint.getColor();
             Paint.Align prevHandleAlign = sugPrimaryTextPaint.getTextAlign();
             float prevHandleSize = sugPrimaryTextPaint.getTextSize();
-            sugPrimaryTextPaint.setTextAlign(Paint.Align.CENTER);
-            sugPrimaryTextPaint.setTextSize(16f * scaledDensity);
+            Typeface prevHandleFace = sugPrimaryTextPaint.getTypeface();
+            sugPrimaryTextPaint.setTextAlign(Paint.Align.LEFT);
             sugPrimaryTextPaint.setColor(Color.WHITE);
-            float handleTy = resizeDragHandlePillRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-            canvas.drawText("↕", resizeDragHandlePillRect.centerX(), handleTy, sugPrimaryTextPaint);
+            sugPrimaryTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
-            // Slightly smaller than before so the longer Arabic "استعادة" label fits
-            // comfortably inside the same fixed-width pill as the short "تم" label --
-            // both still share this exact size, so the two pills (and their ↺/✓
-            // symbols) always look like a matched, equal-sized pair.
-            sugPrimaryTextPaint.setTextSize(11.5f * scaledDensity);
-            sugPrimaryTextPaint.setColor(Color.WHITE);
+            String resetLabel = isArabic ? "استعادة"
+                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "Restablecer"
+                    : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "रीसेट"
+                    : "Reset";
+            drawResizePill(canvas, resizeResetButtonRect, resizeResetButtonPressed ? resizeResetBarPressedPaint : resizeResetBarPaint,
+                    false, resetLabel);
 
-            String resetLabel = isArabic ? "↺ استعادة"
-                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "↺ Restablecer"
-                    : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "↺ रीसेट"
-                    : "↺ Reset";
-            float resetTy = resizeResetButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-            canvas.drawText(resetLabel, resizeResetButtonRect.centerX(), resetTy, sugPrimaryTextPaint);
+            String doneLabel = isArabic ? "تم"
+                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "Listo"
+                    : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "हो गया"
+                    : "Done";
+            drawResizePill(canvas, resizeDoneButtonRect, resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint,
+                    true, doneLabel);
 
-            String doneLabel = isArabic ? "✓ تم"
-                    : KeyboardPreferences.LANG_ES.equals(currentLangCode) ? "✓ Listo"
-                    : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "✓ हो गया"
-                    : "✓ Done";
-            float doneTy = resizeDoneButtonRect.centerY() - (sugPrimaryTextPaint.descent() + sugPrimaryTextPaint.ascent()) / 2f;
-            canvas.drawText(doneLabel, resizeDoneButtonRect.centerX(), doneTy, sugPrimaryTextPaint);
+            // Centre grip: glass pill with an up/down chevron pair (drawn, not a text glyph).
+            float gr = resizeDragHandlePillRect.height() / 2f;
+            canvas.drawRoundRect(resizeDragHandlePillRect, gr, gr, resizePillPaint);
+            resizeRingPaint.setStrokeWidth(1f * density);
+            canvas.drawRoundRect(resizeDragHandlePillRect, gr, gr, resizeRingPaint);
+            float gx = resizeDragHandlePillRect.centerX(), gy = resizeDragHandlePillRect.centerY();
+            float cw = 5f * density, ch = 3f * density, gap = 2.2f * density;
+            resizeIconPaint.setStrokeWidth(1.8f * density);
+            canvas.drawLine(gx - cw, gy - gap, gx, gy - gap - ch, resizeIconPaint);
+            canvas.drawLine(gx, gy - gap - ch, gx + cw, gy - gap, resizeIconPaint);
+            canvas.drawLine(gx - cw, gy + gap, gx, gy + gap + ch, resizeIconPaint);
+            canvas.drawLine(gx, gy + gap + ch, gx + cw, gy + gap, resizeIconPaint);
 
+            sugPrimaryTextPaint.setTypeface(prevHandleFace);
             sugPrimaryTextPaint.setColor(prevHandleColor);
             sugPrimaryTextPaint.setTextAlign(prevHandleAlign);
             sugPrimaryTextPaint.setTextSize(prevHandleSize);
@@ -704,9 +746,15 @@ public class BlackBerryKeyboardView extends View {
         shiftActiveAccentPaint.setStrokeWidth(2.6f * density);
         shiftActiveAccentPaint.setStrokeCap(Paint.Cap.ROUND);
 
+        resizeRingPaint.setStyle(Paint.Style.STROKE);
+        resizeRingPaint.setColor(Color.argb(90, 255, 255, 255));
+        resizeIconPaint.setStyle(Paint.Style.STROKE);
+        resizeIconPaint.setColor(Color.WHITE);
+        resizeIconPaint.setStrokeCap(Paint.Cap.ROUND);
+        resizeIconPaint.setStrokeJoin(Paint.Join.ROUND);
         resizeBarPaint.setColor(Color.parseColor("#059669"));
         resizeBarPressedPaint.setColor(Color.parseColor("#047857"));
-        resizePillPaint.setColor(Color.parseColor("#9CA3AF"));
+        resizePillPaint.setColor(Color.parseColor("#B34B5563"));
         resizeResetBarPaint.setColor(Color.parseColor("#4B5563"));
         resizeResetBarPressedPaint.setColor(Color.parseColor("#374151"));
         // A near-black translucent scrim is indistinguishable from the keyboard's own
