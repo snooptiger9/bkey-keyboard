@@ -65,7 +65,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private final SharedPreferences.OnSharedPreferenceChangeListener appearanceChangeListener = (sp, key) -> {
         if ("enabled_languages".equals(key)) {
             // Languages turned on/off or reordered in Settings apply to the open keyboard at once.
-            uiHandler.post(() -> {
+            if (keyboardView == null) return;
+            keyboardView.post(() -> {
                 if (keyboardView == null) return;
                 keyboardView.reloadAppearanceFromPrefs();
                 keyboardView.invalidate();
