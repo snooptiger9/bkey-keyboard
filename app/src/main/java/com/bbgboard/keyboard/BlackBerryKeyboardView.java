@@ -2564,6 +2564,11 @@ public class BlackBerryKeyboardView extends View {
         return k != null && (k.emojiHost || k.type == KeyType.LANGUAGE);
     }
 
+    /** Keys whose long-press opens emoji: the host keys, and the emoji key while a suggestion shows. */
+    private boolean forgivingLongPress(KeyDef k) {
+        return isEmojiHost(k) || (k != null && k.type == KeyType.EMOJI && emojiKeySuggestion != null);
+    }
+
     private KeyDef makeEmojiHostKey() {
         KeyDef k = new KeyDef(isArabic ? "،" : ",", "", Collections.singletonList("😀"), KeyType.CHAR, 1.0f);
         k.emojiHost = true;
@@ -3248,7 +3253,7 @@ public class BlackBerryKeyboardView extends View {
                         handler.postDelayed(repeatBackspaceRunnable, 380L);
                     } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT || touchDownKey.type == KeyType.LANGUAGE || touchDownKey.type == KeyType.EMOJI) {
                         long lpDelay = prefs.getLongPressDelayMs();
-                        if (isEmojiHost(touchDownKey)) lpDelay = Math.min(lpDelay, 220L);
+                        if (forgivingLongPress(touchDownKey)) lpDelay = Math.min(lpDelay, 220L);
                         handler.postDelayed(longPressRunnable, lpDelay);
                     } else if (touchDownKey.type == KeyType.SPACE && prefs.isSpaceCursorDragEnabled()) {
                         spaceCursorModeActive = false;
@@ -3350,7 +3355,7 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                float dragSlop = isEmojiHost(touchDownKey) ? 18f : 9f; // these keys need a forgiving long-press
+                float dragSlop = forgivingLongPress(touchDownKey) ? 18f : 9f; // these keys need a forgiving long-press
                 if (Math.hypot(dxMove, dyMove) > dragSlop * density) {
                     isDragging = true;
                     menuButtonPressed = false;
