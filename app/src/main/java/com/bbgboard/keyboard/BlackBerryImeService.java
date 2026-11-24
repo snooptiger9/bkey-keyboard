@@ -1307,48 +1307,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         super.onWindowShown();
         try {
             repaintKeyboardSurface();
-            if (rootContainer != null) rootContainer.postDelayed(this::logInsetsDiag, 600);
             if (rootContainer != null) {
                 rootContainer.postDelayed(this::repaintKeyboardSurface, 120);
                 rootContainer.postDelayed(this::repaintKeyboardSurface, 450);
             }
         } catch (Exception e) {
             AppLogger.log("BlackBerryImeService", "onWindowShown()", e);
-        }
-    }
-
-    // Temporary: what the system reports for the bottom gesture zone on this device.
-    private String lastInsetsDiag = "";
-    private void logInsetsDiag() {
-        try {
-            if (rootContainer == null) return;
-            android.view.WindowInsets wi = rootContainer.getRootWindowInsets();
-            float d = getResources().getDisplayMetrics().density;
-            StringBuilder sb = new StringBuilder("sdk=" + Build.VERSION.SDK_INT + " density=" + d);
-            sb.append(" rootH=").append(Math.round(rootContainer.getRootView().getHeight() / d)).append("dp");
-            if (keyboardView != null) sb.append(" kbH=").append(Math.round(keyboardView.getHeight() / d)).append("dp");
-            if (wi == null) {
-                sb.append(" insets=null");
-            } else {
-                sb.append(" sysWindowBottom=").append(Math.round(wi.getSystemWindowInsetBottom() / d)).append("dp");
-                sb.append(" stableBottom=").append(Math.round(wi.getStableInsetBottom() / d)).append("dp");
-                if (Build.VERSION.SDK_INT >= 29) {
-                    sb.append(" gestureBottom=").append(Math.round(wi.getSystemGestureInsets().bottom / d)).append("dp");
-                    sb.append(" mandatoryGestureBottom=").append(Math.round(wi.getMandatorySystemGestureInsets().bottom / d)).append("dp");
-                    sb.append(" tappableBottom=").append(Math.round(wi.getTappableElementInsets().bottom / d)).append("dp");
-                }
-                if (Build.VERSION.SDK_INT >= 30) {
-                    sb.append(" navBarsBottom=").append(Math.round(wi.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom / d)).append("dp");
-                    sb.append(" systemGesturesBottom=").append(Math.round(wi.getInsets(android.view.WindowInsets.Type.systemGestures()).bottom / d)).append("dp");
-                }
-            }
-            String line = sb.toString();
-            if (!line.equals(lastInsetsDiag)) {
-                lastInsetsDiag = line;
-                AppLogger.log("INS", line, null);
-            }
-        } catch (Exception e) {
-            AppLogger.log("INS", "failed", e);
         }
     }
 
