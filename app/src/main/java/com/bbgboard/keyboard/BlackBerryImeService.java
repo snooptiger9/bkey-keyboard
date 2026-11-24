@@ -2143,14 +2143,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String prevWord = ctx[1];
         String prevWord2 = ctx[2];
 
-        // The "fresh" state of the copied-text / screenshot chips ends on a typed character or on
-        // a second consecutive space; a single space keeps it.
-        if (!" ".equals(text)) {
-            chipsFresh = false;
-        } else {
-            CharSequence prevCh = ic.getTextBeforeCursor(1, 0);
-            if (prevCh != null && prevCh.length() == 1 && prevCh.charAt(0) == ' ') chipsFresh = false;
-        }
+        // The "fresh" state of the copied-text / screenshot chips ends on a typed character;
+        // spaces keep it.
+        if (!" ".equals(text)) chipsFresh = false;
         // Typing only hides the code / screenshot / clipboard chips; they stay valid and show
         // again whenever their normal conditions hold, until their time window ends.
 
