@@ -299,7 +299,7 @@ public class BlackBerryKeyboardView extends View {
                     rebuildKeys();
                     return;
                 }
-                if ((touchDownKey.type == KeyType.EMOJI || touchDownKey.type == KeyType.LANGUAGE) && emojiKeySuggestion != null) {
+                if (touchDownKey.type == KeyType.EMOJI && emojiKeySuggestion != null) {
                     // A quick tap accepts the suggested emoji, but that leaves no way to
                     // reach the full picker while a suggestion is showing. A long-press
                     // opens the drawer instead, so a different emoji is always reachable.
@@ -1292,9 +1292,9 @@ public class BlackBerryKeyboardView extends View {
     private void openLongPressPopupForKey(KeyDef key) {
         if (key == null || key.alts == null || key.alts.isEmpty()) return;
         longPressOptions = new ArrayList<>(key.alts);
-        longPressFromEmojiHost = key.emojiHost;
-        if (key.emojiHost && emojiKeySuggestion != null) longPressOptions.add(0, emojiKeySuggestion);
-        longPressOpensEmoji = key.type == KeyType.LANGUAGE;
+        longPressFromEmojiHost = isEmojiHost(key);
+        if (isEmojiHost(key) && emojiKeySuggestion != null) longPressOptions.add(0, emojiKeySuggestion);
+        longPressOpensEmoji = false;
         longPressCellRects.clear();
         isLongPressPopupVisible = true;
         longPressAwaitingTap = false;
@@ -2019,7 +2019,7 @@ public class BlackBerryKeyboardView extends View {
 
                 drawStyledKeyCell(canvas, k, bg);
 
-                final String subStr = (k.emojiHost && emojiKeySuggestion != null) ? emojiKeySuggestion : k.sub;
+                final String subStr = (isEmojiHost(k) && emojiKeySuggestion != null) ? emojiKeySuggestion : k.sub;
                 if (!subStr.isEmpty()) {
                     // Same style-aware corner math as the globe key's badge: the old fallback for
                     // every style except Material/Soft-round just offset from the RAW cell corner,
@@ -2062,7 +2062,7 @@ public class BlackBerryKeyboardView extends View {
                     subTextPaint.setTextAlign(prevAlign);
                 }
 
-                if (k.emojiHost && emojiKeySuggestion == null) drawEmojiBadge(canvas, k.rect);
+                if (isEmojiHost(k) && emojiKeySuggestion == null) drawEmojiBadge(canvas, k.rect);
                 if (k.type == KeyType.SPACE) {
                     subTextPaint.setTextAlign(Paint.Align.CENTER);
                     subTextPaint.setTextSize(11.5f * scaledDensity);
@@ -2072,9 +2072,9 @@ public class BlackBerryKeyboardView extends View {
                     drawLargeEnterIcon(canvas, k.rect);
                 } else if (k.type == KeyType.SHIFT) {
                     drawShiftKeyIcon(canvas, k.rect);
-                } else if (k.type == KeyType.LANGUAGE && emojiKeySuggestion == null) {
+                } else if (k.type == KeyType.LANGUAGE) {
                     drawGlobeIcon(canvas, k.rect);
-                } else if (k.type == KeyType.EMOJI || k.type == KeyType.LANGUAGE) {
+                } else if (k.type == KeyType.EMOJI) {
 
                     float prevSize = mainTextPaint.getTextSize();
                     String glyph = (k.type == KeyType.EMOJI) ? "😀" : k.main;
@@ -2539,6 +2539,11 @@ public class BlackBerryKeyboardView extends View {
         return prefs.isHideEmojiKey() && prefs.isSpaceSwipeLangEnabled();
     }
 
+    /** The two keys that stand in for the emoji key: the comma key and the language key. */
+    private static boolean isEmojiHost(KeyDef k) {
+        return k != null && (k.emojiHost || k.type == KeyType.LANGUAGE);
+    }
+
     private KeyDef makeEmojiHostKey() {
         KeyDef k = new KeyDef(isArabic ? "،" : ",", "", Collections.singletonList("😀"), KeyType.CHAR, 1.0f);
         k.emojiHost = true;
@@ -2634,7 +2639,6 @@ public class BlackBerryKeyboardView extends View {
 
         iconStrokePaint.setStrokeWidth(prevW);
         iconStrokePaint.setStyle(prevStyle);
-        drawEmojiBadge(canvas, rect);
     }
 
     private void drawEmojiBadge(Canvas canvas, RectF rect) {
@@ -3204,7 +3208,9 @@ public class BlackBerryKeyboardView extends View {
                         backspaceRepeatStartUptime = SystemClock.uptimeMillis();
                         handler.postDelayed(repeatBackspaceRunnable, 380L);
                     } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT || touchDownKey.type == KeyType.LANGUAGE || touchDownKey.type == KeyType.EMOJI) {
-                        handler.postDelayed(longPressRunnable, prefs.getLongPressDelayMs());
+                        long lpDelay = prefs.getLongPressDelayMs();
+                        if (isEmojiHost(touchDownKey)) lpDelay = Math.min(lpDelay, 220L);
+                        handler.postDelayed(longPressRunnable, lpDelay);
                     } else if (touchDownKey.type == KeyType.SPACE && prefs.isSpaceCursorDragEnabled()) {
                         spaceCursorModeActive = false;
 
@@ -3305,7 +3311,8 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                if (Math.hypot(dxMove, dyMove) > 9f * density) {
+                float dragSlop = isEmojiHost(touchDownKey) ? 18f : 9f; // these keys need a forgiving long-press
+                if (Math.hypot(dxMove, dyMove) > dragSlop * density) {
                     isDragging = true;
                     menuButtonPressed = false;
                     micButtonPressed = false;
@@ -3553,14 +3560,7 @@ public class BlackBerryKeyboardView extends View {
                 rebuildKeys();
                 break;
             case LANGUAGE:
-                if (emojiKeySuggestion != null) {
-                    String chosenEmoji = emojiKeySuggestion;
-                    emojiKeySuggestion = null;
-                    listener.onEmojiSuggestionAccepted(chosenEmoji);
-                    invalidate();
-                } else {
-                    toggleLanguage();
-                }
+                toggleLanguage();
                 break;
             case EMOJI:
                 if (emojiKeySuggestion != null) {
