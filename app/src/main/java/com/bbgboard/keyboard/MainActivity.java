@@ -2913,6 +2913,18 @@ public class MainActivity extends Activity {
                 });
         clearCard.setPadding(dp(14), dp(10), dp(14), dp(10));
         root.addView(clearCard);
+        boolean swipeLangOn = prefs.isSpaceSwipeLangEnabled();
+        root.addView(createSwitchTile(
+                tr("إخفاء مفتاح الإيموجي", "Hide the emoji key"),
+                swipeLangOn
+                        ? tr("يصير مكانه مفتاح فاصلة، والضغط المطوّل عليه يفتح الإيموجي",
+                                "A comma key takes its place; long-press it to open emoji")
+                        : tr("يحتاج تفعيل «التبديل بسحب زر المسافة» في صفحة اللغات",
+                                "Needs \"Switch by swiping the space bar\" on in the Languages page"),
+                prefs.isHideEmojiKey() && swipeLangOn,
+                swipeLangOn,
+                checked -> prefs.setHideEmojiKey(checked)
+        ));
         // GIF search only exists in bkey Plus, so its tab switch does too.
         if (BuildConfig.OTP_FEATURES_ENABLED) {
             root.addView(createSwitchTile(

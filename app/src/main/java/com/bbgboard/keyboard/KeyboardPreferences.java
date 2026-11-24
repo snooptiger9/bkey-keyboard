@@ -777,6 +777,14 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_delete_word_enabled", enabled).apply();
     }
 
+    public boolean isHideEmojiKey() {
+        return prefs.getBoolean("hide_emoji_key", false);
+    }
+
+    public void setHideEmojiKey(boolean hide) {
+        prefs.edit().putBoolean("hide_emoji_key", hide).apply();
+    }
+
     public boolean isSpaceSwipeLangEnabled() {
         return prefs.getBoolean("space_swipe_lang_enabled", true);
     }

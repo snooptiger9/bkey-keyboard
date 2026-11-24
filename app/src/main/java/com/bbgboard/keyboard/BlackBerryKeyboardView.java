@@ -40,6 +40,8 @@ public class BlackBerryKeyboardView extends View {
         public final KeyType type;
         public final float weight;
         public final RectF rect = new RectF();
+        /** True for the comma key that takes the emoji key's place (long-press opens emoji). */
+        public boolean emojiHost = false;
 
         public KeyDef(String main, String sub, List<String> alts, KeyType type, float weight) {
             this.main = main;
@@ -147,6 +149,7 @@ public class BlackBerryKeyboardView extends View {
     private boolean longPressAwaitingTap = false;
 
     private boolean longPressOpensEmoji = false;
+    private boolean longPressFromEmojiHost = false;
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
     private final List<RectF> longPressCellRects = new ArrayList<>();
@@ -1289,6 +1292,8 @@ public class BlackBerryKeyboardView extends View {
     private void openLongPressPopupForKey(KeyDef key) {
         if (key == null || key.alts == null || key.alts.isEmpty()) return;
         longPressOptions = new ArrayList<>(key.alts);
+        longPressFromEmojiHost = key.emojiHost;
+        if (key.emojiHost && emojiKeySuggestion != null) longPressOptions.add(0, emojiKeySuggestion);
         longPressOpensEmoji = key.type == KeyType.LANGUAGE;
         longPressCellRects.clear();
         isLongPressPopupVisible = true;
@@ -1715,7 +1720,9 @@ public class BlackBerryKeyboardView extends View {
 
             languageKeyShown()
                 ? new KeyDef("🌐", "", Collections.singletonList("😀"), KeyType.LANGUAGE, 1.0f)
-                : new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f),
+                : (emojiKeyHidden()
+                    ? makeEmojiHostKey()
+                    : new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f)),
             new KeyDef(spaceLabel, "", Collections.<String>emptyList(), KeyType.SPACE, 4.7f),
             new KeyDef(isHindi ? "।" : ".", isArabic ? "؟" : "?",
                     isArabic ? Arrays.asList("؟", "،", "!", "؛", ":", "…")
@@ -2012,7 +2019,8 @@ public class BlackBerryKeyboardView extends View {
 
                 drawStyledKeyCell(canvas, k, bg);
 
-                if (!k.sub.isEmpty()) {
+                final String subStr = (k.emojiHost && emojiKeySuggestion != null) ? emojiKeySuggestion : k.sub;
+                if (!subStr.isEmpty()) {
                     // Same style-aware corner math as the globe key's badge: the old fallback for
                     // every style except Material/Soft-round just offset from the RAW cell corner,
                     // ignoring each style's own inset and corner rounding — so on Pill, Glass,
@@ -2043,17 +2051,18 @@ public class BlackBerryKeyboardView extends View {
                     float visibleRight = visRight;
                     float visibleTop = visTop;
 
-                    subTextPaint.getTextBounds(k.sub, 0, k.sub.length(), scratchSubBounds);
+                    subTextPaint.getTextBounds(subStr, 0, subStr.length(), scratchSubBounds);
                     float desiredInkRight = visibleRight - safeMargin;
                     float desiredInkTop = visibleTop + safeMargin;
                     float x = desiredInkRight - scratchSubBounds.right;
                     float baselineY = desiredInkTop - scratchSubBounds.top;
                     Paint.Align prevAlign = subTextPaint.getTextAlign();
                     subTextPaint.setTextAlign(Paint.Align.LEFT);
-                    canvas.drawText(k.sub, x, baselineY, subTextPaint);
+                    canvas.drawText(subStr, x, baselineY, subTextPaint);
                     subTextPaint.setTextAlign(prevAlign);
                 }
 
+                if (k.emojiHost && emojiKeySuggestion == null) drawEmojiBadge(canvas, k.rect);
                 if (k.type == KeyType.SPACE) {
                     subTextPaint.setTextAlign(Paint.Align.CENTER);
                     subTextPaint.setTextSize(11.5f * scaledDensity);
@@ -2524,6 +2533,18 @@ public class BlackBerryKeyboardView extends View {
         textPaint.setTextAlign(prevAlign);
     }
 
+    /** The option only applies while the space-swipe language switch is on (otherwise the
+     *  language key already hosts the emoji long-press). */
+    private boolean emojiKeyHidden() {
+        return prefs.isHideEmojiKey() && prefs.isSpaceSwipeLangEnabled();
+    }
+
+    private KeyDef makeEmojiHostKey() {
+        KeyDef k = new KeyDef(isArabic ? "،" : ",", "", Collections.singletonList("😀"), KeyType.CHAR, 1.0f);
+        k.emojiHost = true;
+        return k;
+    }
+
     private boolean languageKeyShown() {
         return !prefs.isSpaceSwipeLangEnabled()
                 && prefs.getEnabledLanguages().size() >= 2;
@@ -2583,8 +2604,17 @@ public class BlackBerryKeyboardView extends View {
 
     private void commitLongPressChoice(String chosen) {
         if (listener == null) return;
-        if (longPressOpensEmoji) listener.onToggleEmoji();
-        else listener.onCharacterTyped(chosen);
+        if (longPressOpensEmoji) {
+            listener.onToggleEmoji();
+        } else if (longPressFromEmojiHost && "😀".equals(chosen)) {
+            listener.onToggleEmoji();
+        } else if (longPressFromEmojiHost && chosen.equals(emojiKeySuggestion)) {
+            emojiKeySuggestion = null;
+            listener.onEmojiSuggestionAccepted(chosen);
+            invalidate();
+        } else {
+            listener.onCharacterTyped(chosen);
+        }
     }
 
     private void drawGlobeIcon(Canvas canvas, RectF rect) {
@@ -2604,7 +2634,12 @@ public class BlackBerryKeyboardView extends View {
 
         iconStrokePaint.setStrokeWidth(prevW);
         iconStrokePaint.setStyle(prevStyle);
+        drawEmojiBadge(canvas, rect);
+    }
 
+    private void drawEmojiBadge(Canvas canvas, RectF rect) {
+        float cx = rect.centerX();
+        float cy = rect.centerY();
         // Tiny drawn face in the corner hints that a long-press on this key opens the emoji panel
         // — a small drawing like the key's other corner marks, not a real emoji character.
         // Placed in the top-right corner, well inside the key's edges so it never pokes outside it.
