@@ -150,9 +150,10 @@ public class BlackBerryKeyboardView extends View {
 
     private boolean longPressOpensEmoji = false;
     // Free space under the bottom row. Until the system reports its gesture zone this is a small
-    // fixed value; afterwards it is a quarter of how far that zone reaches into the keyboard (capped).
+    // fixed value; afterwards it is a quarter of how far that zone reaches into the keyboard, kept between 5 and 8dp (0 without a gesture zone).
     private static final float BOTTOM_SAFE_FALLBACK_DP = 3f;
-    private static final float BOTTOM_SAFE_MAX_DP = 6f;
+    private static final float BOTTOM_SAFE_MIN_DP = 5f;
+    private static final float BOTTOM_SAFE_MAX_DP = 8f;
     private float bottomSafeDp = BOTTOM_SAFE_FALLBACK_DP;
     private boolean longPressFromEmojiHost = false;
     private boolean hasSlidDuringLongPress = false;
@@ -1783,7 +1784,8 @@ public class BlackBerryKeyboardView extends View {
             nav = insets.getStableInsetBottom();
         }
         float insideDp = Math.max(0f, gesture - nav) / density;
-        return Math.min(BOTTOM_SAFE_MAX_DP, insideDp * 0.25f);
+        if (insideDp <= 0f) return 0f; // no gesture zone reaching the keyboard: no extra space
+        return Math.max(BOTTOM_SAFE_MIN_DP, Math.min(BOTTOM_SAFE_MAX_DP, insideDp * 0.25f));
     }
 
     @Override
