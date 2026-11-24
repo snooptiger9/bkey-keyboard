@@ -3414,6 +3414,9 @@ public class BlackBerryKeyboardView extends View {
                     spaceCursorModeActive = false;
                     touchDownKey = null;
                     visualPressedKey = null;
+                    activePreviewKey = null;
+                    isDragging = false;
+                    invalidate();
                     return true;
                 }
 
