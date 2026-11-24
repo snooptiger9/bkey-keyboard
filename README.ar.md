@@ -182,9 +182,9 @@
 </div>
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v310.apk"><img src="docs/images/badges/dl_bkey_ar.png" alt="تحميل bkey (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v311.apk"><img src="docs/images/badges/dl_bkey_ar.png" alt="تحميل bkey (APK)" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v310.apk"><img src="docs/images/badges/dl_plus_ar.png" alt="تحميل bkey Plus (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v311.apk"><img src="docs/images/badges/dl_plus_ar.png" alt="تحميل bkey Plus (APK)" width="300"></a>
 </p>
 
 **نسخة bkey** ما تطلب إلا صلاحيات الكتابة فقط (بدون إنترنت أو صور/تخزين أو رسائل)، فميزات Plus في الجدول غير موجودة فيها. **نسخة bkey Plus** فيها كل شي، بس تثبيتها يسبب تحذير من Google Play Protect (متوقع، مو مشكلة حقيقية — شوف [الخصوصية والأمان](#ar-privacy)).
