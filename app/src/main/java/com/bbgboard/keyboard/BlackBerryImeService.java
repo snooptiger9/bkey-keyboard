@@ -130,10 +130,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private TextView emojiAbcBackLabel;
 
     private TextView gifTabView;
-    private View stickerTabView;
-    private ScrollView stickerScroll;
-    private LinearLayout stickerGrid;
-    private boolean stickerPanelShown = false;
     private FrameLayout gifPanel;
     private TextView gifSearchBox;
     private TextView gifSearchClearBtn;
@@ -1208,10 +1204,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void resetEmojiAndGifToFirstTab() {
         activeEmojiCategory = 0;
         gifPanelShown = false;
-        stickerPanelShown = false;
-        if (stickerScroll != null) stickerScroll.setVisibility(View.GONE);
-        if (emojiScroll != null) emojiScroll.setVisibility(View.VISIBLE);
-        if (stickerTabView != null) { stickerTabView.setAlpha(0.60f); stickerTabView.setBackgroundColor(Color.TRANSPARENT); }
         gifSearchFocused = false;
         applyNavigationBarColor();
         gifQueryBuilder.setLength(0);
@@ -1531,7 +1523,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             dismissClipMenu();
             if (gifSearchFocused) closeGifSearchKeyboard(false);
             if (gifPanelShown) hideGifPanel();
-            hideStickerPanel();
             boolean wasDrawer = clipboardDrawerView.getVisibility() == View.VISIBLE || emojiDrawerView.getVisibility() == View.VISIBLE;
             keyboardView.setVisibility(View.VISIBLE);
             clipboardDrawerView.setVisibility(View.GONE);
@@ -1570,7 +1561,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             dismissClipMenu();
             if (gifSearchFocused) closeGifSearchKeyboard(false);
             if (gifPanelShown) hideGifPanel();
-            hideStickerPanel();
 
             updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
             refreshClipboardDrawerList();
@@ -1818,7 +1808,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
         if (gifTabView != null) gifTabView.setVisibility(keyboardPrefs.isGifTabEnabled() ? View.VISIBLE : View.GONE);
-        if (stickerTabView != null) stickerTabView.setVisibility(keyboardPrefs.isStickerTabEnabled() ? View.VISIBLE : View.GONE);
         emojiDrawerView.setVisibility(View.VISIBLE);
         fadeIn(emojiDrawerView, 10, 260);
         updateInlineStripVisibility();
@@ -3372,22 +3361,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             tabsRow.addView(gifTab);
         }
 
-        ModernIconView stickerTab = new ModernIconView(this, ModernIconView.ICON_STICKER, labelC(), Color.TRANSPARENT);
-        stickerTab.setStyle(0.86f, 2.0f);
-        LinearLayout.LayoutParams lpStickerTab = new LinearLayout.LayoutParams(0, dp(38), 1f);
-        lpStickerTab.leftMargin = dp(2);
-        lpStickerTab.rightMargin = dp(2);
-        stickerTab.setLayoutParams(lpStickerTab);
-        stickerTab.setAlpha(0.60f);
-        stickerTab.setOnClickListener(v -> {
-            soundController.playKeyClick();
-            if (stickerPanelShown) return;
-            showStickerPanel();
-        });
-        stickerTabView = stickerTab;
-        stickerTab.setVisibility(keyboardPrefs.isStickerTabEnabled() ? View.VISIBLE : View.GONE);
-        tabsRow.addView(stickerTab);
-
         ModernIconView backIconBtn = new ModernIconView(
                 this,
                 ModernIconView.ICON_FORWARD_ARROW,
@@ -3430,15 +3403,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         emojiSectionsHost.setPadding(dp(6), dp(2), dp(6), dp(56));
         emojiScroll.addView(emojiSectionsHost);
         emojiContentFrame.addView(emojiScroll);
-
-        stickerScroll = new ScrollView(this);
-        stickerScroll.setVerticalScrollBarEnabled(false);
-        stickerScroll.setVisibility(View.GONE);
-        stickerGrid = new LinearLayout(this);
-        stickerGrid.setOrientation(LinearLayout.VERTICAL);
-        stickerGrid.setPadding(dp(6), dp(6), dp(6), dp(56));
-        stickerScroll.addView(stickerGrid);
-        emojiContentFrame.addView(stickerScroll);
 
         emojiBottomBarRefs = buildBottomLettersBar(true);
         FrameLayout.LayoutParams barLp = new FrameLayout.LayoutParams(
@@ -3700,7 +3664,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void scrollToEmojiSection(int index) {
         if (gifPanelShown) hideGifPanel();
-        hideStickerPanel();
         if (emojiScroll == null || index < 0 || index >= emojiSectionHeaders.size()) return;
         updateEmojiTabHighlight(index);
         emojiScroll.smoothScrollTo(0, emojiSectionHeaders.get(index).getTop());
@@ -3742,7 +3705,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void showGifPanel() {
         if (gifPanel == null) return;
-        hideStickerPanel();
         gifPanelShown = true;
         if (emojiContentFrameView != null) emojiContentFrameView.setVisibility(View.GONE);
         gifPanel.setVisibility(View.VISIBLE);
@@ -4082,204 +4044,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (gifTabView != null) {
             gifTabView.setBackgroundColor(Color.TRANSPARENT);
             gifTabView.setAlpha(0.60f);
-        }
-        if (stickerTabView != null) {
-            stickerTabView.setBackgroundColor(Color.TRANSPARENT);
-            stickerTabView.setAlpha(0.60f);
-        }
-    }
-
-    // ---- Stickers: images the user copied in other apps and saved here (up to StickerStore.MAX) ----
-
-    private void showStickerPanel() {
-        if (stickerScroll == null || emojiScroll == null) return;
-        if (gifPanelShown) hideGifPanel();
-        stickerPanelShown = true;
-        emojiScroll.setVisibility(View.GONE);
-        stickerScroll.setVisibility(View.VISIBLE);
-        stickerScroll.scrollTo(0, 0);
-        for (View t : emojiTabViews) {
-            t.setAlpha(0.60f);
-            t.setBackgroundColor(Color.TRANSPARENT);
-        }
-        if (gifTabView != null) {
-            gifTabView.setAlpha(0.60f);
-            gifTabView.setBackgroundColor(Color.TRANSPARENT);
-        }
-        if (stickerTabView != null) {
-            stickerTabView.setAlpha(1.0f);
-            stickerTabView.setBackground(roundedBg(pressedC(), 8));
-        }
-        rebuildStickerGrid();
-    }
-
-    private void hideStickerPanel() {
-        if (!stickerPanelShown) return;
-        stickerPanelShown = false;
-        if (stickerScroll != null) stickerScroll.setVisibility(View.GONE);
-        if (emojiScroll != null) emojiScroll.setVisibility(View.VISIBLE);
-        if (stickerTabView != null) {
-            stickerTabView.setAlpha(0.60f);
-            stickerTabView.setBackgroundColor(Color.TRANSPARENT);
-        }
-    }
-
-    private void rebuildStickerGrid() {
-        if (stickerGrid == null) return;
-        stickerGrid.removeAllViews();
-        final int cols = 4;
-        List<java.io.File> files = StickerStore.list(this);
-        List<View> cells = new ArrayList<>();
-        cells.add(buildStickerAddCell());
-        for (java.io.File f : files) cells.add(buildStickerCell(f));
-        LinearLayout row = null;
-        for (int i = 0; i < cells.size(); i++) {
-            if (i % cols == 0) {
-                row = new LinearLayout(this);
-                row.setOrientation(LinearLayout.HORIZONTAL);
-                stickerGrid.addView(row, new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, dp(76)));
-            }
-            row.addView(cells.get(i));
-        }
-        if (row != null) {
-            for (int i = cells.size() % cols; i != 0 && i < cols; i++) {
-                View pad = new View(this);
-                row.addView(pad, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-            }
-        }
-        if (files.isEmpty()) {
-            TextView hint = new TextView(this);
-            hint.setText(uiText("انسخ صورة من أي تطبيق ثم اضغط + لحفظها هنا. اضغط مطولاً على ملصق لحذفه.",
-                    "Copy an image in any app, then tap + to save it here. Long-press a sticker to remove it.",
-                    "Copia una imagen en cualquier app y toca + para guardarla aquí. Mantén pulsado un sticker para quitarlo."));
-            hint.setTextColor((labelC() & 0x00FFFFFF) | 0xA0000000);
-            hint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-            hint.setGravity(Gravity.CENTER);
-            hint.setPadding(dp(18), dp(10), dp(18), dp(10));
-            stickerGrid.addView(hint);
-        }
-    }
-
-    private View buildStickerAddCell() {
-        TextView plus = new TextView(this);
-        plus.setText("+");
-        plus.setGravity(Gravity.CENTER);
-        plus.setTextColor(labelC());
-        plus.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30f);
-        plus.setIncludeFontPadding(false);
-        FrameLayout cell = new FrameLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-        lp.setMargins(dp(4), dp(4), dp(4), dp(4));
-        cell.setLayoutParams(lp);
-        cell.setBackground(roundedBg(pillC(), 12));
-        cell.addView(plus, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        cell.setOnClickListener(v -> {
-            soundController.playKeyClick();
-            saveStickerFromClipboard();
-        });
-        return cell;
-    }
-
-    private View buildStickerCell(final java.io.File f) {
-        FrameLayout cell = new FrameLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-        lp.setMargins(dp(4), dp(4), dp(4), dp(4));
-        cell.setLayoutParams(lp);
-        ImageView iv = new ImageView(this);
-        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        try {
-            Bitmap b = StickerStore.thumb(f, 160);
-            if (b != null) iv.setImageBitmap(b);
-        } catch (Throwable t) {
-            AppLogger.log("BlackBerryImeService", "buildStickerCell()", t instanceof Exception ? (Exception) t : new Exception(t));
-        }
-        cell.addView(iv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        cell.setOnClickListener(v -> {
-            soundController.playKeyClick();
-            sendSticker(f);
-        });
-        cell.setOnLongClickListener(v -> {
-            StickerStore.remove(this, f);
-            rebuildStickerGrid();
-            showKbToast(uiText("تم حذف الملصق", "Sticker removed", "Sticker eliminado"));
-            return true;
-        });
-        return cell;
-    }
-
-    private void saveStickerFromClipboard() {
-        if (StickerStore.isFull(this)) {
-            showKbToast(uiText("وصلت للحد (20). اضغط مطولاً على ملصق لحذفه",
-                    "Sticker limit reached (20). Long-press one to remove it",
-                    "Límite de 20 alcanzado. Mantén pulsado un sticker para quitarlo"));
-            return;
-        }
-        Uri uri = null;
-        try {
-            ClipData cd = clipboardManager != null ? clipboardManager.getPrimaryClip() : null;
-            if (cd != null && cd.getItemCount() > 0 && cd.getDescription() != null
-                    && cd.getDescription().hasMimeType("image/*")) {
-                uri = cd.getItemAt(0).getUri();
-            }
-        } catch (Exception e) {
-            AppLogger.log("BlackBerryImeService", "saveStickerFromClipboard()", e);
-        }
-        if (uri == null) {
-            showKbToast(uiText("انسخ صورة أولاً ثم اضغط +", "Copy an image first, then tap +", "Copia una imagen primero y toca +"));
-            return;
-        }
-        boolean ok = false;
-        try (java.io.InputStream in = getContentResolver().openInputStream(uri)) {
-            if (in != null) ok = StickerStore.add(this, in);
-        } catch (Exception e) {
-            AppLogger.log("BlackBerryImeService", "saveStickerFromClipboard()", e);
-        }
-        if (ok) {
-            rebuildStickerGrid();
-            showKbToast(uiText("تم حفظ الملصق", "Sticker saved", "Sticker guardado"));
-        } else {
-            showKbToast(uiText("تعذّر حفظ الملصق", "Couldn't save the sticker", "No se pudo guardar el sticker"));
-        }
-    }
-
-    private boolean editorAcceptsSticker() {
-        EditorInfo info = getCurrentInputEditorInfo();
-        if (info == null || Build.VERSION.SDK_INT < 25) return true;
-        if (info.contentMimeTypes == null) return false;
-        for (String mime : info.contentMimeTypes) {
-            if (mime != null && (mime.equalsIgnoreCase("image/png") || mime.equalsIgnoreCase("image/*"))) return true;
-        }
-        return false;
-    }
-
-    private void sendSticker(java.io.File f) {
-        if (!f.exists()) return;
-        if (!editorAcceptsSticker()) {
-            showKbToast(uiText("هذا التطبيق لا يتيح إرسال ملصقات هنا",
-                    "This app doesn't allow sending stickers here",
-                    "Esta aplicación no permite enviar stickers aquí"));
-            return;
-        }
-        InputConnection ic = getCurrentInputConnection();
-        EditorInfo info = getCurrentInputEditorInfo();
-        boolean ok = false;
-        if (ic != null && info != null && Build.VERSION.SDK_INT >= 25) {
-            try {
-                Uri uri = new Uri.Builder().scheme("content").authority(StickerProvider.AUTHORITY)
-                        .appendPath(f.getName()).build();
-                grantUriPermission(info.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                InputContentInfo ici = new InputContentInfo(uri,
-                        new ClipDescription("Sticker", new String[]{"image/png"}), null);
-                ok = ic.commitContent(ici, InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION, null);
-            } catch (Exception e) {
-                AppLogger.log("BlackBerryImeService", "sendSticker()", e);
-            }
-        }
-        if (!ok) {
-            showKbToast(uiText("هذا التطبيق لا يتيح إرسال ملصقات هنا",
-                    "This app doesn't allow sending stickers here",
-                    "Esta aplicación no permite enviar stickers aquí"));
         }
     }
 }

@@ -32,13 +32,6 @@ final class FrenchUi {
         TEXT.put("Trending now", "Tendances du moment");
         TEXT.put("This app doesn't allow sending GIFs here", "Cette application ne permet pas d’envoyer des GIF ici");
         TEXT.put("This app doesn't allow sending screenshots here", "Cette application ne permet pas d’envoyer des captures d’écran ici");
-        TEXT.put("This app doesn't allow sending stickers here", "Cette application ne permet pas d’envoyer des stickers ici");
-        TEXT.put("Sticker saved", "Sticker enregistré");
-        TEXT.put("Sticker removed", "Sticker supprimé");
-        TEXT.put("Copy an image first, then tap +", "Copiez d’abord une image, puis touchez +");
-        TEXT.put("Sticker limit reached (20). Long-press one to remove it", "Limite de 20 stickers atteinte. Appuyez longuement sur un sticker pour le supprimer");
-        TEXT.put("Couldn't save the sticker", "Impossible d’enregistrer le sticker");
-        TEXT.put("Copy an image in any app, then tap + to save it here. Long-press a sticker to remove it.", "Copiez une image dans n’importe quelle application, puis touchez + pour l’enregistrer ici. Appuyez longuement sur un sticker pour le supprimer.");
         TEXT.put("Couldn't load GIF", "Impossible de charger le GIF");
         TEXT.put("GIF copied — paste it here", "GIF copié — collez-le ici");
     }

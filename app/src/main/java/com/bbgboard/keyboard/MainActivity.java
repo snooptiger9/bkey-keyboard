@@ -2925,12 +2925,6 @@ public class MainActivity extends Activity {
                 swipeLangOn,
                 checked -> prefs.setHideEmojiKey(checked)
         ));
-        root.addView(createSwitchTile(
-                tr("إظهار تبويب الملصقات", "Show the Stickers tab"),
-                tr("ملصقاتك المحفوظة من الصور التي نسختها، حتى 20", "Your own saved stickers from images you copied, up to 20"),
-                prefs.isStickerTabEnabled(),
-                checked -> prefs.setStickerTabEnabled(checked)
-        ));
         // GIF search only exists in bkey Plus, so its tab switch does too.
         if (BuildConfig.OTP_FEATURES_ENABLED) {
             root.addView(createSwitchTile(
