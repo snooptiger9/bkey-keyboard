@@ -2066,6 +2066,19 @@ public class BlackBerryKeyboardView extends View {
                     subTextPaint.setTextAlign(prevAlign);
                 }
 
+                if (k.type == KeyType.EMOJI && emojiKeySuggestion != null) {
+                    // A suggestion is showing: tap accepts it, so this dot says the key still
+                    // opens the full emoji list on a long-press.
+                    float dotR = 2.2f * density;
+                    float[] dp0 = emojiCornerCenter(k.rect, dotR);
+                    int prevDotColor = iconStrokePaint.getColor();
+                    Paint.Style prevDotStyle = iconStrokePaint.getStyle();
+                    iconStrokePaint.setColor(subTextPaint.getColor());
+                    iconStrokePaint.setStyle(Paint.Style.FILL);
+                    canvas.drawCircle(dp0[0], dp0[1], dotR, iconStrokePaint);
+                    iconStrokePaint.setStyle(prevDotStyle);
+                    iconStrokePaint.setColor(prevDotColor);
+                }
                 if (isEmojiHost(k)) {
                     if (emojiKeySuggestion == null) drawEmojiBadge(canvas, k.rect);
                     else drawCornerEmojiSuggestion(canvas, k.rect, emojiKeySuggestion);
