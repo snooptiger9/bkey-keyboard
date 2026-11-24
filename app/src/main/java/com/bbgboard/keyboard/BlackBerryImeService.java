@@ -156,7 +156,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private boolean passwordFieldActive = false;
 
     private static final long CLIP_CHIP_MS = 60 * 1000L;
-    private static final long SHOT_CHIP_MS = 80 * 1000L;
+    private static final long SHOT_CHIP_MS = 3 * 60 * 1000L;
     private String clipChipText = null;
     private long clipChipTime = 0L;
 
@@ -182,6 +182,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 && !passwordFieldActive
                 && (SystemClock.elapsedRealtime() - screenshotChipTime) < SHOT_CHIP_MS
                 && ScreenshotClip.exists(this);
+    }
+
+    /** True only when the whole field is empty (not just the current word). */
+    private boolean fieldIsEmpty(InputConnection ic) {
+        if (ic == null) return true;
+        CharSequence b = ic.getTextBeforeCursor(1, 0);
+        CharSequence a = ic.getTextAfterCursor(1, 0);
+        return (b == null || b.length() == 0) && (a == null || a.length() == 0);
     }
 
     private void clearClipChip() {
@@ -2033,14 +2041,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         // Run it up front instead, so it applies on every path.
         applyAutoCapitalizeAtStart();
 
-        if (hasValidPendingOtp() && ctx[0].isEmpty()) {
+        final InputConnection chipIc = getCurrentInputConnection();
+        if (hasValidPendingOtp() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
 
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", currentOtpCode(), ""), 3);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (hasValidShotChip() && ctx[0].isEmpty()) {
+        if (hasValidShotChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", uiText("لقطة شاشة", "Screenshot", "Captura"), ""), 2);
             keyboardView.setEmojiKeySuggestion(null);
@@ -2104,11 +2113,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String prevWord = ctx[1];
         String prevWord2 = ctx[2];
 
-        clearClipChip();
-
-        if (hasValidPendingOtp() && !" ".equals(text)) {
-            clearPendingOtp();
-        }
+        // Typing only hides the code / screenshot chips; they come back if the field is emptied
+        // again while still within their validity window.
+        clipChipText = null;
+        clipChipSensitive = false;
 
         if (" ".equals(text)) {
             long now = SystemClock.uptimeMillis();
@@ -2366,7 +2374,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String lastCompletedWord = ctx[1];
         String lastCompletedWord2 = ctx[2];
 
-        if (hasValidPendingOtp() && currentPrefix.isEmpty()) {
+        if (hasValidPendingOtp() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
 
             if (zoneIndex == 1) {
                 ic.commitText(currentOtpCode(), 1);
@@ -2376,8 +2384,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        if (hasValidShotChip() && currentPrefix.isEmpty()) {
+        if (hasValidShotChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
             if (zoneIndex == 1) {
+                if (!editorAcceptsScreenshot()) {
+                    useScreenshotClip();
+                    return;
+                }
                 clearClipChip();
                 useScreenshotClip();
                 refreshPredictions();
