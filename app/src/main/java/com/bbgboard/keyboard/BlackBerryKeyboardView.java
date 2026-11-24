@@ -3434,6 +3434,28 @@ public class BlackBerryKeyboardView extends View {
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                    // The system took the touch (e.g. a navigation gesture): drop everything
+                    // without running the key's action, instead of treating it as a release.
+                    handler.removeCallbacks(longPressRunnable);
+                    handler.removeCallbacks(repeatBackspaceRunnable);
+                    handler.removeCallbacks(suggestionLongPressRunnable);
+                    handler.removeCallbacks(spaceCursorHoldRunnable);
+                    multiTouchResolved = false;
+                    isLongPressPopupVisible = false;
+                    longPressAwaitingTap = false;
+                    spaceCursorModeActive = false;
+                    touchDownKey = null;
+                    visualPressedKey = null;
+                    activePreviewKey = null;
+                    menuButtonPressed = false;
+                    micButtonPressed = false;
+                    isDragging = false;
+                    touchDownSuggestionSlot = -1;
+                    suggestionLongPressConsumed = false;
+                    invalidate();
+                    return true;
+                }
                 if (multiTouchResolved) {
                     // Both touches of the overlap were already committed as their own
                     // taps in ACTION_POINTER_DOWN. This final lift (now the only pointer
