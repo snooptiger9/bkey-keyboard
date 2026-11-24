@@ -591,6 +591,13 @@ public class MainActivity extends Activity {
 
         LinearLayout group2 = createGroupedWhiteCard();
         group2.addView(createMenuRow(
+                ModernIconView.ICON_SLIDERS_PREFS,
+                tr("التفضيلات", "Preferences"),
+                null,
+                true,
+                this::openPreferencesScreen
+        ));
+        group2.addView(createMenuRow(
                 ModernIconView.ICON_TEXT_CORRECTION,
                 tr("التصحيح والاقتراحات والتعلّم", "Suggestions & learning"),
                 null,
@@ -615,15 +622,8 @@ public class MainActivity extends Activity {
                 ModernIconView.ICON_EMOJI_SMILE,
                 tr("الإيموجي والرموز", "Emojis & symbols"),
                 null,
-                true,
-                this::openEmojiScreen
-        ));
-        group2.addView(createMenuRow(
-                ModernIconView.ICON_SLIDERS_PREFS,
-                tr("التفضيلات", "Preferences"),
-                null,
                 false,
-                this::openPreferencesScreen
+                this::openEmojiScreen
         ));
         root.addView(group2);
 
