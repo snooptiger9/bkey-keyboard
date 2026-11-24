@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class KeyboardPreferences {
 
-    public static final long OTP_VALIDITY_MS = 80 * 1000L;
+    public static final long OTP_VALIDITY_MS = 60 * 1000L;
 
     public static final int THEME_BLACKBERRY_DARK = 0;
     public static final int THEME_GBOARD_WHITE = 1;
