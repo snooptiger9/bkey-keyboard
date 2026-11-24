@@ -149,6 +149,7 @@ public class BlackBerryKeyboardView extends View {
     private boolean longPressAwaitingTap = false;
 
     private boolean longPressOpensEmoji = false;
+    private static final float BOTTOM_SAFE_DP = 1.5f;
     private boolean longPressFromEmojiHost = false;
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
@@ -1746,7 +1747,9 @@ public class BlackBerryKeyboardView extends View {
         // the keyboard's own bounds without this view -- or the real IME window behind
         // it -- changing size at all. This view's own height only ever changes once,
         // when commitResizePreview() applies the final chosen scale.
-        int totalHeight = (int) contentHeightForScale(keyboardScale);
+        // A little free space under the bottom row, so its lower edge stays clear of the
+        // system's navigation-gesture zone (touches inside it never reach the keys).
+        int totalHeight = (int) contentHeightForScale(keyboardScale) + Math.round(BOTTOM_SAFE_DP * density);
         setMeasuredDimension(w, totalHeight);
     }
 
