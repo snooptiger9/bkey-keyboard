@@ -2920,10 +2920,16 @@ public class MainActivity extends Activity {
                         "A comma key takes its place; long-press it to open emoji")
                         + (swipeLangOn ? "" : "\n" + tr("إذا كان رمادياً فهو مخفي أصلاً، لأن مفتاح اللغة ظاهر مكانه",
                                 "If greyed out, it's already hidden: the language key sits in its place")),
-                prefs.isHideEmojiKey(),
+                // With the swipe switch off the emoji key is already hidden (the language key hosts
+                // emoji), so show it as on, greyed, and let a tap explain why it doesn't change.
+                swipeLangOn ? prefs.isHideEmojiKey() : true,
+                swipeLangOn,
                 checked -> prefs.setHideEmojiKey(checked)
         );
-        if (!swipeLangOn) hideEmojiTile.setAlpha(0.5f);
+        if (!swipeLangOn) {
+            hideEmojiTile.setOnClickListener(v -> showCoolToast(
+                    tr("مخفي أصلاً: مفتاح اللغة ظاهر مكانه", "Already hidden: the language key sits in its place"), false));
+        }
         root.addView(hideEmojiTile);
         // GIF search only exists in bkey Plus, so its tab switch does too.
         if (BuildConfig.OTP_FEATURES_ENABLED) {
