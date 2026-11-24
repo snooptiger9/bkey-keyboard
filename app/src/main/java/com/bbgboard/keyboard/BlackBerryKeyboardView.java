@@ -2647,7 +2647,7 @@ public class BlackBerryKeyboardView extends View {
         // that the visible key surface actually draws with — several styles (Pill, Glass, Outline,
         // Soft raised, Circles) round that corner enough that just clearing the straight edges
         // isn't enough; badgeCornerPos() follows the corner's own curve instead.
-        float badgeR = 3.0f * density;
+        float badgeR = 3.5f * density;
         float marginIn = 1.6f * density;
         float visLeft, visTop, visRight, visBottom, cornerR;
         if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
