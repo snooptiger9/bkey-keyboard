@@ -2113,10 +2113,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String prevWord = ctx[1];
         String prevWord2 = ctx[2];
 
-        // Typing only hides the code / screenshot chips; they come back if the field is emptied
-        // again while still within their validity window.
-        clipChipText = null;
-        clipChipSensitive = false;
+        // Typing only hides the code / screenshot / clipboard chips; they stay valid and show
+        // again whenever their normal conditions hold, until their time window ends.
 
         if (" ".equals(text)) {
             long now = SystemClock.uptimeMillis();
