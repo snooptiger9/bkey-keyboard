@@ -548,6 +548,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         activeInstance = this;
         lastOrientation = getResources().getConfiguration().orientation;
         keyboardPrefs = new KeyboardPreferences(this);
+        keyboardPrefs.autoSetupLanguagesOnFirstRun(this);
         keyboardPrefs.registerChangeListener(appearanceChangeListener);
         soundController = new SoundController(this, keyboardPrefs);
 

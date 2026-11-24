@@ -667,6 +667,29 @@ public class KeyboardPreferences {
         return out;
     }
 
+    /**
+     * On a fresh install, turns on the keyboard languages that match the device's own language
+     * list (same order). Runs once, never touches an existing user's choice or an upgrade.
+     */
+    public void autoSetupLanguagesOnFirstRun(Context ctx) {
+        if (prefs.getBoolean("languages_auto_done", false)) return;
+        prefs.edit().putBoolean("languages_auto_done", true).apply();
+        try {
+            if (prefs.contains("enabled_languages") || prefs.contains("language_mode")) return;
+            android.content.pm.PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
+            if (pi.firstInstallTime != pi.lastUpdateTime) return;
+            android.os.LocaleList locales = android.content.res.Resources.getSystem().getConfiguration().getLocales();
+            List<String> supported = Arrays.asList(LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR);
+            List<String> out = new ArrayList<>();
+            for (int i = 0; i < locales.size(); i++) {
+                String code = locales.get(i).getLanguage();
+                if (supported.contains(code) && !out.contains(code)) out.add(code);
+            }
+            if (!out.isEmpty()) setEnabledLanguages(out);
+        } catch (Exception ignored) {
+        }
+    }
+
     public void setEnabledLanguages(List<String> codes) {
         List<String> clean = new ArrayList<>();
         if (codes != null) {
