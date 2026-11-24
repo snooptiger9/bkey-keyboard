@@ -307,7 +307,11 @@ public class BlackBerryKeyboardView extends View {
                     activePreviewKey = null;
                     vibrateTap(true);
                     soundController.playKeyClick();
-                    if (listener != null) listener.onToggleEmoji();
+                    // A one-button emoji pop-up; lifting the finger opens the emoji panel.
+                    KeyDef popupKey = new KeyDef("😀", "", Collections.singletonList("😀"), KeyType.EMOJI, 1.0f);
+                    popupKey.rect.set(touchDownKey.rect);
+                    popupKey.emojiHost = true;
+                    openLongPressPopupForKey(popupKey);
                     return;
                 }
                 if ((touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.LANGUAGE) && !touchDownKey.alts.isEmpty()) {
@@ -1293,7 +1297,7 @@ public class BlackBerryKeyboardView extends View {
         if (key == null || key.alts == null || key.alts.isEmpty()) return;
         longPressOptions = new ArrayList<>(key.alts);
         longPressFromEmojiHost = isEmojiHost(key);
-        if (isEmojiHost(key) && emojiKeySuggestion != null) longPressOptions.add(0, emojiKeySuggestion);
+        if (isEmojiHost(key) && key.type != KeyType.EMOJI && emojiKeySuggestion != null) longPressOptions.add(0, emojiKeySuggestion);
         longPressOpensEmoji = false;
         longPressCellRects.clear();
         isLongPressPopupVisible = true;
