@@ -1,20 +1,14 @@
-<!-- versionCode: 310 -->
-### Release v310.0
+<!-- versionCode: 311 -->
+### Release v311.0
 
-- **French language:** French is now available with its own dictionary, autocorrect, typo fixes, accent long-press, emoji suggestions and a translated keyboard. There is also a French README.
-- **Faster, lighter:** Dictionaries now load only for the languages you have enabled, which lowers memory use. Adding, removing or reordering languages applies immediately while the keyboard is open.
-- **GIF tab toggle (Plus):** You can hide the GIF tab in the emoji panel. In apps that don't accept GIFs, the tab now shows a short "this app doesn't allow sending GIFs here" message, translated into all languages.
-- **Privacy badge:** The badge now shows only when incognito mode is on, not in number or protected fields.
-- **One-hand mode:** The emoji and clipboard panels now follow the keyboard's side and width.
-- **Long-press popup:** Dragging across 4 or more options no longer skips one, and the last option can be reached at the screen edge.
-- **Auto-correct undo:** Auto-correct stops after 2 undos, and the undo count resets when you accept a correction.
-- **Resize bar:** Redesigned buttons and a cleaner reset arrow.
-- **Settings polish:**
-  - New cool-style toasts, kept when a page refreshes.
-  - A value bubble while dragging sliders, with slightly larger sliders.
-  - Cleaner theme page: no check marks, larger fonts with a clearer sample, full-tile color previews and a better selection frame.
-  - The in-page test field is removed (use the floating button).
-  - Smoother title animation, and no slide animation when the home page refreshes.
-  - A keyboard-with-check icon on the status card.
-- **Clipboard:** Smaller screenshot thumbnails. The screenshot switch now resets properly after switching between Plus and Standard when the permission is lost.
-- **Floating buttons:** The ABC and delete buttons are slightly clearer in the emoji and clipboard panels.
+- **Important fix: bottom row and long-press near the screen edge.** The keyboard now adds a small space under the bottom row, sized for your device. On phones that use gesture navigation, touches in the lowest part of the keys were taken by the system, so long-presses on the bottom row often failed. This also lifts the bottom row slightly, away from the screen edge, to a more comfortable typing position. On devices with button navigation the extra space is minimal.
+- **Hide the emoji key:** A new option in the emoji settings replaces the emoji key with a comma key when "Switch by swiping the space bar" is on. Long-press the comma to open emoji. A small emoji mark shows in its corner.
+- **Emoji suggestions:** Suggestions now appear small in the corner of the language and comma keys. On the emoji key, a dot shows while a suggestion is there, and a long-press shows an emoji pop-up and opens the full list.
+- **Easier long-press:** Long-pressing the emoji, language and comma keys is more forgiving of slight finger movement and fast presses.
+- **Space bar fix:** The space bar no longer stays grey after a long-press without moving.
+- **Screenshot message:** In apps that don't accept screenshots, the keyboard now shows a short message saying so, translated into all languages.
+- **Settings:**
+  - The keyboard picker opens automatically after you enable the keyboard.
+  - The "try the keyboard" button shows only when bkey is enabled and selected.
+  - The status card is no longer clickable.
+  - Title animation slightly faster.
