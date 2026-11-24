@@ -2088,8 +2088,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         keyboardView.setToolbarIdleMode(false);
 
+        // After the word is finished, the emoji suggestion lives for one space only: a second
+        // space (or anything else) before the next word hides it.
+        boolean singleSpaceAfterWord = false;
+        if (ctx[0].isEmpty() && chipIc != null) {
+            CharSequence two = textBefore(chipIc, 2);
+            singleSpaceAfterWord = two != null && two.length() == 2
+                    && !Character.isWhitespace(two.charAt(0)) && two.charAt(1) == ' ';
+        }
         String emojiSuggestion = !ctx[0].isEmpty() ? EmojiSuggester.suggestFor(ctx[0], keyboardView.getActiveLanguageCode())
-                : (ctx[1] != null && !ctx[1].isEmpty() ? EmojiSuggester.suggestFor(ctx[1], keyboardView.getActiveLanguageCode()) : null);
+                : (singleSpaceAfterWord && ctx[1] != null && !ctx[1].isEmpty() ? EmojiSuggester.suggestFor(ctx[1], keyboardView.getActiveLanguageCode()) : null);
         keyboardView.setEmojiKeySuggestion(emojiSuggestion);
 
         final String c0 = ctx[0], c1 = ctx[1], c2 = ctx[2];
