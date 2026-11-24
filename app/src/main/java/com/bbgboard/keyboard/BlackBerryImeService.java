@@ -156,7 +156,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private boolean passwordFieldActive = false;
 
     private static final long CLIP_CHIP_MS = 60 * 1000L;
-    private static final long SHOT_CHIP_MS = 3 * 60 * 1000L;
+    private static final long SHOT_CHIP_MS = 80 * 1000L;
     private String clipChipText = null;
     private long clipChipTime = 0L;
 
