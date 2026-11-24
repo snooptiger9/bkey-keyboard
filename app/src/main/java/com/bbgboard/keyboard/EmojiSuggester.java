@@ -130,6 +130,41 @@ final class EmojiSuggester {
             "भारत|🇮🇳 हिंदुस्तान|🇮🇳 इंडिया|🇮🇳 पाकिस्तान|🇵🇰 नेपाल|🇳🇵 बांग्लादेश|🇧🇩 श्रीलंका|🇱🇰 अमेरिका|🇺🇸 ब्रिटेन|🇬🇧 दुबई|🇦🇪 सऊदी|🇸🇦 "
         );
 
+        // Extra colloquial words for emojis that had no word yet.
+        addAll(
+            "مهرج|🤡 بهلوان|🤡 ياساتر|🤦 شرير|😈 شيطان|😈 خبيث|😈 شبح|👻 عفريت|👻 زباله|💩 مليونير|🤑 ثري|🤑 ملاك|😇 ",
+            "بريء|😇 ناعس|🥱 نعسان|🥱 تثاوب|🥱 ابشر|🫡 حاضر|🫡 مجنون|🤪 مجنونه|🤪 هبله|🤪 حفله|🥳 شتم|🤬 زكام|🤧 ",
+            "رشح|🤧 كمامه|😷 كسرت خاطري|💔 فراق|💔 هجران|💔 فراشه|🦋 مخك|🧠 تاج|👑 ملكه|👑 الماس|💎 حسد|🧿 حسود|🧿 ",
+            "صاروخ|🚀 قوس قزح|🌈 كاريوكي|🎤 جيتار|🎸 جرس|🔔 دايخ|😵 دوخه|😵 سكران|🥴 لذيذ|😋 يمي|😋 ساخر|🙃 مضاربه|👊 ",
+            "عراك|👊 قنبله|💣 انفجار|💥 بوم|💥 قبر|🪦 بوبا|🧋 دونات|🍩 شطه|🌶️ كرة سله|🏀 سباق|🏎️ دباب|🏍️ هليكوبتر|🚁 ",
+            "قارب|⛵ شراع|⛵ يخت|⛵ دبدوب|🧸 دميه|🧸 بالون|🎈 بلونه|🎈 هالوين|🎃 روبوت|🤖 فضائي|👽 صوت عالي|🔊 كتم|🔇 ",
+            "صامت|🔇 سماعه|🎧 سماعات|🎧 المركز الاول|🥇 فيديو|🎥 كاميرا|🎥 فاتوره|🧾 صرفت|💸 بذخ|💸 بنك|🏦 مصرف|🏦 مكنسه|🧹 ",
+            "تنظيف|🧹 صابون|🧼 فرشاة اسنان|🪥 دش|🚿 شاور|🚿 استحمام|🚿 بانيو|🛁 سرير|🛌 فراش|🛌 كنبه|🛋️ كنب|🛋️ باب|🚪 ",
+            "خروف|🐑 غنم|🐑 ماعز|🐐 ديك|🐓 دجاجه|🐔 بطه|🦆 بومه|🦉 خفاش|🦇 قرش|🦈 دولفين|🐬 حوت|🐳 اخطبوط|🐙 ",
+            "سلطعون|🦀 نحله|🐝 دعسوقه|🐞 عنكبوت|🕷️ عقرب|🦂 صبار|🌵 كاكتس|🌵 خريف|🍂 دوار الشمس|🌻 اعصار|🌪️ زوبعه|🌪️ مظله|☂️ ",
+            "رجل الثلج|⛄ كنيسه|⛪ شطرنج|♟️ اسكت|🤐 حضن|🫂 ",
+            "clown|🤡 clowning|🤡 facepalm|🤦 smh|🤦 oopsie|🤭 teehee|🤭 hehe|🤭 devil|😈 evil|😈 naughty|😈 ghost|👻 boo|👻 ",
+            "poop|💩 crap|💩 rich|🤑 cash|🤑 angel|😇 innocent|😇 yawn|🥱 sleepy|🥱 salute|🫡 aye|🫡 crazy|🤪 silly|🤪 ",
+            "goofy|🤪 partying|🥳 nerd|🤓 geek|🤓 nerdy|🤓 cursing|🤬 swearing|🤬 flu|🤧 sneeze|🤧 mask|😷 heartbreak|💔 heartbroken|💔 ",
+            "breakup|💔 butterfly|🦋 brain|🧠 brains|🧠 crown|👑 queen|👑 king|👑 diamond|💎 evil eye|🧿 rocket|🚀 rainbow|🌈 bullseye|🎯 ",
+            "karaoke|🎤 mic|🎤 guitar|🎸 bell|🔔 dizzy|😵 drunk|🥴 yum|😋 yummy|😋 tasty|😋 sarcasm|🙃 sarcastic|🙃 punch|👊 ",
+            "fistbump|👊 call me|🤙 bomb|💣 boom|💥 explosion|💥 grave|🪦 rip|🪦 boba|🧋 donut|🍩 doughnut|🍩 spicy|🌶️ chili|🌶️ ",
+            "ice|🧊 basketball|🏀 race|🏎️ racing|🏎️ motorcycle|🏍️ motorbike|🏍️ helicopter|🚁 boat|⛵ sailboat|⛵ yacht|⛵ teddy|🧸 balloon|🎈 ",
+            "halloween|🎃 pumpkin|🎃 robot|🤖 alien|👽 loud|🔊 volume|🔊 mute|🔇 silent|🔇 headphones|🎧 earphones|🎧 first place|🥇 gold medal|🥇 ",
+            "video|🎥 camera|🎥 receipt|🧾 invoice|🧾 spend|💸 spent|💸 broke|💸 bank|🏦 broom|🧹 sweep|🧹 clean|🧹 soap|🧼 ",
+            "toothbrush|🪥 shower|🚿 bath|🛁 bathtub|🛁 bed|🛌 bedtime|🛌 couch|🛋️ sofa|🛋️ door|🚪 sheep|🐑 goat|🐐 rooster|🐓 ",
+            "hen|🐔 duck|🦆 owl|🦉 shark|🦈 dolphin|🐬 whale|🐳 octopus|🐙 crab|🦀 bee|🐝 ladybug|🐞 spider|🕷️ scorpion|🦂 ",
+            "cactus|🌵 autumn|🍂 sunflower|🌻 tornado|🌪️ umbrella|☂️ snowman|⛄ church|⛪ chess|♟️ shut up|🤐 zip it|🤐 bear hug|🫂 ",
+            "जोकर|🤡 शैतान|😈 शरारती|😈 भूत|👻 अमीर|🤑 फरिश्ता|😇 मासूम|😇 जम्हाई|🥱 सलाम|🫡 पागल|🤪 पढ़ाकू|🤓 गाली|🤬 ",
+            "जुकाम|🤧 खांसी|🤧 मास्क|😷 ब्रेकअप|💔 तितली|🦋 दिमाग|🧠 ताज|👑 रानी|👑 राजा|👑 हीरा|💎 नजर|🧿 रॉकेट|🚀 ",
+            "इंद्रधनुष|🌈 माइक|🎤 गिटार|🎸 घंटी|🔔 चक्कर|😵 स्वादिष्ट|😋 चटपटा|😋 व्यंग्य|🙃 मुक्का|👊 लड़ाई|👊 बम|💣 धमाका|💥 ",
+            "कब्र|🪦 डोनट|🍩 मिर्च|🌶️ तीखा|🌶️ बास्केटबॉल|🏀 बाइक|🏍️ हेलीकॉप्टर|🚁 नाव|⛵ टेडी|🧸 गुब्बारा|🎈 कद्दू|🎃 रोबोट|🤖 ",
+            "एलियन|👽 आवाज़|🔊 हेडफोन|🎧 पहला स्थान|🥇 वीडियो|🎥 रसीद|🧾 खर्च|💸 खर्चा|💸 बैंक|🏦 झाड़ू|🧹 सफाई|🧹 साबुन|🧼 ",
+            "नहाना|🚿 स्नान|🛁 बिस्तर|🛌 सोफा|🛋️ दरवाज़ा|🚪 भेड़|🐑 बकरी|🐐 मुर्गा|🐓 मुर्गी|🐔 बत्तख|🦆 उल्लू|🦉 चमगादड़|🦇 ",
+            "शार्क|🦈 डॉल्फ़िन|🐬 व्हेल|🐳 ऑक्टोपस|🐙 केकड़ा|🦀 मधुमक्खी|🐝 मकड़ी|🕷️ बिच्छू|🦂 कैक्टस|🌵 पतझड़|🍂 सूरजमुखी|🌻 आंधी|🌪️ ",
+            "छाता|☂️ चर्च|⛪ शतरंज|♟️ चुप रहो|🤐 "
+        );
+
         for (int i = 2; i <= 25; i++) {
             char[] rep = new char[i];
             java.util.Arrays.fill(rep, 'ه');
@@ -145,7 +180,16 @@ final class EmojiSuggester {
             "casa|🏠 hogar|🏠 escuela|🏫 colegio|🏫 universidad|🎓 trabajo|💼 oficina|🏢 reunión|📅 hospital|🏥 doctor|👨‍⚕️ médico|👨‍⚕️ medicina|💊 farmacia|💊 tienda|🛒 compras|🛍️ restaurante|🍴 teléfono|📱 móvil|📱 celular|📱 llamada|📞 llamar|📞 mensaje|💬 correo|📧 llave|🔑 idea|💡 importante|❗ dinero|💰 plata|💰 pago|💳 coche|🚗 carro|🚗 auto|🚗 autobús|🚌 tren|🚆 avión|✈️ vuelo|✈️ viaje|🧳 playa|🏖️ mar|🌊 montaña|⛰️ ciudad|🏙️ ",
             "sol|☀️ calor|🥵 frío|🥶 lluvia|🌧️ llueve|🌧️ nieve|❄️ viento|💨 tormenta|⛈️ luna|🌙 estrella|⭐ noche|🌙 mañana|🌅 tarde|🌆 hoy|📅 fútbol|⚽ gol|⚽ partido|⚽ música|🎵 canción|🎶 baile|💃 bailar|💃 película|🎬 cine|🎬 libro|📚 leer|📖 estudiar|📚 examen|📝 tarea|📝 juego|🎮 jugar|🎮 foto|📸 fotos|📸 ",
             "perro|🐶 gato|🐱 caballo|🐴 vaca|🐄 pájaro|🐦 pez|🐟 león|🦁 oso|🐻 mono|🐒 conejo|🐰 flor|🌸 flores|🌹 rosa|🌹 árbol|🌳 fuego|🔥 victoria|🏆 ganar|🏆 campeón|🏆 fuerza|💪 fuerte|💪 ánimo|💪 suerte|🍀 bravo|👏 aplausos|👏 felicitaciones|👏 listo|👍 gol|⚽ ",
-            "españa|🇪🇸 méxico|🇲🇽 mexico|🇲🇽 argentina|🇦🇷 colombia|🇨🇴 chile|🇨🇱 perú|🇵🇪 peru|🇵🇪 venezuela|🇻🇪 cuba|🇨🇺 ecuador|🇪🇨 bolivia|🇧🇴 uruguay|🇺🇾 paraguay|🇵🇾 brasil|🇧🇷 portugal|🇵🇹 estados unidos|🇺🇸 "
+            "españa|🇪🇸 méxico|🇲🇽 mexico|🇲🇽 argentina|🇦🇷 colombia|🇨🇴 chile|🇨🇱 perú|🇵🇪 peru|🇵🇪 venezuela|🇻🇪 cuba|🇨🇺 ecuador|🇪🇨 bolivia|🇧🇴 uruguay|🇺🇾 paraguay|🇵🇾 brasil|🇧🇷 portugal|🇵🇹 estados unidos|🇺🇸 ",
+            "payaso|🤡 madre mia|🤦 ups|🤭 diablo|😈 travieso|😈 fantasma|👻 caca|💩 millonario|🤑 ángel|😇 inocente|😇 bostezo|🥱 a la orden|🫡 ",
+            "loco|🤪 loca|🤪 locura|🤪 cerebrito|🤓 maldición|🤬 gripe|🤧 resfriado|🤧 mascarilla|😷 desamor|💔 mariposa|🦋 cerebro|🧠 corona|👑 ",
+            "reina|👑 rey|👑 diamante|💎 mal de ojo|🧿 cohete|🚀 arcoíris|🌈 karaoke|🎤 guitarra|🎸 campana|🔔 mareado|😵 borracho|🥴 sabroso|😋 ",
+            "sarcasmo|🙃 puñetazo|👊 pelea|👊 llámame|🤙 bomba|💣 explosión|💥 tumba|🪦 dona|🍩 rosquilla|🍩 picante|🌶️ chile|🌶️ hielo|🧊 ",
+            "baloncesto|🏀 básquet|🏀 carrera|🏎️ moto|🏍️ helicóptero|🚁 barco|⛵ velero|⛵ peluche|🧸 globo|🎈 calabaza|🎃 halloween|🎃 robot|🤖 ",
+            "extraterrestre|👽 volumen|🔊 silencio|🔇 auriculares|🎧 audífonos|🎧 primer lugar|🥇 vídeo|🎥 factura|🧾 recibo|🧾 gastar|💸 gasté|💸 banco|🏦 ",
+            "escoba|🧹 limpiar|🧹 jabón|🧼 cepillo de dientes|🪥 ducha|🚿 bañera|🛁 cama|🛌 sofá|🛋️ puerta|🚪 oveja|🐑 cabra|🐐 gallo|🐓 ",
+            "gallina|🐔 pato|🦆 búho|🦉 murciélago|🦇 tiburón|🦈 delfín|🐬 ballena|🐳 pulpo|🐙 cangrejo|🦀 abeja|🐝 mariquita|🐞 araña|🕷️ ",
+            "escorpión|🦂 cactus|🌵 otoño|🍂 girasol|🌻 tornado|🌪️ paraguas|☂️ muñeco de nieve|⛄ iglesia|⛪ ajedrez|♟️ cállate|🤐 "
         );
 
     }
@@ -157,7 +201,16 @@ final class EmojiSuggester {
             "nourriture|🍽️ manger|🍽️ déjeuner|🍛 dîner|🍽️ petit-déjeuner|🍳 faim|🍽️ pizza|🍕 burger|🍔 poulet|🍗 viande|🥩 poisson|🐟 pain|🍞 baguette|🥖 croissant|🥐 fromage|🧀 gâteau|🍰 chocolat|🍫 glace|🍦 café|☕ thé|🍵 eau|💧 jus|🧃 lait|🥛 bière|🍺 vin|🍷 pomme|🍎 banane|🍌 fraise|🍓 orange|🍊 citron|🍋 pizza|🍕 frites|🍟 salade|🥗 riz|🍚 pâtes|🍝 oeuf|🥚 œuf|🥚",
             "maison|🏠 école|🏫 université|🎓 travail|💼 bureau|🏢 réunion|📅 hôpital|🏥 médecin|👨‍⚕️ docteur|👨‍⚕️ voiture|🚗 avion|✈️ train|🚆 vélo|🚲 bus|🚌 plage|🏖️ montagne|🏔️ ville|🏙️ voyage|🧳 vacances|🏝️ argent|💰 téléphone|📱 ordinateur|💻 musique|🎵 film|🎬 football|⚽ jeu|🎮 livre|📚",
             "soleil|☀️ chaud|🥵 froid|🥶 pluie|🌧️ pleut|🌧️ neige|❄️ vent|💨 orage|⛈️ lune|🌙 étoile|⭐ nuit|🌙 matin|🌅 soir|🌆 chien|🐶 chat|🐱 cheval|🐴 vache|🐄 oiseau|🐦 lion|🦁 ours|🐻 singe|🐒 lapin|🐰 fleur|🌸 fleurs|🌹 rose|🌹 arbre|🌳 feu|🔥 coeur|❤️",
-            "france|🇫🇷 paris|🇫🇷 belgique|🇧🇪 suisse|🇨🇭 canada|🇨🇦 maroc|🇲🇦 algérie|🇩🇿 tunisie|🇹🇳 sénégal|🇸🇳 espagne|🇪🇸 italie|🇮🇹 allemagne|🇩🇪 arabie saoudite|🇸🇦 égypte|🇪🇬"
+            "france|🇫🇷 paris|🇫🇷 belgique|🇧🇪 suisse|🇨🇭 canada|🇨🇦 maroc|🇲🇦 algérie|🇩🇿 tunisie|🇹🇳 sénégal|🇸🇳 espagne|🇪🇸 italie|🇮🇹 allemagne|🇩🇪 arabie saoudite|🇸🇦 égypte|🇪🇬 ",
+            "clown|🤡 pitié|🤦 oups|🤭 diable|😈 coquin|😈 fantôme|👻 caca|💩 riche|🤑 ange|😇 innocent|😇 baille|🥱 à vos ordres|🫡 ",
+            "fou|🤪 folle|🤪 intello|🤓 grippe|🤧 rhume|🤧 masque|😷 chagrin|💔 papillon|🦋 cerveau|🧠 couronne|👑 reine|👑 roi|👑 ",
+            "diamant|💎 mauvais oeil|🧿 fusée|🚀 arc-en-ciel|🌈 karaoké|🎤 guitare|🎸 cloche|🔔 étourdi|😵 saoul|🥴 miam|😋 délicieux|😋 ironie|🙃 ",
+            "bagarre|👊 appelle-moi|🤙 bombe|💣 explosion|💥 tombe|🪦 donut|🍩 piment|🌶️ épicé|🌶️ glaçon|🧊 basket|🏀 course|🏎️ moto|🏍️ ",
+            "hélicoptère|🚁 bateau|⛵ voilier|⛵ nounours|🧸 peluche|🧸 citrouille|🎃 halloween|🎃 robot|🤖 extraterrestre|👽 volume|🔊 silence|🔇 casque|🎧 ",
+            "écouteurs|🎧 première|🥇 place|🥇 vidéo|🎥 facture|🧾 reçu|🧾 dépenser|💸 dépense|💸 banque|🏦 balai|🧹 nettoyer|🧹 savon|🧼 ",
+            "brosse à dents|🪥 douche|🚿 baignoire|🛁 bain|🛁 lit|🛌 canapé|🛋️ porte|🚪 mouton|🐑 chèvre|🐐 coq|🐓 poule|🐔 canard|🦆 ",
+            "hibou|🦉 chauve-souris|🦇 requin|🦈 dauphin|🐬 baleine|🐳 pieuvre|🐙 crabe|🦀 abeille|🐝 coccinelle|🐞 araignée|🕷️ scorpion|🦂 cactus|🌵 ",
+            "automne|🍂 tournesol|🌻 tornade|🌪️ parapluie|☂️ bonhomme de neige|⛄ église|⛪ échecs|♟️ tais-toi|🤐 "
         );
     }
 
