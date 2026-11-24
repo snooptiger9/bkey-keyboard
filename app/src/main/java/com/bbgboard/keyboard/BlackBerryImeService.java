@@ -196,8 +196,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     // character: in that window the chips skip the "field must be empty" rule.
     private boolean chipsFresh = false;
 
+    /** True when the cursor's own line is empty (nothing before or after it on that line). */
+    private boolean lineIsEmpty(InputConnection ic) {
+        if (ic == null) return true;
+        CharSequence b = ic.getTextBeforeCursor(1, 0);
+        CharSequence a = ic.getTextAfterCursor(1, 0);
+        boolean beforeOk = b == null || b.length() == 0 || b.charAt(0) == '\n';
+        boolean afterOk = a == null || a.length() == 0 || a.charAt(0) == '\n';
+        return beforeOk && afterOk;
+    }
+
     private boolean chipFieldOk(InputConnection ic) {
-        return chipsFresh || fieldIsEmpty(ic);
+        return chipsFresh || lineIsEmpty(ic);
     }
 
     private void clearClipChip() {
@@ -2133,7 +2143,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String prevWord = ctx[1];
         String prevWord2 = ctx[2];
 
-        chipsFresh = false;
+        // The "fresh" state of the copied-text / screenshot chips ends on a typed character or on
+        // a second consecutive space; a single space keeps it.
+        if (!" ".equals(text)) {
+            chipsFresh = false;
+        } else {
+            CharSequence prevCh = ic.getTextBeforeCursor(1, 0);
+            if (prevCh != null && prevCh.length() == 1 && prevCh.charAt(0) == ' ') chipsFresh = false;
+        }
         // Typing only hides the code / screenshot / clipboard chips; they stay valid and show
         // again whenever their normal conditions hold, until their time window ends.
 
