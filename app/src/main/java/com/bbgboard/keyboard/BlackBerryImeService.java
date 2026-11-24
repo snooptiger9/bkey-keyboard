@@ -2052,6 +2052,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         applyAutoCapitalizeAtStart();
 
         final InputConnection chipIc = getCurrentInputConnection();
+        keyboardView.setMiddleBlocked(false);
         if (hasValidPendingOtp() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
 
             keyboardView.setToolbarIdleMode(false);
@@ -2061,6 +2062,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         if (!numericFieldActive && hasValidShotChip() && ctx[0].isEmpty() && chipFieldOk(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
+            keyboardView.setMiddleBlocked(!editorAcceptsScreenshot());
             keyboardView.setSuggestions(Arrays.asList("", uiText("لقطة شاشة", "Screenshot", "Captura"), ""), 2);
             keyboardView.setEmojiKeySuggestion(null);
             return;

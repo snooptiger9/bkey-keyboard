@@ -1247,6 +1247,14 @@ public class BlackBerryKeyboardView extends View {
 
     private int middleIconType = 0;
 
+    // The middle chip can't be used (e.g. a screenshot in an app that takes no images): tapping it
+    // must not play the "fly out" animation or the accept sound.
+    private boolean middleBlocked = false;
+
+    public void setMiddleBlocked(boolean blocked) {
+        middleBlocked = blocked;
+    }
+
     // The swipe-up sound should only play when there is actually something in the slot to
     // accept -- tapping or swiping an empty suggestion bar (nothing typed, no suggestions)
     // must stay silent.
@@ -3571,8 +3579,10 @@ public class BlackBerryKeyboardView extends View {
                     if (SystemClock.uptimeMillis() - suggestionTouchDownTime >= MIN_SUGGESTION_TAP_HOLD_MS) {
                         int slot = getClickedSuggestionSlot(x);
                         vibrateTap(false);
-                        if (hasSuggestionInSlot(slot)) soundController.playSwipeUpSound();
-                        launchWordOutsideKeyboard(slot);
+                        if (!(middleBlocked && slot == 1)) {
+                            if (hasSuggestionInSlot(slot)) soundController.playSwipeUpSound();
+                            launchWordOutsideKeyboard(slot);
+                        }
                         if (listener != null) listener.onSwipeUpSuggestion(slot);
                     }
                     return true;
@@ -3591,8 +3601,10 @@ public class BlackBerryKeyboardView extends View {
                 if (dy < -swipeUpThreshold && Math.abs(dy) > Math.abs(dx) * 1.15f) {
                     int zone = getHorizontalSuggestionZone(startX);
                     vibrateTap(false);
-                    if (hasSuggestionInSlot(zone)) soundController.playSwipeUpSound();
-                    launchWordOutsideKeyboard(zone);
+                    if (!(middleBlocked && zone == 1)) {
+                        if (hasSuggestionInSlot(zone)) soundController.playSwipeUpSound();
+                        launchWordOutsideKeyboard(zone);
+                    }
                     if (listener != null) listener.onSwipeUpSuggestion(zone);
                     return true;
                 }
