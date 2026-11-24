@@ -1,10 +1,20 @@
-<!-- versionCode: 309 -->
-### Release v309.0
+<!-- versionCode: 310 -->
+### Release v310.0
 
-- **Smarter incognito:** Incognito now also hides the words the keyboard learned from you, so only base-dictionary suggestions show (you can turn this off in settings). A small shield badge shows when nothing is being learned or saved.
-- **Auto-correct that learns:** If you undo the correction of a word twice, it is never auto-corrected again.
-- **Mistyped words in stats:** A new card shows the words you mistype most, so you can see what trips you up.
-- **One-hand mode, clearer:** The side buttons are now easy to see on light themes and change instantly when you switch theme.
-- **Clipboard header polish:** Better spacing between the icons and a slightly smaller item counter.
-- **Bolder Shift arrow** and a fix for the dark-mode icon being cut off in settings.
-- **Reproducible standard build:** The standard (lite) build no longer contains the GIF API key, so anyone can rebuild it from source and get an identical APK.
+- **French language:** French is now available with its own dictionary, autocorrect, typo fixes, accent long-press, emoji suggestions and a translated keyboard. There is also a French README.
+- **Faster, lighter:** Dictionaries now load only for the languages you have enabled, which lowers memory use. Adding, removing or reordering languages applies immediately while the keyboard is open.
+- **GIF tab toggle (Plus):** You can hide the GIF tab in the emoji panel. In apps that don't accept GIFs, the tab now shows a short "this app doesn't allow sending GIFs here" message, translated into all languages.
+- **Privacy badge:** The badge now shows only when incognito mode is on, not in number or protected fields.
+- **One-hand mode:** The emoji and clipboard panels now follow the keyboard's side and width.
+- **Long-press popup:** Dragging across 4 or more options no longer skips one, and the last option can be reached at the screen edge.
+- **Auto-correct undo:** Auto-correct stops after 2 undos, and the undo count resets when you accept a correction.
+- **Resize bar:** Redesigned buttons and a cleaner reset arrow.
+- **Settings polish:**
+  - New cool-style toasts, kept when a page refreshes.
+  - A value bubble while dragging sliders, with slightly larger sliders.
+  - Cleaner theme page: no check marks, larger fonts with a clearer sample, full-tile color previews and a better selection frame.
+  - The in-page test field is removed (use the floating button).
+  - Smoother title animation, and no slide animation when the home page refreshes.
+  - A keyboard-with-check icon on the status card.
+- **Clipboard:** Smaller screenshot thumbnails. The screenshot switch now resets properly after switching between Plus and Standard when the permission is lost.
+- **Floating buttons:** The ABC and delete buttons are slightly clearer in the emoji and clipboard panels.
