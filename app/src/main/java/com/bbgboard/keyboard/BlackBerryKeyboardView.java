@@ -1293,6 +1293,7 @@ public class BlackBerryKeyboardView extends View {
         if (key == null || key.alts == null || key.alts.isEmpty()) return;
         longPressOptions = new ArrayList<>(key.alts);
         longPressFromEmojiHost = isEmojiHost(key);
+        if (isEmojiHost(key) && emojiKeySuggestion != null) longPressOptions.add(0, emojiKeySuggestion);
         longPressOpensEmoji = false;
         longPressCellRects.clear();
         isLongPressPopupVisible = true;
