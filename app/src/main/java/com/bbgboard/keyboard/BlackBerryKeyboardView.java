@@ -149,7 +149,11 @@ public class BlackBerryKeyboardView extends View {
     private boolean longPressAwaitingTap = false;
 
     private boolean longPressOpensEmoji = false;
-    private static final float BOTTOM_SAFE_DP = 3f;
+    // Free space under the bottom row. Until the system reports its gesture zone this is a small
+    // fixed value; afterwards it is a quarter of how far that zone reaches into the keyboard (capped).
+    private static final float BOTTOM_SAFE_FALLBACK_DP = 3f;
+    private static final float BOTTOM_SAFE_MAX_DP = 6f;
+    private float bottomSafeDp = BOTTOM_SAFE_FALLBACK_DP;
     private boolean longPressFromEmojiHost = false;
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
@@ -1749,8 +1753,37 @@ public class BlackBerryKeyboardView extends View {
         // when commitResizePreview() applies the final chosen scale.
         // A little free space under the bottom row, so its lower edge stays clear of the
         // system's navigation-gesture zone (touches inside it never reach the keys).
-        int totalHeight = (int) contentHeightForScale(keyboardScale) + Math.round(BOTTOM_SAFE_DP * density);
+        int totalHeight = (int) contentHeightForScale(keyboardScale) + Math.round(bottomSafeDp * density);
         setMeasuredDimension(w, totalHeight);
+    }
+
+    @Override
+    public android.view.WindowInsets onApplyWindowInsets(android.view.WindowInsets insets) {
+        try {
+            float v = computeBottomSafeDp(insets);
+            if (v >= 0f && Math.abs(v - bottomSafeDp) > 0.01f) {
+                bottomSafeDp = v;
+                requestLayout();
+            }
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryKeyboardView", "onApplyWindowInsets()", e);
+        }
+        return super.onApplyWindowInsets(insets);
+    }
+
+    /** Returns -1 when the system gives no usable numbers (keep the current value). */
+    private float computeBottomSafeDp(android.view.WindowInsets insets) {
+        if (insets == null || android.os.Build.VERSION.SDK_INT < 29) return -1f;
+        float gesture, nav;
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            gesture = insets.getInsets(android.view.WindowInsets.Type.systemGestures()).bottom;
+            nav = insets.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom;
+        } else {
+            gesture = insets.getSystemGestureInsets().bottom;
+            nav = insets.getStableInsetBottom();
+        }
+        float insideDp = Math.max(0f, gesture - nav) / density;
+        return Math.min(BOTTOM_SAFE_MAX_DP, insideDp * 0.25f);
     }
 
     @Override
