@@ -2929,8 +2929,12 @@ public class MainActivity extends Activity {
         if (!swipeLangOn) {
             hideEmojiTile.setBackground(roundedCard(dm("#E5E7EB"), 16));
             hideEmojiTile.setAlpha(0.8f);
-            hideEmojiTile.setOnClickListener(v -> showCoolToast(
-                    tr("مخفي أصلاً: مفتاح اللغة ظاهر مكانه", "Already hidden: the language key sits in its place"), false));
+            View swView = ((ViewGroup) hideEmojiTile).getChildAt(1);
+            if (swView instanceof ModernToggleSwitch) {
+                ((ModernToggleSwitch) swView).setColors(
+                        Color.parseColor(dm("#C4C8CF")), Color.parseColor(dm("#D1D5DB")),
+                        Color.parseColor(dm("#9CA3AF")), Color.parseColor(dm("#9CA3AF")));
+            }
         }
         root.addView(hideEmojiTile);
         // GIF search only exists in bkey Plus, so its tab switch does too.
