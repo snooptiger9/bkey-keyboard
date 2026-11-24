@@ -2049,13 +2049,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (hasValidShotChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
+        if (!numericFieldActive && hasValidShotChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", uiText("لقطة شاشة", "Screenshot", "Captura"), ""), 2);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (hasValidClipChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
+        if (!numericFieldActive && hasValidClipChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), 4);
             keyboardView.setEmojiKeySuggestion(null);
@@ -2382,7 +2382,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        if (hasValidShotChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
+        if (!numericFieldActive && hasValidShotChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
             if (zoneIndex == 1) {
                 if (!editorAcceptsScreenshot()) {
                     useScreenshotClip();
@@ -2395,7 +2395,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        if (hasValidClipChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
+        if (!numericFieldActive && hasValidClipChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
 
             if (zoneIndex == 1) {
                 ic.commitText(clipChipText, 1);
