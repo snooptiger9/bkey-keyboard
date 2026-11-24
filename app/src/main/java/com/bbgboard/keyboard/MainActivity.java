@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
     private View floatingTestFab;
     private EditText quickTestEdit;
     private boolean floatingTesterKeyboardConfirmedOpen = false;
+    private boolean pickerAutoShown = false;
 
     private final java.util.ArrayDeque<Integer> scrollStack = new java.util.ArrayDeque<>();
     private boolean returningBack = false;
@@ -524,6 +525,17 @@ public class MainActivity extends Activity {
 
         boolean imeEnabled = isOwnImeEnabled();
         boolean imeSelected = imeEnabled && isOwnImeSelected();
+        if (imeSelected) {
+            pickerAutoShown = false;
+        } else if (imeEnabled && !pickerAutoShown) {
+            // Enabled but not selected: bring up the system keyboard picker once, like other keyboards do.
+            pickerAutoShown = true;
+            mainFrame.postDelayed(() -> {
+                if (isFinishing() || !isOwnImeEnabled() || isOwnImeSelected()) return;
+                InputMethodManager pickerImm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (pickerImm != null) pickerImm.showInputMethodPicker();
+            }, 450L);
+        }
         updateFloatingFab();
 
         if (!imeEnabled) {
