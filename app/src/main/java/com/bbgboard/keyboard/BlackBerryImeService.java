@@ -192,6 +192,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return (b == null || b.length() == 0) && (a == null || a.length() == 0);
     }
 
+    // True from the moment something is copied / a screenshot is taken until the next typed
+    // character: in that window the chips skip the "field must be empty" rule.
+    private boolean chipsFresh = false;
+
+    private boolean chipFieldOk(InputConnection ic) {
+        return chipsFresh || fieldIsEmpty(ic);
+    }
+
     private void clearClipChip() {
         screenshotChipActive = false;
         clipChipText = null;
@@ -527,6 +535,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                         }
                         if (keyboardPrefs.isClipChipEnabled()) {
                             screenshotChipActive = false;
+                            chipsFresh = true;
                             clipChipText = copiedText;
                             clipChipSensitive = sensitive;
                             clipChipTime = SystemClock.elapsedRealtime();
@@ -1644,6 +1653,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                         if (keyboardPrefs.isClipChipEnabled()) {
                             clipChipText = null;
                             screenshotChipActive = true;
+                            chipsFresh = true;
                             screenshotChipTime = SystemClock.elapsedRealtime();
                             uiHandler.removeCallbacks(clipChipExpiry);
                             uiHandler.postDelayed(clipChipExpiry, SHOT_CHIP_MS + 100L);
@@ -2049,13 +2059,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (!numericFieldActive && hasValidShotChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
+        if (!numericFieldActive && hasValidShotChip() && ctx[0].isEmpty() && chipFieldOk(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", uiText("لقطة شاشة", "Screenshot", "Captura"), ""), 2);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (!numericFieldActive && hasValidClipChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
+        if (!numericFieldActive && hasValidClipChip() && ctx[0].isEmpty() && chipFieldOk(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), 4);
             keyboardView.setEmojiKeySuggestion(null);
@@ -2113,6 +2123,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String prevWord = ctx[1];
         String prevWord2 = ctx[2];
 
+        chipsFresh = false;
         // Typing only hides the code / screenshot / clipboard chips; they stay valid and show
         // again whenever their normal conditions hold, until their time window ends.
 
@@ -2382,7 +2393,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        if (!numericFieldActive && hasValidShotChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
+        if (!numericFieldActive && hasValidShotChip() && currentPrefix.isEmpty() && chipFieldOk(ic)) {
             if (zoneIndex == 1) {
                 if (!editorAcceptsScreenshot()) {
                     useScreenshotClip();
@@ -2395,7 +2406,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        if (!numericFieldActive && hasValidClipChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
+        if (!numericFieldActive && hasValidClipChip() && currentPrefix.isEmpty() && chipFieldOk(ic)) {
 
             if (zoneIndex == 1) {
                 ic.commitText(clipChipText, 1);
