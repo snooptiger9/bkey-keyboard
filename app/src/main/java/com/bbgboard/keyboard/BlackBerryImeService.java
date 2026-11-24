@@ -1704,8 +1704,25 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return false;
     }
 
+    private boolean editorAcceptsScreenshot() {
+        EditorInfo info = getCurrentInputEditorInfo();
+        if (info == null || Build.VERSION.SDK_INT < 25) return true;
+        if (info.contentMimeTypes == null) return false;
+        for (String mime : info.contentMimeTypes) {
+            if (mime != null && (mime.equalsIgnoreCase("image/jpeg") || mime.equalsIgnoreCase("image/png")
+                    || mime.equalsIgnoreCase("image/*"))) return true;
+        }
+        return false;
+    }
+
     private void useScreenshotClip() {
         if (!ScreenshotClip.exists(this)) return;
+        if (!editorAcceptsScreenshot()) {
+            showKbToast(uiText("هذا التطبيق لا يتيح إرسال لقطة شاشة هنا",
+                    "This app doesn't allow sending screenshots here",
+                    "Esta aplicación no permite enviar capturas aquí"));
+            return;
+        }
         Uri uri = ScreenshotClip.contentUri(this);
         boolean committedInline = false;
         EditorInfo info = getCurrentInputEditorInfo();

@@ -32,6 +32,7 @@ final class HindiUi {
         TEXT.put("Search results", "खोज परिणाम");
         TEXT.put("Trending now", "अभी ट्रेंडिंग");
         TEXT.put("This app doesn't allow sending GIFs here", "यह ऐप यहाँ GIF भेजने की अनुमति नहीं देता");
+        TEXT.put("This app doesn't allow sending screenshots here", "यह ऐप यहाँ स्क्रीनशॉट भेजने की अनुमति नहीं देता");
         TEXT.put("Couldn't load GIF", "GIF लोड नहीं हो सका");
         TEXT.put("GIF copied — paste it here", "GIF कॉपी हो गया — यहाँ पेस्ट करें");
     }

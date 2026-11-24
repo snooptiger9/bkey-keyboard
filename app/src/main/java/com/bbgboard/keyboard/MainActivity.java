@@ -365,6 +365,13 @@ public class MainActivity extends Activity {
         });
     }
 
+    // The try-it button only makes sense once bkey is both enabled and the selected keyboard.
+    private void updateFloatingFab() {
+        if (floatingTestFab == null || floatingTestEdit == null) return;
+        if (floatingTestEdit.getVisibility() == View.VISIBLE) return;
+        floatingTestFab.setVisibility(isOwnImeEnabled() && isOwnImeSelected() ? View.VISIBLE : View.GONE);
+    }
+
     private void closeFloatingTester() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         floatingTestEdit.setText("");
@@ -372,7 +379,7 @@ public class MainActivity extends Activity {
         floatingTestEdit.clearFocus();
         if (imm != null) imm.hideSoftInputFromWindow(floatingTestEdit.getWindowToken(), 0);
         floatingTesterKeyboardConfirmedOpen = false;
-        if (floatingTestFab != null) floatingTestFab.setVisibility(View.VISIBLE);
+        updateFloatingFab();
         if (quickTestEdit != null) quickTestEdit.setVisibility(View.VISIBLE);
     }
 
@@ -395,6 +402,7 @@ public class MainActivity extends Activity {
             return;
         }
 
+        updateFloatingFab();
         if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) == homeMenuView) {
             reopenKeepingScroll(this::showHomeGboardSettingsMenu);
         }
@@ -407,6 +415,7 @@ public class MainActivity extends Activity {
         // separate Activity, so dismissing it regains focus here without ever
         // calling onResume(). Without this, the enabled/selected state on the
         // home screen stayed stale until the page was closed and reopened.
+        if (hasFocus) updateFloatingFab();
         if (hasFocus && mainFrame != null && mainFrame.getChildCount() > 0
                 && mainFrame.getChildAt(0) == homeMenuView) {
             reopenKeepingScroll(this::showHomeGboardSettingsMenu);
@@ -515,6 +524,7 @@ public class MainActivity extends Activity {
 
         boolean imeEnabled = isOwnImeEnabled();
         boolean imeSelected = imeEnabled && isOwnImeSelected();
+        updateFloatingFab();
 
         if (!imeEnabled) {
             quickSetupCard.addView(createSetupStepRow(
