@@ -2023,7 +2023,7 @@ public class BlackBerryKeyboardView extends View {
 
                 drawStyledKeyCell(canvas, k, bg);
 
-                final String subStr = (isEmojiHost(k) && emojiKeySuggestion != null) ? emojiKeySuggestion : k.sub;
+                final String subStr = k.sub;
                 if (!subStr.isEmpty()) {
                     // Same style-aware corner math as the globe key's badge: the old fallback for
                     // every style except Material/Soft-round just offset from the RAW cell corner,
@@ -2066,7 +2066,10 @@ public class BlackBerryKeyboardView extends View {
                     subTextPaint.setTextAlign(prevAlign);
                 }
 
-                if (isEmojiHost(k) && emojiKeySuggestion == null) drawEmojiBadge(canvas, k.rect);
+                if (isEmojiHost(k)) {
+                    if (emojiKeySuggestion == null) drawEmojiBadge(canvas, k.rect);
+                    else drawCornerEmojiSuggestion(canvas, k.rect, emojiKeySuggestion);
+                }
                 if (k.type == KeyType.SPACE) {
                     subTextPaint.setTextAlign(Paint.Align.CENTER);
                     subTextPaint.setTextSize(11.5f * scaledDensity);
@@ -2645,7 +2648,8 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
-    private void drawEmojiBadge(Canvas canvas, RectF rect) {
+    /** Centre of a corner mark of the given radius, following each key style's own corner curve. */
+    private float[] emojiCornerCenter(RectF rect, float badgeR) {
         float cx = rect.centerX();
         float cy = rect.centerY();
         // Tiny drawn face in the corner hints that a long-press on this key opens the emoji panel
@@ -2655,7 +2659,6 @@ public class BlackBerryKeyboardView extends View {
         // that the visible key surface actually draws with — several styles (Pill, Glass, Outline,
         // Soft raised, Circles) round that corner enough that just clearing the straight edges
         // isn't enough; badgeCornerPos() follows the corner's own curve instead.
-        float badgeR = 3.5f * density;
         float marginIn = 1.6f * density;
         float visLeft, visTop, visRight, visBottom, cornerR;
         if (keyboardStyle == KeyboardPreferences.STYLE_CIRCLES) {
@@ -2674,7 +2677,26 @@ public class BlackBerryKeyboardView extends View {
             visRight = rect.right - inset[0]; visBottom = rect.bottom - inset[1];
             cornerR = inset[2];
         }
-        float[] badgePos = badgeCornerPos(visLeft, visTop, visRight, visBottom, cornerR, badgeR, marginIn);
+        return badgeCornerPos(visLeft, visTop, visRight, visBottom, cornerR, badgeR, marginIn);
+    }
+
+    /** The emoji suggestion, drawn small and centred in the key's top-right corner. */
+    private void drawCornerEmojiSuggestion(Canvas canvas, RectF rect, String emoji) {
+        float size = 9.5f * scaledDensity;
+        float[] pos = emojiCornerCenter(rect, size * 0.5f);
+        float prevSize = mainTextPaint.getTextSize();
+        Paint.Align prevAlign = mainTextPaint.getTextAlign();
+        mainTextPaint.setTextSize(size);
+        mainTextPaint.setTextAlign(Paint.Align.CENTER);
+        float baseline = pos[1] - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f;
+        canvas.drawText(emoji, pos[0], baseline, mainTextPaint);
+        mainTextPaint.setTextSize(prevSize);
+        mainTextPaint.setTextAlign(prevAlign);
+    }
+
+    private void drawEmojiBadge(Canvas canvas, RectF rect) {
+        float badgeR = 3.5f * density;
+        float[] badgePos = emojiCornerCenter(rect, badgeR);
         float bcx = badgePos[0], bcy = badgePos[1];
         float prevBadgeW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevBadgeStyle = iconStrokePaint.getStyle();
