@@ -55,6 +55,12 @@
             android:grantUriPermissions="true" />
 
         <provider
+            android:name=".StickerProvider"
+            android:authorities="${applicationId}.stickers"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
+        <provider
             android:name=".GifCacheProvider"
             android:authorities="${applicationId}.gifcache"
             android:exported="false"

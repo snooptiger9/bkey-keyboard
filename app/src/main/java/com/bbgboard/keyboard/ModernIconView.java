@@ -56,6 +56,7 @@ public class ModernIconView extends View {
     public static final int ICON_SHARE = 44;
     public static final int ICON_INFO = 45;
     public static final int ICON_KEYBOARD_CHECK = 46;
+    public static final int ICON_STICKER = 47;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -577,6 +578,28 @@ public class ModernIconView extends View {
                 canvas.drawPath(sh, strokePaint);
                 canvas.drawLine(cx - r * 0.36f, cy + r * 0.02f, cx - r * 0.08f, cy + r * 0.32f, strokePaint);
                 canvas.drawLine(cx - r * 0.08f, cy + r * 0.32f, cx + r * 0.40f, cy - r * 0.26f, strokePaint);
+                break;
+            }
+            case ICON_STICKER: {
+                // A sticker with a peeled corner.
+                float s = r * 0.96f, k = r * 0.32f, c = r * 0.72f;
+                Path p = new Path();
+                p.moveTo(cx - s + k, cy - s);
+                p.lineTo(cx + s - k, cy - s);
+                p.quadTo(cx + s, cy - s, cx + s, cy - s + k);
+                p.lineTo(cx + s, cy + s - c);
+                p.lineTo(cx + s - c, cy + s);
+                p.lineTo(cx - s + k, cy + s);
+                p.quadTo(cx - s, cy + s, cx - s, cy + s - k);
+                p.lineTo(cx - s, cy - s + k);
+                p.quadTo(cx - s, cy - s, cx - s + k, cy - s);
+                p.close();
+                canvas.drawPath(p, strokePaint);
+                Path fold = new Path();
+                fold.moveTo(cx + s, cy + s - c);
+                fold.lineTo(cx + s - c, cy + s - c);
+                fold.lineTo(cx + s - c, cy + s);
+                canvas.drawPath(fold, strokePaint);
                 break;
             }
             case ICON_KEYBOARD_CHECK: {

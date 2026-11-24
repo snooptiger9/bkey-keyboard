@@ -777,6 +777,14 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_delete_word_enabled", enabled).apply();
     }
 
+    public boolean isStickerTabEnabled() {
+        return prefs.getBoolean("sticker_tab_enabled", true);
+    }
+
+    public void setStickerTabEnabled(boolean enabled) {
+        prefs.edit().putBoolean("sticker_tab_enabled", enabled).apply();
+    }
+
     public boolean isHideEmojiKey() {
         return prefs.getBoolean("hide_emoji_key", false);
     }

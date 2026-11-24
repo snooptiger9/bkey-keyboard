@@ -33,6 +33,13 @@ final class HindiUi {
         TEXT.put("Trending now", "अभी ट्रेंडिंग");
         TEXT.put("This app doesn't allow sending GIFs here", "यह ऐप यहाँ GIF भेजने की अनुमति नहीं देता");
         TEXT.put("This app doesn't allow sending screenshots here", "यह ऐप यहाँ स्क्रीनशॉट भेजने की अनुमति नहीं देता");
+        TEXT.put("This app doesn't allow sending stickers here", "यह ऐप यहाँ स्टिकर भेजने की अनुमति नहीं देता");
+        TEXT.put("Sticker saved", "स्टिकर सहेजा गया");
+        TEXT.put("Sticker removed", "स्टिकर हटाया गया");
+        TEXT.put("Copy an image first, then tap +", "पहले कोई इमेज कॉपी करें, फिर + दबाएँ");
+        TEXT.put("Sticker limit reached (20). Long-press one to remove it", "स्टिकर की सीमा (20) पूरी हो गई। हटाने के लिए किसी स्टिकर को देर तक दबाएँ");
+        TEXT.put("Couldn't save the sticker", "स्टिकर सहेजा नहीं जा सका");
+        TEXT.put("Copy an image in any app, then tap + to save it here. Long-press a sticker to remove it.", "किसी भी ऐप में इमेज कॉपी करें, फिर यहाँ सहेजने के लिए + दबाएँ। हटाने के लिए स्टिकर को देर तक दबाएँ।");
         TEXT.put("Couldn't load GIF", "GIF लोड नहीं हो सका");
         TEXT.put("GIF copied — paste it here", "GIF कॉपी हो गया — यहाँ पेस्ट करें");
     }
