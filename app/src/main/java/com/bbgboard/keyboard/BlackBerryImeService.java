@@ -2055,9 +2055,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (hasValidClipChip() && ctx[0].isEmpty()) {
+        if (hasValidClipChip() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
-            keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), true);
+            keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), 4);
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
@@ -2395,7 +2395,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        if (hasValidClipChip() && currentPrefix.isEmpty()) {
+        if (hasValidClipChip() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
 
             if (zoneIndex == 1) {
                 ic.commitText(clipChipText, 1);

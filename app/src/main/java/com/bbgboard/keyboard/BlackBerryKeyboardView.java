@@ -2014,6 +2014,8 @@ public class BlackBerryKeyboardView extends View {
                 paint.setAlpha(prevAlpha);
             } else if (i == 1 && middleIconType == 2 && shotThumb != null && !word.isEmpty()) {
                 drawScreenshotChip(canvas, r, word, paint);
+            } else if (i == 1 && middleIconType == 4 && !word.isEmpty()) {
+                drawClipTextChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType == 3 && !word.isEmpty()) {
                 drawTextChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType != 0 && !word.isEmpty()) {
@@ -2545,6 +2547,49 @@ public class BlackBerryKeyboardView extends View {
 
         float textY = cy - (textPaint.descent() + textPaint.ascent()) / 2f;
         canvas.drawText(shown, cx, textY, textPaint);
+    }
+
+    /** Copied-text chip: same card as the screenshot chip, with a small clipboard icon in place of the thumbnail. */
+    private void drawClipTextChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
+        float chipH = Math.min(slot.height() - 12f * density, 38f * density);
+        float iconW = 14f * density;
+        float pad = 10f * density;
+        float gap = 7f * density;
+        float prevSize = textPaint.getTextSize();
+        textPaint.setTextSize(Math.max(8f * scaledDensity, prevSize - 2f * scaledDensity));
+        String shown = ellipsizeWord(label, slot.width() - 2f * pad - iconW - gap - 10f * density, textPaint);
+        float textW = textPaint.measureText(shown);
+        float chipW = pad + iconW + gap + textW + pad;
+        float cx = slot.centerX();
+        float cy = slot.centerY();
+        RectF chip = drawRectA;
+        chip.set(cx - chipW / 2f, cy - chipH / 2f, cx + chipW / 2f, cy + chipH / 2f);
+        float radius = 11f * density;
+
+        shotChipFill.setStyle(Paint.Style.FILL);
+        shotChipFill.setColor(keySpecialBgPaint.getColor());
+        canvas.drawRoundRect(chip, radius, radius, shotChipFill);
+        shotChipStroke.setStyle(Paint.Style.STROKE);
+        shotChipStroke.setStrokeWidth(1f * density);
+        shotChipStroke.setColor(getKeyOutlineColor());
+        shotChipStroke.setAlpha(140);
+        canvas.drawRoundRect(chip, radius, radius, shotChipStroke);
+
+        boolean iconRight = isArabic;
+        float iconLeft = iconRight ? chip.right - pad - iconW : chip.left + pad;
+        float textX = iconRight ? iconLeft - gap - textW : iconLeft + iconW + gap;
+        drawRectB.set(iconLeft, chip.top, iconLeft + iconW, chip.bottom);
+        int save = canvas.save();
+        canvas.scale(0.82f, 0.82f, drawRectB.centerX(), drawRectB.centerY());
+        drawClipboardMenuIcon(canvas, drawRectB);
+        canvas.restoreToCount(save);
+
+        Paint.Align prevAlign = textPaint.getTextAlign();
+        textPaint.setTextAlign(Paint.Align.LEFT);
+        float textY = cy - (textPaint.descent() + textPaint.ascent()) / 2f;
+        canvas.drawText(shown, textX, textY, textPaint);
+        textPaint.setTextAlign(prevAlign);
+        textPaint.setTextSize(prevSize);
     }
 
     private void drawScreenshotChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
