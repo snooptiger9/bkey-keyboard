@@ -2918,8 +2918,8 @@ public class MainActivity extends Activity {
                 tr("إخفاء مفتاح الإيموجي", "Hide the emoji key"),
                 tr("يصير مكانه مفتاح فاصلة، والضغط المطوّل عليه يفتح الإيموجي",
                         "A comma key takes its place; long-press it to open emoji")
-                        + (swipeLangOn ? "" : "\n" + tr("إذا كان رمادياً فهو مخفي أصلاً، لأن مفتاح اللغة ظاهر مكانه",
-                                "If greyed out, it's already hidden: the language key sits in its place")),
+                        + (swipeLangOn ? "" : "\n" + tr("إذا كانت البطاقة رمادية فمعناه أن مفتاح اللغة ظاهر بدل الإيموجي",
+                                "If this card is grey, the language key is shown in place of the emoji key")),
                 // With the swipe switch off the emoji key is already hidden (the language key hosts
                 // emoji), so show it as on, greyed, and let a tap explain why it doesn't change.
                 swipeLangOn ? prefs.isHideEmojiKey() : true,
@@ -2927,6 +2927,8 @@ public class MainActivity extends Activity {
                 checked -> prefs.setHideEmojiKey(checked)
         );
         if (!swipeLangOn) {
+            hideEmojiTile.setBackground(roundedCard(dm("#E5E7EB"), 16));
+            hideEmojiTile.setAlpha(0.8f);
             hideEmojiTile.setOnClickListener(v -> showCoolToast(
                     tr("مخفي أصلاً: مفتاح اللغة ظاهر مكانه", "Already hidden: the language key sits in its place"), false));
         }
