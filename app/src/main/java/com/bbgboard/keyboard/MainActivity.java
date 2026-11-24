@@ -532,10 +532,7 @@ public class MainActivity extends Activity {
                     ModernIconView.ICON_KEYBOARD_CHECK, dm("#16A34A"),
                     tr("مفعّل ومختار حالياً", "Enabled and currently selected"),
                     "",
-                    v -> {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        if (imm != null) imm.showInputMethodPicker();
-                    }
+                    null
             ));
         } else {
             quickSetupCard.addView(createSetupStepRow(
