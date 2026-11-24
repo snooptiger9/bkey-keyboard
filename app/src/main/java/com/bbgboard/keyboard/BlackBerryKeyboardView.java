@@ -150,12 +150,6 @@ public class BlackBerryKeyboardView extends View {
 
     private boolean longPressOpensEmoji = false;
     private boolean longPressFromEmojiHost = false;
-    // Temporary diagnostics for the "long-press fails near the bottom of the key" report.
-    private long lpDiagDown = 0L;
-    private boolean lpDiagActive = false;
-    private void lpDiag(String msg) {
-        AppLogger.log("LP", msg, null);
-    }
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
     private final List<RectF> longPressCellRects = new ArrayList<>();
@@ -294,7 +288,6 @@ public class BlackBerryKeyboardView extends View {
     private final Runnable longPressRunnable = new Runnable() {
         @Override
         public void run() {
-            if (lpDiagActive) lpDiag("long-press fired after " + (SystemClock.uptimeMillis() - lpDiagDown) + "ms");
             if (touchDownKey != null && !isDragging) {
                 if (touchDownKey.type == KeyType.SHIFT) {
                     longPressConsumed = true;
@@ -3242,16 +3235,6 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 touchDownKey = findKeyAt(x, y);
-                lpDiagActive = touchDownKey != null && forgivingLongPress(touchDownKey);
-                if (lpDiagActive) {
-                    lpDiagDown = SystemClock.uptimeMillis();
-                    lpDiag("down type=" + touchDownKey.type + " main=" + touchDownKey.main
-                            + " yInKey=" + Math.round(100f * (y - touchDownKey.rect.top) / touchDownKey.rect.height()) + "%"
-                            + " gapToBottom=" + Math.round((getHeight() - y) / density) + "dp"
-                            + " keyH=" + Math.round(touchDownKey.rect.height() / density) + "dp"
-                            + " pressure=" + event.getPressure() + " size=" + event.getSize()
-                            + " edgeFlags=" + event.getEdgeFlags());
-                }
                 if (touchDownKey != null) {
                     visualPressedKey = touchDownKey;
                     if (prefs.isKeyBounceAnimationEnabled()) {
@@ -3372,12 +3355,7 @@ public class BlackBerryKeyboardView extends View {
                     return true;
                 }
 
-                float dragSlop = forgivingLongPress(touchDownKey) ? 18f : 9f;
-                if (lpDiagActive && Math.hypot(dxMove, dyMove) > dragSlop * density) {
-                    lpDiag("moved too far: dx=" + Math.round(dxMove / density) + "dp dy=" + Math.round(dyMove / density)
-                            + "dp after " + (SystemClock.uptimeMillis() - lpDiagDown) + "ms");
-                    lpDiagActive = false;
-                } // these keys need a forgiving long-press
+                float dragSlop = forgivingLongPress(touchDownKey) ? 18f : 9f; // these keys need a forgiving long-press
                 if (Math.hypot(dxMove, dyMove) > dragSlop * density) {
                     isDragging = true;
                     menuButtonPressed = false;
@@ -3408,12 +3386,6 @@ public class BlackBerryKeyboardView extends View {
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (lpDiagActive) {
-                    lpDiag((event.getActionMasked() == MotionEvent.ACTION_CANCEL ? "CANCEL" : "UP")
-                            + " after " + (SystemClock.uptimeMillis() - lpDiagDown) + "ms popup=" + isLongPressPopupVisible
-                            + " longPressConsumed=" + longPressConsumed);
-                    lpDiagActive = false;
-                }
                 if (multiTouchResolved) {
                     // Both touches of the overlap were already committed as their own
                     // taps in ACTION_POINTER_DOWN. This final lift (now the only pointer
