@@ -149,7 +149,7 @@ public class BlackBerryKeyboardView extends View {
     private boolean longPressAwaitingTap = false;
 
     private boolean longPressOpensEmoji = false;
-    private static final float BOTTOM_SAFE_DP = 2.3f;
+    private static final float BOTTOM_SAFE_DP = 2.5f;
     private boolean longPressFromEmojiHost = false;
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
