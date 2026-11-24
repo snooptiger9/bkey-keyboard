@@ -155,6 +155,8 @@ public class BlackBerryKeyboardView extends View {
     private static final float BOTTOM_SAFE_MIN_DP = 5f;
     private static final float BOTTOM_SAFE_MAX_DP = 8f;
     private float bottomSafeDp = BOTTOM_SAFE_FALLBACK_DP;
+    // How far the system gesture zone reaches up into this view (dp); 0 when unknown.
+    private float gestureInsideDp = 0f;
     private boolean longPressFromEmojiHost = false;
     private boolean hasSlidDuringLongPress = false;
     private List<String> longPressOptions = Collections.emptyList();
@@ -1784,6 +1786,7 @@ public class BlackBerryKeyboardView extends View {
             nav = insets.getStableInsetBottom();
         }
         float insideDp = Math.max(0f, gesture - nav) / density;
+        gestureInsideDp = insideDp;
         if (insideDp <= 0f) return 0f; // no gesture zone reaching the keyboard: no extra space
         return Math.max(BOTTOM_SAFE_MIN_DP, Math.min(BOTTOM_SAFE_MAX_DP, insideDp * 0.35f));
     }
@@ -3273,6 +3276,13 @@ public class BlackBerryKeyboardView extends View {
                 }
 
                 touchDownKey = findKeyAt(x, y);
+                if (touchDownKey != null && forgivingLongPress(touchDownKey) && gestureInsideDp > 0f
+                        && y > getHeight() - gestureInsideDp * density) {
+                    // Inside the system's gesture zone a held press never reaches us (the system
+                    // delivers press and release together), so for keys with a long-press action
+                    // ignore the touch instead of running a wrong plain tap.
+                    touchDownKey = null;
+                }
                 if (touchDownKey != null) {
                     visualPressedKey = touchDownKey;
                     if (prefs.isKeyBounceAnimationEnabled()) {
