@@ -33,11 +33,11 @@ final class KeyStylePreviewView extends View {
             shell = col("#0A1511"); keyBg = col("#1B3126"); special = col("#12231B");
             shadow = col("#07100C"); divider = col("#16281F"); outline = col("#3F6B52"); label = Color.WHITE;
         } else {
-            // Deliberately lighter (#333333/#252525) than the real keyboard's Matte black
+            // Deliberately lighter (#3B3B3B/#2D2D2D) than the real keyboard's Matte black
             // (#262626/#181818, see BlackBerryKeyboardView.applyThemeColors): this small preview
             // tile needs stronger contrast so the key shapes stay legible at this size, even
             // though the real keyboard keeps its original, truer-to-black colors.
-            shell = col("#111111"); keyBg = col("#333333"); special = col("#252525");
+            shell = col("#111111"); keyBg = col("#3B3B3B"); special = col("#2D2D2D");
             shadow = col("#090909"); divider = col("#363636"); outline = col("#525B6C"); label = Color.WHITE;
         }
     }
