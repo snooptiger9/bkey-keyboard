@@ -676,11 +676,7 @@ public class PredictionEngine {
                     Integer cnt = learnedWords.get(w);
                     if (cnt == null) continue;
                     int cur = scored.containsKey(w) ? scored.get(w) : 0;
-                    // A saved email that matches what was typed (2+ characters, or a typed "@")
-                    // gets a head start so it reaches the top three at once instead of waiting
-                    // for a third character to push ordinary words out.
-                    int emailBoost = w.indexOf('@') >= 0 ? 600 : 0;
-                    scored.put(w, cur + cnt * 40 + 200 + emailBoost);
+                    scored.put(w, cur + cnt * 40 + 200);
                 }
             }
 
