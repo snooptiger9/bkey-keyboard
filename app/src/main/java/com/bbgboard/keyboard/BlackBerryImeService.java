@@ -925,7 +925,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     }
                 }
                 @Override public void onError(String message) {
-                    if (message != null) showKbToast(message);
+                    if (message != null) showKbToast(voiceText(message));
                 }
             });
         }
@@ -943,7 +943,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
         if (!VoiceInputController.isAvailable(this)) {
-            showKbToast("الكتابة بالصوت غير متوفرة على هذا الجهاز");
+            showKbToast(voiceText("Voice typing isn't available on this device"));
             return;
         }
         String voiceLang = keyboardView != null ? keyboardView.getActiveLanguageCode() : KeyboardPreferences.LANG_EN;
@@ -1881,6 +1881,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_UR.equals(code)) return UrduUi.get(en);
         if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.get(en);
         return en;
+    }
+
+    /** Voice typing messages (English key) in the keyboard's active language. */
+    private String voiceText(String en) {
+        switch (en) {
+            case "Microphone permission is needed":
+                return uiText("إذن الميكروفون مطلوب", en, "Se necesita permiso del micrófono");
+            case "No internet connection for voice typing":
+                return uiText("لا يوجد اتصال بالإنترنت للكتابة بالصوت", en, "No hay conexión a internet para el dictado por voz");
+            case "Voice typing failed":
+                return uiText("تعذّرت الكتابة بالصوت", en, "No se pudo usar el dictado por voz");
+            case "Voice typing isn't available on this device":
+                return uiText("الكتابة بالصوت غير متوفرة على هذا الجهاز", en, "El dictado por voz no está disponible en este dispositivo");
+            default:
+                return en;
+        }
     }
 
     private String lettersKeyLabel(boolean isArabic) {

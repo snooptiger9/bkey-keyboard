@@ -34,6 +34,10 @@ final class HindiUi {
         TEXT.put("This app doesn't allow sending GIFs here", "यह ऐप यहाँ GIF भेजने की अनुमति नहीं देता");
         TEXT.put("This app doesn't allow sending screenshots here", "यह ऐप यहाँ स्क्रीनशॉट भेजने की अनुमति नहीं देता");
         TEXT.put("Couldn't load GIF", "GIF लोड नहीं हो सका");
+        TEXT.put("Microphone permission is needed", "माइक्रोफ़ोन की अनुमति चाहिए");
+        TEXT.put("No internet connection for voice typing", "वॉइस टाइपिंग के लिए इंटरनेट कनेक्शन नहीं है");
+        TEXT.put("Voice typing failed", "वॉइस टाइपिंग नहीं हो सकी");
+        TEXT.put("Voice typing isn't available on this device", "इस डिवाइस पर वॉइस टाइपिंग उपलब्ध नहीं है");
         TEXT.put("GIF copied — paste it here", "GIF कॉपी हो गया — यहाँ पेस्ट करें");
     }
 

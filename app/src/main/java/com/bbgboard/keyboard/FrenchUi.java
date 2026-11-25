@@ -33,6 +33,10 @@ final class FrenchUi {
         TEXT.put("This app doesn't allow sending GIFs here", "Cette application ne permet pas d’envoyer des GIF ici");
         TEXT.put("This app doesn't allow sending screenshots here", "Cette application ne permet pas d’envoyer des captures d’écran ici");
         TEXT.put("Couldn't load GIF", "Impossible de charger le GIF");
+        TEXT.put("Microphone permission is needed", "L'autorisation du micro est nécessaire");
+        TEXT.put("No internet connection for voice typing", "Pas de connexion Internet pour la saisie vocale");
+        TEXT.put("Voice typing failed", "La saisie vocale a échoué");
+        TEXT.put("Voice typing isn't available on this device", "La saisie vocale n'est pas disponible sur cet appareil");
         TEXT.put("GIF copied — paste it here", "GIF copié — collez-le ici");
     }
 

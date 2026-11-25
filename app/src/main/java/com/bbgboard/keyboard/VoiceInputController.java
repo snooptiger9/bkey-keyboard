@@ -161,11 +161,11 @@ final class VoiceInputController {
                     callback.onError(null);
                     break;
                 case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-                    callback.onError("إذن الميكروفون مطلوب");
+                    callback.onError("Microphone permission is needed");
                     break;
                 case SpeechRecognizer.ERROR_NETWORK:
                 case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-                    callback.onError("لا يوجد اتصال بالإنترنت للكتابة بالصوت");
+                    callback.onError("No internet connection for voice typing");
                     break;
                 default:
                     // Logged (not just shown generically) so the exact SpeechRecognizer
@@ -173,7 +173,7 @@ final class VoiceInputController {
                     // shows up in the in-app error log instead of being a dead end.
                     AppLogger.log("VoiceInputController", "onError() code=" + error
                             + " onDevice=" + usingOnDevice, null);
-                    callback.onError("تعذّرت الكتابة بالصوت");
+                    callback.onError("Voice typing failed");
             }
         }
     };

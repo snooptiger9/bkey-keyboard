@@ -33,6 +33,10 @@ final class UrduUi {
         TEXT.put("This app doesn't allow sending GIFs here", "یہ ایپ یہاں GIF بھیجنے کی اجازت نہیں دیتی");
         TEXT.put("This app doesn't allow sending screenshots here", "یہ ایپ یہاں اسکرین شاٹ بھیجنے کی اجازت نہیں دیتی");
         TEXT.put("Couldn't load GIF", "GIF لوڈ نہیں ہو سکا");
+        TEXT.put("Microphone permission is needed", "مائیکروفون کی اجازت درکار ہے");
+        TEXT.put("No internet connection for voice typing", "وائس ٹائپنگ کے لیے انٹرنیٹ کنکشن نہیں ہے");
+        TEXT.put("Voice typing failed", "وائس ٹائپنگ نہیں ہو سکی");
+        TEXT.put("Voice typing isn't available on this device", "اس ڈیوائس پر وائس ٹائپنگ دستیاب نہیں ہے");
         TEXT.put("GIF copied — paste it here", "GIF کاپی ہو گیا — یہاں پیسٹ کریں");
     }
 
