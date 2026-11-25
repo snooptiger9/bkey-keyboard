@@ -1914,7 +1914,21 @@ public class MainActivity extends Activity {
             themeTiles.add(createPreviewTile(themeNames[i], themeSwatches[i], prefs.getRawThemeMode() == i,
                     v -> { prefs.setThemeMode(idx); refreshThemeScreen(root); }, i == KeyboardPreferences.THEME_AUTO));
         }
-        addTileGrid(themeCard, themeTiles, 5);
+        // "Auto" sits alone on the first row (same cell width as the others below), then the four
+        // fixed themes: five across left too little room between tiles for the selection ring.
+        LinearLayout autoRow = new LinearLayout(this);
+        autoRow.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams lpAutoRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpAutoRow.topMargin = dp(8);
+        autoRow.setLayoutParams(lpAutoRow);
+        View autoTile = themeTiles.get(0);
+        autoTile.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        autoRow.addView(autoTile);
+        for (int k = 0; k < 3; k++) {
+            autoRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
+        }
+        themeCard.addView(autoRow);
+        addTileGrid(themeCard, new ArrayList<>(themeTiles.subList(1, themeTiles.size())), 4);
         root.addView(themeCard);
 
         LinearLayout styleCard = createGroupedWhiteCard();
