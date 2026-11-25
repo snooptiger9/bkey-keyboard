@@ -1053,13 +1053,34 @@ public class MainActivity extends Activity {
                     ghost.setScaleX(scale0);
                     ghost.setScaleY(scale0);
                     mainFrame.addView(ghost);
-                    ghost.animate().translationX(endX).translationY(endY).scaleX(1f).scaleY(1f)
-                            .setDuration(400)
-                            .setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0.4f, 1f))
-                            .withEndAction(() -> {
-                                titleTv.setAlpha(1f);
-                                mainFrame.removeView(ghost);
-                            }).start();
+                    // The destination is re-read on every frame, so a late layout change (insets,
+                    // scroll, cards being added) can't leave the ghost off by a few pixels when it lands.
+                    final float fStartX = startX, fStartY = startY, fScale0 = scale0;
+                    final boolean fRtl = rtl;
+                    android.animation.ValueAnimator va = android.animation.ValueAnimator.ofFloat(0f, 1f);
+                    va.setDuration(400);
+                    va.setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0.4f, 1f));
+                    final int[] liveT = new int[2];
+                    final int[] liveM = new int[2];
+                    va.addUpdateListener(anim -> {
+                        float f = (float) anim.getAnimatedValue();
+                        titleTv.getLocationInWindow(liveT);
+                        mainFrame.getLocationInWindow(liveM);
+                        float ex = liveT[0] - liveM[0];
+                        float ey = liveT[1] - liveM[1];
+                        ghost.setTranslationX(fStartX + (ex - fStartX) * f);
+                        ghost.setTranslationY(fStartY + (ey - fStartY) * f);
+                        float sc = fScale0 + (1f - fScale0) * f;
+                        ghost.setScaleX(sc);
+                        ghost.setScaleY(sc);
+                    });
+                    va.addListener(new android.animation.AnimatorListenerAdapter() {
+                        @Override public void onAnimationEnd(android.animation.Animator a) {
+                            titleTv.setAlpha(1f);
+                            mainFrame.removeView(ghost);
+                        }
+                    });
+                    va.start();
                     // Safety net: never leave the real title hidden.
                     titleTv.postDelayed(() -> titleTv.setAlpha(1f), 800);
                 } catch (Exception e) {
