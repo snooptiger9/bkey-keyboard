@@ -345,6 +345,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_AR.equals(code)) return EMOJI_CAT_TITLES;
         if (KeyboardPreferences.LANG_ES.equals(code)) return EMOJI_CAT_TITLES_ES;
         if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.EMOJI_CATEGORIES;
+        if (KeyboardPreferences.LANG_UR.equals(code)) return UrduUi.EMOJI_CATEGORIES;
         if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.EMOJI_CATEGORIES;
         return EMOJI_CAT_TITLES_EN;
     }
@@ -949,7 +950,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         voice().toggle(KeyboardPreferences.LANG_AR.equals(voiceLang) ? "ar-SA"
                 : KeyboardPreferences.LANG_ES.equals(voiceLang) ? "es-ES"
                 : KeyboardPreferences.LANG_FR.equals(voiceLang) ? "fr-FR"
-                : KeyboardPreferences.LANG_HI.equals(voiceLang) ? "hi-IN" : "en-US");
+                : KeyboardPreferences.LANG_HI.equals(voiceLang) ? "hi-IN"
+                : KeyboardPreferences.LANG_UR.equals(voiceLang) ? "ur-PK" : "en-US");
     }
 
     private final ExecutorService predictionExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -1876,12 +1878,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_AR.equals(code)) return ar;
         if (KeyboardPreferences.LANG_ES.equals(code)) return es;
         if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.get(en);
+        if (KeyboardPreferences.LANG_UR.equals(code)) return UrduUi.get(en);
         if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.get(en);
         return en;
     }
 
     private String lettersKeyLabel(boolean isArabic) {
         if (isArabic) return "أبجد";
+        if (keyboardView != null && keyboardView.isUrdu()) return "ابپ";
         return keyboardView != null && keyboardView.isHindi() ? "अआइ" : "ABC";
     }
 
@@ -2007,7 +2011,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void applyAutoCapitalizeAtStart() {
         try {
-            if (keyboardView == null || keyboardView.isArabic() || keyboardView.isHindi() || numericFieldActive) return;
+            if (keyboardView == null || keyboardView.isArabic() || keyboardView.isHindi() || keyboardView.isUrdu() || numericFieldActive) return;
             EditorInfo ei = getCurrentInputEditorInfo();
             if (ei != null) {
                 int type = ei.inputType;
@@ -2025,6 +2029,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         } catch (Exception e) {
             AppLogger.log("BlackBerryImeService", "applyAutoCapitalizeAtStart()", e);
         }
+    }
+
+    private static final String LEAD_PUNCT = "¿¡«(\"'“‘[";
+    private static final String TRAIL_PUNCT = ".,!?;:؟،؛۔)»\"”…।॥]";
+
+    static String keepEdgePunctuation(String typed, String correction) {
+        if (typed == null || correction == null) return correction;
+        int i = 0;
+        while (i < typed.length() && LEAD_PUNCT.indexOf(typed.charAt(i)) >= 0) i++;
+        int j = typed.length();
+        while (j > i && TRAIL_PUNCT.indexOf(typed.charAt(j - 1)) >= 0) j--;
+        String lead = typed.substring(0, i), trail = typed.substring(j);
+        String out = correction;
+        if (!lead.isEmpty() && !out.startsWith(lead)) out = lead + out;
+        if (!trail.isEmpty() && !out.endsWith(trail)) out = out + trail;
+        return out;
     }
 
     private boolean shouldAutoCapitalizeEnglish() {
@@ -2168,7 +2188,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 CharSequence beforeTwo = textBefore(ic, 2);
                 if (beforeTwo != null && beforeTwo.length() >= 2 && beforeTwo.charAt(1) == ' ' && !Character.isWhitespace(beforeTwo.charAt(0))) {
                     ic.deleteSurroundingText(1, 0);
-                    ic.commitText(keyboardView != null && keyboardView.isHindi() ? "। " : ". ", 1);
+                    ic.commitText(keyboardView != null && keyboardView.isHindi() ? "। "
+                            : keyboardView != null && keyboardView.isUrdu() ? "۔ " : ". ", 1);
                     lastSpaceTapTime = 0L;
                     refreshPredictions();
                     return;
@@ -2180,6 +2201,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     && !keyboardPrefs.isAutoCorrectException(currentPrefix)) {
                 String correction = predictionEngine.findAutoCorrection(currentPrefix, keyboardView.isArabic(), keyboardPrefs.isAutoCorrectStrong());
                 if (correction != null) {
+                    // Keep punctuation typed around the word ("¿qué", "hello,"): the correction
+                    // only covers the letters.
+                    correction = keepEdgePunctuation(currentPrefix, correction);
                     ic.deleteSurroundingText(currentPrefix.length(), 0);
                     ic.commitText(correction + " ", 1);
                     predictionEngine.learnWordAndTransition(correction, prevWord, prevWord2, keyboardView.isArabic());
@@ -2205,7 +2229,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             lastAutoCorrectResult = null;
         }
 
-        if (" ".equals(text) || ".".equals(text) || "؟".equals(text) || "?".equals(text)
+        if (" ".equals(text) || ".".equals(text) || "۔".equals(text) || "؟".equals(text) || "?".equals(text)
                 || "،".equals(text) || ",".equals(text) || "!".equals(text)) {
             boolean midEmail = ".".equals(text) && currentPrefix.indexOf('@') > 0;
             if (!currentPrefix.isEmpty() && !midEmail) {

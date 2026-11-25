@@ -12,3 +12,18 @@ Janabhaaratii team (GPL), as converted to Hunspell by Laszlo Nemeth
 (https://github.com/LibreOffice/dictionaries/tree/master/hi_IN), limited to 5-10 character
 words. Obvious vulgar words were removed. Because this list is smaller than the English and
 Spanish ones, Hindi is only auto-corrected for a short list of certain misspellings.
+
+dict_es.txt and dict_fr.txt were later checked against the Hunspell spell-checker dictionaries of
+LibreOffice (https://github.com/LibreOffice/dictionaries, es_ES/es_MX and fr_FR): words they do not
+accept (English names and words from subtitles, misspellings without accents, French words glued
+without their apostrophe) were removed and replaced by the next most frequent accepted words of the
+same FrequencyWords lists, so each list keeps its size. The spell-checker dictionaries were only used
+as a filter and are not included. Common French elisions (c'est, j'ai, d'accord...) were added.
+
+dict_ur.txt (Urdu) combines the word frequencies of the Makhzan corpus
+(https://github.com/zeerakahmed/makhzan, statistics under the MIT license, Copyright (c) Zeerak
+Ahmed), a curated corpus of edited Urdu text, with the Urdu list of the same FrequencyWords project
+(CC-BY-SA-4.0) for everyday conversational words. Vowel marks were removed, known word-breaking
+errors of the corpus were dropped, only Urdu letters were kept, and obvious vulgar words were removed.
+The most common word pairs of Makhzan seed the next-word suggestions. Because this list is smaller,
+Urdu, like Hindi, is not auto-corrected; its words show as suggestions.

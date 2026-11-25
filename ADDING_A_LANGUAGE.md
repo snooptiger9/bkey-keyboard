@@ -62,7 +62,7 @@ Paths are under `app/src/main/java/com/bbgboard/keyboard/` unless stated otherwi
 `MainActivity.java`
 - `languageDisplayName` (Arabic and English names).
 - `createLanguageShareCard`: the `codes`, `names`, `colors` arrays and the two loops that use the
-  count (currently 5).
+  count (now taken from the array length).
 
 ## 7. Documentation and store text
 

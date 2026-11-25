@@ -51,8 +51,9 @@ public class KeyboardPreferences {
     public static final String LANG_ES = "es";
     public static final String LANG_HI = "hi";
     public static final String LANG_FR = "fr";
+    public static final String LANG_UR = "ur";
     // Every language the keyboard knows how to type in, in the order they're offered in settings.
-    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR};
+    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR, LANG_UR};
 
     public static final int SWIPE_SOUND_BB_AIR_FLICK = 0;
     public static final int SWIPE_SOUND_VELVET_BRUSH = 1;
@@ -679,7 +680,7 @@ public class KeyboardPreferences {
             android.content.pm.PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
             if (pi.firstInstallTime != pi.lastUpdateTime) return;
             android.os.LocaleList locales = android.content.res.Resources.getSystem().getConfiguration().getLocales();
-            List<String> supported = Arrays.asList(LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR);
+            List<String> supported = Arrays.asList(ALL_LANGUAGES);
             List<String> out = new ArrayList<>();
             for (int i = 0; i < locales.size(); i++) {
                 String code = locales.get(i).getLanguage();

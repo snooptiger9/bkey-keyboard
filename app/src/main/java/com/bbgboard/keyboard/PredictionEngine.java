@@ -43,6 +43,9 @@ public class PredictionEngine {
     private final java.util.TreeMap<String, List<String>> baseEsByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseFrByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseHiByFold = new java.util.TreeMap<>();
+    private final Map<String, Integer> baseUrWords = new HashMap<>();
+    private final Map<String, Map<String, Integer>> baseUrBigrams = new HashMap<>();
+    private final java.util.TreeMap<String, List<String>> baseUrByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> learnedByFold = new java.util.TreeMap<>();
 
     // Which Latin-script language is active right now (everything above is keyed on isArabic
@@ -52,6 +55,9 @@ public class PredictionEngine {
     // English/Spanish, with its own dictionary, learned-word tag, typo map and default words.
     private volatile boolean latinIsHindi = false;
     private volatile boolean latinIsFrench = false;
+    // Urdu is written in Arabic script but is its own language: it rides the "not Arabic" branch
+    // with its own dictionary and learned-word tag, like Hindi, so Arabic and Urdu words never mix.
+    private volatile boolean latinIsUrdu = false;
 
     public void setActiveLatinLanguage(String languageCode) {
         activeLangCode = languageCode;
@@ -65,18 +71,20 @@ public class PredictionEngine {
         latinIsFrench = KeyboardPreferences.LANG_FR.equals(languageCode);
         latinIsSpanish = KeyboardPreferences.LANG_ES.equals(languageCode);
         latinIsHindi = KeyboardPreferences.LANG_HI.equals(languageCode);
+        latinIsUrdu = KeyboardPreferences.LANG_UR.equals(languageCode);
     }
 
     /** The language code of the active non-Arabic language (en / es / hi). */
     private String activeLatinTag() {
         return latinIsHindi ? KeyboardPreferences.LANG_HI
+                : latinIsUrdu ? KeyboardPreferences.LANG_UR
                 : latinIsFrench ? KeyboardPreferences.LANG_FR
                 : (latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
     }
 
-    private Map<String, Integer> currentLatinWords() { return latinIsHindi ? baseHiWords : latinIsFrench ? baseFrWords : (latinIsSpanish ? baseEsWords : baseEnWords); }
-    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsHindi ? baseHiBigrams : latinIsFrench ? baseFrBigrams : (latinIsSpanish ? baseEsBigrams : baseEnBigrams); }
-    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsHindi ? baseHiByFold : latinIsFrench ? baseFrByFold : (latinIsSpanish ? baseEsByFold : baseEnByFold); }
+    private Map<String, Integer> currentLatinWords() { return latinIsHindi ? baseHiWords : latinIsUrdu ? baseUrWords : latinIsFrench ? baseFrWords : (latinIsSpanish ? baseEsWords : baseEnWords); }
+    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsHindi ? baseHiBigrams : latinIsUrdu ? baseUrBigrams : latinIsFrench ? baseFrBigrams : (latinIsSpanish ? baseEsBigrams : baseEnBigrams); }
+    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsHindi ? baseHiByFold : latinIsUrdu ? baseUrByFold : latinIsFrench ? baseFrByFold : (latinIsSpanish ? baseEsByFold : baseEnByFold); }
 
     // learnedWords/learnedBigrams/learnedByFold below are shared across every language --
     // that's fine between Arabic and Latin (different Unicode ranges keep them apart
@@ -90,6 +98,13 @@ public class PredictionEngine {
     private void tagLatinWord(String word, boolean isArabic) {
         if (isArabic) return;
         learnedWordLatinTag.put(word, activeLatinTag());
+    }
+
+    /** Learned words that may be offered in the current mode: Arabic mode keeps out words learned
+     *  while typing Urdu (same script, other language); the other modes go by latinWordAllowed. */
+    private boolean learnedAllowed(String word, boolean isArabic) {
+        if (isArabic) return !KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(word));
+        return latinWordAllowed(word);
     }
 
     private boolean latinWordAllowed(String word) {
@@ -123,7 +138,7 @@ public class PredictionEngine {
     private static final Object SAVE_LOCK = new Object();
     private static final int BASE_TOP_K = 14;
     private static final Pattern EMAIL_EDGE_PUNCT = Pattern.compile("^[،.؟!؛:\\\",()।॥]+|[،.؟!؛:\\\",()।॥]+$");
-    private static final Pattern ALL_PUNCT = Pattern.compile("[،.؟!؛:\\\",()।॥]");
+    private static final Pattern ALL_PUNCT = Pattern.compile("[،.؟!؛:\\\",()।॥¿¡«»۔]");
     private final android.os.Handler saveHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private boolean saveScheduled = false;
     private final Runnable saveRunnable = this::performScheduledSave;
@@ -180,6 +195,7 @@ public class PredictionEngine {
         else if (KeyboardPreferences.LANG_ES.equals(lang)) { asset = "dict_es.txt"; words = baseEsWords; idx = baseEsByFold; }
         else if (KeyboardPreferences.LANG_HI.equals(lang)) { asset = "dict_hi.txt"; words = baseHiWords; idx = baseHiByFold; }
         else if (KeyboardPreferences.LANG_FR.equals(lang)) { asset = "dict_fr.txt"; words = baseFrWords; idx = baseFrByFold; }
+        else if (KeyboardPreferences.LANG_UR.equals(lang)) { asset = "dict_ur.txt"; words = baseUrWords; idx = baseUrByFold; }
         else return;
         if (!loadedLangs.add(lang)) return;
         try {
@@ -429,6 +445,74 @@ public class PredictionEngine {
         addHiBigram("आपका", "नाम", 85); addHiBigram("मेरा", "नाम", 90); addHiBigram("मुझे", "पता", 80);
         addHiBigram("मुझे", "नहीं", 75); addHiBigram("जन्मदिन", "की", 90); addHiBigram("की", "हार्दिक", 60);
         addHiBigram("हार्दिक", "शुभकामनाएँ", 95); addHiBigram("हार्दिक", "बधाई", 90);
+        addUrBigrams();
+    }
+
+    // Urdu next-word seeds: everyday phrases, then the most common pairs of the Makhzan corpus.
+    private static final String[] UR_BIGRAMS = {
+            "السلام","علیکم","98", "وعلیکم","السلام","98", "آپ","کیسے","95", "آپ","کیسی","80", "کیسے","ہیں","95",
+            "کیسی","ہیں","90", "میں","ٹھیک","85", "ٹھیک","ہوں","95", "ٹھیک","ہے","92", "بہت","شکریہ","95",
+            "بہت","اچھا","85", "خدا","حافظ","98", "اللہ","حافظ","95", "جزاک","اللہ","98", "صبح","بخیر","95",
+            "شب","بخیر","95", "کیا","حال","88", "حال","ہے","85", "سالگرہ","مبارک","98", "عید","مبارک","98",
+            "ان","شاء","70", "شاء","اللہ","98", "ماشاء","اللہ","98", "آپ","کا","70", "کوئی","بات","80", "بات","نہیں","85",
+            "کے","لیے","88", "کے","ساتھ","85", "کے","بعد","84", "ہے","کہ","90", "ہے","اور","85", "ہے","جو","81",
+            "میں","سے","80", "میں","اس","80", "میں","بھی","80", "کی","طرف","81", "کی","وجہ","80", "کی","ہے","79",
+            "سے","زیادہ","78", "سے","بھی","78", "سے","پہلے","78", "اور","اس","84", "اور","ان","81", "اور","وہ","77",
+            "اس","کے","86", "اس","کی","84", "اس","کا","83", "کو","بھی","79", "کو","اس","78", "کو","ایک","76",
+            "کا","کہنا","79", "کا","ایک","78", "کا","یہ","77", "ہیں","کہ","82", "ہیں","اور","82", "ہیں","جو","77",
+            "نے","کہا","81", "نے","اس","80", "نے","اپنے","78", "نہیں","ہے","81", "نہیں","کیا","77", "نہیں","ہو","76",
+            "کہ","وہ","82", "کہ","اس","81", "کہ","یہ","80", "ایک","دوسرے","75", "ایک","ہی","74", "ایک","اور","74",
+            "یہ","ہے","81", "یہ","بات","77", "یہ","بھی","77", "پر","بھی","75", "پر","اس","73", "پر","ایک","73",
+            "کیا","ہے","82", "کیا","گیا","81", "کیا","جا","77", "کر","دیا","82", "کر","کے","81", "کر","دی","77",
+            "ہو","گیا","78", "ہو","گا","77", "ہو","کر","76", "وہ","اس","76", "وہ","اپنے","74", "وہ","بھی","73",
+            "بھی","اس","76", "بھی","نہیں","75", "بھی","ہے","75", "ان","کے","85", "ان","کی","84", "ان","کا","81",
+            "تو","اس","79", "تو","وہ","76", "تو","یہ","76", "تھا","کہ","82", "تھا","اور","76", "تھا","جس","71",
+            "تم","نے","68", "تم","سے","66", "ہم","نے","77", "ہم","اس","71", "ہم","ان","68", "ہوں","گے","75",
+            "ہوں","کہ","72", "ہوں","تو","70", "کرنے","کے","80", "کرنے","کی","79", "کرنے","کا","77", "گیا","ہے","82",
+            "گیا","تھا","76", "گیا","کہ","74", "جو","اس","74", "جو","ان","72", "جو","کہ","71", "لیے","کہ","73",
+            "لیے","اس","72", "لیے","ایک","72", "مجھے","اس","66", "ساتھ","ساتھ","74", "ساتھ","ہی","70", "ساتھ","اس","69",
+            "اپنے","اپنے","69", "اپنے","گھر","67", "اپنے","اندر","66", "ہی","نہیں","75", "ہی","میں","72", "ہی","کی","71",
+            "گا","کہ","73", "گا","اور","72", "گا","تو","68", "رہے","ہیں","81", "رہے","کہ","74", "رہے","گا","70",
+            "کچھ","نہیں","71", "کچھ","بھی","68", "کچھ","اور","66", "لیکن","اس","75", "لیکن","یہ","72", "لیکن","ان","71",
+            "دیا","گیا","79", "دیا","ہے","79", "دیا","تھا","73", "رہا","ہے","80", "رہا","تھا","74", "رہا","ہوں","70",
+            "کسی","بھی","75", "کسی","کو","73", "کسی","نے","70", "سب","سے","79", "سب","کچھ","71", "سب","کو","69",
+            "طرح","کے","72", "طرح","کی","72", "طرح","سے","68", "نہ","ہو","76", "نہ","صرف","74", "نہ","ہی","72",
+            "اسے","ایک","66", "بات","کی","74", "بات","کا","72", "بات","ہے","72", "اب","تک","72", "اب","بھی","70",
+            "اب","یہ","68", "تھے","اور","75", "تھے","کہ","72", "تھے","جو","67", "یا","اس","71", "یا","پھر","71",
+            "یا","نہیں","69", "یہاں","تک","71", "یہاں","یہ","66", "جس","میں","79", "جس","کے","78", "جس","کی","77",
+            "صرف","ایک","71", "صرف","اس","68", "صرف","یہ","68", "گے","اور","72", "گے","تو","70", "گے","کہ","70",
+            "تک","کہ","71", "تک","محدود","70", "تک","اس","68", "کرتے","ہیں","81", "کرتے","تھے","73", "کرتے","رہے","68",
+            "کہا","کہ","81", "کہا","ہے","74", "کہا","گیا","73", "بہت","سے","74", "بہت","سی","70", "بہت","زیادہ","69",
+            "جا","سکتا","78", "جا","رہا","76", "جا","سکتی","74", "اپنی","کتاب","68", "اپنی","جگہ","67",
+            "اپنی","زندگی","67", "جب","کہ","76", "جب","تک","73", "جب","وہ","71", "سکتا","ہے","80", "سکتا","تھا","69",
+            "سکتا","کہ","66", "زیادہ","تر","70", "زیادہ","سے","68", "زیادہ","ہے","66", "بعد","میں","73", "بعد","اس","69",
+            "بعد","بھی","69", "اگر","وہ","71", "اگر","یہ","70", "اگر","اس","70", "اللہ","علیہ","80", "اللہ","کے","75",
+            "اللہ","کی","74", "سکتے","ہیں","77", "سکتے","تھے","67", "دو","ہزار","67", "تھی","کہ","74", "تھی","اور","73",
+            "تھی","جس","68", "کرنا","ہے","72", "کرنا","چاہیے","70", "کرنا","چاہتے","68", "پھر","اس","71", "پھر","بھی","68",
+            "پھر","یہ","68", "وقت","کے","70", "وقت","تک","69", "وقت","میں","68", "طور","پر","83", "ہوا","ہے","77",
+            "ہوا","کہ","73", "ہوا","تھا","72", "ہر","شخص","69", "ہر","ایک","68", "ہر","چیز","67", "بارے","میں","80",
+            "حاصل","کر","72", "حاصل","ہے","71", "حاصل","کرنے","71", "کریں","گے","76", "کریں","اور","69", "کریں","تو","68",
+            "کام","کرنے","70", "کام","کر","69", "کام","ہے","66", "پاکستان","کے","77", "پاکستان","میں","76",
+            "پاکستان","کی","75", "والے","افراد","66", "والے","اس","66", "والے","ایک","66", "پہلے","ہی","70",
+            "پہلے","سے","69", "ہونے","والے","76", "ہونے","کے","75", "ہونے","کی","74", "طرف","سے","77", "طرف","اشارہ","66",
+            "ہوتا","ہے","82", "ہوتا","تھا","68", "ہوتا","تو","68", "جاتا","ہے","82", "جاتا","تھا","69", "ہمارے","ہاں","69",
+            "ہمارے","لیے","67", "کرتا","ہے","79", "کرتا","ہوں","69", "کرتا","تھا","68", "لے","کر","76", "لے","لیا","66",
+            "ضرورت","ہے","73", "ضرورت","نہیں","69", "لوگوں","کو","75", "لوگوں","کے","74", "لوگوں","کی","73",
+            "تمام","تر","68", "اسی","طرح","78", "اسی","لیے","70", "اسی","کے","67", "دے","کر","73", "دے","دیا","71",
+            "دے","دی","70", "نام","سے","73", "نام","پر","72", "نام","ہے","68", "وہاں","سے","67", "دی","ہے","74",
+            "دی","جاتی","70", "دی","تھی","69", "کیوں","نہیں","71", "کیوں","نہ","69", "کیوں","کہ","67", "انہوں","نے","80",
+            "گی","اور","70", "گی","کہ","66", "گی","تو","66", "صاحب","نے","74", "صاحب","کے","73", "صاحب","کی","71",
+            "دنیا","میں","76", "دنیا","کے","74", "دنیا","کی","72", "کبھی","بھی","66", "لوگ","اس","67", "لوگ","ہیں","66",
+            "وجہ","سے","80", "وجہ","ہے","72", "وجہ","یہ","69", "رہی","ہے","78", "رہی","ہیں","73", "رہی","تھی","71"
+    };
+
+    private void addUrBigrams() {
+        for (int i = 0; i + 2 < UR_BIGRAMS.length; i += 3) {
+            String prev = fold(UR_BIGRAMS[i]);
+            Map<String, Integer> m = baseUrBigrams.get(prev);
+            if (m == null) { m = new HashMap<>(); baseUrBigrams.put(prev, m); }
+            m.put(UR_BIGRAMS[i + 1], Integer.parseInt(UR_BIGRAMS[i + 2]));
+        }
     }
 
     private void addHiWord(String w, int weight) { baseHiWords.put(w, weight); }
@@ -626,6 +710,23 @@ public class PredictionEngine {
         if (dirty) { loadFromPrefs(); dirty = false; }
         String prefix = normalize(currentPrefixRaw);
         String lastWord = normalize(lastCompletedWordRaw);
+        if (!isArabic && latinIsFrench && !noSlotPadding) {
+            // "l'hom" -> "l'homme": when no word starts with the whole thing, suggest for the
+            // word after the apostrophe and keep the elision in front.
+            String[] el = splitFrenchElision(prefix);
+            if (el != null && !el[1].isEmpty() && !hasWordStartingWith(fold(prefix.replace('\u2019', '\'')))) {
+                List<String> inner;
+                noSlotPadding = true;
+                try {
+                    inner = getThreeSuggestions(el[1], lastCompletedWordRaw, lastCompletedWord2Raw, false);
+                } finally {
+                    noSlotPadding = false;
+                }
+                List<String> out = new ArrayList<>(inner.size());
+                for (String sug : inner) out.add(sug == null || sug.isEmpty() ? "" : el[0] + sug);
+                return out;
+            }
+        }
         Map<String, Integer> baseWords = isArabic ? baseArWords : currentLatinWords();
         Map<String, Map<String, Integer>> baseBigrams = isArabic ? baseArBigrams : currentLatinBigrams();
 
@@ -647,7 +748,7 @@ public class PredictionEngine {
                     for (Map.Entry<String, Integer> e : lNext.entrySet()) {
                         String nw = e.getKey();
                         if (fold(nw).startsWith(prefixLower) && !nw.equals(prefix) && isTrustedWord(nw)
-                                && (isArabic || latinWordAllowed(nw))
+                                && learnedAllowed(nw, isArabic)
                                 && !(prefixLower.length() < 3 && nw.indexOf('@') >= 0)) {
                             int cur = scored.containsKey(nw) ? scored.get(nw) : 0;
                             scored.put(nw, cur + e.getValue() * 60 + 250);
@@ -670,7 +771,7 @@ public class PredictionEngine {
             for (List<String> candidates : (personalOff() ? java.util.Collections.<List<String>>emptyList() : learnedByFold.subMap(prefixLower, prefixUpperBound).values())) {
                 for (String w : candidates) {
                     if (!isTrustedWord(w)) continue;
-                    if (!isArabic && !latinWordAllowed(w)) continue;
+                    if (!learnedAllowed(w, isArabic)) continue;
                     // Saved email addresses only show once at least three characters are typed (a two-letter name plus "@" counts).
                     if (prefixLower.length() < 3 && w.indexOf('@') >= 0) continue;
                     Integer cnt = learnedWords.get(w);
@@ -724,7 +825,7 @@ public class PredictionEngine {
                     for (Map.Entry<String, Integer> e : triNext.entrySet()) {
                         String nw = e.getKey();
                         if (!isTrustedWord(nw)) continue;
-                        if (!isArabic && !latinWordAllowed(nw)) continue;
+                        if (!learnedAllowed(nw, isArabic)) continue;
                         int cur = scored.containsKey(nw) ? scored.get(nw) : 0;
                         scored.put(nw, cur + e.getValue() * 80 + 400);
                         if (e.getValue() > bestCount) {
@@ -741,7 +842,7 @@ public class PredictionEngine {
                 for (Map.Entry<String, Integer> e : lNext.entrySet()) {
                     String nw = e.getKey();
                     if (!isTrustedWord(nw)) continue;
-                    if (!isArabic && !latinWordAllowed(nw)) continue;
+                    if (!learnedAllowed(nw, isArabic)) continue;
                     int cur = scored.containsKey(nw) ? scored.get(nw) : 0;
                     scored.put(nw, cur + e.getValue() * 40 + 200);
                 }
@@ -763,7 +864,7 @@ public class PredictionEngine {
                         if (e.getValue() > chainBestCount) { chainBestCount = e.getValue(); chainBestWord = e.getKey(); }
                     }
                     if (chainBestWord != null && chainBestCount >= 3 && isTrustedWord(chainBestWord)
-                            && (isArabic || latinWordAllowed(chainBestWord))) {
+                            && learnedAllowed(chainBestWord, isArabic)) {
                         String phrase = bestTrigramWord + " " + chainBestWord;
                         scored.put(phrase, 100000);
                     }
@@ -816,14 +917,46 @@ public class PredictionEngine {
         return findAutoCorrection(wordRaw, isArabic, false);
     }
 
+    private static final Pattern FR_ELISION =
+            Pattern.compile("^(?i)(jusqu|lorsqu|puisqu|quoiqu|quelqu|aujourd|qu|c|j|l|d|n|m|t|s)(['\u2019])(.*)$");
+
+    /** French elision ("l'homme", "j'ai"): the part up to and including the apostrophe, and the
+     *  word after it. Null when the word has no elision in front. */
+    private static String[] splitFrenchElision(String w) {
+        if (w == null) return null;
+        java.util.regex.Matcher m = FR_ELISION.matcher(w);
+        if (!m.matches()) return null;
+        return new String[]{m.group(1) + m.group(2), m.group(3)};
+    }
+
+    /** True when some dictionary or learned word starts with this folded prefix. */
+    private boolean hasWordStartingWith(String foldedPrefix) {
+        String k = currentLatinByFold().ceilingKey(foldedPrefix);
+        if (k != null && k.startsWith(foldedPrefix)) return true;
+        String l = learnedByFold.ceilingKey(foldedPrefix);
+        return l != null && l.startsWith(foldedPrefix);
+    }
+
     /** strong = also correct close calls (best candidate not clearly ahead of the runner-up). */
     public synchronized String findAutoCorrection(String wordRaw, boolean isArabic, boolean strong) {
         if (!ready) return null;
         if (isProtectedToken(wordRaw)) return null;
         String word = normalize(wordRaw);
         if (word.length() < 3) return null;
+        if (!isArabic && latinIsFrench) {
+            // "c'est", "l'homme": a known word is left alone; otherwise only the word after the
+            // apostrophe is corrected, and the elision in front is kept as typed.
+            String[] el = splitFrenchElision(word);
+            if (el != null) {
+                if (isTrustedWord(word.replace('\u2019', '\'')) || isTrustedWord(word)) return null;
+                if (el[1].length() < 3) return null;
+                String inner = findAutoCorrection(el[1], false, strong);
+                return inner == null ? null : el[0] + inner;
+            }
+        }
         String wordLower = fold(word);
         String sure = isArabic ? COMMON_AR_TYPOS.get(wordLower)
+                : latinIsUrdu ? null
                 : (latinIsHindi ? COMMON_HI_TYPOS.get(wordLower)
                 : latinIsFrench ? COMMON_FR_TYPOS.get(wordLower)
                 : latinIsSpanish ? COMMON_ES_TYPOS.get(wordLower)
@@ -833,7 +966,7 @@ public class PredictionEngine {
         // Hindi: the bundled dictionary is much smaller than English/Spanish, so a real word it
         // doesn't know must never be silently swapped for a "close" one. Only the certain-typo
         // map above corrects Hindi on its own; everything else stays a suggestion in the bar.
-        if (latinIsHindi && !isArabic) return null;
+        if ((latinIsHindi || latinIsUrdu) && !isArabic) return null;
         if (!isArabic && !latinIsSpanish && !latinIsHindi && !latinIsFrench) {
             String fixed = COMMON_EN_TYPOS.get(wordLower);
             if (fixed != null) return matchCase(word, fixed);
@@ -874,10 +1007,11 @@ public class PredictionEngine {
 
     private static final String[] QWERTY_ROWS = {"qwertyuiop", "asdfghjkl", "zxcvbnm"};
     private static final String[] AZERTY_ROWS = {"azertyuiop", "qsdfghjklm", "wxcvbn"};
+    private static final String[] SPANISH_ROWS = {"qwertyuiop", "asdfghjklñ", "zxcvbnm"};
 
     private boolean keysAdjacent(char a, char b) {
         String[] layout = (latinIsFrench && keyboardPrefs != null && keyboardPrefs.isFrenchAzerty())
-                ? AZERTY_ROWS : QWERTY_ROWS;
+                ? AZERTY_ROWS : latinIsSpanish ? SPANISH_ROWS : QWERTY_ROWS;
         int ra = -1, ca = -1, rb = -1, cb = -1;
         for (int r = 0; r < layout.length; r++) {
             int i = layout[r].indexOf(a);
@@ -1036,6 +1170,9 @@ public class PredictionEngine {
             "ca va","ça va", "francais","français", "francaise","française", "garcon","garçon", "lecon","leçon", "facon","façon",
             "recu","reçu", "decu","déçu", "ca","ça", "voila","voilà", "colere","colère", "mere","mère",
             "pere","père", "frere","frère", "soeur","sœur", "coeur","cœur", "oeuvre","œuvre", "oeil","œil",
+            "soeurs","sœurs", "coeurs","cœurs", "oeuvres","œuvres", "oeuf","œuf", "oeufs","œufs", "voeu","vœu", "voeux","vœux",
+            "noeud","nœud", "boeuf","bœuf", "cest","c'est", "jai","j'ai", "quil","qu'il", "daccord","d'accord", "cetait","c'était",
+            "jetais","j'étais", "jaime","j'aime", "sil","s'il", "nest","n'est", "jusqua","jusqu'à",
             "developpement","développement", "dévelopement","développement", "developper","développer", "telephone","téléphone", "numero","numéro",
             "societe","société", "securite","sécurité", "qualite","qualité", "realite","réalité", "liberte","liberté", "verite","vérité",
             "identite","identité", "activite","activité", "universite","université", "difficulte","difficulté", "possibilite","possibilité", "generalement","généralement",
@@ -1128,6 +1265,7 @@ public class PredictionEngine {
                 if (cnt == null) continue;
                 if (!isTrustedWord(w)) continue;
                 if (filterLatin && !latinWordAllowed(w)) continue;
+                if (!filterLatin && KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(w))) continue;
                 int cur = scored.containsKey(w) ? scored.get(w) : 0;
                 scored.put(w, cur + baseScore + (dist == 1 ? 100000 : 0) + Math.min(cnt, 99999));
             }
@@ -1189,8 +1327,8 @@ public class PredictionEngine {
             if (out.size() >= limit) break;
             String w = e.getKey();
             if (e.getValue() < 2 || w.indexOf('@') >= 0) continue;
-            if (hasArabicLetters(w) != isArabic) continue;
-            if (!isArabic && !latinWordAllowed(w)) continue;
+            if (hasArabicLetters(w) != (isArabic || latinIsUrdu)) continue;
+            if (!learnedAllowed(w, isArabic)) continue;
             out.add(w);
         }
         return out;
@@ -1201,6 +1339,8 @@ public class PredictionEngine {
                 ? Arrays.asList("السلام", "بسم", "مرحبا", "إن", "صباح", "الحمد")
                 : latinIsHindi
                     ? Arrays.asList("मैं", "आप", "नमस्ते", "धन्यवाद", "क्या", "ठीक")
+                : latinIsUrdu
+                    ? Arrays.asList("میں", "آپ", "السلام", "شکریہ", "کیا", "ٹھیک")
                 : latinIsFrench
                     ? Arrays.asList("Le", "Je", "Et", "Bonjour", "Merci", "Salut")
                 : latinIsSpanish
@@ -1222,6 +1362,9 @@ public class PredictionEngine {
         return false;
     }
 
+    /** Set while suggesting for the word after a French elision: no unrelated learned words. */
+    private boolean noSlotPadding = false;
+
     private List<String> placeholderSlots(boolean isArabic) {
         return Arrays.asList("", "", "");
     }
@@ -1233,7 +1376,7 @@ public class PredictionEngine {
             if (seenFolded.add(fold(c))) combined.add(c);
         }
 
-        for (String t : (personalOff() ? java.util.Collections.<String>emptyList() : getTopLearnedWords(isArabic, 8))) {
+        for (String t : (personalOff() || noSlotPadding ? java.util.Collections.<String>emptyList() : getTopLearnedWords(isArabic, 8))) {
             if (combined.size() >= 3) break;
             if (seenFolded.add(fold(t))) combined.add(t);
         }

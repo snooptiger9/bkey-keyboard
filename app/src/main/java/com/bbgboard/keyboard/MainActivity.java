@@ -1368,6 +1368,7 @@ public class MainActivity extends Activity {
         if (KeyboardPreferences.LANG_ES.equals(code)) return tr("الإسبانية", "Spanish");
         if (KeyboardPreferences.LANG_HI.equals(code)) return tr("الهندية", "Hindi");
         if (KeyboardPreferences.LANG_FR.equals(code)) return tr("الفرنسية", "French");
+        if (KeyboardPreferences.LANG_UR.equals(code)) return tr("الأردية", "Urdu");
         return tr("الإنجليزية", "English");
     }
 
@@ -3524,12 +3525,12 @@ public class MainActivity extends Activity {
     }
 
     private View createLanguageShareCard(int totalWords) {
-        String[] codes = {KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES, KeyboardPreferences.LANG_HI, KeyboardPreferences.LANG_FR};
-        String[] names = tr(new String[]{"العربية", "الإنجليزية", "الإسبانية", "الهندية", "الفرنسية"}, new String[]{"Arabic", "English", "Spanish", "Hindi", "French"});
-        int[] colors = {Color.parseColor("#10B981"), Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B"), Color.parseColor("#EC4899"), Color.parseColor("#8B5CF6")};
+        String[] codes = {KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES, KeyboardPreferences.LANG_HI, KeyboardPreferences.LANG_FR, KeyboardPreferences.LANG_UR};
+        String[] names = tr(new String[]{"العربية", "الإنجليزية", "الإسبانية", "الهندية", "الفرنسية", "الأردية"}, new String[]{"Arabic", "English", "Spanish", "Hindi", "French", "Urdu"});
+        int[] colors = {Color.parseColor("#10B981"), Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B"), Color.parseColor("#EC4899"), Color.parseColor("#8B5CF6"), Color.parseColor("#14B8A6")};
         int sum = 0;
-        int[] counts = new int[5];
-        for (int i = 0; i < 5; i++) { counts[i] = prefs.getStat("stat_lang_" + codes[i]); sum += counts[i]; }
+        int[] counts = new int[codes.length];
+        for (int i = 0; i < codes.length; i++) { counts[i] = prefs.getStat("stat_lang_" + codes[i]); sum += counts[i]; }
 
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
@@ -3557,7 +3558,7 @@ public class MainActivity extends Activity {
             empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
             card.addView(empty);
         }
-        for (int i = 0; i < 5 && sum > 0; i++) {
+        for (int i = 0; i < codes.length && sum > 0; i++) {
             if (counts[i] == 0) continue;
             final int pct = Math.round(counts[i] * 100f / sum);
             LinearLayout row = new LinearLayout(this);

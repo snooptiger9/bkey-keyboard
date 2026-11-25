@@ -9,7 +9,7 @@ Gestures:
 
 Other features:
 
-* Full Arabic, English, Spanish, Hindi and French support, each tailored separately
+* Full Arabic, English, Spanish, Hindi, French and Urdu support, each tailored separately
 * Smart clipboard with pin, delete, and auto-delete
 * Emoji panel, a persistent number row, custom themes, and key sounds
 

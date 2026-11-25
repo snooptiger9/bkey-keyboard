@@ -15,7 +15,7 @@
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR-blue)
+![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 
@@ -31,7 +31,7 @@
 
 **bkey** كيبورد أندرويد (IME) مبني على إيماءات السحب في تطبيق **BlackBerry Keyboard - Classic**،
 بتخصيص ومميزات أكثر: اسحب للأعلى من أي اقتراح لاختياره فوراً، واسحب جانبياً على صف الحروف (الاتجاه
-قابل للتخصيص) للحذف بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية والإسبانية والهندية والفرنسية بالكامل
+قابل للتخصيص) للحذف بدل الضغط المتكرر على الباكسبيس. يدعم العربية والإنجليزية والإسبانية والهندية والفرنسية والأردية بالكامل
 مع تجربة مخصصة بعناية لكل لغة.
 
 <br>
@@ -61,7 +61,7 @@
 
 ![ضغط مطوّل وسحب زر المسافة لتحريك المؤشر](docs/gifs/cursor_move.gif?v=2)
 
-‏• سحب زر المسافة يميناً/يساراً: التبديل بين اللغات المفعّلة (عربي/إنجليزي/إسباني/هندي/فرنسي) بدون زر لغة منفصل‏.  
+‏• سحب زر المسافة يميناً/يساراً: التبديل بين اللغات المفعّلة (عربي/إنجليزي/إسباني/هندي/فرنسي/أردي) بدون زر لغة منفصل‏.  
 ‏• الفرنسية تستخدم تخطيط AZERTY افتراضياً، ويمكن اختيار QWERTY من الإعدادات ← اللغات‏.  
 ‏• ضغط مطوّل على أي حرف: بوب أب الحروف البديلة (الكبيرة والمشكّلة والرموز المناسبة للغة المفعّلة).
 

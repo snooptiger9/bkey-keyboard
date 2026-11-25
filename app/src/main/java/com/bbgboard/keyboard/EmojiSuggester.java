@@ -12,6 +12,8 @@ final class EmojiSuggester {
     private static final Map<String, String> ES_MAP = new HashMap<>();
     // French-only, for the same reason (pain, mer, plat, sol...).
     private static final Map<String, String> FR_MAP = new HashMap<>();
+    // Urdu words (Arabic script but different spellings: ک ی ہ), used only on the Urdu keyboard.
+    private static final Map<String, String> UR_MAP = new HashMap<>();
     static {
 
         put("مبروك", "🎉");
@@ -195,6 +197,11 @@ final class EmojiSuggester {
     }
 
     static {
+        addAllTo(UR_MAP,
+            "محبت|❤️ پیار|❤️ دل|❤️ جان|😘 جانو|😘 خوش|😊 خوشی|😊 مسکراہٹ|😊 ہنسی|😂 ہنسنا|😂 ہاہا|😂 ہاہاہا|😂 مذاق|😂 مزاق|😂 اداس|😢 دکھ|😢 رونا|😭 غصہ|😠 ناراض|😠 ڈر|😨 حیران|😮 شرم|😳 تھکا|😴 تھکی|😴 نیند|😴 بیمار|🤒 بخار|🤒 زبردست|🤩 کمال|🤩 بہترین|👌 واہ|👏 شاباش|👏 پیاری|🥰 پیارا|🥰 خوبصورت|😍",
+            "شکریہ|🙏 مہربانی|🙏 معاف|🙏 معافی|🙏 سلام|👋 خداحافظ|👋 حافظ|👋 صبح|☀️ رات|🌙 مبارک|🎉 مبارکباد|🎉 سالگرہ|🎂 عید|🌙 رمضان|🌙 نماز|🤲 دعا|🤲 الحمدللہ|🤲 ماشاءاللہ|😍 انشاءاللہ|🤲 آمین|🤲 دوست|🤝 یار|🤝 خاندان|👨‍👩‍👧 امی|👩 ابو|👨 بچہ|👶 بھائی|👦 بہن|👧 شادی|💒",
+            "کھانا|🍽️ بھوک|🍽️ چائے|☕ کافی|☕ پانی|💧 روٹی|🍞 بریانی|🍛 گوشت|🥩 مرغی|🍗 مچھلی|🐟 آم|🥭 سیب|🍎 کیلا|🍌 کیک|🎂 گاڑی|🚗 سفر|✈️ پیسہ|💰 پیسے|💰 فون|📱 کرکٹ|🏏 فٹبال|⚽ دھوپ|☀️ بارش|🌧️ سردی|🥶 ٹھنڈ|🥶 گرمی|🥵 پھول|🌸 بلی|🐱 کتا|🐶 آگ|🔥 ستارہ|⭐ پاکستان|🇵🇰 جیت|🏆 تحفہ|🎁 گانا|🎵 کتاب|📚 اسکول|🏫 سکول|🏫 ڈاکٹر|👨‍⚕️ ہسپتال|🏥 دوائی|💊 جلدی|⏰"
+        );
         addAllTo(FR_MAP,
             "amour|❤️ je t'aime|❤️ jtm|❤️ chéri|❤️ chérie|❤️ coeur|❤️ cœur|❤️ bisou|😘 bisous|😘 câlin|🤗 câlins|🤗 heureux|😊 heureuse|😊 content|😊 contente|😊 joie|😄 sourire|😊 rire|😂 mdr|😂 lol|😂 haha|😂 hahaha|😂 drôle|😂 triste|😢 tristesse|😢 pleurer|😭 pleure|😭 fâché|😠 fâchée|😠 colère|😡 peur|😨 surprise|😮 gêne|😳 fatigué|😴 fatiguée|😴 sommeil|😴 dormir|😴 ennui|😐 malade|🤒 fièvre|🤒 cool|😎 génial|🤩 super|🤩 incroyable|🤩 parfait|👌 bravo|👏",
             "merci|🙏 beaucoup|🙏 s'il te plaît|🙏 s'il vous plaît|🙏 svp|🙏 pardon|🙏 désolé|🙏 désolée|🙏 excuse|🙏 bienvenue|🤝 bonjour|👋 salut|👋 coucou|👋 au revoir|👋 adieu|👋 à bientôt|👋 bonne journée|☀️ bonsoir|🌆 bonne nuit|🌙 félicitations|🎉 anniversaire|🎂 fête|🎉 gâteau|🎂 cadeau|🎁 noël|🎄 dieu|🙏 prière|🙏 prier|🙏 ami|🤝 amie|🤝 amis|🤝 famille|👨‍👩‍👧 maman|👩 papa|👨 bébé|👶 fils|👦 fille|👧 grand-mère|👵 grand-père|👴 mariage|💒",
@@ -248,7 +255,17 @@ final class EmojiSuggester {
             String e = FR_MAP.get(k);
             if (e != null) return e;
         }
+        if (KeyboardPreferences.LANG_UR.equals(langCode)) {
+            // Urdu has its own words; the Arabic list would only match by accident.
+            String e = UR_MAP.get(k);
+            return e != null ? e : MAP.get(k) != null && isLatin(k) ? MAP.get(k) : null;
+        }
         return MAP.get(k);
+    }
+
+    private static boolean isLatin(String s) {
+        for (int i = 0; i < s.length(); i++) if (s.charAt(i) >= 0x0600 && s.charAt(i) <= 0x06FF) return false;
+        return true;
     }
 
     private static String fold(String s) {
