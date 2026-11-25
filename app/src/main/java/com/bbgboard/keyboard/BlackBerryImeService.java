@@ -2195,7 +2195,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         } else {
             lastSpaceTapTime = 0L;
             // The user kept going after a correction, so they accepted it: forget earlier undos
-            // of that word (only 3 undos in a row switch its correction off).
+            // of that word (only 2 undos in a row switch its correction off).
             if (lastAutoCorrectOriginal != null && !keyboardPrefs.isIncognitoMode()) {
                 keyboardPrefs.resetAutoCorrectUndo(lastAutoCorrectOriginal);
             }
@@ -2271,7 +2271,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         ic.commitText(lastAutoCorrectOriginal, 1);
         rejectedAutoCorrectWord = lastAutoCorrectOriginal;
         // Remember it for good (not just until the next correction), unless nothing is being saved.
-        // It only becomes permanent after the 3rd reversal of the same word.
+        // It only becomes permanent after the 2nd reversal of the same word.
         if (!keyboardPrefs.isIncognitoMode()) {
             keyboardPrefs.addTypo(lastAutoCorrectOriginal, -1);
             if (keyboardPrefs.bumpAutoCorrectUndo(lastAutoCorrectOriginal) >= KeyboardPreferences.AUTOCORRECT_UNDOS_TO_STOP) {
@@ -2313,6 +2313,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         android.view.inputmethod.ExtractedText selEt = ic.getExtractedText(selReq, 0);
         if (selEt != null && selEt.selectionEnd > selEt.selectionStart) {
             ic.commitText("", 1);
+            refreshPredictions();
+            return true;
+        }
+
+        // Same as backspace: right after an auto-correction, the swipe brings the original word back.
+        if (lastAutoCorrectResult != null && undoAutoCorrectIfImmediate(ic)) {
+            lastAutoCorrectOriginal = null;
+            lastAutoCorrectResult = null;
             refreshPredictions();
             return true;
         }
