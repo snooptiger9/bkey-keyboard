@@ -182,6 +182,10 @@ Dos versiones: elige la que mejor te venga:
 > [!NOTE]
 > bkey Plus también se actualiza desde dentro de la app (Ajustes → **Acerca de y mantenimiento** → **Actualizar la app**). Añade solo una versión a Obtainium (ambas comparten el mismo nombre de paquete).
 
+<br>
+
+<br>
+
 ### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>

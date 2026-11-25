@@ -182,6 +182,10 @@ Two builds — pick the one that fits you:
 > [!NOTE]
 > bkey Plus can also update from inside the app (Settings → **About & maintenance** → **Update the app**). Add only one build to Obtainium (both share the same package name).
 
+<br>
+
+<br>
+
 ### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>

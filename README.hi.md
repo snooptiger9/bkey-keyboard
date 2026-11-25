@@ -181,6 +181,10 @@
 > [!NOTE]
 > bkey Plus ऐप के अंदर से भी अपडेट हो सकता है (सेटिंग्स → **ऐप के बारे में और रखरखाव** → **ऐप अपडेट करें**)। Obtainium में केवल एक ही संस्करण जोड़ें (दोनों का पैकेज नाम एक ही है)।
 
+<br>
+
+<br>
+
 ### [खुद बनाएँ](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>

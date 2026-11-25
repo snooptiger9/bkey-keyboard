@@ -202,6 +202,10 @@
 > [!NOTE]
 > نسخة bkey Plus تتحدث أيضاً من داخل التطبيق (الإعدادات ← **حول التطبيق والصيانة** ← **تحديث التطبيق**). أضف نسخة وحدة فقط إلى Obtainium (النسختان لهما نفس اسم الحزمة).
 
+<br>
+
+<br>
+
 ### [ابنِه بنفسك](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
 <br>
