@@ -1061,7 +1061,11 @@ public class MainActivity extends Activity {
                     ghost.setTypeface(titleTv.getTypeface());
                     ghost.setLayoutDirection(titleTv.getLayoutDirection());
                     ghost.setSingleLine(true);
-                    ghost.setLayoutParams(new FrameLayout.LayoutParams(w, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    // Pinned to the frame's top-left: in a right-to-left page the default START
+                    // gravity would place it at the right edge, and the translations below (which
+                    // count from the left) would push it off-screen before it snaps into place.
+                    ghost.setLayoutParams(new FrameLayout.LayoutParams(w, ViewGroup.LayoutParams.WRAP_CONTENT,
+                            Gravity.TOP | Gravity.LEFT));
                     ghost.setPivotX(rtl ? w : 0f);
                     ghost.setPivotY(0f);
                     float tgtStartX = rtl ? tl[0] + w : tl[0];
