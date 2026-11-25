@@ -1498,7 +1498,7 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("ي"),
             new KeyDef("ب"),
             new KeyDef("ل", "", Arrays.asList("لأ", "لإ")),
-            new KeyDef("ا", "", Arrays.asList("أ", "إ")),
+            new KeyDef("ا", "", Arrays.asList("أ", "إ", "آ")),
             new KeyDef("ت"),
             new KeyDef("ن"),
             new KeyDef("م"),
@@ -1544,6 +1544,16 @@ public class BlackBerryKeyboardView extends View {
         FRENCH_ALTS.put("y", "ÿ");
     }
 
+    private static final Map<String, String> SPANISH_ALTS = new HashMap<>();
+    static {
+        SPANISH_ALTS.put("a", "á");
+        SPANISH_ALTS.put("e", "é");
+        SPANISH_ALTS.put("i", "í");
+        SPANISH_ALTS.put("o", "ó");
+        SPANISH_ALTS.put("u", "ú,ü");
+        SPANISH_ALTS.put("n", "ñ");
+    }
+
     private List<String> latinAlts(String letter, List<String> raw) {
         boolean french = KeyboardPreferences.LANG_FR.equals(currentLangCode);
         boolean spanish = KeyboardPreferences.LANG_ES.equals(currentLangCode) || french;
@@ -1558,13 +1568,13 @@ public class BlackBerryKeyboardView extends View {
         List<String> out = new ArrayList<>();
         for (String a : raw) {
             if (a.length() == 1 && SYMBOL_PAGE_CHARS.indexOf(a.charAt(0)) >= 0) continue;
-            if (!spanish && a.length() > 0 && Character.isLetter(a.charAt(0))) continue;
-            // French has its own accent set; the Spanish/German extras are replaced below.
-            if (french && a.length() > 0 && Character.isLetter(a.charAt(0))) continue;
+            // English gets no accents; French and Spanish each get only their own (from the maps
+            // below), so no German/other letters from the shared list leak in.
+            if (a.length() > 0 && Character.isLetter(a.charAt(0))) continue;
             out.add(a);
         }
-        if (french) {
-            String fr = FRENCH_ALTS.get(letter.toLowerCase(Locale.ROOT));
+        if (spanish) {
+            String fr = (french ? FRENCH_ALTS : SPANISH_ALTS).get(letter.toLowerCase(Locale.ROOT));
             if (fr != null) {
                 boolean up = isShift || isCapsLock;
                 for (String f : fr.split(",")) out.add(up ? f.toUpperCase(Locale.ROOT) : f);
@@ -1658,11 +1668,11 @@ public class BlackBerryKeyboardView extends View {
         final String[] urduDigits = {"۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۰"};
         final java.util.Map<String, List<String>> extra = new java.util.HashMap<>();
         extra.put("و", hi("ؤ")); extra.put("ع", hi("غ")); extra.put("ر", hi("ڑ", "ز"));
-        extra.put("ت", hi("ٹ", "ث", "ط")); extra.put("ے", hi("ۓ")); extra.put("ء", hi("ئ", "أ"));
-        extra.put("ی", hi("ئ", "ي")); extra.put("ہ", hi("ھ", "ۃ", "ۂ", "ة"));
-        extra.put("ا", hi("آ", "أ", "إ")); extra.put("س", hi("ص", "ث", "ش")); extra.put("د", hi("ڈ", "ذ"));
+        extra.put("ت", hi("ٹ", "ث", "ط")); extra.put("ے", hi("ۓ")); extra.put("ء", hi("ئ", "ؤ"));
+        extra.put("ی", hi("ئ")); extra.put("ہ", hi("ھ", "ۃ", "ۂ"));
+        extra.put("ا", hi("آ")); extra.put("س", hi("ص", "ث", "ش")); extra.put("د", hi("ڈ", "ذ"));
         extra.put("گ", hi("غ")); extra.put("ح", hi("ھ", "خ")); extra.put("ج", hi("ض", "چ"));
-        extra.put("ک", hi("خ", "گ", "ك")); extra.put("ز", hi("ذ", "ض", "ظ", "ژ"));
+        extra.put("ک", hi("خ", "گ")); extra.put("ز", hi("ذ", "ض", "ظ", "ژ"));
         extra.put("ط", hi("ظ", "ت")); extra.put("ب", hi("پ")); extra.put("ن", hi("ں"));
 
         List<KeyDef> row1 = new ArrayList<>();
@@ -1767,43 +1777,20 @@ public class BlackBerryKeyboardView extends View {
         boolean arabicOff = !prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_AR);
         final boolean hindiOn = isHindi || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_HI);
         final boolean urduOn = isUrdu || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_UR);
-        List<KeyDef> row1 = (arabicOff && hindiOn) ? Arrays.asList(
-            new KeyDef("1", "१", Collections.singletonList("१")),
-            new KeyDef("2", "२", Collections.singletonList("२")),
-            new KeyDef("3", "३", Collections.singletonList("३")),
-            new KeyDef("4", "४", Collections.singletonList("४")),
-            new KeyDef("5", "५", Collections.singletonList("५")),
-            new KeyDef("6", "६", Collections.singletonList("६")),
-            new KeyDef("7", "७", Collections.singletonList("७")),
-            new KeyDef("8", "८", Collections.singletonList("८")),
-            new KeyDef("9", "९", Collections.singletonList("९")),
-            new KeyDef("0", "०", Collections.singletonList("०"))
-        ) : (arabicOff && urduOn) ? Arrays.asList(
-            new KeyDef("1", "۱", Collections.singletonList("۱")),
-            new KeyDef("2", "۲", Collections.singletonList("۲")),
-            new KeyDef("3", "۳", Collections.singletonList("۳")),
-            new KeyDef("4", "۴", Collections.singletonList("۴")),
-            new KeyDef("5", "۵", Collections.singletonList("۵")),
-            new KeyDef("6", "۶", Collections.singletonList("۶")),
-            new KeyDef("7", "۷", Collections.singletonList("۷")),
-            new KeyDef("8", "۸", Collections.singletonList("۸")),
-            new KeyDef("9", "۹", Collections.singletonList("۹")),
-            new KeyDef("0", "۰", Collections.singletonList("۰"))
-        ) : arabicOff ? Arrays.asList(
-            new KeyDef("1"), new KeyDef("2"), new KeyDef("3"), new KeyDef("4"), new KeyDef("5"),
-            new KeyDef("6"), new KeyDef("7"), new KeyDef("8"), new KeyDef("9"), new KeyDef("0")
-        ) : Arrays.asList(
-            new KeyDef("1", "١", Collections.singletonList("١")),
-            new KeyDef("2", "٢", Collections.singletonList("٢")),
-            new KeyDef("3", "٣", Collections.singletonList("٣")),
-            new KeyDef("4", "٤", Collections.singletonList("٤")),
-            new KeyDef("5", "٥", Collections.singletonList("٥")),
-            new KeyDef("6", "٦", Collections.singletonList("٦")),
-            new KeyDef("7", "٧", Collections.singletonList("٧")),
-            new KeyDef("8", "٨", Collections.singletonList("٨")),
-            new KeyDef("9", "٩", Collections.singletonList("٩")),
-            new KeyDef("0", "٠", Collections.singletonList("٠"))
-        );
+        // Long-press digits follow the language being typed: ١٢٣ for Arabic, १२३ for Hindi, ۱۲۳ for
+        // Urdu. A Latin language shows the digits of whichever of those is also turned on.
+        String localDigits = isArabic ? "١٢٣٤٥٦٧٨٩٠" : isHindi ? "१२३४५६७८९०" : isUrdu ? "۱۲۳۴۵۶۷۸۹۰"
+                : !arabicOff ? "١٢٣٤٥٦٧٨٩٠" : hindiOn ? "१२३४५६७८९०" : urduOn ? "۱۲۳۴۵۶۷۸۹۰" : null;
+        List<KeyDef> row1 = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            String d = String.valueOf("1234567890".charAt(i));
+            if (localDigits == null) {
+                row1.add(new KeyDef(d));
+            } else {
+                String l = String.valueOf(localDigits.charAt(i));
+                row1.add(new KeyDef(d, l, Collections.singletonList(l)));
+            }
+        }
         // Arabic-only symbols (﷼, ؟) are offered only when Arabic is an enabled language.
         final boolean arabicEnabled = isArabic
                 || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_AR);
@@ -1812,9 +1799,7 @@ public class BlackBerryKeyboardView extends View {
         List<KeyDef> row2 = Arrays.asList(
             new KeyDef("@", "~", Collections.singletonList("~")),
             new KeyDef("#", "^", Collections.singletonList("^")),
-            new KeyDef("$", hindiOn ? "₹" : "€",
-                    hindiOn ? (arabicEnabled ? Arrays.asList("₹", "€", "£", "¥", "﷼") : Arrays.asList("₹", "€", "£", "¥"))
-                            : (arabicEnabled ? Arrays.asList("€", "£", "¥", "﷼") : Arrays.asList("€", "£", "¥"))),
+            currencyKey(arabicEnabled, hindiOn, urduOn),
             new KeyDef("_", "|", Collections.singletonList("|")),
             new KeyDef("&", "\\", Collections.singletonList("\\")),
             new KeyDef("-", "—", Collections.singletonList("—")),
@@ -1828,13 +1813,16 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("\"", "«", Collections.singletonList("«")),
             new KeyDef("'", "»", Collections.singletonList("»")),
             new KeyDef(":", "", Collections.singletonList(":")),
-            arabicScriptOn ? new KeyDef("؛", ";", Collections.singletonList(";"))
-                          : new KeyDef(";", "", Collections.singletonList(";")),
-            new KeyDef("!", "¡", Collections.singletonList("¡")),
+            isRtlScript() ? new KeyDef("؛", ";", Collections.singletonList(";"))
+                          : arabicScriptOn ? new KeyDef(";", "؛", Collections.singletonList("؛"))
+                          : new KeyDef(";", "", Collections.<String>emptyList()),
+            spanishOn() ? new KeyDef("!", "¡", Collections.singletonList("¡"))
+                        : new KeyDef("!", "", Collections.<String>emptyList()),
 
             questionMarkKey(arabicScriptOn),
-            arabicScriptOn ? new KeyDef("،", ",", Collections.singletonList(","))
-                          : new KeyDef(",", "", Collections.singletonList(",")),
+            isRtlScript() ? new KeyDef("،", ",", Collections.singletonList(","))
+                          : arabicScriptOn ? new KeyDef(",", "،", Collections.singletonList("،"))
+                          : new KeyDef(",", "", Collections.<String>emptyList()),
             new KeyDef("%", "‰", Collections.singletonList("‰")),
             new KeyDef("=", "≈", Collections.singletonList("≈")),
             new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1.35f)
@@ -1842,10 +1830,27 @@ public class BlackBerryKeyboardView extends View {
         return Arrays.asList(row1, row2, row3);
     }
 
+    private boolean spanishOn() {
+        return KeyboardPreferences.LANG_ES.equals(currentLangCode)
+                || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_ES);
+    }
+
+    /** "$" with the currencies of the languages turned on: ﷼ Arabic, ₹ Hindi, ₨ Urdu. */
+    private KeyDef currencyKey(boolean arabicEnabled, boolean hindiOn, boolean urduOn) {
+        List<String> alts = new ArrayList<>();
+        if (isHindi) alts.add("₹");
+        if (isUrdu) alts.add("₨");
+        if (isArabic) alts.add("﷼");
+        alts.add("€"); alts.add("£"); alts.add("¥");
+        if (hindiOn && !alts.contains("₹")) alts.add("₹");
+        if (urduOn && !alts.contains("₨")) alts.add("₨");
+        if (arabicEnabled && !alts.contains("﷼")) alts.add("﷼");
+        return new KeyDef("$", alts.get(0), alts);
+    }
+
     /** "?" on the symbols page: the Arabic ؟ when Arabic is on, and the Spanish ¿ when Spanish is on. */
     private KeyDef questionMarkKey(boolean arabicEnabled) {
-        boolean spanishOn = KeyboardPreferences.LANG_ES.equals(currentLangCode)
-                || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_ES);
+        boolean spanishOn = spanishOn();
         List<String> alts = new ArrayList<>();
         if (isRtlScript()) alts.add("?");
         else if (arabicEnabled) alts.add("؟");
