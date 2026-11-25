@@ -2339,7 +2339,7 @@ public class MainActivity extends Activity {
         return tile;
     }
 
-    /** First tile alone on its own row (one cell wide), the rest four per row beneath it. */
+    /** First tile alone and centered on its own row (one cell wide), the rest four per row beneath it. */
     private void addFirstAloneThenGrid(LinearLayout container, List<View> tiles) {
         LinearLayout firstRow = new LinearLayout(this);
         firstRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -2348,10 +2348,10 @@ public class MainActivity extends Activity {
         firstRow.setLayoutParams(lpRow);
         View first = tiles.get(0);
         first.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        // Centered: half-cell spacers on both sides keep it one cell wide like the rows below.
+        firstRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1.5f));
         firstRow.addView(first);
-        for (int k = 0; k < 3; k++) {
-            firstRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
-        }
+        firstRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1.5f));
         container.addView(firstRow);
         addTileGrid(container, new ArrayList<>(tiles.subList(1, tiles.size())), 4);
     }
