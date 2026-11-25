@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
         returningBack = false;
         skipNavAnim = false;
         if (animate) {
-            float from = (isDeviceArabic() ? -1 : 1) * dir * dp(36);
+            float from = (isRtlUi() ? -1 : 1) * dir * dp(36);
             scroll.setAlpha(0f);
             scroll.setTranslationX(from);
             scroll.animate().alpha(1f).translationX(0f).setDuration(340)
@@ -131,13 +131,28 @@ public class MainActivity extends Activity {
         return (int) (v * getResources().getDisplayMetrics().density);
     }
 
-    private boolean isDeviceArabic() {
-        String lang = java.util.Locale.getDefault().getLanguage();
-        return lang != null && lang.toLowerCase(java.util.Locale.ROOT).startsWith("ar");
+    /** The settings language: the phone's language, or the one chosen for bkey under the
+     *  system's per-app language setting (Android 13+). ar / es / fr / hi / ur, else en. */
+    private String uiLang() {
+        return SettingsText.languageOf(this);
+    }
+
+    /** Right-to-left settings pages (Arabic and Urdu). */
+    private boolean isRtlUi() {
+        String l = uiLang();
+        return "ar".equals(l) || "ur".equals(l);
     }
 
     private String tr(String ar, String en) {
-        return isDeviceArabic() ? ar : en;
+        String l = uiLang();
+        if ("ar".equals(l)) return ar;
+        if ("en".equals(l)) return en;
+        return SettingsText.get(l, en);
+    }
+
+    /** tr() for text with values in it: the %s placeholders are filled in after translating. */
+    private String trf(String ar, String en, Object... args) {
+        return String.format(java.util.Locale.ROOT, tr(ar, en), args);
     }
 
     private boolean isNotificationAccessGranted() {
@@ -146,7 +161,12 @@ public class MainActivity extends Activity {
     }
 
     private String[] tr(String[] ar, String[] en) {
-        return isDeviceArabic() ? ar : en;
+        String l = uiLang();
+        if ("ar".equals(l)) return ar;
+        if ("en".equals(l)) return en;
+        String[] out = new String[en.length];
+        for (int i = 0; i < en.length; i++) out[i] = SettingsText.get(l, en[i]);
+        return out;
     }
 
     /**
@@ -283,8 +303,8 @@ public class MainActivity extends Activity {
                     : "bkey";
             // Kept short on purpose so it fits on one line on the toast instead of
             // wrapping to two.
-            showCoolToast(tr("تحوّلت إلى " + switchedToName + " — إعداداتك وكلماتك محفوظة",
-                            "Switched to " + switchedToName + " — settings and words kept"), true);
+            showCoolToast(trf("تحوّلت إلى %s — إعداداتك وكلماتك محفوظة",
+                            "Switched to %s — settings and words kept", switchedToName), true);
         }
         prefs.setLastKnownFlavor(currentFlavor);
     }
@@ -320,7 +340,7 @@ public class MainActivity extends Activity {
         lpFabIcon.gravity = Gravity.CENTER;
         fab.addView(fabIcon, lpFabIcon);
         FrameLayout.LayoutParams lpFab = new FrameLayout.LayoutParams((int) (dp(56) * 0.99f), (int) (dp(56) * 0.99f));
-        lpFab.gravity = Gravity.BOTTOM | (isDeviceArabic() ? Gravity.START : Gravity.END);
+        lpFab.gravity = Gravity.BOTTOM | (isRtlUi() ? Gravity.START : Gravity.END);
         lpFab.setMargins(dp(16), 0, dp(16), dp(16));
         fab.setLayoutParams(lpFab);
         fab.setOnClickListener(v -> openFloatingTester());
@@ -453,7 +473,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
-        pageContainer.setLayoutDirection(isDeviceArabic() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+        pageContainer.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
@@ -465,7 +485,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(16), dp(6), dp(16), dp(36));
 
-        root.setLayoutDirection(isDeviceArabic() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+        root.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
 
         LinearLayout titleRowTop = new LinearLayout(this);
         titleRowTop.setOrientation(LinearLayout.HORIZONTAL);
@@ -659,8 +679,7 @@ public class MainActivity extends Activity {
         group4.addView(createMenuRow(
                 ModernIconView.ICON_INFO,
                 tr("حول التطبيق والصيانة", "About & maintenance"),
-                tr("الإصدار " + BuildConfig.VERSION_NAME.replace("-full", ""),
-                        "Version " + BuildConfig.VERSION_NAME.replace("-full", "")),
+                trf("الإصدار %s", "Version %s", BuildConfig.VERSION_NAME.replace("-full", "")),
                 false,
                 this::openAboutScreen
         ));
@@ -699,7 +718,7 @@ public class MainActivity extends Activity {
         String[] styleSummariesEn = {"Classic bkey", "bkey modern", "Modern pill",
                 "bkey material", "bkey borderless", "Modern pill", "Light outline", "3D keycaps",
                 "Soft raised", "Circles", "Glass"};
-        String[] styleSummaries = isDeviceArabic() ? styleSummariesAr : styleSummariesEn;
+        String[] styleSummaries = tr(styleSummariesAr, styleSummariesEn);
         int styleIdx = prefs.getKeyboardStyle();
         String st = (styleIdx >= 0 && styleIdx < styleSummaries.length) ? styleSummaries[styleIdx] : styleSummaries[0];
         return th + " • " + st;
@@ -950,7 +969,7 @@ public class MainActivity extends Activity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(16), dp(18), dp(16), dp(36));
-        root.setLayoutDirection(isDeviceArabic() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+        root.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
 
         LinearLayout topBar = new LinearLayout(this);
         topBar.setOrientation(LinearLayout.HORIZONTAL);
@@ -2523,7 +2542,7 @@ public class MainActivity extends Activity {
 
     private String learnedWordsCountSubtitle() {
         int count = predictionEngine.getLearnedWordCount();
-        return tr(count + " كلمة محفوظة • بحث وحذف", count + " saved words • search & delete");
+        return trf("%s كلمة محفوظة • بحث وحذف", "%s saved words • search & delete", count);
     }
 
     private FrameLayout toastHost;
@@ -2815,8 +2834,8 @@ public class MainActivity extends Activity {
 
         TextView header = new TextView(this);
         header.setText(q.isEmpty()
-                ? tr("الأكثر استخداماً (" + entries.size() + ")", "Most used (" + entries.size() + ")")
-                : tr("نتائج البحث (" + entries.size() + " من " + allEntries.size() + ")", "Search results (" + entries.size() + " of " + allEntries.size() + ")"));
+                ? trf("الأكثر استخداماً (%s)", "Most used (%s)", entries.size())
+                : trf("نتائج البحث (%s من %s)", "Search results (%s of %s)", entries.size(), allEntries.size()));
         header.setTextColor(Color.parseColor(dm("#374151")));
         header.setTypeface(Typeface.DEFAULT_BOLD);
         header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
@@ -3514,8 +3533,8 @@ public class MainActivity extends Activity {
                         sc++;
                     }
                 }
-                showCoolToast(tr("تمت الاستعادة: " + words + " كلمة و" + sc + " اختصار",
-                        "Restored " + words + " words and " + sc + " shortcuts"), true);
+                showCoolToast(trf("تمت الاستعادة: %s كلمة و%s اختصار",
+                        "Restored %s words and %s shortcuts", words, sc), true);
                 openBackupScreen();
             } catch (Exception e) {
                 AppLogger.log("MainActivity", "backup restore", e);
