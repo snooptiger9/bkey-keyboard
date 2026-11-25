@@ -1417,6 +1417,8 @@ public class BlackBerryKeyboardView extends View {
                 rows.addAll(buildArabicGboardRows());
             } else if (isHindi) {
                 rows.addAll(buildHindiInscriptRows());
+            } else if (KeyboardPreferences.LANG_FR.equals(currentLangCode) && prefs.isFrenchAzerty()) {
+                rows.addAll(buildFrenchAzertyRows());
             } else {
                 rows.addAll(buildEnglishQwertyRows());
             }
@@ -1657,6 +1659,34 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef(getTypedEnglishChar("M"), "", latinAlts("M", Collections.singletonList("?"))),
             new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1.35f)
         );
+        return Arrays.asList(row1, row2, row3);
+    }
+
+    /** French AZERTY, as used in France and Belgium: 10 + 10 letters, then w x c v b n and an
+     *  apostrophe key (French needs it all the time: l', d', j', qu'). Digits on the top row's
+     *  long-press by position; accents come from FRENCH_ALTS. */
+    private List<List<KeyDef>> buildFrenchAzertyRows() {
+        String top = "AZERTYUIOP";
+        String digits = "1234567890";
+        List<KeyDef> row1 = new ArrayList<>();
+        for (int i = 0; i < top.length(); i++) {
+            String l = String.valueOf(top.charAt(i));
+            row1.add(new KeyDef(getTypedEnglishChar(l), "",
+                    latinAlts(l, Collections.singletonList(String.valueOf(digits.charAt(i))))));
+        }
+        List<KeyDef> row2 = new ArrayList<>();
+        for (char c : "QSDFGHJKLM".toCharArray()) {
+            String l = String.valueOf(c);
+            row2.add(new KeyDef(getTypedEnglishChar(l), "", latinAlts(l, Collections.<String>emptyList())));
+        }
+        List<KeyDef> row3 = new ArrayList<>();
+        row3.add(new KeyDef("⬆", "", Collections.<String>emptyList(), KeyType.SHIFT, 1.2f));
+        for (char c : "WXCVBN".toCharArray()) {
+            String l = String.valueOf(c);
+            row3.add(new KeyDef(getTypedEnglishChar(l), "", latinAlts(l, Collections.<String>emptyList())));
+        }
+        row3.add(new KeyDef("'", "", Arrays.asList("’", "\"")));
+        row3.add(new KeyDef("⌫", "", Collections.<String>emptyList(), KeyType.BACKSPACE, 1.2f));
         return Arrays.asList(row1, row2, row3);
     }
 
@@ -1919,6 +1949,11 @@ public class BlackBerryKeyboardView extends View {
         return getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
+    private static boolean isLatinDupLetter(KeyDef k) {
+        return k.main != null && k.main.length() == 1 && Character.isLetter(k.main.charAt(0))
+                && k.main.charAt(0) < 0x0600;
+    }
+
     private void layoutSplitRow(List<KeyDef> row, float topY, float rowH, float leftStartX, float leftW, float rightStartX, float rightW) {
         float totalWeight = 0f;
         for (KeyDef k : row) totalWeight += k.weight;
@@ -1934,13 +1969,17 @@ public class BlackBerryKeyboardView extends View {
 
         KeyDef dupForRight = null;
         KeyDef dupForLeft = null;
-        if (!leftKeys.isEmpty()) {
+        float lw0 = 0f, rw0 = 0f;
+        for (KeyDef k : leftKeys) lw0 += k.weight;
+        for (KeyDef k : rightKeys) rw0 += k.weight;
+        boolean evenHalves = Math.abs(lw0 - rw0) < 0.01f;
+        if (!leftKeys.isEmpty() && !(evenHalves && isLatinDupLetter(leftKeys.get(leftKeys.size() - 1)))) {
             KeyDef edge = leftKeys.get(leftKeys.size() - 1);
             if (edge.type == KeyType.CHAR && SPLIT_GAP_DUPLICATE_LETTERS.contains(edge.main)) {
                 dupForRight = new KeyDef(edge.main, edge.sub, edge.alts, edge.type, edge.weight);
             }
         }
-        if (!rightKeys.isEmpty()) {
+        if (!rightKeys.isEmpty() && !(evenHalves && isLatinDupLetter(rightKeys.get(0)))) {
             KeyDef edge = rightKeys.get(0);
             if (edge.type == KeyType.CHAR && SPLIT_GAP_DUPLICATE_LETTERS.contains(edge.main)) {
                 dupForLeft = new KeyDef(edge.main, edge.sub, edge.alts, edge.type, edge.weight);

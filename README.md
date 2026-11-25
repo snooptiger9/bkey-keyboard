@@ -56,6 +56,7 @@ tailored experience for each.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
 - Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish/Hindi/French) without a separate language button.
+- French uses the AZERTY layout by default; QWERTY is one tap away in Settings → Languages.
 - Long-press any key: popup with alternate characters (capitals, accents and symbols that fit the active language).
 
 <br>

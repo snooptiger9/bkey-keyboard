@@ -792,6 +792,33 @@ public class KeyboardPreferences {
         prefs.edit().putInt("one_handed_mode", Math.max(0, Math.min(2, mode))).apply();
     }
 
+    public static final int FR_LAYOUT_AZERTY = 0;
+    public static final int FR_LAYOUT_QWERTY = 1;
+
+    /** French key layout. Until the user picks one: AZERTY, or QWERTY when the phone is set to
+     *  Canadian French (QWERTY is the norm there). */
+    public int getFrenchLayout() {
+        if (prefs.contains("french_layout")) return prefs.getInt("french_layout", FR_LAYOUT_AZERTY);
+        try {
+            android.os.LocaleList locales = android.content.res.Resources.getSystem().getConfiguration().getLocales();
+            for (int i = 0; i < locales.size(); i++) {
+                java.util.Locale l = locales.get(i);
+                if ("fr".equals(l.getLanguage())) {
+                    return "CA".equals(l.getCountry()) ? FR_LAYOUT_QWERTY : FR_LAYOUT_AZERTY;
+                }
+            }
+        } catch (Exception ignored) {}
+        return FR_LAYOUT_AZERTY;
+    }
+
+    public void setFrenchLayout(int layout) {
+        prefs.edit().putInt("french_layout", layout == FR_LAYOUT_QWERTY ? FR_LAYOUT_QWERTY : FR_LAYOUT_AZERTY).apply();
+    }
+
+    public boolean isFrenchAzerty() {
+        return getFrenchLayout() == FR_LAYOUT_AZERTY;
+    }
+
     /** 0 = automatic (wide screens), 1 = always split, 2 = never split. */
     public int getSplitKeyboardMode() {
         return prefs.getInt("split_keyboard_mode", 0);

@@ -1435,6 +1435,24 @@ public class MainActivity extends Activity {
                         setLanguageEnabled(code, checked);
                         refreshLanguagesScreen(root);
                     }));
+            if (KeyboardPreferences.LANG_FR.equals(code) && enabled.contains(code)) {
+                // Shown only while French is on, right under its switch.
+                LinearLayout frCard = createGroupedWhiteCard();
+                frCard.setPadding(dp(16), dp(14), dp(16), dp(14));
+                TextView frHeader = new TextView(this);
+                frHeader.setText(tr("تخطيط لوحة الفرنسية:", "French keyboard layout:"));
+                frHeader.setTextColor(Color.parseColor(dm("#111827")));
+                frHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+                frHeader.setTypeface(Typeface.DEFAULT_BOLD);
+                frHeader.setPadding(0, 0, 0, dp(8));
+                frCard.addView(frHeader);
+                frCard.addView(createExclusiveRadioList(
+                        tr(new String[]{"AZERTY (فرنسا وبلجيكا)", "QWERTY"},
+                                new String[]{"AZERTY (France, Belgium)", "QWERTY"}),
+                        prefs.getFrenchLayout(),
+                        idx -> prefs.setFrenchLayout(idx)));
+                root.addView(frCard);
+            }
         }
 
         boolean multiLangOn = enabled.size() >= 2;

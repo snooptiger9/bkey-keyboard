@@ -56,6 +56,7 @@ charge l'arabe, l'anglais, l'espagnol, l'hindi et le français, avec une expéri
 
   ![Appui long + glisser sur la barre d'espace pour déplacer le curseur](docs/gifs/cursor_move.gif?v=2)
 - Glisser la barre d'espace à gauche/droite : passer d'une langue activée à l'autre (arabe/anglais/espagnol/hindi/français) sans bouton de langue séparé.
+- Le français utilise la disposition AZERTY par défaut ; QWERTY se choisit dans Réglages → Langues.
 - Appui long sur une touche : fenêtre avec des caractères alternatifs (majuscules, accents et symboles adaptés à la langue active).
 
 <br>

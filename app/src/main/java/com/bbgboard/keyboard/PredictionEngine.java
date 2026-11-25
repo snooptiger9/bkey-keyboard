@@ -873,13 +873,16 @@ public class PredictionEngine {
     }
 
     private static final String[] QWERTY_ROWS = {"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+    private static final String[] AZERTY_ROWS = {"azertyuiop", "qsdfghjklm", "wxcvbn"};
 
-    private static boolean keysAdjacent(char a, char b) {
+    private boolean keysAdjacent(char a, char b) {
+        String[] layout = (latinIsFrench && keyboardPrefs != null && keyboardPrefs.isFrenchAzerty())
+                ? AZERTY_ROWS : QWERTY_ROWS;
         int ra = -1, ca = -1, rb = -1, cb = -1;
-        for (int r = 0; r < QWERTY_ROWS.length; r++) {
-            int i = QWERTY_ROWS[r].indexOf(a);
+        for (int r = 0; r < layout.length; r++) {
+            int i = layout[r].indexOf(a);
             if (i >= 0) { ra = r; ca = i; }
-            int j = QWERTY_ROWS[r].indexOf(b);
+            int j = layout[r].indexOf(b);
             if (j >= 0) { rb = r; cb = j; }
         }
         if (ra < 0 || rb < 0 || a == b) return false;
@@ -887,7 +890,7 @@ public class PredictionEngine {
     }
 
     /** Same length, exactly one differing letter, and the two letters sit on neighbouring keys. */
-    private static boolean isNeighborKeySlip(String a, String b) {
+    private boolean isNeighborKeySlip(String a, String b) {
         if (a.length() != b.length()) return false;
         int diff = -1;
         for (int i = 0; i < a.length(); i++) {

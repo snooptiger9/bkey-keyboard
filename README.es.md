@@ -56,6 +56,7 @@ totalmente compatible con árabe, inglés, español, hindi y francés, con una e
 
   ![Mantén pulsada y arrastra la barra espaciadora para mover el cursor](docs/gifs/cursor_move.gif?v=2)
 - Desliza la barra espaciadora a izquierda/derecha: cambia entre tus idiomas activados (árabe/inglés/español/hindi/francés) sin un botón de idioma aparte.
+- El francés usa la distribución AZERTY por defecto; QWERTY se elige en Ajustes → Idiomas.
 - Mantén pulsada cualquier tecla: ventana con caracteres alternativos (mayúsculas, acentos y símbolos según el idioma activo).
 
 <br>
