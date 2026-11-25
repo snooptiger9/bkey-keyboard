@@ -3080,25 +3080,27 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private void drawShiftKeyIcon(Canvas canvas, RectF rect) {
-        float prevSize = mainTextPaint.getTextSize();
         int prevColor = mainTextPaint.getColor();
-        Typeface prevTypeface = mainTextPaint.getTypeface();
-        mainTextPaint.setTextSize(23f * scaledDensity);
-        mainTextPaint.setTypeface(Typeface.create(prevTypeface, Typeface.BOLD));
-        mainTextPaint.setFakeBoldText(true);
-        if (isCapsLock || isShift) {
-            mainTextPaint.setColor(Color.parseColor("#3B82F6"));
-        }
-        float textY = rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
-        Paint.Style prevStyle = mainTextPaint.getStyle();
-        float prevStroke = mainTextPaint.getStrokeWidth();
-        mainTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        mainTextPaint.setStrokeWidth(1.3f * density);
-        canvas.drawText("⬆", rect.centerX(), textY, mainTextPaint);
-        mainTextPaint.setStyle(prevStyle);
-        mainTextPaint.setStrokeWidth(prevStroke);
-        mainTextPaint.setTypeface(prevTypeface);
-        mainTextPaint.setFakeBoldText(false);
+        int color = (isCapsLock || isShift) ? Color.parseColor("#3B82F6") : prevColor;
+        float u = density;
+        float cx = rect.centerX();
+        float cy = rect.centerY() + 1f * u;
+        Path arrow = new Path();
+        arrow.moveTo(cx, cy - 8.5f * u);
+        arrow.lineTo(cx + 8.5f * u, cy + 0.5f * u);
+        arrow.lineTo(cx + 4.3f * u, cy + 0.5f * u);
+        arrow.lineTo(cx + 4.3f * u, cy + 7.5f * u);
+        arrow.lineTo(cx - 4.3f * u, cy + 7.5f * u);
+        arrow.lineTo(cx - 4.3f * u, cy + 0.5f * u);
+        arrow.lineTo(cx - 8.5f * u, cy + 0.5f * u);
+        arrow.close();
+        Paint ap = new Paint(Paint.ANTI_ALIAS_FLAG);
+        ap.setStyle(Paint.Style.STROKE);
+        ap.setStrokeWidth(2.1f * u);
+        ap.setStrokeJoin(Paint.Join.ROUND);
+        ap.setStrokeCap(Paint.Cap.ROUND);
+        ap.setColor(color);
+        canvas.drawPath(arrow, ap);
 
         if (isCapsLock) {
             float lineHalfW = 9f * density;
@@ -3108,8 +3110,6 @@ public class BlackBerryKeyboardView extends View {
             canvas.drawCircle(rect.centerX(), rect.top + 8f * density, dotR, shiftActiveAccentPaint);
         }
 
-        mainTextPaint.setColor(prevColor);
-        mainTextPaint.setTextSize(prevSize);
     }
 
     private String ellipsizeWord(String text, float maxWidth, Paint paint) {
