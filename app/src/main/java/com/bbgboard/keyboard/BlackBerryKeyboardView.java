@@ -2845,10 +2845,10 @@ public class BlackBerryKeyboardView extends View {
     private void drawBackspaceIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
-        float r = 8.6f * density;
+        float r = 10.2f * density;
         float prevW = iconStrokePaint.getStrokeWidth();
         Paint.Style prevStyle = iconStrokePaint.getStyle();
-        iconStrokePaint.setStrokeWidth(1.8f * density);
+        iconStrokePaint.setStrokeWidth(2.0f * density);
         iconStrokePaint.setStyle(Paint.Style.STROKE);
 
         Path body = new Path();
@@ -2860,7 +2860,7 @@ public class BlackBerryKeyboardView extends View {
         body.close();
         canvas.drawPath(body, iconStrokePaint);
 
-        float k = r * 0.22f;
+        float k = r * 0.16f;
         float xc = cx + r * 0.18f;
         canvas.drawLine(xc - k, cy - k, xc + k, cy + k, iconStrokePaint);
         canvas.drawLine(xc - k, cy + k, xc + k, cy - k, iconStrokePaint);
@@ -3086,17 +3086,17 @@ public class BlackBerryKeyboardView extends View {
         float cx = rect.centerX();
         float cy = rect.centerY() + 1f * u;
         Path arrow = new Path();
-        arrow.moveTo(cx, cy - 8.5f * u);
-        arrow.lineTo(cx + 8.5f * u, cy + 0.5f * u);
-        arrow.lineTo(cx + 4.3f * u, cy + 0.5f * u);
-        arrow.lineTo(cx + 4.3f * u, cy + 7.5f * u);
-        arrow.lineTo(cx - 4.3f * u, cy + 7.5f * u);
-        arrow.lineTo(cx - 4.3f * u, cy + 0.5f * u);
-        arrow.lineTo(cx - 8.5f * u, cy + 0.5f * u);
+        arrow.moveTo(cx, cy - 7.5f * u);
+        arrow.lineTo(cx + 7.5f * u, cy + 0.5f * u);
+        arrow.lineTo(cx + 3.8f * u, cy + 0.5f * u);
+        arrow.lineTo(cx + 3.8f * u, cy + 6.6f * u);
+        arrow.lineTo(cx - 3.8f * u, cy + 6.6f * u);
+        arrow.lineTo(cx - 3.8f * u, cy + 0.5f * u);
+        arrow.lineTo(cx - 7.5f * u, cy + 0.5f * u);
         arrow.close();
         Paint ap = new Paint(Paint.ANTI_ALIAS_FLAG);
         ap.setStyle(Paint.Style.STROKE);
-        ap.setStrokeWidth(2.1f * u);
+        ap.setStrokeWidth(2.0f * u);
         ap.setStrokeJoin(Paint.Join.ROUND);
         ap.setStrokeCap(Paint.Cap.ROUND);
         ap.setColor(color);
