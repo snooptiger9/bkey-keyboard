@@ -27,10 +27,10 @@ final class KeyStylePreviewView extends View {
             shell = col("#EAEEF3"); keyBg = col("#FFFFFF"); special = col("#DCE2EA");
             shadow = col("#C5CDD8"); divider = col("#DCE2EA"); outline = col("#94A3B8"); label = col("#1E293B");
         } else if (themeMode == KeyboardPreferences.THEME_MIDNIGHT_SLATE) {
-            shell = col("#0B1120"); keyBg = col("#1E293B"); special = col("#151F32");
+            shell = col("#0B1120"); keyBg = col("#263143"); special = col("#1D273A");
             shadow = col("#090D16"); divider = col("#172236"); outline = col("#475569"); label = Color.WHITE;
         } else if (themeMode == KeyboardPreferences.THEME_FOREST_GREEN) {
-            shell = col("#0A1511"); keyBg = col("#1B3126"); special = col("#12231B");
+            shell = col("#0A1511"); keyBg = col("#23392E"); special = col("#1A2B23");
             shadow = col("#07100C"); divider = col("#16281F"); outline = col("#3F6B52"); label = Color.WHITE;
         } else {
             // Deliberately lighter (#3B3B3B/#2D2D2D) than the real keyboard's Matte black
