@@ -2343,9 +2343,6 @@ public class MainActivity extends Activity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lpRow.topMargin = dp(8);
-            // Side room for the selection ring, which is drawn 4dp outside its tile.
-            lpRow.leftMargin = dp(4);
-            lpRow.rightMargin = dp(4);
             row.setLayoutParams(lpRow);
             int rowCount = Math.min(i + perRow, tiles.size()) - i;
             for (int j = i; j < Math.min(i + perRow, tiles.size()); j++) {
