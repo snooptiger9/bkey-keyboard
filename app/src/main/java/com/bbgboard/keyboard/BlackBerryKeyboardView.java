@@ -1450,10 +1450,10 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("7"),
             new KeyDef("8"),
             new KeyDef("9"),
-            new KeyDef(".", "#", Arrays.asList("#", "(", ")"))
+            new KeyDef(",", "#", Arrays.asList("#", "(", ")"))
         );
         List<KeyDef> row4 = Arrays.asList(
-            new KeyDef(",", "*", Arrays.asList("*", ";")),
+            new KeyDef(".", "*", Arrays.asList("*", ";")),
             new KeyDef("0", "+", Collections.singletonList("+")),
             new KeyDef("00"),
             new KeyDef("↵", "", Collections.<String>emptyList(), KeyType.ENTER, 1f)
