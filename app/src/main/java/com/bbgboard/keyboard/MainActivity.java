@@ -1916,19 +1916,7 @@ public class MainActivity extends Activity {
         }
         // "Auto" sits alone on the first row (same cell width as the others below), then the four
         // fixed themes: five across left too little room between tiles for the selection ring.
-        LinearLayout autoRow = new LinearLayout(this);
-        autoRow.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams lpAutoRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lpAutoRow.topMargin = dp(8);
-        autoRow.setLayoutParams(lpAutoRow);
-        View autoTile = themeTiles.get(0);
-        autoTile.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        autoRow.addView(autoTile);
-        for (int k = 0; k < 3; k++) {
-            autoRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
-        }
-        themeCard.addView(autoRow);
-        addTileGrid(themeCard, new ArrayList<>(themeTiles.subList(1, themeTiles.size())), 4);
+        addFirstAloneThenGrid(themeCard, themeTiles);
         root.addView(themeCard);
 
         LinearLayout styleCard = createGroupedWhiteCard();
@@ -1963,7 +1951,7 @@ public class MainActivity extends Activity {
             enterTiles.add(createPreviewTile(enterNames[i], enterHex[i], prefs.getEnterColor() == color,
                     v -> { prefs.setEnterColor(color); refreshThemeScreen(root); }));
         }
-        addTileGrid(enterCard, enterTiles, 5);
+        addFirstAloneThenGrid(enterCard, enterTiles);
         root.addView(enterCard);
 
         root.addView(buildSizerCard(
@@ -2349,6 +2337,23 @@ public class MainActivity extends Activity {
         tile.addView(selectionFrameWrap(holder, selected));
         tile.addView(labelTv);
         return tile;
+    }
+
+    /** First tile alone on its own row (one cell wide), the rest four per row beneath it. */
+    private void addFirstAloneThenGrid(LinearLayout container, List<View> tiles) {
+        LinearLayout firstRow = new LinearLayout(this);
+        firstRow.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lpRow.topMargin = dp(8);
+        firstRow.setLayoutParams(lpRow);
+        View first = tiles.get(0);
+        first.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        firstRow.addView(first);
+        for (int k = 0; k < 3; k++) {
+            firstRow.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
+        }
+        container.addView(firstRow);
+        addTileGrid(container, new ArrayList<>(tiles.subList(1, tiles.size())), 4);
     }
 
     private void addTileGrid(LinearLayout container, List<View> tiles, int perRow) {
