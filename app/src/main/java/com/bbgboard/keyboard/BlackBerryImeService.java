@@ -63,12 +63,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             "theme_mode", "theme_follow_system", "keyboard_style", "key_font", "enter_color",
             "key_font_scale", "keyboard_scale", "suggestion_bar_scale", "suggestion_text_level"));
     private final SharedPreferences.OnSharedPreferenceChangeListener appearanceChangeListener = (sp, key) -> {
-        if ("enabled_languages".equals(key) || "hide_emoji_key".equals(key) || "space_swipe_lang_enabled".equals(key)) {
+        if ("enabled_languages".equals(key) || "hide_emoji_key".equals(key) || "space_swipe_lang_enabled".equals(key)
+                || "split_keyboard_mode".equals(key)) {
             // Languages turned on/off or reordered in Settings apply to the open keyboard at once.
             if (keyboardView == null) return;
             keyboardView.post(() -> {
                 if (keyboardView == null) return;
                 keyboardView.reloadAppearanceFromPrefs();
+                keyboardView.requestLayout();
                 keyboardView.invalidate();
                 if (predictionEngine != null) {
                     predictionEngine.setActiveLatinLanguage(keyboardView.getActiveLanguageCode());

@@ -792,6 +792,15 @@ public class KeyboardPreferences {
         prefs.edit().putInt("one_handed_mode", Math.max(0, Math.min(2, mode))).apply();
     }
 
+    /** 0 = automatic (wide screens), 1 = always split, 2 = never split. */
+    public int getSplitKeyboardMode() {
+        return prefs.getInt("split_keyboard_mode", 0);
+    }
+
+    public void setSplitKeyboardMode(int mode) {
+        prefs.edit().putInt("split_keyboard_mode", Math.max(0, Math.min(2, mode))).apply();
+    }
+
     public boolean isSwipeDeleteWordEnabled() {
         return prefs.getBoolean("swipe_delete_word_enabled", true);
     }

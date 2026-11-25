@@ -1836,6 +1836,22 @@ public class MainActivity extends Activity {
                 prefs.getOneHandedMode(),
                 idx -> prefs.setOneHandedMode(idx)));
         root.addView(oneHandCard);
+
+        LinearLayout splitCard = createGroupedWhiteCard();
+        splitCard.setPadding(dp(16), dp(16), dp(16), dp(16));
+        TextView splitHeader = new TextView(this);
+        splitHeader.setText(tr("تقسيم الكيبورد على الشاشات الكبيرة:", "Split keyboard on large screens:"));
+        splitHeader.setTextColor(Color.parseColor(dm("#111827")));
+        splitHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        splitHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        splitHeader.setPadding(0, 0, 0, dp(8));
+        splitCard.addView(splitHeader);
+        splitCard.addView(createExclusiveRadioList(
+                tr(new String[]{"تلقائي حسب الشاشة", "مفعّل دائماً", "معطّل دائماً (قطعة واحدة)"},
+                        new String[]{"Automatic (wide screens)", "Always on", "Always off (single piece)"}),
+                prefs.getSplitKeyboardMode(),
+                idx -> prefs.setSplitKeyboardMode(idx)));
+        root.addView(splitCard);
     }
 
     private void openThemeAndStyleScreen() {

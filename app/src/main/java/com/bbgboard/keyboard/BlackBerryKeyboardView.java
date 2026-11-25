@@ -1913,6 +1913,9 @@ public class BlackBerryKeyboardView extends View {
         // 600dp in landscape simply because that's the screen's long dimension, not
         // because the device is actually tablet-sized. A real tablet (or a
         // foldable's inner screen when unfolded) stays >= 600dp either way.
+        int mode = prefs.getSplitKeyboardMode();
+        if (mode == 1) return true;
+        if (mode == 2) return false;
         return getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
