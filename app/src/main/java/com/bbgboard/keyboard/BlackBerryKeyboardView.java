@@ -941,10 +941,10 @@ public class BlackBerryKeyboardView extends View {
             sugBarPaint.setColor(Color.parseColor("#171717"));
             sugCenterHighlightPaint.setColor(Color.parseColor("#20232A"));
             sugFlashPaint.setColor(Color.parseColor("#2E2E2E"));
-            keyBgPaint.setColor(Color.parseColor("#262626"));
+            keyBgPaint.setColor(Color.parseColor("#2E2E2E"));
             keyShadowPaint.setColor(Color.parseColor("#090909"));
-            keySpecialBgPaint.setColor(Color.parseColor("#181818"));
-            keyPressedPaint.setColor(Color.parseColor("#3A3A3A"));
+            keySpecialBgPaint.setColor(Color.parseColor("#1F1F1F"));
+            keyPressedPaint.setColor(Color.parseColor("#424242"));
             fretLinePaint.setColor(Color.parseColor("#3B3B3B"));
             keyDividerPaint.setColor(Color.parseColor("#363636"));
             mainTextPaint.setColor(Color.WHITE);
