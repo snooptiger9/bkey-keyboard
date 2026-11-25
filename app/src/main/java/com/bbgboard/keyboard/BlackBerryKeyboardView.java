@@ -2860,7 +2860,7 @@ public class BlackBerryKeyboardView extends View {
         body.close();
         canvas.drawPath(body, iconStrokePaint);
 
-        float k = r * 0.16f;
+        float k = 1.2f * density;
         float xc = cx + r * 0.18f;
         canvas.drawLine(xc - k, cy - k, xc + k, cy + k, iconStrokePaint);
         canvas.drawLine(xc - k, cy + k, xc + k, cy - k, iconStrokePaint);
