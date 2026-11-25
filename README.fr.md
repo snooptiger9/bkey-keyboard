@@ -161,24 +161,28 @@ Deux versions, choisissez celle qui vous convient :
 | Capture d'écran vers le presse-papiers | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Suggestion du texte copié | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
+**bkey** ne demande que les autorisations nécessaires à un clavier pour écrire (ni internet, ni photos/stockage, ni SMS) ; les fonctions réservées à Plus du tableau n'y sont donc pas incluses. **bkey Plus** a tout, mais Google Play Protect avertit à l'installation (c'est attendu, pas un vrai problème ; voir [Confidentialité et sécurité](#fr-privacy)).
+
+#### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recommandé)
+
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v312.apk"><img src="docs/images/badges/dl_bkey_fr.png" alt="Télécharger bkey (APK)" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_fr.png" alt="Télécharger bkey Plus (APK)" width="300"></a>
+<a href="https://apkpure.com/p/com.snooptiger9.bkey"><img src="docs/images/badges/ap_bkey_fr.png" alt="Obtenir bkey sur APKPure" width="300"></a>
+&nbsp;
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_fr.png" alt="Ajouter bkey à Obtainium" width="300"></a>
 </p>
 
-**bkey** ne demande que les autorisations nécessaires à un clavier pour écrire (ni internet, ni photos/stockage, ni SMS) ; les fonctions réservées à Plus du tableau n'y sont donc pas incluses. **bkey Plus** a tout, mais Google Play Protect avertit à l'installation (c'est attendu, pas un vrai problème ; voir [Confidentialité et sécurité](#fr-privacy)).
-
-Vous voulez des mises à jour automatiques ? Ajoutez la version que vous utilisez à [Obtainium](https://github.com/ImranR98/Obtainium) en un appui, et n'en ajoutez qu'une seule (les deux ont le même nom de paquet).
+#### <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus
 
 <p>
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_fr.png" alt="Ajouter bkey à Obtainium" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_fr.png" alt="Télécharger bkey Plus (APK)" width="300"></a>
 &nbsp;
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_fr.png" alt="Ajouter bkey Plus à Obtainium" width="300"></a>
 </p>
 
 > [!NOTE]
-> bkey Plus peut aussi se mettre à jour depuis l'application (Réglages → **À propos et maintenance** → **Mettre à jour l'application**).
+> bkey Plus peut aussi se mettre à jour depuis l'application (Réglages → **À propos et maintenance** → **Mettre à jour l'application**). N'ajoutez qu'une seule version à Obtainium (les deux ont le même nom de paquet).
 
 ### [Compiler soi-même](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 

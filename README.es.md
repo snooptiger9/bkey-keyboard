@@ -161,24 +161,28 @@ Dos versiones: elige la que mejor te venga:
 | Captura de pantalla al portapapeles | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Sugerencia del texto copiado | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
+**bkey** solo pide los permisos que un teclado necesita para escribir (sin internet, fotos/almacenamiento ni SMS), por eso no incluye las funciones solo de Plus de la tabla. **bkey Plus** lo tiene todo, pero Google Play Protect muestra una advertencia al instalarlo (esperada, no es un problema real; mira [Privacidad y seguridad](#es-privacy)).
+
+#### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recomendada)
+
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v312.apk"><img src="docs/images/badges/dl_bkey_es.png" alt="Descargar bkey (APK)" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_es.png" alt="Descargar bkey Plus (APK)" width="300"></a>
+<a href="https://apkpure.com/p/com.snooptiger9.bkey"><img src="docs/images/badges/ap_bkey_es.png" alt="Consigue bkey en APKPure" width="300"></a>
+&nbsp;
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_es.png" alt="Añadir bkey a Obtainium" width="300"></a>
 </p>
 
-**bkey** solo pide los permisos que un teclado necesita para escribir (sin internet, fotos/almacenamiento ni SMS), por eso no incluye las funciones solo de Plus de la tabla. **bkey Plus** lo tiene todo, pero Google Play Protect muestra una advertencia al instalarlo (esperada, no es un problema real; mira [Privacidad y seguridad](#es-privacy)).
-
-¿Quieres actualizaciones automáticas? Añade la versión que usas a [Obtainium](https://github.com/ImranR98/Obtainium) con un toque, y añade solo una (ambas comparten el mismo nombre de paquete).
+#### <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus
 
 <p>
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_es.png" alt="Añadir bkey a Obtainium" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_es.png" alt="Descargar bkey Plus (APK)" width="300"></a>
 &nbsp;
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_es.png" alt="Añadir bkey Plus a Obtainium" width="300"></a>
 </p>
 
 > [!NOTE]
-> bkey Plus también se actualiza desde dentro de la app (Ajustes → **Acerca de y mantenimiento** → **Actualizar la app**).
+> bkey Plus también se actualiza desde dentro de la app (Ajustes → **Acerca de y mantenimiento** → **Actualizar la app**). Añade solo una versión a Obtainium (ambas comparten el mismo nombre de paquete).
 
 ### [Compílalo tú mismo](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 

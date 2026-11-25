@@ -161,24 +161,28 @@ Two builds — pick the one that fits you:
 | Screenshot-to-clipboard | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Copied-text suggestion | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
+**bkey** needs only the permissions a keyboard needs to type (no internet, photos/storage or SMS), so the Plus-only features in the table are not included. **bkey Plus** has everything, but Google Play Protect warns when you install it (expected, not a real problem; see [Privacy & security](#en-privacy)).
+
+#### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recommended)
+
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v312.apk"><img src="docs/images/badges/dl_bkey_en.png" alt="Download bkey (APK)" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_en.png" alt="Download bkey Plus (APK)" width="300"></a>
+<a href="https://apkpure.com/p/com.snooptiger9.bkey"><img src="docs/images/badges/ap_bkey_en.png" alt="Get bkey on APKPure" width="300"></a>
+&nbsp;
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_en.png" alt="Add bkey to Obtainium" width="300"></a>
 </p>
 
-**bkey** needs only the permissions a keyboard needs to type (no internet, photos/storage or SMS), so the Plus-only features in the table are not included. **bkey Plus** has everything, but Google Play Protect warns when you install it (expected, not a real problem; see [Privacy & security](#en-privacy)).
-
-Want automatic updates? Add the build you use to [Obtainium](https://github.com/ImranR98/Obtainium) with one tap, and add only one of them (both share the same package name).
+#### <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus
 
 <p>
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_en.png" alt="Add bkey to Obtainium" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_en.png" alt="Download bkey Plus (APK)" width="300"></a>
 &nbsp;
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_en.png" alt="Add bkey Plus to Obtainium" width="300"></a>
 </p>
 
 > [!NOTE]
-> bkey Plus can also update from inside the app (Settings → **About & maintenance** → **Update the app**).
+> bkey Plus can also update from inside the app (Settings → **About & maintenance** → **Update the app**). Add only one build to Obtainium (both share the same package name).
 
 ### [Build it yourself](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 

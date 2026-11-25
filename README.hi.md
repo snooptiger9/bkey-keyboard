@@ -160,24 +160,28 @@
 | क्लिपबोर्ड में स्क्रीनशॉट | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | कॉपी किए टेक्स्ट का सुझाव | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
+**bkey** केवल वही अनुमतियाँ माँगता है जो कीबोर्ड को टाइप करने के लिए चाहिए (इंटरनेट, फ़ोटो/स्टोरेज या SMS नहीं), इसलिए तालिका की केवल-Plus सुविधाएँ इसमें नहीं हैं। **bkey Plus** में सब कुछ है, लेकिन इंस्टॉल करते समय Google Play Protect चेतावनी देता है (अपेक्षित है, असली समस्या नहीं; देखें [गोपनीयता और सुरक्षा](#hi-privacy))।
+
+#### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (अनुशंसित)
+
 <p>
 <a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v312.apk"><img src="docs/images/badges/dl_bkey_en.png" alt="bkey (APK) डाउनलोड करें" width="300"></a>
 &nbsp;
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_en.png" alt="bkey Plus (APK) डाउनलोड करें" width="300"></a>
+<a href="https://apkpure.com/p/com.snooptiger9.bkey"><img src="docs/images/badges/ap_bkey_en.png" alt="bkey को APKPure से पाएँ" width="300"></a>
+&nbsp;
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_en.png" alt="bkey को Obtainium में जोड़ें" width="300"></a>
 </p>
 
-**bkey** केवल वही अनुमतियाँ माँगता है जो कीबोर्ड को टाइप करने के लिए चाहिए (इंटरनेट, फ़ोटो/स्टोरेज या SMS नहीं), इसलिए तालिका की केवल-Plus सुविधाएँ इसमें नहीं हैं। **bkey Plus** में सब कुछ है, लेकिन इंस्टॉल करते समय Google Play Protect चेतावनी देता है (अपेक्षित है, असली समस्या नहीं; देखें [गोपनीयता और सुरक्षा](#hi-privacy))।
-
-अपने-आप अपडेट चाहिए? जो संस्करण आप इस्तेमाल करते हैं उसे एक टैप में [Obtainium](https://github.com/ImranR98/Obtainium) में जोड़ें, और केवल एक ही जोड़ें (दोनों का पैकेज नाम एक ही है)।
+#### <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus
 
 <p>
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_bkey_en.png" alt="bkey को Obtainium में जोड़ें" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v312.apk"><img src="docs/images/badges/dl_plus_en.png" alt="bkey Plus (APK) डाउनलोड करें" width="300"></a>
 &nbsp;
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_en.png" alt="bkey Plus को Obtainium में जोड़ें" width="300"></a>
 </p>
 
 > [!NOTE]
-> bkey Plus ऐप के अंदर से भी अपडेट हो सकता है (सेटिंग्स → **ऐप के बारे में और रखरखाव** → **ऐप अपडेट करें**)।
+> bkey Plus ऐप के अंदर से भी अपडेट हो सकता है (सेटिंग्स → **ऐप के बारे में और रखरखाव** → **ऐप अपडेट करें**)। Obtainium में केवल एक ही संस्करण जोड़ें (दोनों का पैकेज नाम एक ही है)।
 
 ### [खुद बनाएँ](BUILDING.md) <img src="docs/icons/wrench.svg" width="24" height="24" align="absmiddle" alt="">
 
