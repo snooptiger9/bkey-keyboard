@@ -3299,6 +3299,10 @@ public class MainActivity extends Activity {
         root.addView(dataCard);
     }
 
+    // The exact line in RELEASE_NOTES.md that starts the Plus-only part of the notes. The standard
+    // build stops showing the notes at this line; keep the heading written exactly like this.
+    private static final String PLUS_ONLY_NOTES_MARKER = "**bkey Plus only**";
+
     private void openWhatsNewScreen() {
         LinearLayout root = createSubScreenTemplate(
                 tr("ما الجديد", "What's new"), this::openAboutScreen);
@@ -3318,6 +3322,7 @@ public class MainActivity extends Activity {
         boolean any = false;
         for (String line : notes.split("\n")) {
             line = line.trim();
+            if (!BuildConfig.OTP_FEATURES_ENABLED && line.equals(PLUS_ONLY_NOTES_MARKER)) break;
             if (line.isEmpty() || line.startsWith("<!--")) continue;
             TextView tv = new TextView(this);
             tv.setTextColor(Color.parseColor(dm("#374151")));
