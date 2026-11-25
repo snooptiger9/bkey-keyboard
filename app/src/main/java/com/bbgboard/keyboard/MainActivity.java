@@ -137,7 +137,8 @@ public class MainActivity extends Activity {
         return SettingsText.languageOf(this);
     }
 
-    /** Right-to-left settings pages (Arabic and Urdu). */
+    /** Right-to-left settings pages (Arabic and Urdu). Their text uses TEXT_DIRECTION_ANY_RTL, so
+     *  a line that starts with a Latin word ("bkey Plus سیٹنگز") still reads right-to-left. */
     private boolean isRtlUi() {
         String l = uiLang();
         return "ar".equals(l) || "ur".equals(l);
@@ -474,6 +475,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
         pageContainer.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+        if (isRtlUi()) pageContainer.setTextDirection(View.TEXT_DIRECTION_ANY_RTL);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
@@ -486,6 +488,7 @@ public class MainActivity extends Activity {
         root.setPadding(dp(16), dp(6), dp(16), dp(36));
 
         root.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+        if (isRtlUi()) root.setTextDirection(View.TEXT_DIRECTION_ANY_RTL);
 
         LinearLayout titleRowTop = new LinearLayout(this);
         titleRowTop.setOrientation(LinearLayout.HORIZONTAL);
@@ -970,6 +973,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(16), dp(18), dp(16), dp(36));
         root.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+        if (isRtlUi()) root.setTextDirection(View.TEXT_DIRECTION_ANY_RTL);
 
         LinearLayout topBar = new LinearLayout(this);
         topBar.setOrientation(LinearLayout.HORIZONTAL);
@@ -2582,6 +2586,7 @@ public class MainActivity extends Activity {
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
         tv.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         tv.setMaxLines(3);
+        tv.setTextDirection(View.TEXT_DIRECTION_ANY_RTL);
         pill.addView(tv, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
