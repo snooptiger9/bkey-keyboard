@@ -172,7 +172,7 @@
 
 | | <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> نسخة bkey (موصى بها) | <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> نسخة bkey Plus |
 |---|:---:|:---:|
-| تتثبت بدون أي تحذير من Play Protect | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> شوف الملاحظة تحت |
+| تتثبت بدون أي تحذير من Play Protect | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> [شوف الخصوصية والأمان](#ar-privacy) |
 | بحث GIF ولصق الصور/الستيكرات | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | تحديث تلقائي من داخل التطبيق | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | اقتراح رمز التحقق (OTP) | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> (اختياري، معطّل افتراضياً) |
@@ -180,8 +180,6 @@
 | اقتراح آخر نص منسوخ | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 
 </div>
-
-**نسخة bkey** ما تطلب إلا صلاحيات الكتابة فقط (بدون إنترنت أو صور/تخزين أو رسائل)، فميزات Plus في الجدول غير موجودة فيها. **نسخة bkey Plus** فيها كل شي، بس تثبيتها يسبب تحذير من Google Play Protect (متوقع، مو مشكلة حقيقية — شوف [الخصوصية والأمان](#ar-privacy)).
 
 #### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> نسخة bkey (موصى بها)
 

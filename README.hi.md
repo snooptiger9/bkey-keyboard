@@ -153,14 +153,12 @@
 
 | | <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (अनुशंसित) | <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus |
 |---|:---:|:---:|
-| Play Protect चेतावनी के बिना इंस्टॉल होता है | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> नीचे नोट देखें |
+| Play Protect चेतावनी के बिना इंस्टॉल होता है | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> [देखें गोपनीयता और सुरक्षा](#hi-privacy) |
 | GIF खोज और छवि/स्टिकर पेस्ट | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | इन-ऐप अपडेट जाँच | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | सत्यापन कोड (OTP) सुझाव | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> (वैकल्पिक, डिफ़ॉल्ट रूप से बंद) |
 | क्लिपबोर्ड में स्क्रीनशॉट | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | कॉपी किए टेक्स्ट का सुझाव | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
-
-**bkey** केवल वही अनुमतियाँ माँगता है जो कीबोर्ड को टाइप करने के लिए चाहिए (इंटरनेट, फ़ोटो/स्टोरेज या SMS नहीं), इसलिए तालिका की केवल-Plus सुविधाएँ इसमें नहीं हैं। **bkey Plus** में सब कुछ है, लेकिन इंस्टॉल करते समय Google Play Protect चेतावनी देता है (अपेक्षित है, असली समस्या नहीं; देखें [गोपनीयता और सुरक्षा](#hi-privacy))।
 
 #### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (अनुशंसित)
 

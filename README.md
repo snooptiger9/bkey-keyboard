@@ -154,14 +154,12 @@ Two builds — pick the one that fits you:
 
 | | <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recommended) | <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus |
 |---|:---:|:---:|
-| Installs with no Play Protect warning | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> see note below |
+| Installs with no Play Protect warning | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> [see Privacy & security](#en-privacy) |
 | GIF search & image/sticker pasting | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | In-app update checker | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Verification-code (OTP) suggestions | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> (optional, off by default) |
 | Screenshot-to-clipboard | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Copied-text suggestion | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
-
-**bkey** needs only the permissions a keyboard needs to type (no internet, photos/storage or SMS), so the Plus-only features in the table are not included. **bkey Plus** has everything, but Google Play Protect warns when you install it (expected, not a real problem; see [Privacy & security](#en-privacy)).
 
 #### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recommended)
 

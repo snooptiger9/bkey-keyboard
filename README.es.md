@@ -154,14 +154,12 @@ Dos versiones: elige la que mejor te venga:
 
 | | <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recomendada) | <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus |
 |---|:---:|:---:|
-| Se instala sin advertencia de Play Protect | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> ver nota abajo |
+| Se instala sin advertencia de Play Protect | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> [ver Privacidad y seguridad](#es-privacy) |
 | Búsqueda de GIF y pegado de imágenes/stickers | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Buscador de actualizaciones integrado | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Sugerencias de códigos de verificación (OTP) | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> (opcional, desactivado por defecto) |
 | Captura de pantalla al portapapeles | — | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
 | Sugerencia del texto copiado | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> | <img src="docs/icons/check.svg" width="18" height="18" align="absmiddle" alt=""> |
-
-**bkey** solo pide los permisos que un teclado necesita para escribir (sin internet, fotos/almacenamiento ni SMS), por eso no incluye las funciones solo de Plus de la tabla. **bkey Plus** lo tiene todo, pero Google Play Protect muestra una advertencia al instalarlo (esperada, no es un problema real; mira [Privacidad y seguridad](#es-privacy)).
 
 #### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recomendada)
 
