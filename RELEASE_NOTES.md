@@ -1,14 +1,14 @@
-<!-- versionCode: 311 -->
-### Release v311.0
+<!-- versionCode: 312 -->
+### Release v312.0
 
-- **Important fix: bottom row and long-press near the screen edge.** The keyboard now adds a small space under the bottom row, sized for your device. On phones that use gesture navigation, touches in the lowest part of the keys were taken by the system, so long-presses on the bottom row often failed. This also lifts the bottom row slightly, away from the screen edge, to a more comfortable typing position. On devices with button navigation the extra space is minimal.
-- **Hide the emoji key:** A new option in the emoji settings replaces the emoji key with a comma key when "Switch by swiping the space bar" is on. Long-press the comma to open emoji. A small emoji mark shows in its corner.
-- **Emoji suggestions:** Suggestions now appear small in the corner of the language and comma keys. On the emoji key, a dot shows while a suggestion is there, and a long-press shows an emoji pop-up and opens the full list.
-- **Easier long-press:** Long-pressing the emoji, language and comma keys is more forgiving of slight finger movement and fast presses.
-- **Space bar fix:** The space bar no longer stays grey after a long-press without moving.
-- **Screenshot message:** In apps that don't accept screenshots, the keyboard now shows a short message saying so, translated into all languages.
-- **Settings:**
-  - The keyboard picker opens automatically after you enable the keyboard.
-  - The "try the keyboard" button shows only when bkey is enabled and selected.
-  - The status card is no longer clickable.
-  - Title animation slightly faster.
+- **Languages set up automatically:** On a fresh install, the keyboard reads your device's language list and turns on the matching supported languages (Arabic, English, Spanish, Hindi, French). Existing installs keep their current choice.
+- **One entry in the keyboard picker:** bkey now appears once in the system input method list instead of twice.
+- **Improvements to the v311 bottom row and long-press fix:** The space under the bottom row is refined to sit closer to other keyboards on gesture-navigation phones, and touch handling in the lowest part of the keys is improved.
+- **More emoji suggestions:** Added many colloquial words for emojis that had no suggestion yet, in all supported languages. The emoji suggestion after a finished word now shows for one space only.
+- **Copied text suggestion:** It now appears as a card with a small clipboard icon, shows right after copying even when the field has text, and stays for 60 seconds. It no longer shows in number fields.
+- **Swipe to delete:** Swiping to delete right after an auto-correction now brings back the word you typed, the same as backspace.
+- **Settings polish:** "Preferences" is now first in its group, the theme and key shape previews are larger and clearer, the color pickers no longer clip the selection ring, and the title animation lands without a final jump.
+
+**bkey Plus only**
+
+- **Verification code and screenshot suggestions:** They now stay for 60 seconds and hide while you type, then return when the field or line is emptied. A new screenshot shows right away until you type, and it no longer shows in number fields. In apps that don't accept screenshots, the screenshot suggestion stays in place and shows a message when tapped, without the fly-away animation.
