@@ -956,7 +956,7 @@ public class PredictionEngine {
         }
         String wordLower = fold(word);
         String sure = isArabic ? COMMON_AR_TYPOS.get(wordLower)
-                : latinIsUrdu ? null
+                : latinIsUrdu ? COMMON_UR_TYPOS.get(wordLower)
                 : (latinIsHindi ? COMMON_HI_TYPOS.get(wordLower)
                 : latinIsFrench ? COMMON_FR_TYPOS.get(wordLower)
                 : latinIsSpanish ? COMMON_ES_TYPOS.get(wordLower)
@@ -1082,6 +1082,19 @@ public class PredictionEngine {
     private static final Map<String, String> COMMON_AR_TYPOS = new HashMap<>();
     private static final Map<String, String> COMMON_HI_TYPOS = new HashMap<>();
     private static final Map<String, String> COMMON_FR_TYPOS = new HashMap<>();
+    // Urdu: only spellings that are never right (ھ starting a word instead of ہ, and a few
+    // well-known misspellings). Everything else stays a suggestion, as with Hindi.
+    private static final Map<String, String> COMMON_UR_TYPOS = new HashMap<>();
+    static {
+        String[] ur = {
+            "ھیں","ہیں", "ھوں","ہوں", "ھوا","ہوا", "ھاں","ہاں", "ھمیں","ہمیں", "ھمارا","ہمارا", "ھماری","ہماری",
+            "ھمارے","ہمارے", "ھوگا","ہوگا", "ھوگی","ہوگی", "ھوتا","ہوتا", "ھوتی","ہوتی", "ھوتے","ہوتے", "ھوئے","ہوئے",
+            "ھوئی","ہوئی", "ھونا","ہونا", "ھونے","ہونے", "ھاتھ","ہاتھ", "ھمیشہ","ہمیشہ", "ھزار","ہزار", "ھجرت","ہجرت",
+            "ھندوستان","ہندوستان", "بلکل","بالکل", "ذیادہ","زیادہ", "شکریا","شکریہ", "غلتی","غلطی", "زروری","ضروری",
+            "زرور","ضرور", "مھربانی","مہربانی", "صحیع","صحیح", "کیونکے","کیونکہ", "حالانکے","حالانکہ"
+        };
+        for (int i = 0; i + 1 < ur.length; i += 2) COMMON_UR_TYPOS.put(foldUncached(ur[i]), ur[i + 1]);
+    }
     // Real words that sit in the English map: they only use the old trusted-word path.
     private static final java.util.Set<String> EN_NOT_SURE = new java.util.HashSet<>(Arrays.asList("cant", "wont"));
     static {
@@ -1586,10 +1599,37 @@ public class PredictionEngine {
         return copy;
     }
 
+    // The keyboard saves what it learned once typing pauses (not after every word): writing the
+    // whole learned list costs battery, and hiding the keyboard flushes it anyway. Settings keep
+    // the short delay so an edit there reaches the keyboard right away.
+    private volatile boolean idleSave = false;
+    private long firstPendingSaveAt = 0L;
+    private static final long SAVE_DELAY_MS = 900L;
+    private static final long IDLE_SAVE_DELAY_MS = 8000L;
+    private static final long IDLE_SAVE_MAX_WAIT_MS = 60000L;
+
+    /** Used by the keyboard service: save after 8 s without typing (at most a minute late). */
+    public void setIdleSave(boolean on) {
+        idleSave = on;
+    }
+
     private void scheduleSave() {
-        if (saveScheduled) return;
-        saveScheduled = true;
-        saveHandler.postDelayed(saveRunnable, 900L);
+        long now = android.os.SystemClock.uptimeMillis();
+        if (!idleSave) {
+            if (saveScheduled) return;
+            saveScheduled = true;
+            saveHandler.postDelayed(saveRunnable, SAVE_DELAY_MS);
+            return;
+        }
+        if (!saveScheduled) {
+            saveScheduled = true;
+            firstPendingSaveAt = now;
+        } else if (now - firstPendingSaveAt >= IDLE_SAVE_MAX_WAIT_MS) {
+            return; // already waiting long enough: let the pending save run
+        }
+        saveHandler.removeCallbacks(saveRunnable);
+        long wait = Math.min(IDLE_SAVE_DELAY_MS, Math.max(0L, firstPendingSaveAt + IDLE_SAVE_MAX_WAIT_MS - now));
+        saveHandler.postDelayed(saveRunnable, wait);
     }
 
     private void performScheduledSave() {

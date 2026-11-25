@@ -492,7 +492,8 @@ public class BlackBerryKeyboardView extends View {
             float ir = iconSize / 2f;
             resizeIconPaint.setStrokeWidth(1.9f * density);
             if (check) {
-                Path ck = new Path();
+                Path ck = iconScratchPath;
+                ck.reset();
                 ck.moveTo(cx - ir * 0.75f, cy + ir * 0.05f);
                 ck.lineTo(cx - ir * 0.2f, cy + ir * 0.6f);
                 ck.lineTo(cx + ir * 0.8f, cy - ir * 0.55f);
@@ -1043,7 +1044,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     /** Right-to-left script (Arabic or Urdu): arrows and chip icons point the other way. */
-    private boolean isRtlScript() {
+    public boolean isRtlScript() {
         return isArabic || isUrdu;
     }
 
@@ -3226,13 +3227,26 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStrokeWidth(prevW);
     }
 
+    // Reused by the icon drawing below instead of a new Path/Paint on every frame.
+    private final Path iconScratchPath = new Path();
+    private final Paint shiftArrowPaint = newShiftArrowPaint();
+
+    private static Paint newShiftArrowPaint() {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeJoin(Paint.Join.ROUND);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        return p;
+    }
+
     private void drawShiftKeyIcon(Canvas canvas, RectF rect) {
         int prevColor = mainTextPaint.getColor();
         int color = (isCapsLock || isShift) ? Color.parseColor("#3B82F6") : prevColor;
         float u = density;
         float cx = rect.centerX();
         float cy = rect.centerY() + 1f * u;
-        Path arrow = new Path();
+        Path arrow = iconScratchPath;
+        arrow.reset();
         arrow.moveTo(cx, cy - 7.5f * u);
         arrow.lineTo(cx + 7.5f * u, cy + 0.5f * u);
         arrow.lineTo(cx + 3.8f * u, cy + 0.5f * u);
@@ -3241,11 +3255,8 @@ public class BlackBerryKeyboardView extends View {
         arrow.lineTo(cx - 3.8f * u, cy + 0.5f * u);
         arrow.lineTo(cx - 7.5f * u, cy + 0.5f * u);
         arrow.close();
-        Paint ap = new Paint(Paint.ANTI_ALIAS_FLAG);
-        ap.setStyle(Paint.Style.STROKE);
+        Paint ap = shiftArrowPaint;
         ap.setStrokeWidth(2.0f * u);
-        ap.setStrokeJoin(Paint.Join.ROUND);
-        ap.setStrokeCap(Paint.Cap.ROUND);
         ap.setColor(color);
         canvas.drawPath(arrow, ap);
 
@@ -3298,7 +3309,8 @@ public class BlackBerryKeyboardView extends View {
         float halfH = 7.8f * density;
         float arrowHead = 5.8f * density;
 
-        Path path = new Path();
+        Path path = iconScratchPath;
+        path.reset();
         path.moveTo(cx + halfW, cy - halfH);
         path.lineTo(cx + halfW, cy + 2f * density);
         path.lineTo(cx - halfW, cy + 2f * density);
@@ -3322,7 +3334,8 @@ public class BlackBerryKeyboardView extends View {
     private void drawCheckIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
-        Path path = new Path();
+        Path path = iconScratchPath;
+        path.reset();
         path.moveTo(cx - 9f * density, cy);
         path.lineTo(cx - 2.5f * density, cy + 6.5f * density);
         path.lineTo(cx + 9f * density, cy - 7f * density);
@@ -3336,7 +3349,8 @@ public class BlackBerryKeyboardView extends View {
         float head = 6f * density;
         boolean rtl = isRtlScript();
         float dir = rtl ? -1f : 1f;
-        Path path = new Path();
+        Path path = iconScratchPath;
+        path.reset();
         path.moveTo(cx - dir * halfW, cy);
         path.lineTo(cx + dir * halfW, cy);
         path.moveTo(cx + dir * (halfW - head), cy - head);
@@ -3350,7 +3364,8 @@ public class BlackBerryKeyboardView extends View {
         float cy = rect.centerY();
         boolean rtl = isRtlScript();
         float dir = rtl ? -1f : 1f;
-        Path path = new Path();
+        Path path = iconScratchPath;
+        path.reset();
         path.moveTo(cx - dir * 8.5f * density, cy - 6.5f * density);
         path.lineTo(cx + dir * 9f * density, cy);
         path.lineTo(cx - dir * 8.5f * density, cy + 6.5f * density);

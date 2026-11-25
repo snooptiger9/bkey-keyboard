@@ -583,6 +583,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         soundController = new SoundController(this, keyboardPrefs);
 
         predictionEngine = new PredictionEngine(this, keyboardPrefs, true);
+        predictionEngine.setIdleSave(true);
         predictionEngine.setOnReadyListener(() -> uiHandler.post(this::refreshPredictions));
         clipboardRepo = new ClipboardRepository(this);
         clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -1969,7 +1970,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 if (d == Character.DIRECTIONALITY_LEFT_TO_RIGHT) return false;
             }
         }
-        return keyboardView != null && keyboardView.isArabic();
+        return keyboardView != null && keyboardView.isRtlScript();
     }
 
     @Override
@@ -3114,7 +3115,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private View buildClipCard(final ClipboardRepository.ClipEntry clip) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        final boolean arabicUi = keyboardView == null || keyboardView.isArabic();
+        final boolean arabicUi = keyboardView == null || keyboardView.isRtlScript();
 
         row.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -3767,7 +3768,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
      *  ملاحظة: نص فقط مؤقتاً بدون شعار KLIPY الرسمي — شوف إرشادات العلامة التجارية الخاصة بهم
      *  وأضف الشعار المناسب لاحقاً. */
     private View buildGifAttributionBar() {
-        boolean arabic = keyboardView == null || keyboardView.isArabic();
+        boolean arabic = keyboardView == null || keyboardView.isRtlScript();
 
         LinearLayout bar = new LinearLayout(this);
         gifAttributionBar = bar;
@@ -3791,7 +3792,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void updateGifAttributionBar() {
         if (gifAttributionBar == null || gifAttributionLabel == null) return;
-        boolean arabic = keyboardView == null || keyboardView.isArabic();
+        boolean arabic = keyboardView == null || keyboardView.isRtlScript();
         gifAttributionBar.setGravity(Gravity.CENTER_VERTICAL | (arabic ? Gravity.RIGHT : Gravity.LEFT));
         gifAttributionLabel.setText(uiText("مقدَّم من KLIPY", "Powered by KLIPY", "Ofrecido por KLIPY"));
         if (gifKlipyPillLabel != null) gifKlipyPillLabel.setText(gifAttributionLabel.getText());
