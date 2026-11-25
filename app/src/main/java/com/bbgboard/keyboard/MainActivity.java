@@ -3324,6 +3324,8 @@ public class MainActivity extends Activity {
             line = line.trim();
             if (!BuildConfig.OTP_FEATURES_ENABLED && line.equals(PLUS_ONLY_NOTES_MARKER)) break;
             if (line.isEmpty() || line.startsWith("<!--")) continue;
+            // Shown as a heading: the plain bold line would lose its first "*" to the bullet stripping below.
+            if (line.equals(PLUS_ONLY_NOTES_MARKER)) line = "### bkey Plus only";
             TextView tv = new TextView(this);
             tv.setTextColor(Color.parseColor(dm("#374151")));
             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
