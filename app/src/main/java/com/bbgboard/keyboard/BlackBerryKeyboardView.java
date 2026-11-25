@@ -2143,6 +2143,8 @@ public class BlackBerryKeyboardView extends View {
                     drawLargeEnterIcon(canvas, k.rect);
                 } else if (k.type == KeyType.SHIFT) {
                     drawShiftKeyIcon(canvas, k.rect);
+                } else if (k.type == KeyType.BACKSPACE) {
+                    drawBackspaceIcon(canvas, k.rect);
                 } else if (k.type == KeyType.LANGUAGE) {
                     drawGlobeIcon(canvas, k.rect);
                 } else if (k.type == KeyType.EMOJI) {
@@ -2860,7 +2862,7 @@ public class BlackBerryKeyboardView extends View {
         body.close();
         canvas.drawPath(body, iconStrokePaint);
 
-        float k = 1.2f * density;
+        float k = 1.6f * density;
         float xc = cx + r * 0.18f;
         canvas.drawLine(xc - k, cy - k, xc + k, cy + k, iconStrokePaint);
         canvas.drawLine(xc - k, cy + k, xc + k, cy - k, iconStrokePaint);
