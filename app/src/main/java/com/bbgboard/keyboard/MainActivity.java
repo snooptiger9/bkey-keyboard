@@ -137,8 +137,10 @@ public class MainActivity extends Activity {
         return SettingsText.languageOf(this);
     }
 
-    /** Right-to-left settings pages (Arabic and Urdu). Their text uses TEXT_DIRECTION_ANY_RTL, so
-     *  a line that starts with a Latin word ("bkey Plus سیٹنگز") still reads right-to-left. */
+    /** Right-to-left settings pages (Arabic and Urdu). All their text reads right-to-left, so a
+     *  line that starts with a Latin word ("bkey Plus سیٹنگز") or is only Latin ("bkey Plus")
+     *  still sits on the right. Fields and texts the user wrote (or English notes) keep their
+     *  own direction through TEXT_DIRECTION_FIRST_STRONG. */
     private boolean isRtlUi() {
         String l = uiLang();
         return "ar".equals(l) || "ur".equals(l);
@@ -313,6 +315,7 @@ public class MainActivity extends Activity {
     private void addFloatingKeyboardTester(FrameLayout root) {
         floatingTestEdit = new EditText(this);
         floatingTestEdit.setHint(tr("جرّب الكيبورد هنا...", "Try the keyboard here..."));
+        floatingTestEdit.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
         floatingTestEdit.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
         floatingTestEdit.setTextColor(Color.parseColor(dm("#111827")));
         floatingTestEdit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
@@ -475,7 +478,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
         pageContainer.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
-        if (isRtlUi()) pageContainer.setTextDirection(View.TEXT_DIRECTION_ANY_RTL);
+        if (isRtlUi()) pageContainer.setTextDirection(View.TEXT_DIRECTION_RTL);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
@@ -488,7 +491,7 @@ public class MainActivity extends Activity {
         root.setPadding(dp(16), dp(6), dp(16), dp(36));
 
         root.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
-        if (isRtlUi()) root.setTextDirection(View.TEXT_DIRECTION_ANY_RTL);
+        if (isRtlUi()) root.setTextDirection(View.TEXT_DIRECTION_RTL);
 
         LinearLayout titleRowTop = new LinearLayout(this);
         titleRowTop.setOrientation(LinearLayout.HORIZONTAL);
@@ -790,6 +793,7 @@ public class MainActivity extends Activity {
         pill.addView(ic);
         EditText et = new EditText(this);
         et.setHint(hint);
+        et.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
         et.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
         et.setTextColor(Color.parseColor(dm("#111827")));
         et.setBackground(null);
@@ -973,7 +977,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(16), dp(18), dp(16), dp(36));
         root.setLayoutDirection(isRtlUi() ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
-        if (isRtlUi()) root.setTextDirection(View.TEXT_DIRECTION_ANY_RTL);
+        if (isRtlUi()) root.setTextDirection(View.TEXT_DIRECTION_RTL);
 
         LinearLayout topBar = new LinearLayout(this);
         topBar.setOrientation(LinearLayout.HORIZONTAL);
@@ -1060,6 +1064,7 @@ public class MainActivity extends Activity {
                     ghost.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleTv.getTextSize());
                     ghost.setTypeface(titleTv.getTypeface());
                     ghost.setLayoutDirection(titleTv.getLayoutDirection());
+                    ghost.setTextDirection(titleTv.getTextDirection());
                     ghost.setSingleLine(true);
                     // Pinned to the frame's top-left: in a right-to-left page the default START
                     // gravity would place it at the right edge, and the translations below (which
@@ -1133,6 +1138,7 @@ public class MainActivity extends Activity {
         bodyTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
         bodyTv.setTypeface(Typeface.MONOSPACE);
         bodyTv.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        bodyTv.setTextDirection(View.TEXT_DIRECTION_LTR);
         bodyTv.setBackground(roundedCard(dm("#FFFFFF"), 16));
         bodyTv.setPadding(dp(14), dp(14), dp(14), dp(14));
         LinearLayout.LayoutParams lpBody = new LinearLayout.LayoutParams(
@@ -2808,6 +2814,7 @@ public class MainActivity extends Activity {
         searchRow.addView(sIc);
         final EditText searchBox = new EditText(this);
         searchBox.setHint(tr("ابحث عن كلمة...", "Search for a word..."));
+        searchBox.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
         searchBox.setHintTextColor(Color.parseColor(dm("#9CA3AF")));
         searchBox.setTextColor(Color.parseColor(dm("#111827")));
         searchBox.setSingleLine(true);
@@ -3393,6 +3400,7 @@ public class MainActivity extends Activity {
             // Shown as a heading: the plain bold line would lose its first "*" to the bullet stripping below.
             if (line.equals(PLUS_ONLY_NOTES_MARKER)) line = "### bkey Plus only";
             TextView tv = new TextView(this);
+            tv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
             tv.setTextColor(Color.parseColor(dm("#374151")));
             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
             tv.setLineSpacing(dp(2), 1f);
@@ -4068,6 +4076,7 @@ public class MainActivity extends Activity {
             rowText.append("   ");
             rowText.append(e.getValue());
             tv.setText(rowText);
+            tv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
             tv.setTextColor(Color.parseColor(dm("#1F2937")));
             tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
