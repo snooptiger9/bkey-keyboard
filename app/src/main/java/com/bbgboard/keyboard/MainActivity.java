@@ -2310,7 +2310,7 @@ public class MainActivity extends Activity {
         String selectionColorHex = dm("#2563EB"); // same blue as every other choice on the page
 
         FrameLayout holder = new FrameLayout(this);
-        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(82), dp(68)));
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(92), dp(76)));
         holder.setBackground(roundedCard(selected ? dm("#EFF6FF") : dm("#F3F4F6"), 13));
         holder.setElevation(selected ? dp(3) : dp(1));
         holder.addView(new KeyStylePreviewView(this, styleId, prefs.getThemeMode(), prefs.getEnterColor()),
