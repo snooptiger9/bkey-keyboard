@@ -3268,9 +3268,12 @@ public class MainActivity extends Activity {
                     try {
                         Intent send = new Intent(Intent.ACTION_SEND);
                         send.setType("text/plain");
-                        String apkName = (BuildConfig.OTP_FEATURES_ENABLED ? "bkey-plus-v" : "bkey-v") + BuildConfig.VERSION_CODE + ".apk";
-                        send.putExtra(Intent.EXTRA_TEXT, (BuildConfig.OTP_FEATURES_ENABLED ? "bkey Plus keyboard\n" : "bkey keyboard\n")
-                                + "https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/" + apkName);
+                        // Stable pages, not a versioned file: a link to bkey-v<this version>.apk breaks
+                        // as soon as a newer release replaces it. bkey -> its APKPure page,
+                        // bkey Plus (not on APKPure) -> the latest GitHub release page.
+                        send.putExtra(Intent.EXTRA_TEXT, BuildConfig.OTP_FEATURES_ENABLED
+                                ? "bkey Plus keyboard\nhttps://github.com/snooptiger9/bkey-keyboard/releases/latest"
+                                : "bkey keyboard\nhttps://apkpure.com/p/com.snooptiger9.bkey");
                         startActivity(Intent.createChooser(send, tr("مشاركة التطبيق", "Share the app")));
                     } catch (Exception e) {
                         AppLogger.log("MainActivity", "openAboutScreen() share", e);
