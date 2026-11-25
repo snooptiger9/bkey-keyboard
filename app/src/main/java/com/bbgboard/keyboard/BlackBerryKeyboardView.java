@@ -2160,7 +2160,10 @@ public class BlackBerryKeyboardView extends View {
                     if (k.type == KeyType.SYMBOLS) {
                         mainTextPaint.setTextSize(15f * scaledDensity);
                     } else if (k.type == KeyType.BACKSPACE) {
-                        mainTextPaint.setTextSize(prevSize * 0.9f);
+                        // Same width as the shift arrow (15dp).
+                        android.graphics.Rect gb = new android.graphics.Rect();
+                        mainTextPaint.getTextBounds(k.main, 0, k.main.length(), gb);
+                        if (gb.width() > 0) mainTextPaint.setTextSize(prevSize * (15f * density) / gb.width());
                     }
                     String displayLabel = hindiDisplay(k.main);
                     if (!isArabic && !isHindi && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
