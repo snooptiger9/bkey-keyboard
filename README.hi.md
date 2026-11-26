@@ -14,11 +14,11 @@
 ![Build](https://github.com/snooptiger9/bkey-keyboard/actions/workflows/build.yml/badge.svg)
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
-[![IzzyOnDroid](https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.snooptiger9.bkey&label=IzzyOnDroid)](https://apt.izzysoft.de/packages/com.snooptiger9.bkey)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
 ![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
+[![IzzyOnDroid](https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.snooptiger9.bkey&label=IzzyOnDroid)](https://apt.izzysoft.de/packages/com.snooptiger9.bkey)
 
 अगर यह आपके काम आए, तो एक <img src="docs/icons/star.svg" width="22" height="22" align="absmiddle" alt=""> स्टार से बहुत हौसला मिलेगा।
 
