@@ -1328,7 +1328,7 @@ public class MainActivity extends Activity {
         listLayout.setOrientation(LinearLayout.VERTICAL);
         final List<LinearLayout> rows = new ArrayList<>();
         final List<TextView> labels = new ArrayList<>();
-        final List<TextView> checks = new ArrayList<>();
+        final List<RadioCheckView> checks = new ArrayList<>();
 
         for (int i = 0; i < options.length; i++) {
             final int idx = i;
@@ -1352,13 +1352,9 @@ public class MainActivity extends Activity {
             label.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             row.addView(label);
 
-            TextView check = new TextView(this);
-            check.setText(sel ? "✓" : "");
-            check.setTextColor(Color.WHITE);
-            check.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
-            check.setGravity(Gravity.CENTER);
-            check.setTypeface(Typeface.DEFAULT_BOLD);
-            check.setBackground(circleIndicator(sel));
+            RadioCheckView check = new RadioCheckView(this, Color.parseColor(dm("#2563EB")),
+                    Color.parseColor(dm("#D1D5DB")), Color.WHITE);
+            check.setOn(sel);
             LinearLayout.LayoutParams lpCheck = new LinearLayout.LayoutParams(dp(22), dp(22));
             lpCheck.leftMargin = dp(10);
             check.setLayoutParams(lpCheck);
@@ -1370,8 +1366,7 @@ public class MainActivity extends Activity {
                     rows.get(j).setBackground(roundedCard(s ? dm("#EFF6FF") : dm("#FFFFFF"), 12));
                     labels.get(j).setTextColor(Color.parseColor(s ? dm("#2563EB") : dm("#1F2937")));
                     labels.get(j).setTypeface(s ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-                    checks.get(j).setText(s ? "✓" : "");
-                    checks.get(j).setBackground(circleIndicator(s));
+                    checks.get(j).setOn(s);
                 }
                 callback.onSelected(idx);
             });
@@ -1382,18 +1377,6 @@ public class MainActivity extends Activity {
             listLayout.addView(row);
         }
         return listLayout;
-    }
-
-    private GradientDrawable circleIndicator(boolean selected) {
-        GradientDrawable gd = new GradientDrawable();
-        gd.setShape(GradientDrawable.OVAL);
-        if (selected) {
-            gd.setColor(Color.parseColor(dm("#2563EB")));
-        } else {
-            gd.setColor(Color.TRANSPARENT);
-            gd.setStroke(dp(1), Color.parseColor(dm("#D1D5DB")));
-        }
-        return gd;
     }
 
     private String languageDisplayName(String code) {
