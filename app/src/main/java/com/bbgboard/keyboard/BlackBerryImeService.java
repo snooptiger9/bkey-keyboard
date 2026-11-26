@@ -1064,6 +1064,28 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                         .setSingleIconChipStyle(chipStyle)
                         .setTitleStyle(titleStyle)
                         .setSubtitleStyle(subStyle);
+            } else {
+                // The keyboard view isn't built yet: send a dark style anyway so the system
+                // doesn't fall back to its default white cards.
+                androidx.autofill.inline.common.ViewStyle fallbackChip =
+                        new androidx.autofill.inline.common.ViewStyle.Builder()
+                                .setBackgroundColor(Color.parseColor("#2A2D35"))
+                                .setPadding(dp(12), 0, dp(12), 0)
+                                .build();
+                androidx.autofill.inline.common.TextViewStyle fallbackTitle =
+                        new androidx.autofill.inline.common.TextViewStyle.Builder()
+                                .setTextColor(Color.parseColor("#F2F2F2"))
+                                .setTextSize(14f)
+                                .build();
+                androidx.autofill.inline.common.TextViewStyle fallbackSub =
+                        new androidx.autofill.inline.common.TextViewStyle.Builder()
+                                .setTextColor(Color.parseColor("#B0F2F2F2"))
+                                .setTextSize(11f)
+                                .build();
+                styleBuilder.setChipStyle(fallbackChip)
+                        .setSingleIconChipStyle(fallbackChip)
+                        .setTitleStyle(fallbackTitle)
+                        .setSubtitleStyle(fallbackSub);
             }
             Bundle styles = androidx.autofill.inline.UiVersions.newStylesBuilder()
                     .addStyle(styleBuilder.build())
