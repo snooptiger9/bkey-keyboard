@@ -1502,8 +1502,8 @@ public class MainActivity extends Activity {
         root.addView(createSwitchTile(
                 tr("التبديل بسحب زر المسافة", "Switch by swiping the space bar"),
                 multiLangOn
-                        ? tr("فعّاله: اسحب زر المسافة يميناً أو يساراً للتبديل. مطفيه: يظهر زر 🌐 مخصص للتبديل بدل ذلك",
-                                "On: swipe the space bar left or right to switch.\nOff: a dedicated 🌐 button appears instead")
+                        ? tr("عند التشغيل: اسحب زر المسافة يميناً أو يساراً للتبديل بين اللغات.\nعند الإيقاف: يظهر زر 🌐 بدلاً من ذلك",
+                                "When on, swipe the space bar left or right to switch languages.\nWhen off, a 🌐 button is shown instead")
                         : tr("يحتاج تفعيل لغتين أو أكثر حتى يشتغل", "Needs two or more languages enabled to work"),
                 prefs.isSpaceSwipeLangEnabled(),
                 multiLangOn,
@@ -1788,14 +1788,14 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("أحرف كبيرة تلقائياً بداية كل جملة", "Auto-capitalize sentences"),
-                tr("يكتب أول حرف إنجليزي كابيتال تلقائياً في بداية النص أو بعد النقطة", "Automatically capitalizes the first letter at the start of text or after a period"),
+                tr("يكتب أول حرف كبيراً تلقائياً في بداية النص وفي السطر الجديد وبعد . أو ! أو ? في الإنجليزية والإسبانية والفرنسية. لا يعمل في الإيميلات والروابط وكلمات المرور", "Capitalizes the first letter at the start of text, on a new line and after . ! or ?, in English, Spanish and French. Not used in emails, links or passwords"),
                 prefs.isAutoCapitalizeSentences(),
                 checked -> prefs.setAutoCapitalizeSentences(checked)
         ));
 
         root.addView(createSwitchTile(
                 tr("عرض الحروف الإنجليزية كابيتال دائماً", "Always show uppercase English keycaps"),
-                tr("يجعل شكل الحروف على الكيبورد الإنجليزي (Q W E R T Y) واضحاً وكبيراً كما في صورة bkey", "Shows the English keys (Q W E R T Y) in bold capitals, bkey-style"),
+                tr("يعرض حروف الكيبورد الإنجليزي (Q W E R T Y) كابيتال عريضة وواضحة", "Shows the English keys (Q W E R T Y) in bold capitals"),
                 prefs.isAlwaysShowUppercaseKeycapsEn(),
                 checked -> prefs.setAlwaysShowUppercaseKeycapsEn(checked)
         ));
@@ -1832,7 +1832,7 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("بوب أب معاينة الحرف عند اللمس", "Popup on key press"),
-                tr("يظهر الحرف مكبّراً فوق الزر فوراً عند الضغط عليه، ويختفي تلقائياً عند بدء السحب", "Shows the letter enlarged above the key the instant you press it, and disappears as soon as you start swiping"),
+                tr("يظهر الحرف مكبّراً فوق الزر عند الضغط عليه، ويختفي عند بدء السحب", "Shows the letter enlarged above the key when you press it. Hides when you start swiping"),
                 prefs.isKeyPreviewPopupEnabled(),
                 checked -> prefs.setKeyPreviewPopupEnabled(checked)
         ));
@@ -2462,8 +2462,8 @@ public class MainActivity extends Activity {
         final View[] autoCorrectStrongTile = new View[1];
         root.addView(createSwitchTile(
                 tr("تصحيح تلقائي صامت عند المسافة", "Silent auto-correct on space"),
-                tr("يستبدل الكلمة تلقائياً بأقرب كلمة صحيحة معروفة بمجرد الضغط على مسافة، بدون ما تلمس شيء. اضغط باكسبيس فوراً للتراجع وإرجاع ما كتبته بالضبط. عند الإيقاف يرجع للوضع الحالي: الاقتراح يظهر لك فقط وأنت تختاره يدوياً",
-                        "Instantly replaces the word with the closest known correct word the moment you press space — no tap needed. Press backspace right away to undo and restore exactly what you typed. When off, it goes back to the current behavior: the suggestion just shows and you pick it yourself"),
+                tr("يستبدل الكلمة بأقرب كلمة صحيحة معروفة عند الضغط على المسافة، بدون أن تلمس شيئاً. اضغط زر المسح فوراً للتراجع وإرجاع ما كتبته. عند الإيقاف يظهر الاقتراح فقط وأنت تختاره بنفسك",
+                        "Replaces the word with the closest known correct word when you press space, without tapping. Press backspace right away to undo and restore what you typed. When off, the suggestion just shows and you pick it yourself"),
                 prefs.isAutoCorrectEnabled(),
                 checked -> {
                     prefs.setAutoCorrectEnabled(checked);
@@ -2714,11 +2714,11 @@ public class MainActivity extends Activity {
             TextView warnBody = new TextView(this);
             warnBody.setText(reverted
                     ? tr(
-                        "كنت مفعّلها من قبل، وسبب رجوعها هو أنك حمّلت تحديث من رابط صفحة المشروع على GitHub (مباشرة أو من المتصفح) بدل زر «تحديث التطبيق» الموجود بالإعدادات الرئيسية. رابط الصفحة ينزّل دايماً النسخة الأساسية بدون OTP، فتثبيته فوق نسختك يستبدلها ويسحب الصلاحية بدون أي تنبيه — ذاك سبب رجوعها «كأنها ماتفعلت».\n\nمن الآن: حدّث التطبيق فقط من زر «تحديث التطبيق» بالقائمة الرئيسية للإعدادات — هو زر واحد يحفظ هذي الميزة تلقائياً كل مرة. فعّلها الآن من جديد من هنا:",
-                        "You had it on before. It came back off because you installed an update from the project's GitHub page link (directly or via the browser) instead of the \"Update the app\" button in the main Settings menu. The page link always gives the basic build without OTP, so installing it over your current app silently replaces it and drops the permission — that's why it reverted \"as if it was never turned on\".\n\nFrom now on: only update the app from the \"Update the app\" button in the main Settings menu — that single button always keeps this feature on automatically. Turn it back on now from here:")
+                        "كنت مفعّل هذي الميزة من قبل، وانطفت لأنك ثبّتّ تحديثاً من رابط صفحة المشروع على GitHub بدل زر «تحديث التطبيق» في الإعدادات الرئيسية. رابط الصفحة ينزّل النسخة الأساسية بدون OTP، فيستبدل تطبيقك ويسحب الصلاحية.\n\nحدّث التطبيق فقط من زر «تحديث التطبيق» في الإعدادات الرئيسية، فهو يبقي هذي الميزة شغّالة. فعّلها من جديد من هنا:",
+                        "You had this on before. It turned off because you installed an update from the project's GitHub page link instead of the \"Update the app\" button in the main Settings menu. The page link gives the basic build without OTP, which replaces your app and removes the permission.\n\nUpdate the app only with the \"Update the app\" button in the main Settings menu; it keeps this feature on. Turn it back on from here:")
                     : tr(
-                        "النسخة المثبّتة عندك الآن لا تطلب صلاحية الوصول للإشعارات، فهي تثبّت وتحدّث بدون أي تحذير. تفعيل هذي الميزة يتطلب تحديثاً يضيف خدمة «الوصول للإشعارات»، وقد يوقف نظام حماية Google Play Protect التحديث تلقائياً برسالة تحذيرية بسببها. هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحية، وليس عيباً ولا فيروساً.\n\nإذا تبي الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
-                        "The version you have installed now doesn't request notification access, so it installs and updates with zero warning. Turning this feature on needs an update that adds the notification access service, and Google Play Protect may block that update automatically with a warning screen because of it. This is standard Google behavior for any app outside the Play Store that requests this access, not a bug or malware flag.\n\nIf you want the feature, turn off Play Protect scanning with these steps, then download the update:"));
+                        "النسخة المثبّتة عندك لا تطلب صلاحية الوصول للإشعارات. هذي الميزة تحتاج تحديثاً يضيفها، وقد يوقف Google Play Protect التحديث برسالة تحذيرية. هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحية، وليس عيباً ولا فيروساً.\n\nلاستخدام الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
+                        "Your installed version doesn't request notification access. This feature needs an update that adds it, and Google Play Protect may block that update with a warning screen. This is standard Google behavior for apps outside the Play Store that request this access; it is not a bug or a malware flag.\n\nTo use the feature, turn off Play Protect scanning with these steps, then download the update:"));
             warnBody.setTextColor(Color.parseColor(dm("#78350F")));
             warnBody.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             LinearLayout.LayoutParams lpWarnBody = new LinearLayout.LayoutParams(
@@ -2729,8 +2729,8 @@ public class MainActivity extends Activity {
 
             TextView steps = new TextView(this);
             steps.setText(tr(
-                    "1. افتح تطبيق متجر Google Play.\n2. اضغط صورة حسابك بأعلى يمين الشاشة.\n3. اختر Play Protect.\n4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.\n5. أوقف خيار «Scan apps with Play Protect».\n6. حمّل وثبّت التحديث من الزر تحت.\n7. رجّع تشغيل الخيار بعدها (يفضّل يضل شغّال دايماً لباقي تطبيقاتك).",
-                    "1. Open the Google Play Store app.\n2. Tap your profile picture, top right.\n3. Tap Play Protect.\n4. Tap the ⚙️ settings icon, top right.\n5. Turn off \"Scan apps with Play Protect\".\n6. Download and install the update from the button below.\n7. Turn the setting back on afterward (recommended to keep it on for your other apps)."));
+                    "1. افتح تطبيق متجر Google Play.\n2. اضغط صورة حسابك بأعلى يمين الشاشة.\n3. اختر Play Protect.\n4. اضغط أيقونة الإعدادات ⚙️ بأعلى يمين الشاشة.\n5. أوقف خيار «Scan apps with Play Protect».\n6. حمّل وثبّت التحديث من الزر تحت.\n7. رجّع تشغيل الخيار بعدها.",
+                    "1. Open the Google Play Store app.\n2. Tap your profile picture, top right.\n3. Tap Play Protect.\n4. Tap the ⚙️ settings icon, top right.\n5. Turn off \"Scan apps with Play Protect\".\n6. Download and install the update from the button below.\n7. Turn the setting back on afterward."));
             steps.setTextColor(Color.parseColor(dm("#78350F")));
             steps.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             LinearLayout.LayoutParams lpSteps = new LinearLayout.LayoutParams(
@@ -3092,7 +3092,7 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("أنميشن طيران الكلمة الواضح لأعلى الشاشة خارج الكيبورد", "Clear flying-word animation above the keyboard"),
-                tr("عند السحب للأعلى تنطلق الكلمة المختارة من صندوق الاقتراحات لأعلى الشاشة بسرعة متزنة ووضوح عالٍ ثم تتلاشى", "On swipe-up, the chosen word launches smoothly and clearly above the screen, then fades"),
+                tr("عند السحب للأعلى تنطلق الكلمة المختارة من صندوق الاقتراحات لأعلى الشاشة بسرعة متزنة ووضوح عالٍ ثم تتلاشى", "When you swipe up, the chosen word flies above the keyboard and fades"),
                 prefs.isSwipeUpAnimationEnabled(),
                 checked -> prefs.setSwipeUpAnimationEnabled(checked)
         ));
@@ -3100,15 +3100,15 @@ public class MainActivity extends Activity {
         root.addView(createSwitchTile(
                 tr("أنميشن ارتداد الزر عند الضغط", "Key bounce animation on press"),
                 tr("الزر نفسه ينضغط شوي ثم يرتد لحجمه الطبيعي مع كل نقرة، بدل تغيير لون الخلفية فقط",
-                        "The key itself compresses slightly then springs back to its normal size with every tap, instead of just a background color change"),
+                        "The key shrinks slightly and springs back with every tap, instead of only changing its background color"),
                 prefs.isKeyBounceAnimationEnabled(),
                 checked -> prefs.setKeyBounceAnimationEnabled(checked)
         ));
 
         root.addView(createSwitchTile(
                 tr("السحب الأفقي لمسح كلمة كاملة", "Horizontal swipe to delete a whole word"),
-                tr("اسحب أفقياً فوق الحروف لحذف آخر كلمة دفعة واحدة (سحبة أوضح الآن، أقل حساسية حتى ما تنمسح كلمة بالغلط أثناء الكتابة)",
-                        "Swipe sideways over the keys to delete the last word at once (now needs a clearer swipe, less sensitive so it won't delete by accident while typing)"),
+                tr("اسحب أفقياً فوق الحروف لحذف آخر كلمة دفعة واحدة",
+                        "Swipe sideways over the keys to delete the last word at once"),
                 prefs.isSwipeDeleteWordEnabled(),
                 checked -> prefs.setSwipeDeleteWordEnabled(checked)
         ));
@@ -3181,8 +3181,8 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("تحريك المؤشر بالضغط المستمر على زر المسافة", "Move the cursor by holding and dragging the space bar"),
-                tr("اضغط مطولاً على المسافة ثم حرّك إصبعك يميناً أو يساراً لتحريك المؤشر حرفاً حرفاً. سحبة سريعة بدون ضغط مستمر تبقى تبدّل اللغة كالمعتاد، بدون أي تعارض بين الحركتين",
-                        "Press and hold the space bar, then drag to move the cursor character by character. A quick swipe without holding still switches the language as usual — the two gestures never conflict"),
+                tr("اضغط مطولاً على المسافة ثم حرّك إصبعك يميناً أو يساراً لتحريك المؤشر حرفاً حرفاً. سحبة سريعة بدون ضغط مستمر تبقى تبدّل اللغة كالمعتاد",
+                        "Press and hold the space bar, then drag to move the cursor character by character. A quick swipe without holding still switches the language as usual"),
                 prefs.isSpaceCursorDragEnabled(),
                 checked -> prefs.setSpaceCursorDragEnabled(checked)
         ));
@@ -3792,7 +3792,7 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("تفعيل صوت الكتابة الفوري (Zero-Latency SoundPool)", "Enable instant typing sound (Zero-Latency SoundPool)"),
-                tr("استجابة صوتية فورية مع 5 خامات صوتية مختلفة تماماً", "Instant sound feedback with 5 completely different tone profiles"),
+                tr("استجابة صوتية فورية مع 5 نغمات مختلفة", "Instant sound feedback with 5 tone profiles"),
                 prefs.isSoundEnabled(),
                 checked -> {
                     prefs.setSoundEnabled(checked);
