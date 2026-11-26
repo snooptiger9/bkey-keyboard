@@ -40,12 +40,23 @@ public class WhatsAppOtpListenerService extends NotificationListenerService {
             if (n == null || n.extras == null) return;
             Bundle extras = n.extras;
             StringBuilder text = new StringBuilder();
-            CharSequence title = extras.getCharSequence(Notification.EXTRA_TITLE);
-            CharSequence body = extras.getCharSequence(Notification.EXTRA_TEXT);
-            CharSequence bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT);
-            if (title != null) text.append(title).append(' ');
-            if (body != null) text.append(body).append(' ');
-            if (bigText != null) text.append(bigText);
+            appendText(text, extras.getCharSequence(Notification.EXTRA_TITLE));
+            appendText(text, extras.getCharSequence(Notification.EXTRA_TEXT));
+            appendText(text, extras.getCharSequence(Notification.EXTRA_BIG_TEXT));
+            appendText(text, extras.getCharSequence(Notification.EXTRA_SUB_TEXT));
+            appendText(text, extras.getCharSequence(Notification.EXTRA_SUMMARY_TEXT));
+            CharSequence[] lines = extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES);
+            if (lines != null) {
+                for (CharSequence line : lines) appendText(text, line);
+            }
+            // Messaging-style notifications keep the message text here.
+            android.os.Parcelable[] messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES);
+            if (messages != null) {
+                for (android.os.Parcelable m : messages) {
+                    if (m instanceof Bundle) appendText(text, ((Bundle) m).getCharSequence("text"));
+                }
+            }
+            appendText(text, n.tickerText);
 
             String code = OtpDetector.extract(text.toString());
             if (code != null) {
@@ -55,5 +66,9 @@ public class WhatsAppOtpListenerService extends NotificationListenerService {
         } catch (Exception e) {
             AppLogger.log("WhatsAppOtpListenerService", "onNotificationPosted()", e);
         }
+    }
+
+    private static void appendText(StringBuilder sb, CharSequence cs) {
+        if (cs != null && cs.length() > 0) sb.append(cs).append('\n');
     }
 }
