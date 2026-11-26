@@ -2261,6 +2261,13 @@ public class BlackBerryKeyboardView extends View {
                     float prevSubSize = subTextPaint.getTextSize();
                     if (isNumericFieldMode) subTextPaint.setTextSize(prevSubSize + 2f * scaledDensity);
                     subTextPaint.getTextBounds(subStr, 0, subStr.length(), scratchSubBounds);
+                    // Wide hints (﷼ ‰) reach into the main symbol on the Pill and Circles keys.
+                    if ((keyboardStyle == KeyboardPreferences.STYLE_MODERN_PILL
+                            || keyboardStyle == KeyboardPreferences.STYLE_CIRCLES)
+                            && scratchSubBounds.width() > 0.28f * (visRight - visLeft)) {
+                        subTextPaint.setTextSize(subTextPaint.getTextSize() * 0.8f);
+                        subTextPaint.getTextBounds(subStr, 0, subStr.length(), scratchSubBounds);
+                    }
                     float desiredInkRight = visibleRight - safeMargin;
                     float desiredInkTop = visibleTop + safeMargin;
                     float x = desiredInkRight - scratchSubBounds.right;
