@@ -166,12 +166,6 @@ public class KeyboardPreferences {
         } catch (Exception e) {
             AppLogger.log("KeyboardPreferences", "getRecentEmojis()", e);
         }
-        if (list.isEmpty() && !prefs.contains("recent_emojis_v7")) {
-            list.addAll(Arrays.asList(
-                "😊", "😂", "❤️", "👍", "🤲", "🌹", "✨", "🔥",
-                "😍", "🙏", "👏", "🥰", "😭", "👌", "🎉", "🤍"
-            ));
-        }
         return list;
     }
 

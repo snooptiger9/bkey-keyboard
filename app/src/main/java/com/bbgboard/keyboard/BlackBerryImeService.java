@@ -1259,7 +1259,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
         if (gifScroll != null) gifScroll.scrollTo(0, 0);
-        if (!emojiTabViews.isEmpty()) updateEmojiTabHighlight(0);
+        if (!emojiTabViews.isEmpty()) updateEmojiTabHighlight(firstEmojiTab());
     }
 
     @Override
@@ -3622,7 +3622,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             fillEmojiGrid(grid, c == 0 ? keyboardPrefs.getRecentEmojis() : Arrays.asList(EMOJI_CATEGORIES[c]), c == 0);
             emojiSectionsHost.addView(grid);
         }
-        updateEmojiTabHighlight(0);
+        applyRecentEmojiVisibility();
+        updateEmojiTabHighlight(firstEmojiTab());
+    }
+
+    /** "Recently used" (header, grid and tab) is shown only while there is something in it. */
+    private void applyRecentEmojiVisibility() {
+        int vis = keyboardPrefs.getRecentEmojis().isEmpty() ? View.GONE : View.VISIBLE;
+        if (!emojiSectionHeaders.isEmpty()) emojiSectionHeaders.get(0).setVisibility(vis);
+        if (emojiRecentGrid != null) emojiRecentGrid.setVisibility(vis);
+        if (!emojiTabViews.isEmpty()) emojiTabViews.get(0).setVisibility(vis);
+    }
+
+    private int firstEmojiTab() {
+        return keyboardPrefs.getRecentEmojis().isEmpty() && emojiTabViews.size() > 1 ? 1 : 0;
     }
 
     private void fillEmojiGrid(final GridLayout grid, List<String> emojis, final boolean recent) {
@@ -3666,6 +3679,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                     keyboardPrefs.removeRecentEmoji(em);
                     soundController.playKeyClick();
                     fillEmojiGrid(grid, keyboardPrefs.getRecentEmojis(), true);
+                    applyRecentEmojiVisibility();
                     return true;
                 });
             } else if (supportsSkinTone(em)) {
