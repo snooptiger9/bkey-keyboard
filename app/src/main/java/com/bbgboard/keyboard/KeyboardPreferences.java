@@ -578,12 +578,38 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("key_bounce_anim_enabled", enabled).apply();
     }
 
-    public int getEmojiSizeSp() {
-        return prefs.getInt("emoji_size_sp", 23);
+    /** Emoji size level 1..10 (shown to the user). Level 5 is the default (30 sp). */
+    public static final int EMOJI_LEVEL_DEFAULT = 5;
+
+    public static float emojiSpForLevel(int level) {
+        int l = Math.max(1, Math.min(10, level));
+        return l <= 5 ? 20f + (l - 1) * 2.5f : 30f + (l - 5);
     }
 
-    public void setEmojiSizeSp(int sp) {
-        prefs.edit().putInt("emoji_size_sp", Math.max(16, Math.min(34, sp))).apply();
+    public int getEmojiSizeLevel() {
+        if (prefs.contains("emoji_size_level")) {
+            return Math.max(1, Math.min(10, prefs.getInt("emoji_size_level", EMOJI_LEVEL_DEFAULT)));
+        }
+        if (prefs.contains("emoji_size_sp")) {
+            // Someone who picked a size before levels existed: keep the closest one.
+            int old = prefs.getInt("emoji_size_sp", 23);
+            int best = EMOJI_LEVEL_DEFAULT;
+            float bestDiff = Float.MAX_VALUE;
+            for (int l = 1; l <= 10; l++) {
+                float d = Math.abs(emojiSpForLevel(l) - old);
+                if (d < bestDiff) { bestDiff = d; best = l; }
+            }
+            return best;
+        }
+        return EMOJI_LEVEL_DEFAULT;
+    }
+
+    public void setEmojiSizeLevel(int level) {
+        prefs.edit().putInt("emoji_size_level", Math.max(1, Math.min(10, level))).apply();
+    }
+
+    public float getEmojiSizeSp() {
+        return emojiSpForLevel(getEmojiSizeLevel());
     }
 
     public void clearRecentEmojis() {

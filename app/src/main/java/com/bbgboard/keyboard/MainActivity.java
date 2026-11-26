@@ -2981,7 +2981,7 @@ public class MainActivity extends Activity {
         sizeCard.addView(sizeLabel);
 
         final TextView sizeNum = new TextView(this);
-        sizeNum.setText(String.valueOf(prefs.getEmojiSizeSp()));
+        sizeNum.setText(String.valueOf(prefs.getEmojiSizeLevel()));
         sizeNum.setTextColor(Color.WHITE);
         sizeNum.setTextSize(TypedValue.COMPLEX_UNIT_SP, 38f);
         sizeNum.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
@@ -3001,27 +3001,56 @@ public class MainActivity extends Activity {
         sizeCard.addView(preview);
 
         SeekBar sizeSeek = new SeekBar(this);
-        sizeSeek.setMax(18);
-        sizeSeek.setProgress(prefs.getEmojiSizeSp() - 16);
-        sizeSeek.setPadding(dp(8), dp(10), dp(8), dp(2));
+        sizeSeek.setMax(9);
+        sizeSeek.setProgress(prefs.getEmojiSizeLevel() - 1);
+        // Side padding at least as wide as half the thumb, so the circle is never cut off at either end.
+        final int seekSidePad = dp(18);
+        sizeSeek.setPadding(seekSidePad, dp(10), seekSidePad, dp(2));
         android.content.res.ColorStateList white = android.content.res.ColorStateList.valueOf(Color.WHITE);
-        sizeSeek.setScaleX(1.01f);
-        sizeSeek.setScaleY(1.01f);
         sizeSeek.setProgressTintList(white);
         sizeSeek.setThumbTintList(white);
         sizeSeek.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.argb(90, 255, 255, 255)));
         sizeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int sp = 16 + progress;
-                prefs.setEmojiSizeSp(sp);
-                sizeNum.setText(String.valueOf(sp));
-                preview.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+                int level = progress + 1;
+                prefs.setEmojiSizeLevel(level);
+                sizeNum.setText(String.valueOf(level));
+                preview.setTextSize(TypedValue.COMPLEX_UNIT_SP, KeyboardPreferences.emojiSpForLevel(level));
             }
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-        sizeCard.addView(sizeSeek);
+
+        // A small notch on the slider marks the default size (level 5).
+        final FrameLayout seekHost = new FrameLayout(this);
+        seekHost.setClipChildren(false);
+        seekHost.setClipToPadding(false);
+        seekHost.addView(sizeSeek, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final View defaultNotch = new View(this);
+        GradientDrawable notchBg = new GradientDrawable();
+        notchBg.setColor(Color.argb(150, 124, 45, 18));
+        notchBg.setCornerRadius(dp(2));
+        defaultNotch.setBackground(notchBg);
+        FrameLayout.LayoutParams notchLp = new FrameLayout.LayoutParams(dp(3), dp(16));
+        notchLp.gravity = Gravity.TOP | Gravity.LEFT;
+        seekHost.addView(defaultNotch, notchLp);
+        sizeSeek.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            float track = (r - l) - 2f * seekSidePad;
+            float frac = (KeyboardPreferences.EMOJI_LEVEL_DEFAULT - 1) / 9f;
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) defaultNotch.getLayoutParams();
+            int wantLeft = Math.round(seekSidePad + track * frac - lp.width / 2f);
+            int wantTop = Math.round(dp(10) + (b - t - dp(10) - dp(2)) / 2f - lp.height / 2f);
+            if (lp.leftMargin != wantLeft || lp.topMargin != wantTop) {
+                lp.leftMargin = wantLeft;
+                lp.topMargin = wantTop;
+                defaultNotch.setLayoutParams(lp);
+            }
+        });
+        // Drawn under the thumb so the white circle passes over it.
+        defaultNotch.setElevation(0f);
+        sizeCard.addView(seekHost);
         root.addView(sizeCard);
 
         View clearCard = createActionCard(ModernIconView.ICON_TRASH,

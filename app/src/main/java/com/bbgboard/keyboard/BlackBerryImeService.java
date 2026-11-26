@@ -3814,7 +3814,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, keyboardPrefs.getEmojiSizeSp());
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
             lp.width = cellW;
-            lp.height = dp(Math.max(42, keyboardPrefs.getEmojiSizeSp() + 19));
+            lp.height = dp(Math.max(42, Math.round(keyboardPrefs.getEmojiSizeSp()) + 19));
             tv.setLayoutParams(lp);
             tv.setOnClickListener(v -> {
                 InputConnection ic = getCurrentInputConnection();
