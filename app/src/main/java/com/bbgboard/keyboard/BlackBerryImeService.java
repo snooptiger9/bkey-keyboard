@@ -3237,7 +3237,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         textTv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
         textTv.setMaxLines(2);
         textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        textTv.setPadding(dp(10), dp(10), dp(10), dp(10));
+        textTv.setPadding(dp(10), dp(6), dp(10), dp(6));
         final String phone = keyboardPrefs.isClipPhoneButtonEnabled() ? phoneNumberOrNull(clip.text) : null;
         final String email = (phone == null && keyboardPrefs.isClipMailButtonEnabled()) ? emailOrNull(clip.text) : null;
         textTv.setLayoutParams(phone == null && email == null
