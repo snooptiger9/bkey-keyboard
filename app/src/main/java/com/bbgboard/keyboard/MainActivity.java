@@ -625,7 +625,7 @@ public class MainActivity extends Activity {
         ));
         group2.addView(createMenuRow(
                 ModernIconView.ICON_TEXT_CORRECTION,
-                tr("التصحيح والاقتراحات والتعلّم", "Suggestions & learning"),
+                tr("التصحيح والاقتراحات", "Corrections & suggestions"),
                 null,
                 true,
                 this::openCorrectionsAndMemoryScreen
@@ -2443,7 +2443,7 @@ public class MainActivity extends Activity {
     }
 
     private void openCorrectionsAndMemoryScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("التصحيح والاقتراحات والتعلّم", "Corrections, Suggestions & Learning"));
+        LinearLayout root = createSubScreenTemplate(tr("التصحيح والاقتراحات", "Corrections & suggestions"));
 
         root.addView(createSwitchTile(
                 tr("حفظ الكلمات الجديدة تلقائياً أثناء الكتابة", "Save new words automatically while typing"),
