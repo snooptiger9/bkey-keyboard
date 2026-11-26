@@ -3166,11 +3166,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        // When a screenshot preview exists, pair it in one row with the most recent copied text
-        // (screenshot on the right, text on the left — fixed regardless of UI language). With no
-        // screenshot, copied texts go back to the plain two-per-row grid below.
-        int startIdx = 0;
-        if (hasShotThumb) {
+        // Two independent columns, each card keeping its own height (the screenshot preview, when
+        // there is one, sits at the top of the right column).
+        {
             // Two independent columns (text on the left, screenshot on the right, fixed LTR),
             // so a tall screenshot doesn't stretch a shared row and leave an empty gap beside
             // it: each column simply stacks its own cards. Text cards go to whichever column
@@ -3186,7 +3184,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             LinearLayout leftCol = new LinearLayout(this);
             leftCol.setOrientation(LinearLayout.VERTICAL);
             LinearLayout.LayoutParams leftLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            leftLp.rightMargin = dp(10);
+            leftLp.rightMargin = dp(24);
             leftCol.setLayoutParams(leftLp);
             LinearLayout rightCol = new LinearLayout(this);
             rightCol.setOrientation(LinearLayout.VERTICAL);
@@ -3194,55 +3192,28 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             cols.addView(leftCol);
             cols.addView(rightCol);
 
-            View shotCard = buildScreenshotThumbRow();
-            LinearLayout.LayoutParams shotLp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            shotLp.bottomMargin = dp(7);
-            shotCard.setLayoutParams(shotLp);
-            rightCol.addView(shotCard);
-
-            float leftH = 0f, rightH = 4f;
+            float leftH = 0f, rightH = 0f;
+            if (hasShotThumb) {
+                View shotCard = buildScreenshotThumbRow();
+                LinearLayout.LayoutParams shotLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                shotLp.bottomMargin = dp(7);
+                shotCard.setLayoutParams(shotLp);
+                rightCol.addView(shotCard);
+                rightH = 4f;
+            }
             for (int i = 0; i < clips.size(); i++) {
                 View card = buildClipCard(clips.get(i));
                 LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 cardLp.bottomMargin = dp(7);
                 card.setLayoutParams(cardLp);
-                float units = 1f + Math.min(2f, clips.get(i).text.length() / 40f);
+                float units = Math.min(2f, (float) Math.ceil(Math.max(1, clips.get(i).text.length()) / 25f));
                 if (leftH <= rightH) { leftCol.addView(card); leftH += units; }
                 else { rightCol.addView(card); rightH += units; }
             }
             clipsListContainer.addView(cols);
             return;
-        }
-
-        for (int i = startIdx; i < clips.size(); i += 2) {
-            LinearLayout pairRow = new LinearLayout(this);
-            pairRow.setOrientation(LinearLayout.HORIZONTAL);
-            LinearLayout.LayoutParams pairLp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            pairLp.bottomMargin = dp(7);
-            pairRow.setLayoutParams(pairLp);
-
-            View cardA = buildClipCard(clips.get(i));
-            LinearLayout.LayoutParams cardALp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-            cardALp.setMarginEnd(dp(12));
-            cardA.setLayoutParams(cardALp);
-            pairRow.addView(cardA);
-
-            if (i + 1 < clips.size()) {
-                View cardB = buildClipCard(clips.get(i + 1));
-                LinearLayout.LayoutParams cardBLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-                cardBLp.setMarginStart(dp(12));
-                cardB.setLayoutParams(cardBLp);
-                pairRow.addView(cardB);
-            } else {
-                android.widget.Space filler = new android.widget.Space(this);
-                filler.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 1f));
-                pairRow.addView(filler);
-            }
-
-            clipsListContainer.addView(pairRow);
         }
     }
 
@@ -3264,7 +3235,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         textTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         textTv.setGravity((arabicUi ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);
         textTv.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
-        textTv.setMaxLines(1);
+        textTv.setMaxLines(2);
         textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
         textTv.setPadding(dp(10), dp(10), dp(10), dp(10));
         final String phone = keyboardPrefs.isClipPhoneButtonEnabled() ? phoneNumberOrNull(clip.text) : null;
