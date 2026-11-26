@@ -2227,7 +2227,9 @@ public class BlackBerryKeyboardView extends View {
                 drawStyledKeyCell(canvas, k, bg);
 
                 final String subStr = k.sub;
-                if (!subStr.isEmpty()) {
+                // On the round keys the riyal hint collides with the $, so it stays on long-press only.
+                boolean hideRiyalHint = keyboardStyle == KeyboardPreferences.STYLE_CIRCLES && "\uFDFC".equals(subStr);
+                if (!subStr.isEmpty() && !hideRiyalHint) {
                     // Same style-aware corner math as the globe key's badge: the old fallback for
                     // every style except Material/Soft-round just offset from the RAW cell corner,
                     // ignoring each style's own inset and corner rounding — so on Pill, Glass,
@@ -2265,9 +2267,10 @@ public class BlackBerryKeyboardView extends View {
                     if ((keyboardStyle == KeyboardPreferences.STYLE_MODERN_PILL
                             || keyboardStyle == KeyboardPreferences.STYLE_CIRCLES)
                             && scratchSubBounds.width() > 0.28f * (visRight - visLeft)) {
-                        subTextPaint.setTextSize(subTextPaint.getTextSize() * 0.62f);
+                        subTextPaint.setTextSize(subTextPaint.getTextSize() * ("\uFDFC".equals(subStr) ? 0.62f : 0.75f));
                         subTextPaint.getTextBounds(subStr, 0, subStr.length(), scratchSubBounds);
-                        safeMargin = cornerRadius * 0.24f + 0.6f * density;
+                        safeMargin = "\uFDFC".equals(subStr) ? cornerRadius * 0.24f + 0.6f * density
+                                : cornerRadius * 0.28f + 0.8f * density;
                     }
                     float desiredInkRight = visibleRight - safeMargin;
                     float desiredInkTop = visibleTop + safeMargin;
