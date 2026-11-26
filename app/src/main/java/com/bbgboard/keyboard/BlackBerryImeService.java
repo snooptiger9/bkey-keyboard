@@ -3225,15 +3225,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             pairRow.setLayoutParams(pairLp);
 
             View cardA = buildClipCard(clips.get(i));
-            LinearLayout.LayoutParams cardALp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            cardALp.setMarginEnd(dp(10));
+            LinearLayout.LayoutParams cardALp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+            cardALp.setMarginEnd(dp(12));
             cardA.setLayoutParams(cardALp);
             pairRow.addView(cardA);
 
             if (i + 1 < clips.size()) {
                 View cardB = buildClipCard(clips.get(i + 1));
-                LinearLayout.LayoutParams cardBLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-                cardBLp.setMarginStart(dp(10));
+                LinearLayout.LayoutParams cardBLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                cardBLp.setMarginStart(dp(13));
                 cardB.setLayoutParams(cardBLp);
                 pairRow.addView(cardB);
             } else {
