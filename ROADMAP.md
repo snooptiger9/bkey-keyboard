@@ -8,17 +8,6 @@
 
 ---
 
-### <img src="docs/icons/map.svg" width="24" height="24" align="absmiddle" alt=""> The road ahead
-
-```mermaid
-flowchart LR
-    T(["bkey today<br/>6 languages"]):::now --> S1["1 · Google Play"]:::s1 --> S2["2 · Bahasa Indonesia"]:::s2 --> S3["3 · Several languages<br/>at once"]:::s3
-    classDef now fill:#1E293B,stroke:#94A3B8,color:#F8FAFC
-    classDef s1 fill:#22C55E,stroke:#15803D,color:#052E16
-    classDef s2 fill:#3B82F6,stroke:#1D4ED8,color:#FFFFFF
-    classDef s3 fill:#F97316,stroke:#C2410C,color:#431407
-```
-
 <br>
 
 ## <img src="docs/icons/play-circle.svg" width="28" height="28" align="absmiddle" alt=""> Step 1 — bkey on Google Play &nbsp;![Up next](https://img.shields.io/badge/status-up%20next-22C55E?style=flat-square)
