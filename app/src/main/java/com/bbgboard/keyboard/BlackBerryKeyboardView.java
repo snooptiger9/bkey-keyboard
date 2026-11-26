@@ -2258,6 +2258,8 @@ public class BlackBerryKeyboardView extends View {
                     float visibleRight = visRight;
                     float visibleTop = visTop;
 
+                    float prevSubSize = subTextPaint.getTextSize();
+                    if (isSymbols) subTextPaint.setTextSize(prevSubSize + 2f * scaledDensity);
                     subTextPaint.getTextBounds(subStr, 0, subStr.length(), scratchSubBounds);
                     float desiredInkRight = visibleRight - safeMargin;
                     float desiredInkTop = visibleTop + safeMargin;
@@ -2267,6 +2269,7 @@ public class BlackBerryKeyboardView extends View {
                     subTextPaint.setTextAlign(Paint.Align.LEFT);
                     canvas.drawText(subStr, x, baselineY, subTextPaint);
                     subTextPaint.setTextAlign(prevAlign);
+                    subTextPaint.setTextSize(prevSubSize);
                 }
 
                 if (k.type == KeyType.EMOJI && emojiKeySuggestion != null) {
