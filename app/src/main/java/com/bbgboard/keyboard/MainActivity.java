@@ -1823,6 +1823,14 @@ public class MainActivity extends Activity {
         ));
 
         root.addView(createSwitchTile(
+                tr("مسافة تلقائية بعد ؟ و !", "Auto-space after ? and !"),
+                tr("عند كتابة حرف أو رقم مباشرة بعد ؟ أو ! تُضاف مسافة قبله. لا يعمل في الروابط والإيميلات وكلمات المرور وحقول الأرقام",
+                        "When you type a letter or number right after ? or !, a space is added first. It does not work in links, emails, passwords or number fields"),
+                prefs.isAutoSpaceAfterPunctuation(),
+                checked -> prefs.setAutoSpaceAfterPunctuation(checked)
+        ));
+
+        root.addView(createSwitchTile(
                 tr("زر التراجع بعد المسح", "Undo after deleting"),
                 tr("بعد المسح بالسحب أو الضغط المطوّل على زر المسح، تظهر بطاقة «تراجع» في شريط الاقتراحات ترجع النص المحذوف",
                         "After swiping to delete or holding backspace, an Undo card in the suggestion bar brings the text back"),

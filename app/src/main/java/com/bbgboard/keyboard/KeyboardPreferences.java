@@ -435,6 +435,14 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("auto_switch_after_apostrophe", enabled).apply();
     }
 
+    public boolean isAutoSpaceAfterPunctuation() {
+        return prefs.getBoolean("auto_space_after_punct", false);
+    }
+
+    public void setAutoSpaceAfterPunctuation(boolean enabled) {
+        prefs.edit().putBoolean("auto_space_after_punct", enabled).apply();
+    }
+
     public boolean isShowNumberHints() {
         return prefs.getBoolean("show_number_hints", true);
     }

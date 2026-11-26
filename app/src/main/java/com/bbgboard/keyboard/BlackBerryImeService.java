@@ -1468,6 +1468,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             }
         }
         privateFieldNow = !allowed;
+        boolean emailField = false;
+        if (info != null && (info.inputType & android.text.InputType.TYPE_MASK_CLASS) == android.text.InputType.TYPE_CLASS_TEXT) {
+            int v = info.inputType & android.text.InputType.TYPE_MASK_VARIATION;
+            emailField = v == android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                    || v == android.text.InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS;
+        }
+        autoSpaceBlockedField = !allowed || emailField || numericOnly;
         if (keyboardPrefs.isIncognitoMode()) allowed = false;
         predictionEngine.setLearningAllowed(allowed);
         updatePrivacyIndicator();
@@ -2233,6 +2240,42 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    private boolean autoSpaceBlockedField = false;
+
+    /**
+     * Optional: a letter or digit typed straight after "word?" or "word!" gets a space first.
+     * Deliberately narrow so it never touches anything else: only right after a letter/digit
+     * followed by one ? ! or ؟, never in links, emails, passwords or number fields, and never
+     * when the word looks like an address or code (contains / . @ : = and similar).
+     */
+    private void maybeAutoSpaceAfterPunctuation(InputConnection ic, String text) {
+        if (text == null || text.isEmpty() || autoSpaceBlockedField || passwordFieldActive) return;
+        if (!keyboardPrefs.isAutoSpaceAfterPunctuation()) return;
+        if (!Character.isLetterOrDigit(text.codePointAt(0))) return;
+        try {
+            CharSequence sel = ic.getSelectedText(0);
+            if (sel != null && sel.length() > 0) return;
+            CharSequence cs = textBefore(ic, 64);
+            if (cs == null || cs.length() < 2) return;
+            String b = cs.toString();
+            int n = b.length();
+            char p = b.charAt(n - 1);
+            if (p != '?' && p != '!' && p != '\u061F') return;
+            if (!Character.isLetterOrDigit(b.charAt(n - 2))) return;
+            int s = n - 1;
+            while (s > 0 && !Character.isWhitespace(b.charAt(s - 1))) s--;
+            if (s == 0 && n >= 64) return; // the word may be longer than what we can see
+            String token = b.substring(s, n - 1);
+            for (int i = 0; i < token.length(); i++) {
+                if ("/.@:=#&%\\_<>*+~|^$".indexOf(token.charAt(i)) >= 0) return;
+            }
+            ic.commitText(" ", 1);
+            invalidateTextCache();
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "maybeAutoSpaceAfterPunctuation()", e);
+        }
+    }
+
     @Override
     public void onCharacterTyped(String text) {
         if (gifSearchFocused) {
@@ -2243,6 +2286,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         clearUndo();
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
+        maybeAutoSpaceAfterPunctuation(ic, text);
         String[] ctx = getTypingContext();
         String currentPrefix = ctx[0];
         String prevWord = ctx[1];
