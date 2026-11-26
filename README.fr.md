@@ -73,7 +73,7 @@ charge l'arabe, l'anglais, l'espagnol, l'hindi, le français et l'ourdou, avec u
   ![Suggestion d'emoji automatique](docs/gifs/emoji_suggest.gif?v=2)
 - Raccourcis de texte : tapez un raccourci (p. ex. « omw ») et il se développe en phrase complète à l'espace.
 - Double appui sur espace pour point + espace, et majuscule automatique en début de phrase (anglais/espagnol/français).
-- Suggestions automatiques de codes de vérification (OTP) depuis les SMS ou WhatsApp, traitées entièrement sur l'appareil. *(bkey Plus uniquement)*
+- Suggestions automatiques de codes de vérification (OTP) depuis les notifications de WhatsApp et de l'application Messages, traitées entièrement sur l'appareil. *(bkey Plus uniquement)*
 
 <br>
 
@@ -121,7 +121,7 @@ charge l'arabe, l'anglais, l'espagnol, l'hindi, le français et l'ourdou, avec u
   reconnaissance sur l'appareil (hors ligne), et n'a besoin d'internet qu'en secours si votre appareil ne la prend pas en charge.
 
 - **bkey Plus** ajoute la recherche de GIF, le collage d'images/stickers, les suggestions OTP et la mise à jour intégrée. Les
-  suggestions OTP sont désactivées par défaut et ne lisent qu'une notification SMS/WhatsApp tout juste
+  suggestions OTP sont désactivées par défaut et ne lisent qu'une notification WhatsApp ou de l'application Messages tout juste
   arrivée, jamais l'historique de vos messages, le tout traité sur l'appareil et jamais envoyé à un serveur.
 
 > <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> **À propos de l'avertissement Play Protect sur bkey Plus**

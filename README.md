@@ -73,7 +73,7 @@ tailored experience for each.
   ![Automatic emoji suggestion](docs/gifs/emoji_suggest.gif?v=2)
 - Text shortcuts: type a shortcut (e.g. "omw") and it expands to the full phrase on space.
 - Double-tap space for period + space, and auto-capitalize sentences (English/Spanish/French).
-- Automatic verification-code (OTP) suggestions from SMS or WhatsApp — all processed on-device. *(bkey Plus only)*
+- Automatic verification-code (OTP) suggestions from WhatsApp and messages-app notifications — all processed on-device. *(bkey Plus only)*
 
 <br>
 
@@ -121,7 +121,7 @@ tailored experience for each.
   internet connection as a fallback if your device doesn't support that.
 
 - **bkey Plus** adds GIF search, image/sticker pasting, OTP suggestions, and the in-app updater. OTP
-  suggestions are off by default and only read a newly-arrived SMS/WhatsApp notification — never
+  suggestions are off by default and only read a newly-arrived WhatsApp or messages-app notification — never
   your message history — all processed on-device, never sent to any server.
 
 > <img src="docs/icons/alert.svg" width="22" height="22" align="absmiddle" alt=""> **About the Play Protect warning on bkey Plus**
