@@ -1823,6 +1823,14 @@ public class MainActivity extends Activity {
         ));
 
         root.addView(createSwitchTile(
+                tr("زر التراجع بعد المسح", "Undo after deleting"),
+                tr("بعد المسح بالسحب أو الضغط المطوّل على زر المسح، تظهر بطاقة «تراجع» في شريط الاقتراحات ترجع النص المحذوف",
+                        "After swiping to delete or holding backspace, an Undo card in the suggestion bar brings the text back"),
+                prefs.isUndoAfterDeleteEnabled(),
+                checked -> prefs.setUndoAfterDeleteEnabled(checked)
+        ));
+
+        root.addView(createSwitchTile(
                 tr("بوب أب معاينة الحرف عند اللمس", "Popup on key press"),
                 tr("يظهر الحرف مكبّراً فوق الزر فوراً عند الضغط عليه، ويختفي تلقائياً عند بدء السحب", "Shows the letter enlarged above the key the instant you press it, and disappears as soon as you start swiping"),
                 prefs.isKeyPreviewPopupEnabled(),
@@ -3091,14 +3099,6 @@ public class MainActivity extends Activity {
                         "Swipe sideways over the keys to delete the last word at once (now needs a clearer swipe, less sensitive so it won't delete by accident while typing)"),
                 prefs.isSwipeDeleteWordEnabled(),
                 checked -> prefs.setSwipeDeleteWordEnabled(checked)
-        ));
-
-        root.addView(createSwitchTile(
-                tr("زر التراجع بعد المسح", "Undo after deleting"),
-                tr("بعد المسح بالسحب أو الضغط المطوّل على زر المسح، تظهر بطاقة «تراجع» في شريط الاقتراحات ترجع النص المحذوف",
-                        "After swiping to delete or holding backspace, an Undo card in the suggestion bar brings the text back"),
-                prefs.isUndoAfterDeleteEnabled(),
-                checked -> prefs.setUndoAfterDeleteEnabled(checked)
         ));
 
         root.addView(createSwitchTile(
