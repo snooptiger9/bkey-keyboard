@@ -3196,7 +3196,7 @@ public class MainActivity extends Activity {
     private View createStatCard(String label, String caption, final int target, int colorFrom, int colorTo, long delayMs, final String suffix) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(22), dp(22), dp(22), dp(22));
+        card.setPadding(dp(22), dp(14), dp(22), dp(14));
         GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{colorFrom, colorTo});
         bg.setCornerRadius(dp(26));
         card.setBackground(bg);
@@ -3710,7 +3710,7 @@ public class MainActivity extends Activity {
     private View createTypoCard() {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(22), dp(22), dp(22), dp(18));
+        card.setPadding(dp(22), dp(14), dp(22), dp(12));
         GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.parseColor("#F43F5E"), Color.parseColor("#9D174D")});
         bg.setCornerRadius(dp(26));
