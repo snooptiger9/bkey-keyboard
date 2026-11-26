@@ -70,6 +70,10 @@ public class KeyboardPreferences {
     public KeyboardPreferences(Context context) {
         this.appCtx = context.getApplicationContext() != null ? context.getApplicationContext() : context;
         this.prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        // Undo after deleting: on for a fresh install (no saved settings yet), left off for anyone updating.
+        if (!prefs.contains("undo_after_delete")) {
+            prefs.edit().putBoolean("undo_after_delete", prefs.getAll().isEmpty()).apply();
+        }
         removeDefaultShortcutsOnce();
     }
 
