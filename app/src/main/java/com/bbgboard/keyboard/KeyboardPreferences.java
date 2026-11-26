@@ -839,6 +839,14 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("swipe_delete_word_enabled", enabled).apply();
     }
 
+    public boolean isUndoAfterDeleteEnabled() {
+        return prefs.getBoolean("undo_after_delete", false);
+    }
+
+    public void setUndoAfterDeleteEnabled(boolean enabled) {
+        prefs.edit().putBoolean("undo_after_delete", enabled).apply();
+    }
+
     public boolean isHideEmojiKey() {
         return prefs.getBoolean("hide_emoji_key", false);
     }

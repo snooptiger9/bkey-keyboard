@@ -167,6 +167,52 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private boolean clipChipSensitive = false;
     private final Runnable clipChipExpiry = this::refreshPredictions;
 
+    // Undo after deleting (optional): text removed by swipe-delete or a held backspace can be
+    // brought back from a card in the suggestion bar. Kept in memory only, never in password fields.
+    private final StringBuilder undoText = new StringBuilder();
+    private boolean undoPending = false;
+    private int undoCursor = -1;
+    private int undoAnchor = -1;
+    private long undoRecordTime = 0L;
+
+    private boolean undoAllowed() {
+        return keyboardPrefs != null && keyboardPrefs.isUndoAfterDeleteEnabled() && !passwordFieldActive;
+    }
+
+    private int cursorNow(InputConnection ic) {
+        try {
+            android.view.inputmethod.ExtractedText et = ic.getExtractedText(new android.view.inputmethod.ExtractedTextRequest(), 0);
+            if (et != null && et.selectionStart >= 0) return et.startOffset + et.selectionStart;
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "cursorNow()", e);
+        }
+        return -1;
+    }
+
+    /** Called right before deleting: cursorBefore is where the deleted text ends. */
+    private void recordUndo(String deleted, int cursorBefore) {
+        if (!undoAllowed() || deleted == null || deleted.isEmpty() || cursorBefore < 0) return;
+        if (undoPending && cursorBefore == undoCursor) {
+            undoText.insert(0, deleted);
+        } else {
+            undoText.setLength(0);
+            undoText.append(deleted);
+            undoAnchor = cursorBefore;
+        }
+        undoCursor = cursorBefore - deleted.length();
+        undoPending = true;
+        undoRecordTime = SystemClock.uptimeMillis();
+    }
+
+    private void clearUndo() {
+        if (!undoPending) return;
+        undoPending = false;
+        undoText.setLength(0);
+        undoCursor = -1;
+        undoAnchor = -1;
+        refreshPredictions();
+    }
+
     private boolean hasValidClipChip() {
         return clipChipText != null
                 && keyboardPrefs != null && keyboardPrefs.isClipChipEnabled()
@@ -812,6 +858,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
         lastLearnedEmail = "";
+        clearUndo();
 
         if (orientationJustChanged) {
             // Just a screen rotation, not a real close/reopen or field switch -- keep
@@ -1188,6 +1235,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onFinishInputView(boolean finishingInput) {
         dismissClipMenu();
+        clearUndo();
         // An address typed into a field and left by tapping Next/Login or switching app never
         // got a space or Enter, so it was never saved. Save it now if it is correctly written.
         try {
@@ -1268,6 +1316,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd, int candidatesStart, int candidatesEnd) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd);
         invalidateTextCache();
+        if (undoPending) {
+            boolean collapsed = newSelStart == newSelEnd;
+            boolean atUndo = collapsed && newSelStart == undoCursor;
+            // While a held backspace is still running, older cursor updates arrive late.
+            boolean lateUpdate = collapsed && newSelStart > undoCursor && newSelStart <= undoAnchor
+                    && SystemClock.uptimeMillis() - undoRecordTime < 400L;
+            if (!atUndo && !lateUpdate) clearUndo();
+        }
 
         if (SystemClock.uptimeMillis() - lastCursorStepTime > CURSOR_SESSION_MS) {
             curSelStart = newSelStart;
@@ -1979,6 +2035,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onEmojiSuggestionAccepted(String emoji) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null || emoji == null) return;
+        clearUndo();
 
         CharSequence beforeCs = textBefore(ic, 1);
         String before = beforeCs != null ? beforeCs.toString() : "";
@@ -2104,6 +2161,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         final InputConnection chipIc = getCurrentInputConnection();
         keyboardView.setMiddleBlocked(false);
+        if (undoPending) {
+            keyboardView.setToolbarIdleMode(false);
+            keyboardView.setSuggestions(Arrays.asList("", uiText("تراجع", "Undo", "Deshacer"), ""), 5);
+            keyboardView.setEmojiKeySuggestion(null);
+            return;
+        }
         if (hasValidPendingOtp() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
 
             keyboardView.setToolbarIdleMode(false);
@@ -2177,6 +2240,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             updateGifQueryDisplay();
             return;
         }
+        clearUndo();
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         String[] ctx = getTypingContext();
@@ -2271,6 +2335,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public boolean onBackspaceSingle() {
+        return backspaceOnce(false);
+    }
+
+    @Override
+    public boolean onBackspaceRepeat() {
+        return backspaceOnce(true);
+    }
+
+    /** held: part of a press-and-hold, so the removed text can be undone; a single tap hides the undo card. */
+    private boolean backspaceOnce(boolean held) {
         if (gifSearchFocused) {
             int len = gifQueryBuilder.length();
             if (len <= 0) return false;
@@ -2280,12 +2354,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
+        if (!held) clearUndo();
         CharSequence selected = ic.getSelectedText(0);
         boolean deleted;
         if (selected != null && selected.length() > 0) {
+            if (held && undoAllowed()) {
+                int c = cursorNow(ic);
+                if (c >= 0) recordUndo(selected.toString(), c + selected.length());
+            }
             ic.commitText("", 1);
             deleted = true;
         } else if (lastAutoCorrectResult != null && undoAutoCorrectIfImmediate(ic)) {
+            clearUndo();
             deleted = true;
         } else {
             CharSequence before = textBefore(ic, 1);
@@ -2296,6 +2376,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 deleted = false;
             } else {
                 int len = lastGraphemeLength(ic);
+                if (held && undoAllowed()) {
+                    CharSequence gone = textBefore(ic, len);
+                    int c = undoPending ? undoCursor : cursorNow(ic);
+                    if (gone != null) recordUndo(gone.toString(), c);
+                }
                 ic.deleteSurroundingText(len, 0);
                 deleted = true;
             }
@@ -2357,6 +2442,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         android.view.inputmethod.ExtractedTextRequest selReq = new android.view.inputmethod.ExtractedTextRequest();
         android.view.inputmethod.ExtractedText selEt = ic.getExtractedText(selReq, 0);
         if (selEt != null && selEt.selectionEnd > selEt.selectionStart) {
+            if (undoAllowed() && selEt.text != null) {
+                try {
+                    String sel = selEt.text.subSequence(selEt.selectionStart, selEt.selectionEnd).toString();
+                    recordUndo(sel, selEt.startOffset + selEt.selectionEnd);
+                } catch (Exception e) {
+                    AppLogger.log("BlackBerryImeService", "swipe undo", e);
+                }
+            }
             ic.commitText("", 1);
             refreshPredictions();
             return true;
@@ -2364,6 +2457,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         // Same as backspace: right after an auto-correction, the swipe brings the original word back.
         if (lastAutoCorrectResult != null && undoAutoCorrectIfImmediate(ic)) {
+            clearUndo();
             lastAutoCorrectOriginal = null;
             lastAutoCorrectResult = null;
             refreshPredictions();
@@ -2383,6 +2477,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         int deleteLength = before.length() - i;
         if (deleteLength > 0) {
+            if (undoAllowed()) {
+                int c = undoPending ? undoCursor
+                        : (selEt != null && selEt.selectionStart >= 0 ? selEt.startOffset + selEt.selectionStart : cursorNow(ic));
+                recordUndo(before.substring(i), c);
+            }
             ic.deleteSurroundingText(deleteLength, 0);
             keyboardPrefs.addStat("stat_swipe_deletes", 1);
         }
@@ -2453,6 +2552,18 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onSwipeUpSuggestion(int zoneIndex) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
+        if (undoPending) {
+            if (zoneIndex == 1) {
+                String back = undoText.toString();
+                undoPending = false;
+                undoText.setLength(0);
+                undoCursor = -1;
+                undoAnchor = -1;
+                ic.commitText(back, 1);
+                refreshPredictions();
+            }
+            return;
+        }
         String[] ctx = getTypingContext();
         String currentPrefix = ctx[0];
         String lastCompletedWord = ctx[1];
@@ -2544,6 +2655,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             closeGifSearchKeyboard(true);
             return;
         }
+        clearUndo();
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         String[] ctx = getTypingContext();

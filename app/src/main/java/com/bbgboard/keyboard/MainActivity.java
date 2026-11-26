@@ -3094,6 +3094,14 @@ public class MainActivity extends Activity {
         ));
 
         root.addView(createSwitchTile(
+                tr("زر التراجع بعد المسح", "Undo after deleting"),
+                tr("بعد المسح بالسحب أو الضغط المطوّل على زر المسح، تظهر بطاقة «تراجع» في شريط الاقتراحات ترجع النص المحذوف",
+                        "After swiping to delete or holding backspace, an Undo card in the suggestion bar brings the text back"),
+                prefs.isUndoAfterDeleteEnabled(),
+                checked -> prefs.setUndoAfterDeleteEnabled(checked)
+        ));
+
+        root.addView(createSwitchTile(
                 tr("السحب الأفقي لتحديد كل النص", "Horizontal swipe to select all text"),
                 tr("اسحب بالاتجاه المعاكس تماماً لسحبة المسح فوق الحروف ليتحدد كل النص المكتوب دفعة واحدة",
                         "Swipe over the keys in the exact opposite direction of swipe-to-delete to select all the typed text at once"),

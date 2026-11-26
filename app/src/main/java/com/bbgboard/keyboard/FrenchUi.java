@@ -22,6 +22,7 @@ final class FrenchUi {
         TEXT.put("Pin", "Épingler");
         TEXT.put("Powered by KLIPY", "Propulsé par KLIPY");
         TEXT.put("Search KLIPY...", "Rechercher sur KLIPY...");
+        TEXT.put("Undo", "Annuler");
         TEXT.put("No recent emojis yet", "Aucun emoji récent pour l’instant");
         TEXT.put("  •  Long-press any emoji to delete it", "  •  Appuyez longuement sur un emoji pour le supprimer");
         TEXT.put("  •  Long-press any GIF to delete it", "  •  Appuyez longuement sur un GIF pour le supprimer");

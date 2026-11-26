@@ -23,6 +23,7 @@ final class HindiUi {
         TEXT.put("Pin", "पिन करें");
         TEXT.put("Powered by KLIPY", "KLIPY द्वारा संचालित");
         TEXT.put("Search KLIPY...", "KLIPY में खोजें...");
+        TEXT.put("Undo", "पूर्ववत करें");
         TEXT.put("No recent emojis yet", "अभी तक कोई हाल का इमोजी नहीं");
         TEXT.put("  •  Long-press any emoji to delete it", "  •  किसी भी इमोजी को हटाने के लिए देर तक दबाएँ");
         TEXT.put("  •  Long-press any GIF to delete it", "  •  किसी भी GIF को हटाने के लिए देर तक दबाएँ");

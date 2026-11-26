@@ -22,6 +22,7 @@ final class UrduUi {
         TEXT.put("Pin", "پن کریں");
         TEXT.put("Powered by KLIPY", "KLIPY کے تعاون سے");
         TEXT.put("Search KLIPY...", "KLIPY میں تلاش کریں...");
+        TEXT.put("Undo", "واپس لائیں");
         TEXT.put("No recent emojis yet", "ابھی تک کوئی حالیہ ایموجی نہیں");
         TEXT.put("  •  Long-press any emoji to delete it", "  •  کسی بھی ایموجی کو حذف کرنے کے لیے دیر تک دبائیں");
         TEXT.put("  •  Long-press any GIF to delete it", "  •  کسی بھی GIF کو حذف کرنے کے لیے دیر تک دبائیں");

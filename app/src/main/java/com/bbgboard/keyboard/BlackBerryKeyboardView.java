@@ -70,6 +70,8 @@ public class BlackBerryKeyboardView extends View {
          *  nothing before the cursor to delete, so the caller should stop repeating instead
          *  of continuing to vibrate/click on an empty field as if still actively deleting. */
         boolean onBackspaceSingle();
+        /** Same as onBackspaceSingle, but part of a press-and-hold (its text can be undone). */
+        boolean onBackspaceRepeat();
         boolean onSwipeLeftDeleteWord();
 
         boolean onSwipeSelectAll();
@@ -336,6 +338,7 @@ public class BlackBerryKeyboardView extends View {
     };
 
     private long backspaceRepeatStartUptime = 0L;
+    private boolean backspaceHeld = false;
     // Repeat stays at a steady pace for a safe margin after it kicks in, so a normal
     // press-and-hold never feels like it's "running away" -- only a deliberately long
     // hold ramps up, and even then it eases toward a floor instead of jumping there.
@@ -347,7 +350,8 @@ public class BlackBerryKeyboardView extends View {
         @Override
         public void run() {
             if (touchDownKey != null && touchDownKey.type == KeyType.BACKSPACE && !isDragging) {
-                boolean deleted = listener != null && listener.onBackspaceSingle();
+                backspaceHeld = true;
+                boolean deleted = listener != null && listener.onBackspaceRepeat();
                 if (!deleted) {
                     // Nothing left before the cursor -- stop repeating instead of carrying on
                     // with haptic/sound ticks every frame as if still actively deleting.
@@ -2170,6 +2174,8 @@ public class BlackBerryKeyboardView extends View {
                 drawScreenshotChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType == 4 && !word.isEmpty()) {
                 drawClipTextChip(canvas, r, word, paint);
+            } else if (i == 1 && middleIconType == 5 && !word.isEmpty()) {
+                drawUndoChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType == 3 && !word.isEmpty()) {
                 drawTextChip(canvas, r, word, paint);
             } else if (i == 1 && middleIconType != 0 && !word.isEmpty()) {
@@ -2705,6 +2711,15 @@ public class BlackBerryKeyboardView extends View {
 
     /** Copied-text chip: same card as the screenshot chip, with a small clipboard icon in place of the thumbnail. */
     private void drawClipTextChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
+        drawIconTextChip(canvas, slot, label, textPaint, false);
+    }
+
+    /** Undo card: same card as the copied-text chip, with a drawn undo arrow. */
+    private void drawUndoChip(Canvas canvas, RectF slot, String label, Paint textPaint) {
+        drawIconTextChip(canvas, slot, label, textPaint, true);
+    }
+
+    private void drawIconTextChip(Canvas canvas, RectF slot, String label, Paint textPaint, boolean undoIcon) {
         float chipH = Math.min(slot.height() - 12f * density, 38f * density);
         float iconW = 14f * density;
         float pad = 10f * density;
@@ -2734,8 +2749,12 @@ public class BlackBerryKeyboardView extends View {
         float textX = iconRight ? iconLeft - gap - textW : iconLeft + iconW + gap;
         drawRectB.set(iconLeft, chip.top, iconLeft + iconW, chip.bottom);
         int save = canvas.save();
-        canvas.scale(0.82f, 0.82f, drawRectB.centerX(), drawRectB.centerY());
-        drawClipboardMenuIcon(canvas, drawRectB);
+        if (undoIcon) {
+            drawUndoIcon(canvas, drawRectB.centerX(), drawRectB.centerY(), iconW, iconRight);
+        } else {
+            canvas.scale(0.82f, 0.82f, drawRectB.centerX(), drawRectB.centerY());
+            drawClipboardMenuIcon(canvas, drawRectB);
+        }
         canvas.restoreToCount(save);
 
         Paint.Align prevAlign = textPaint.getTextAlign();
@@ -3189,6 +3208,45 @@ public class BlackBerryKeyboardView extends View {
         iconStrokePaint.setStyle(prevStyle);
     }
 
+    private final RectF undoArcRect = new RectF();
+
+    /** Undo arrow: arrowhead pointing back, a short shaft and a rounded hook (mirrored for right-to-left). */
+    private void drawUndoIcon(Canvas canvas, float cx, float cy, float size, boolean mirror) {
+        if (mirror) canvas.scale(-1f, 1f, cx, cy);
+        float s = size;
+        float prevW = iconStrokePaint.getStrokeWidth();
+        Paint.Style prevStyle = iconStrokePaint.getStyle();
+        Paint.Cap prevCap = iconStrokePaint.getStrokeCap();
+        Paint.Join prevJoin = iconStrokePaint.getStrokeJoin();
+        iconStrokePaint.setStyle(Paint.Style.STROKE);
+        iconStrokePaint.setStrokeWidth(1.7f * density);
+        iconStrokePaint.setStrokeCap(Paint.Cap.ROUND);
+        iconStrokePaint.setStrokeJoin(Paint.Join.ROUND);
+
+        float tipX = cx - 0.40f * s, shaftY = cy - 0.16f * s;
+        float hookX = cx + 0.12f * s, r = 0.24f * s;
+        Path p = iconScratchPath;
+        p.reset();
+        p.moveTo(tipX, shaftY);
+        p.lineTo(hookX, shaftY);
+        undoArcRect.set(hookX - r, shaftY, hookX + r, shaftY + 2f * r);
+        p.arcTo(undoArcRect, -90f, 180f, false);
+        p.lineTo(cx - 0.14f * s, shaftY + 2f * r);
+        canvas.drawPath(p, iconStrokePaint);
+
+        float head = 0.20f * s;
+        p.reset();
+        p.moveTo(tipX + head, shaftY - head);
+        p.lineTo(tipX, shaftY);
+        p.lineTo(tipX + head, shaftY + head);
+        canvas.drawPath(p, iconStrokePaint);
+
+        iconStrokePaint.setStrokeWidth(prevW);
+        iconStrokePaint.setStyle(prevStyle);
+        iconStrokePaint.setStrokeCap(prevCap);
+        iconStrokePaint.setStrokeJoin(prevJoin);
+    }
+
     private void drawClipboardMenuIcon(Canvas canvas, RectF rect) {
         float cx = rect.centerX();
         float cy = rect.centerY();
@@ -3512,6 +3570,7 @@ public class BlackBerryKeyboardView extends View {
                     invalidate();
 
                     if (touchDownKey.type == KeyType.BACKSPACE) {
+                        backspaceHeld = false;
                         backspaceRepeatStartUptime = SystemClock.uptimeMillis();
                         handler.postDelayed(repeatBackspaceRunnable, 380L);
                     } else if (touchDownKey.type == KeyType.CHAR || touchDownKey.type == KeyType.PERIOD || touchDownKey.type == KeyType.SHIFT || touchDownKey.type == KeyType.LANGUAGE || touchDownKey.type == KeyType.EMOJI) {
@@ -3854,7 +3913,12 @@ public class BlackBerryKeyboardView extends View {
                 listener.onCharacterTyped(isHindi ? "।" : (isUrdu ? "۔" : "."));
                 break;
             case BACKSPACE:
-                listener.onBackspaceSingle();
+                if (backspaceHeld) {
+                    backspaceHeld = false;
+                    listener.onBackspaceRepeat();
+                } else {
+                    listener.onBackspaceSingle();
+                }
                 break;
             case ENTER:
                 listener.onEnterKey();
