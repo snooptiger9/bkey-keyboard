@@ -2259,7 +2259,7 @@ public class BlackBerryKeyboardView extends View {
                     float visibleTop = visTop;
 
                     float prevSubSize = subTextPaint.getTextSize();
-                    if (isSymbols) subTextPaint.setTextSize(prevSubSize + 2f * scaledDensity);
+                    if (isNumericFieldMode) subTextPaint.setTextSize(prevSubSize + 2f * scaledDensity);
                     subTextPaint.getTextBounds(subStr, 0, subStr.length(), scratchSubBounds);
                     float desiredInkRight = visibleRight - safeMargin;
                     float desiredInkTop = visibleTop + safeMargin;
