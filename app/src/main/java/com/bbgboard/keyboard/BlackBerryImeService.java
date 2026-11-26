@@ -3626,12 +3626,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         updateEmojiTabHighlight(firstEmojiTab());
     }
 
-    /** "Recently used" (header, grid and tab) is shown only while there is something in it. */
+    /** The "Recently used" header and grid show only while there is something in it; its clock tab always stays. */
     private void applyRecentEmojiVisibility() {
         int vis = keyboardPrefs.getRecentEmojis().isEmpty() ? View.GONE : View.VISIBLE;
         if (!emojiSectionHeaders.isEmpty()) emojiSectionHeaders.get(0).setVisibility(vis);
         if (emojiRecentGrid != null) emojiRecentGrid.setVisibility(vis);
-        if (!emojiTabViews.isEmpty()) emojiTabViews.get(0).setVisibility(vis);
     }
 
     private int firstEmojiTab() {
