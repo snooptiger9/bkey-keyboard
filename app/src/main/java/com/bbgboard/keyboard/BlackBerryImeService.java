@@ -3233,7 +3233,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (i + 1 < clips.size()) {
                 View cardB = buildClipCard(clips.get(i + 1));
                 LinearLayout.LayoutParams cardBLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-                cardBLp.setMarginStart(dp(13));
+                cardBLp.setMarginStart(dp(12));
                 cardB.setLayoutParams(cardBLp);
                 pairRow.addView(cardB);
             } else {
