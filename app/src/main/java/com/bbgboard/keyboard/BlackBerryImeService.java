@@ -1067,19 +1067,30 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             } else {
                 // The keyboard view isn't built yet: send a dark style anyway so the system
                 // doesn't fall back to its default white cards.
+                int fbBg, fbText;
+                switch (keyboardPrefs.getThemeMode()) {
+                    case KeyboardPreferences.THEME_GBOARD_WHITE:
+                        fbBg = Color.parseColor("#FFFFFF"); fbText = Color.parseColor("#1E293B"); break;
+                    case KeyboardPreferences.THEME_MIDNIGHT_SLATE:
+                        fbBg = Color.parseColor("#1E293B"); fbText = Color.parseColor("#F8FAFC"); break;
+                    case KeyboardPreferences.THEME_FOREST_GREEN:
+                        fbBg = Color.parseColor("#1B3126"); fbText = Color.parseColor("#F0FDF4"); break;
+                    default:
+                        fbBg = Color.parseColor("#262626"); fbText = Color.WHITE;
+                }
                 androidx.autofill.inline.common.ViewStyle fallbackChip =
                         new androidx.autofill.inline.common.ViewStyle.Builder()
-                                .setBackgroundColor(Color.parseColor("#2A2D35"))
+                                .setBackgroundColor(fbBg)
                                 .setPadding(dp(12), 0, dp(12), 0)
                                 .build();
                 androidx.autofill.inline.common.TextViewStyle fallbackTitle =
                         new androidx.autofill.inline.common.TextViewStyle.Builder()
-                                .setTextColor(Color.parseColor("#F2F2F2"))
+                                .setTextColor(fbText)
                                 .setTextSize(14f)
                                 .build();
                 androidx.autofill.inline.common.TextViewStyle fallbackSub =
                         new androidx.autofill.inline.common.TextViewStyle.Builder()
-                                .setTextColor(Color.parseColor("#B0F2F2F2"))
+                                .setTextColor((fbText & 0x00FFFFFF) | 0xB0000000)
                                 .setTextSize(11f)
                                 .build();
                 styleBuilder.setChipStyle(fallbackChip)
