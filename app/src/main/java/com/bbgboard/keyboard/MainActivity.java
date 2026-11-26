@@ -2934,7 +2934,7 @@ public class MainActivity extends Activity {
     }
 
     private void openEmojiScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("الإيموجي والرموز", "Emoji & Symbols"));
+        LinearLayout root = createSubScreenTemplate(tr("الإيموجي والرموز", "Emojis & symbols"));
         fillEmojiScreen(root);
     }
 
@@ -3088,7 +3088,7 @@ public class MainActivity extends Activity {
     }
 
     private void openGesturesScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("إيماءات السحب والأنميشن", "Swipe Gestures & Animation"));
+        LinearLayout root = createSubScreenTemplate(tr("إيماءات السحب والأنميشن", "Swipe gestures & animation"));
 
         root.addView(createSwitchTile(
                 tr("أنميشن طيران الكلمة الواضح لأعلى الشاشة خارج الكيبورد", "Clear flying-word animation above the keyboard"),
@@ -3788,7 +3788,7 @@ public class MainActivity extends Activity {
     }
 
     private void openSoundAndVibrationScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("الصوت والاهتزاز", "Sound & Vibration"));
+        LinearLayout root = createSubScreenTemplate(tr("الصوت والاهتزاز", "Sound & vibration"));
 
         root.addView(createSwitchTile(
                 tr("تفعيل صوت الكتابة الفوري (Zero-Latency SoundPool)", "Enable instant typing sound (Zero-Latency SoundPool)"),
@@ -3970,7 +3970,7 @@ public class MainActivity extends Activity {
     }
 
     private void openClipboardScreen() {
-        LinearLayout root = createSubScreenTemplate(tr("الحافظة الذكية (Clipboard)", "Smart Clipboard"));
+        LinearLayout root = createSubScreenTemplate(tr("الحافظة الذكية (Clipboard)", "Smart clipboard"));
 
         if (BuildConfig.OTP_FEATURES_ENABLED) {
             // Screenshot-to-clipboard needs photos/storage permission, which

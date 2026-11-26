@@ -1817,7 +1817,7 @@ public class BlackBerryKeyboardView extends View {
             new KeyDef("*", "×", Collections.singletonList("×")),
             new KeyDef("\"", "«", Collections.singletonList("«")),
             new KeyDef("'", "»", Collections.singletonList("»")),
-            new KeyDef(":", "", Collections.singletonList(":")),
+            new KeyDef(":", "", Collections.<String>emptyList()),
             isRtlScript() ? new KeyDef("؛", ";", Collections.singletonList(";"))
                           : arabicScriptOn ? new KeyDef(";", "؛", Collections.singletonList("؛"))
                           : new KeyDef(";", "", Collections.<String>emptyList()),
