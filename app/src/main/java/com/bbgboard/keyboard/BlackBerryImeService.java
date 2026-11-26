@@ -26,6 +26,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.ExtractedText;
@@ -123,6 +124,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private ScrollView emojiScroll;
     private LinearLayout emojiSectionsHost;
     private GridLayout emojiRecentGrid;
+    private TextView emojiRecentEmptyText;
     private final List<View> emojiSectionHeaders = new ArrayList<>();
     private final List<View> emojiTabViews = new ArrayList<>();
     private int activeEmojiCategory = 0;
@@ -1257,7 +1259,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 keyboardView.setLayoutParams(lp);
             }
         }
-        if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
+        scrollEmojiToStart();
         if (gifScroll != null) gifScroll.scrollTo(0, 0);
         if (!emojiTabViews.isEmpty()) updateEmojiTabHighlight(firstEmojiTab());
     }
@@ -1837,7 +1839,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         suppressEmojiTabScrollSync = true;
         rebuildEmojiSections();
         updateAbcBackLabels(keyboardView == null || keyboardView.isArabic());
-        if (emojiScroll != null) emojiScroll.scrollTo(0, 0);
+        scrollEmojiToStart();
         matchDrawerHeightToKeyboard(emojiDrawerView);
         keyboardView.setVisibility(View.GONE);
         clipboardDrawerView.setVisibility(View.GONE);
@@ -3605,10 +3607,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String[] catTitles = emojiCatTitles();
         for (int c = 0; c < catTitles.length; c++) {
             TextView title = new TextView(this);
-            String longPressHint = uiText("  •  اضغط مطولاً على أي رمز لحذفه",
-                    "  •  Long-press any emoji to delete it",
-                    "  •  Mantén pulsado un emoji para eliminarlo");
-            title.setText(c == 0 ? catTitles[0] + longPressHint : catTitles[c]);
+            title.setText(catTitles[c]);
             title.setTextColor(subC());
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
             title.setTypeface(Typeface.DEFAULT_BOLD);
@@ -3621,16 +3620,54 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             if (c == 0) emojiRecentGrid = grid;
             fillEmojiGrid(grid, c == 0 ? keyboardPrefs.getRecentEmojis() : Arrays.asList(EMOJI_CATEGORIES[c]), c == 0);
             emojiSectionsHost.addView(grid);
+            if (c == 0) {
+                TextView empty = new TextView(this);
+                empty.setText(uiText("لا توجد إيموجي مستخدمة حديثاً", "No recent emojis yet", "Aún no hay emojis recientes"));
+                empty.setTextColor(subC());
+                empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+                empty.setGravity(Gravity.CENTER);
+                empty.setPadding(dp(8), dp(18), dp(8), dp(22));
+                emojiRecentEmptyText = empty;
+                emojiSectionsHost.addView(empty);
+            }
         }
         applyRecentEmojiVisibility();
         updateEmojiTabHighlight(firstEmojiTab());
     }
 
-    /** The "Recently used" header and grid show only while there is something in it; its clock tab always stays. */
+    /** Empty "Recently used": the section stays (its clock tab scrolls to it) and shows a short message. */
     private void applyRecentEmojiVisibility() {
-        int vis = keyboardPrefs.getRecentEmojis().isEmpty() ? View.GONE : View.VISIBLE;
-        if (!emojiSectionHeaders.isEmpty()) emojiSectionHeaders.get(0).setVisibility(vis);
-        if (emojiRecentGrid != null) emojiRecentGrid.setVisibility(vis);
+        boolean has = !keyboardPrefs.getRecentEmojis().isEmpty();
+        if (!emojiSectionHeaders.isEmpty() && emojiSectionHeaders.get(0) instanceof TextView) {
+            String title = emojiCatTitles()[0];
+            if (has) title += uiText("  •  اضغط مطولاً على أي رمز لحذفه",
+                    "  •  Long-press any emoji to delete it",
+                    "  •  Mantén pulsado un emoji para eliminarlo");
+            ((TextView) emojiSectionHeaders.get(0)).setText(title);
+        }
+        if (emojiRecentGrid != null) emojiRecentGrid.setVisibility(has ? View.VISIBLE : View.GONE);
+        if (emojiRecentEmptyText != null) emojiRecentEmptyText.setVisibility(has ? View.GONE : View.VISIBLE);
+    }
+
+    /** Opens at the top; with nothing recent it starts at Smileys, the empty section sits just above. */
+    private void scrollEmojiToStart() {
+        if (emojiScroll == null) return;
+        emojiScroll.scrollTo(0, 0);
+        if (!keyboardPrefs.getRecentEmojis().isEmpty() || emojiSectionHeaders.size() < 2) return;
+        final View faces = emojiSectionHeaders.get(1);
+        final ViewTreeObserver vto = emojiScroll.getViewTreeObserver();
+        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override public boolean onPreDraw() {
+                ViewTreeObserver live = emojiScroll.getViewTreeObserver();
+                if (live.isAlive()) live.removeOnPreDrawListener(this);
+                int y = faces.getTop();
+                if (y > 0 && emojiScroll.getScrollY() != y) {
+                    emojiScroll.scrollTo(0, y);
+                    return false;
+                }
+                return true;
+            }
+        });
     }
 
     private int firstEmojiTab() {
