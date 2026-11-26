@@ -1,16 +1,18 @@
-<!-- versionCode: 314 -->
-### Release v314.0
+<!-- versionCode: 315 -->
+### Release v315.0
 
-- **Urdu language:** Urdu is now available, with its own phonetic layout, dictionary, next-word suggestions, emoji suggestions, Urdu punctuation (۔ ، ؟) and translated keyboard panels.
-- **Settings in your language:** The settings are now translated into Spanish, French, Hindi and Urdu, and follow your phone's language. On Android 13 and later you can also pick bkey's language in the system settings (Apps → bkey → Language, or Settings → App languages).
-- **French AZERTY:** French now uses the AZERTY layout, with an apostrophe key. You can switch back to QWERTY in Settings → Languages.
-- **Better French typing:** Words with an apostrophe (c'est, j'ai, l'homme) are no longer auto-corrected wrongly, suggestions continue after the apostrophe, and common spellings like "cest" or "coeur" are fixed to "c'est" and "cœur".
-- **Better Spanish typing:** ñ has its own key, and ¿ and ¡ are on the long-press of the period key.
-- **Cleaner dictionaries:** The Spanish and French dictionaries were checked against spell-checker dictionaries, removing English names and misspelled words.
-- **Symbols per language:** The symbols page and long-press menus now show what fits the language you are typing in (digits, currencies, punctuation and accents), without letters from other languages.
-- **Auto-correct keeps punctuation:** Punctuation typed around a word, like "¿" or a comma, is no longer lost when the word is corrected.
-- **Split keyboard setting:** A new option in Preferences sets the split keyboard on large screens to automatic, always on or always off.
-- **Number pad:** The comma and period keys switched places.
-- **Shift key:** A new outlined Shift arrow.
-- **Voice typing messages:** Now shown in the keyboard's language.
-- **Better battery life:** Lower battery use while typing, and lighter bundled fonts.
+- **Undo after deleting:** A new option in Preferences shows an Undo arrow after you delete text, so you can bring it back.
+- **Auto-switch after apostrophe:** A new option returns to the letters page after typing an apostrophe from the symbols page.
+- **Auto-space after ? and !:** A new option adds a space after question and exclamation marks.
+- **Emoji size slider:** Now has 10 levels with a mark on the default, and the thumb is no longer clipped.
+- **Recent emojis:** The Recently used tab is always visible and shows a message when it is empty.
+- **Number pad:** The small alternate symbols (#, *, +) are larger and easier to read.
+- **Right-to-left settings:** Fixed the text direction of settings labels and the title animation in Arabic and Urdu.
+- **Option check marks:** Now drawn like the toggle check mark.
+
+**bkey Plus only**
+
+- **One-time codes from notifications:** Codes are now read from WhatsApp and your default messages app notifications, so Plus no longer asks for the SMS permission.
+- **More languages for codes:** One-time code detection now understands Spanish, French, Hindi and Urdu messages.
+- **Long messages:** Codes in long, multi-line messages (like bank purchase confirmations) are now found.
+- **Code suggestion is no longer covered:** While a fresh code is showing, Android's own autofill suggestion is hidden for 60 seconds.
