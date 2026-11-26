@@ -26,7 +26,7 @@ If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22"
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Support](#en-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Roadmap](#en-roadmap) · [Support](#en-support)
 
 ### Overview <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -234,6 +234,18 @@ No — it's lightweight and runs fully on-device, with no background cloud proce
 ### Community & bug reports <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 Settings → **About & maintenance** → **Error log** → **"Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
+
+<br>
+
+<a id="en-roadmap"></a>
+
+### Roadmap <img src="docs/icons/map.svg" width="24" height="24" align="absmiddle" alt="">
+
+<a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="Roadmap" width="520"></a>
+
+What's next for bkey: **Google Play**, **Bahasa Indonesia**, and **typing in several languages at once**.
+
+[**See the full roadmap (in English)**](ROADMAP.md)
 
 <br>
 

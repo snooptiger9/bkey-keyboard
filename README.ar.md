@@ -26,7 +26,7 @@
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [الدعم](#ar-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [خارطة الطريق](#ar-roadmap) · [الدعم](#ar-support)
 
 ### الوصف <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -260,6 +260,22 @@
 <div dir="rtl">
 
 من الإعدادات ← **حول التطبيق والصيانة** ← **سجل الأخطاء** ← **"إرسال للمطوّر"** يرسل تفاصيل أي خطأ مباشرة لـ **lvl60me@gmail.com** — نفس الإيميل للاقتراحات والملاحظات، وهو الطريقة الوحيدة للتواصل مع المطوّر.
+
+</div>
+
+<br>
+
+<a id="ar-roadmap"></a>
+
+### خارطة الطريق <img src="docs/icons/map.svg" width="24" height="24" align="absmiddle" alt="">
+
+<a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="خارطة الطريق" width="520"></a>
+
+<div dir="rtl">
+
+اللي جاي لـ bkey: **Google Play**، و**اللغة الإندونيسية**، و**الكتابة بعدة لغات في نفس الوقت**.
+
+[**شوف خارطة الطريق كاملة (بالإنجليزية)**](ROADMAP.md)
 
 </div>
 

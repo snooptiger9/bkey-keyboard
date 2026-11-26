@@ -26,7 +26,7 @@ Si te resulta útil, una <img src="docs/icons/star.svg" width="22" height="22" a
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Enlaces rápidos:** [Funciones](#es-features) · [Privacidad y seguridad](#es-privacy) · [Descarga](#es-download) · [Compílalo tú mismo](BUILDING.md) · [Preguntas frecuentes](#es-faq) · [Comunidad y errores](#es-community) · [Apoyo](#es-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Enlaces rápidos:** [Funciones](#es-features) · [Privacidad y seguridad](#es-privacy) · [Descarga](#es-download) · [Compílalo tú mismo](BUILDING.md) · [Preguntas frecuentes](#es-faq) · [Comunidad y errores](#es-community) · [Hoja de ruta](#es-roadmap) · [Apoyo](#es-support)
 
 ### Descripción <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -234,6 +234,18 @@ No: es ligero y funciona por completo en el dispositivo, sin procesamiento en la
 ### Comunidad y errores <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 Ajustes → **Acerca de y mantenimiento** → **Error log** → **"Email developer"** envía los detalles del fallo directamente a **lvl60me@gmail.com**: la misma dirección sirve para sugerencias o comentarios, y es la única forma de contactar con el desarrollador.
+
+<br>
+
+<a id="es-roadmap"></a>
+
+### Hoja de ruta <img src="docs/icons/map.svg" width="24" height="24" align="absmiddle" alt="">
+
+<a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="Hoja de ruta" width="520"></a>
+
+Lo próximo en bkey: **Google Play**, **indonesio** y **escribir en varios idiomas a la vez**.
+
+[**Ver la hoja de ruta completa (en inglés)**](ROADMAP.md)
 
 <br>
 

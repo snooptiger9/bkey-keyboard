@@ -26,7 +26,7 @@
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **त्वरित लिंक:** [सुविधाएँ](#hi-features) · [गोपनीयता और सुरक्षा](#hi-privacy) · [डाउनलोड](#hi-download) · [खुद बनाएँ](BUILDING.md) · [अक्सर पूछे जाने वाले प्रश्न](#hi-faq) · [समुदाय और बग](#hi-community) · [सहयोग](#hi-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **त्वरित लिंक:** [सुविधाएँ](#hi-features) · [गोपनीयता और सुरक्षा](#hi-privacy) · [डाउनलोड](#hi-download) · [खुद बनाएँ](BUILDING.md) · [अक्सर पूछे जाने वाले प्रश्न](#hi-faq) · [समुदाय और बग](#hi-community) · [रोडमैप](#hi-roadmap) · [सहयोग](#hi-support)
 
 ### परिचय <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -233,6 +233,18 @@
 ### समुदाय और बग <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 सेटिंग्स → **ऐप के बारे में और रखरखाव** → **Error log** → **"Email developer"** क्रैश का विवरण सीधे **lvl60me@gmail.com** पर भेजता है: सुझाव या फ़ीडबैक के लिए भी यही पता है, और डेवलपर से संपर्क का यही एकमात्र तरीक़ा है।
+
+<br>
+
+<a id="hi-roadmap"></a>
+
+### रोडमैप <img src="docs/icons/map.svg" width="24" height="24" align="absmiddle" alt="">
+
+<a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="रोडमैप" width="520"></a>
+
+bkey में आगे: **Google Play**, **इंडोनेशियाई भाषा** और **एक साथ कई भाषाओं में टाइपिंग**।
+
+[**पूरा रोडमैप देखें (अंग्रेज़ी में)**](ROADMAP.md)
 
 <br>
 

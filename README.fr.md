@@ -26,7 +26,7 @@ Si ce projet vous est utile, une <img src="docs/icons/star.svg" width="22" heigh
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Liens rapides :** [Fonctionnalités](#fr-features) · [Confidentialité et sécurité](#fr-privacy) · [Téléchargement](#fr-download) · [Compiler soi-même](BUILDING.md) · [FAQ](#fr-faq) · [Communauté et bugs](#fr-community) · [Soutien](#fr-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Liens rapides :** [Fonctionnalités](#fr-features) · [Confidentialité et sécurité](#fr-privacy) · [Téléchargement](#fr-download) · [Compiler soi-même](BUILDING.md) · [FAQ](#fr-faq) · [Communauté et bugs](#fr-community) · [Feuille de route](#fr-roadmap) · [Soutien](#fr-support)
 
 ### Présentation <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -234,6 +234,18 @@ Non : il est léger et fonctionne entièrement sur l'appareil, sans traitement e
 ### Communauté et rapports de bugs <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 Réglages → **À propos et maintenance** → **Journal d'erreurs** → **« Écrire au développeur »** envoie les détails du plantage directement à **lvl60me@gmail.com**, la même adresse pour les suggestions ou les retours, et le seul moyen de joindre le développeur.
+
+<br>
+
+<a id="fr-roadmap"></a>
+
+### Feuille de route <img src="docs/icons/map.svg" width="24" height="24" align="absmiddle" alt="">
+
+<a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="Feuille de route" width="520"></a>
+
+Prochainement dans bkey : **Google Play**, **l'indonésien** et **la saisie dans plusieurs langues à la fois**.
+
+[**Voir la feuille de route complète (en anglais)**](ROADMAP.md)
 
 <br>
 
