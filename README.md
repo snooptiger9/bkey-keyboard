@@ -18,6 +18,7 @@
 ![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
+[![APKPure](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fapkpure.com%2Fp%2Fcom.snooptiger9.bkey&search=%3Cmeta%20name%3D%22description%22%20content%3D%22bkey%20(%5B0-9.%5D%2B)%20APK&replace=%241&label=APKPure)](https://apkpure.com/p/com.snooptiger9.bkey)
 [![IzzyOnDroid](https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.snooptiger9.bkey&label=IzzyOnDroid)](https://apt.izzysoft.de/packages/com.snooptiger9.bkey)
 
 If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22" align="absmiddle" alt=""> star would mean a lot.
