@@ -19,7 +19,7 @@
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 [![APKPure](https://img.shields.io/badge/APKPure-v306.0-blue)](https://apkpure.com/p/com.snooptiger9.bkey)
-[![IzzyOnDroid](https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.snooptiger9.bkey&label=IzzyOnDroid)](https://apt.izzysoft.de/packages/com.snooptiger9.bkey)
+[![IzzyOnDroid](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapt.izzysoft.de%2Ffdroid%2Fapi%2Fv1%2Fshield%2Fcom.snooptiger9.bkey&query=%24.message&prefix=v&label=IzzyOnDroid&color=blue)](https://apt.izzysoft.de/packages/com.snooptiger9.bkey)
 
 Si ce projet vous est utile, une <img src="docs/icons/star.svg" width="22" height="22" align="absmiddle" alt=""> étoile nous ferait très plaisir.
 
