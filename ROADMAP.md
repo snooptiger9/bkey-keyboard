@@ -47,7 +47,7 @@ Indonesian becomes the **7th language** in bkey, joining Arabic, English, Spanis
 **What's involved**
 - An Indonesian word list for prediction and correction.
 - The Indonesian layout, and translating every settings screen.
-- It follows the same steps as every other language — see [ADDING_A_LANGUAGE.md](ADDING_A_LANGUAGE.md). Native speakers who'd like to help check the wording are welcome to get in touch.
+- It follows the same steps as every other language — see [ADDING_A_LANGUAGE.md](ADDING_A_LANGUAGE.md). Native speakers who'd like to help check the wording are welcome to [open an issue](https://github.com/snooptiger9/bkey-keyboard/issues).
 
 <br>
 
@@ -80,7 +80,7 @@ Plans can change, and nothing here has a date.
 
 ### <img src="docs/icons/mail.svg" width="24" height="24" align="absmiddle" alt=""> Got an idea?
 
-Suggestions shape this page. Send yours to **lvl60me@gmail.com** — the same address as in the app under Settings → **About & maintenance** → **Error log** → **"Email developer"**.
+Suggestions shape this page. [Open an issue on GitHub](https://github.com/snooptiger9/bkey-keyboard/issues) and tell me what you'd like to see.
 
 ---
 
