@@ -1816,6 +1816,13 @@ public class MainActivity extends Activity {
         ));
 
         root.addView(createSwitchTile(
+                tr("الرجوع للحروف بعد الفاصلة العليا", "Auto-switch after apostrophe"),
+                tr("في لوحة الرموز، يرجع للحروف تلقائياً بعد كتابة الفاصلة العليا (')", "In the symbols layout, switch back to the letters after typing an apostrophe (')"),
+                prefs.isAutoSwitchAfterApostrophe(),
+                checked -> prefs.setAutoSwitchAfterApostrophe(checked)
+        ));
+
+        root.addView(createSwitchTile(
                 tr("بوب أب معاينة الحرف عند اللمس", "Popup on key press"),
                 tr("يظهر الحرف مكبّراً فوق الزر فوراً عند الضغط عليه، ويختفي تلقائياً عند بدء السحب", "Shows the letter enlarged above the key the instant you press it, and disappears as soon as you start swiping"),
                 prefs.isKeyPreviewPopupEnabled(),

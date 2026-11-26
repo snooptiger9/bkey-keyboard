@@ -423,6 +423,14 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("double_space_period", enabled).apply();
     }
 
+    public boolean isAutoSwitchAfterApostrophe() {
+        return prefs.getBoolean("auto_switch_after_apostrophe", false);
+    }
+
+    public void setAutoSwitchAfterApostrophe(boolean enabled) {
+        prefs.edit().putBoolean("auto_switch_after_apostrophe", enabled).apply();
+    }
+
     public boolean isShowNumberHints() {
         return prefs.getBoolean("show_number_hints", true);
     }

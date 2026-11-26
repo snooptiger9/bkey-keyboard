@@ -3838,7 +3838,11 @@ public class BlackBerryKeyboardView extends View {
         switch (key.type) {
             case CHAR:
                 listener.onCharacterTyped(key.main);
-                if (!isArabic && isShift && !isCapsLock) {
+                if (isSymbols && prefs.isAutoSwitchAfterApostrophe()
+                        && ("'".equals(key.main) || "\u2019".equals(key.main))) {
+                    isSymbols = false;
+                    rebuildKeys();
+                } else if (!isArabic && isShift && !isCapsLock) {
                     isShift = false;
                     rebuildKeys();
                 }
