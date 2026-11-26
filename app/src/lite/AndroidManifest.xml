@@ -31,6 +31,14 @@
         <service
             android:name=".WhatsAppOtpListenerService"
             tools:node="remove" />
+
+        <provider
+            android:name=".ScreenshotProvider"
+            tools:node="remove" />
+
+        <provider
+            android:name=".GifCacheProvider"
+            tools:node="remove" />
     </application>
 
 </manifest>
