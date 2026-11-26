@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-    <!-- لاقتراح رمز التحقق (OTP) تلقائياً من الرسائل الجديدة الواردة فقط (بدون قراءة صندوق الرسائل القديم) -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <!-- للكتابة بالصوت (زر المايك في صف الاقتراحات) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- لتثبيت تحديث ميزة OTP تلقائياً بعد تنزيله داخل التطبيق -->

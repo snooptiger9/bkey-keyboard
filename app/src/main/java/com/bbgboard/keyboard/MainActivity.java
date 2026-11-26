@@ -1781,14 +1781,6 @@ public class MainActivity extends Activity {
             }
             openClipboardScreen();
         }
-        if (requestCode == 78) {
-            boolean granted = checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED;
-            prefs.setOtpSuggestEnabled(granted);
-            if (!granted) {
-                showCoolToast(tr("لم يُمنح إذن الرسائل، فلن يُقترح رمز التحقق تلقائياً", "SMS permission wasn't granted, so the code won't be suggested automatically"), true);
-            }
-            openOtpSettingsScreen();
-        }
     }
 
     private void openPreferencesScreen() {
@@ -2502,14 +2494,14 @@ public class MainActivity extends Activity {
         ));
 
         if (BuildConfig.OTP_FEATURES_ENABLED) {
-            // OTP suggestions need SMS/notification-listener access, which the
+            // OTP suggestions need notification access, which the
             // bkey (lite) build doesn't request at all -- hidden entirely
             // there instead of showing a row that leads nowhere.
             LinearLayout otpEntryCard = createGroupedWhiteCard();
             otpEntryCard.addView(createMenuRow(
                     ModernIconView.ICON_MESSAGE_TEXT,
                     tr("اقتراح رمز التحقق (OTP)", "Verification code (OTP) suggestions"),
-                    tr("من الرسائل وواتساب", "From SMS & WhatsApp"),
+                    tr("من واتساب والرسائل", "From WhatsApp & messages"),
                     false,
                     this::openOtpSettingsScreen
             ));
@@ -2674,8 +2666,8 @@ public class MainActivity extends Activity {
 
         TextView introTv = new TextView(this);
         introTv.setText(tr(
-                "يفحص الكيبورد رسالة SMS أو إشعار واتساب الجديد فقط عند وصوله، ويعرض رمز التحقق في منتصف الاقتراحات لمدة 60 ثانية. كل المعالجة محلية على جهازك فقط ولا تُرسل لأي سيرفر",
-                "The keyboard checks only a newly arrived SMS or WhatsApp notification and shows the verification code in the middle suggestion slot for 60 seconds. Everything is processed on your device only — nothing is sent to any server"));
+                "يفحص الكيبورد رسالة واتساب أو رسالة تطبيق الرسائل الافتراضي الجديدة فقط عند وصولها، ويعرض رمز التحقق في منتصف الاقتراحات لمدة 60 ثانية. كل المعالجة محلية على جهازك فقط ولا تُرسل لأي سيرفر",
+                "The keyboard checks only a newly arrived WhatsApp or default messages-app notification and shows the verification code in the middle suggestion slot for 60 seconds. Everything is processed on your device only — nothing is sent to any server"));
         introTv.setTextColor(Color.parseColor(dm("#4B5563")));
         introTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         LinearLayout.LayoutParams lpIntro = new LinearLayout.LayoutParams(
@@ -2688,25 +2680,8 @@ public class MainActivity extends Activity {
             prefs.setOtpFullBuildEverInstalled(true);
 
             root.addView(createSwitchTile(
-                    tr("اقتراح رمز التحقق تلقائياً من الرسائل", "Auto-suggest verification code from SMS"),
-                    tr("يفحص الرسالة الجديدة فقط عند وصولها (بدون الوصول لصندوق الرسائل القديم)، ويعرض الرمز في منتصف الاقتراحات لمدة 60 ثانية فقط. يتطلب إذن قراءة الرسائل", "Checks only a newly arrived message (never the old inbox) and shows the code in the middle suggestion slot for 60 seconds. Needs SMS permission"),
-                    prefs.isOtpSuggestEnabled() && checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED,
-                    checked -> {
-                        if (checked) {
-                            if (checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                                prefs.setOtpSuggestEnabled(true);
-                            } else {
-                                requestPermissions(new String[]{android.Manifest.permission.RECEIVE_SMS}, 78);
-                            }
-                        } else {
-                            prefs.setOtpSuggestEnabled(false);
-                        }
-                    }
-            ));
-
-            root.addView(createSwitchTile(
-                    tr("اقتراح رمز التحقق تلقائياً من واتساب", "Auto-suggest verification code from WhatsApp"),
-                    tr("يقرأ إشعارات واتساب فقط (بدون أي تطبيق آخر) بحثاً عن رمز تحقق، ويعرضه في منتصف الاقتراحات لمدة 60 ثانية. كل المعالجة محلية بالجهاز ولا تُرسل لأي سيرفر. يحتاج صلاحية «الوصول للإشعارات» تفعّلها بنفسك من شاشة أندرويد اللي تفتح", "Reads only WhatsApp notifications (no other app) looking for a verification code, and shows it in the middle suggestion slot for 60 seconds. Fully on-device, nothing sent to any server. Needs \"Notification access\", which you enable yourself on the Android screen that opens"),
+                    tr("اقتراح رمز التحقق تلقائياً من واتساب والرسائل", "Auto-suggest verification code from WhatsApp & messages"),
+                    tr("يقرأ إشعارات واتساب وتطبيق الرسائل الافتراضي فقط (بدون أي تطبيق آخر) بحثاً عن رمز تحقق، ويعرضه في منتصف الاقتراحات لمدة 60 ثانية. كل المعالجة محلية بالجهاز ولا تُرسل لأي سيرفر. يحتاج صلاحية «الوصول للإشعارات» تفعّلها بنفسك من شاشة أندرويد اللي تفتح", "Reads only WhatsApp and default messages-app notifications (no other app) looking for a verification code, and shows it in the middle suggestion slot for 60 seconds. Fully on-device, nothing sent to any server. Needs \"Notification access\", which you enable yourself on the Android screen that opens"),
                     prefs.isWhatsAppOtpSuggestEnabled() && isNotificationAccessGranted(),
                     checked -> {
                         prefs.setWhatsAppOtpSuggestEnabled(checked);
@@ -2739,11 +2714,11 @@ public class MainActivity extends Activity {
             TextView warnBody = new TextView(this);
             warnBody.setText(reverted
                     ? tr(
-                        "كنت مفعّلها من قبل، وسبب رجوعها هو أنك حمّلت تحديث من رابط صفحة المشروع على GitHub (مباشرة أو من المتصفح) بدل زر «تحديث التطبيق» الموجود بالإعدادات الرئيسية. رابط الصفحة ينزّل دايماً النسخة الأساسية بدون OTP، فتثبيته فوق نسختك يستبدلها ويسحب الصلاحيتين بدون أي تنبيه — ذاك سبب رجوعها «كأنها ماتفعلت».\n\nمن الآن: حدّث التطبيق فقط من زر «تحديث التطبيق» بالقائمة الرئيسية للإعدادات — هو زر واحد يحفظ هذي الميزة تلقائياً كل مرة. فعّلها الآن من جديد من هنا:",
-                        "You had it on before. It came back off because you installed an update from the project's GitHub page link (directly or via the browser) instead of the \"Update the app\" button in the main Settings menu. The page link always gives the basic build without OTP, so installing it over your current app silently replaces it and drops both permissions — that's why it reverted \"as if it was never turned on\".\n\nFrom now on: only update the app from the \"Update the app\" button in the main Settings menu — that single button always keeps this feature on automatically. Turn it back on now from here:")
+                        "كنت مفعّلها من قبل، وسبب رجوعها هو أنك حمّلت تحديث من رابط صفحة المشروع على GitHub (مباشرة أو من المتصفح) بدل زر «تحديث التطبيق» الموجود بالإعدادات الرئيسية. رابط الصفحة ينزّل دايماً النسخة الأساسية بدون OTP، فتثبيته فوق نسختك يستبدلها ويسحب الصلاحية بدون أي تنبيه — ذاك سبب رجوعها «كأنها ماتفعلت».\n\nمن الآن: حدّث التطبيق فقط من زر «تحديث التطبيق» بالقائمة الرئيسية للإعدادات — هو زر واحد يحفظ هذي الميزة تلقائياً كل مرة. فعّلها الآن من جديد من هنا:",
+                        "You had it on before. It came back off because you installed an update from the project's GitHub page link (directly or via the browser) instead of the \"Update the app\" button in the main Settings menu. The page link always gives the basic build without OTP, so installing it over your current app silently replaces it and drops the permission — that's why it reverted \"as if it was never turned on\".\n\nFrom now on: only update the app from the \"Update the app\" button in the main Settings menu — that single button always keeps this feature on automatically. Turn it back on now from here:")
                     : tr(
-                        "النسخة المثبّتة عندك الآن لا تطلب صلاحية قراءة الرسائل أو الوصول للإشعارات، فهي تثبّت وتحدّث بدون أي تحذير. تفعيل هذي الميزة يتطلب تحديثاً يضيف هاتين الصلاحيتين، وبسببهما نظام حماية Google Play Protect يوقف التحديث تلقائياً برسالة تحذيرية — هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحيات بالذات، وليس عيباً ولا فيروساً.\n\nإذا تبي الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
-                        "The version you have installed now doesn't request SMS or notification-access permission, so it installs and updates with zero warning. Turning this feature on needs an update that adds those two permissions, and because of them Google Play Protect blocks the update automatically with a warning screen — this is standard Google behavior for any app outside the Play Store that requests these specific permissions, not a bug or malware flag.\n\nIf you want the feature, turn off Play Protect scanning with these steps, then download the update:"));
+                        "النسخة المثبّتة عندك الآن لا تطلب صلاحية الوصول للإشعارات، فهي تثبّت وتحدّث بدون أي تحذير. تفعيل هذي الميزة يتطلب تحديثاً يضيف خدمة «الوصول للإشعارات»، وقد يوقف نظام حماية Google Play Protect التحديث تلقائياً برسالة تحذيرية بسببها. هذا سلوك قياسي من قوقل لأي تطبيق خارج المتجر يطلب هذي الصلاحية، وليس عيباً ولا فيروساً.\n\nإذا تبي الميزة، عطّل فحص الحماية مؤقتاً بهذي الخطوات ثم حمّل التحديث:",
+                        "The version you have installed now doesn't request notification access, so it installs and updates with zero warning. Turning this feature on needs an update that adds the notification access service, and Google Play Protect may block that update automatically with a warning screen because of it. This is standard Google behavior for any app outside the Play Store that requests this access, not a bug or malware flag.\n\nIf you want the feature, turn off Play Protect scanning with these steps, then download the update:"));
             warnBody.setTextColor(Color.parseColor(dm("#78350F")));
             warnBody.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             LinearLayout.LayoutParams lpWarnBody = new LinearLayout.LayoutParams(

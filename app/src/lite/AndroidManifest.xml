@@ -10,7 +10,7 @@
     a build with INTERNET but no photo/storage access still got flagged, and
     a build with neither installed as "This app looks safe". So this flavor
     removes every permission that isn't strictly needed for a keyboard to
-    type with: RECEIVE_SMS, the WhatsApp notification-listener service,
+    type with: the WhatsApp and messages notification-listener service,
     INTERNET, photo/storage access, and the package-install permission (the
     in-app update checker needs INTERNET to fetch the new APK in the first
     place, so it cannot run here either, and keeping this permission without
@@ -22,7 +22,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />
     <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />

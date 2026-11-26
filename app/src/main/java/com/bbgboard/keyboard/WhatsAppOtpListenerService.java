@@ -9,6 +9,14 @@ public class WhatsAppOtpListenerService extends NotificationListenerService {
 
     private static final String[] WHATSAPP_PACKAGES = {"com.whatsapp", "com.whatsapp.w4b"};
 
+    private String defaultSmsPackage() {
+        try {
+            return android.provider.Telephony.Sms.getDefaultSmsPackage(this);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (sbn == null || sbn.getPackageName() == null) return;
@@ -19,7 +27,10 @@ public class WhatsAppOtpListenerService extends NotificationListenerService {
                 break;
             }
         }
-        if (!isWhatsApp) return;
+        // The default messages app too: its notifications carry the SMS text, so the code
+        // comes from the notification instead of an SMS permission.
+        boolean isMessages = !isWhatsApp && sbn.getPackageName().equals(defaultSmsPackage());
+        if (!isWhatsApp && !isMessages) return;
 
         KeyboardPreferences prefs = new KeyboardPreferences(this);
         if (!prefs.isWhatsAppOtpSuggestEnabled() || prefs.isIncognitoMode()) return;

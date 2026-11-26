@@ -283,75 +283,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private String rejectedAutoCorrectWord = null;
 
-    private String pendingOtpCode = null;
-    private long pendingOtpTimestamp = 0L;
-    private boolean otpReceiverRegistered = false;
-    private final BroadcastReceiver smsOtpReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (keyboardPrefs == null || !keyboardPrefs.isOtpSuggestEnabled() || keyboardPrefs.isIncognitoMode()) return;
-            try {
-                android.telephony.SmsMessage[] parts = android.provider.Telephony.Sms.Intents.getMessagesFromIntent(intent);
-                if (parts == null || parts.length == 0) return;
-                StringBuilder body = new StringBuilder();
-                for (android.telephony.SmsMessage p : parts) {
-                    if (p != null && p.getMessageBody() != null) body.append(p.getMessageBody());
-                }
-                String code = OtpDetector.extract(body.toString());
-                if (code != null) {
-                    pendingOtpCode = code;
-                    pendingOtpTimestamp = SystemClock.elapsedRealtime();
-                    refreshPredictions();
-                }
-            } catch (Exception e) {
-                AppLogger.log("BlackBerryImeService", "onReceive()", e);
-            }
-        }
-    };
-
     private boolean hasValidPendingOtp() {
         return currentOtpCode() != null;
     }
 
     private String currentOtpCode() {
         if (keyboardPrefs != null && keyboardPrefs.isIncognitoMode()) return null;
-        if (pendingOtpCode != null && (SystemClock.elapsedRealtime() - pendingOtpTimestamp) < KeyboardPreferences.OTP_VALIDITY_MS) {
-            return pendingOtpCode;
-        }
         return keyboardPrefs != null ? keyboardPrefs.getPendingWhatsAppOtp() : null;
     }
 
     private void clearPendingOtp() {
-        pendingOtpCode = null;
         if (keyboardPrefs != null) keyboardPrefs.clearPendingWhatsAppOtp();
-    }
-
-    private void registerOtpReceiverIfNeeded() {
-        if (otpReceiverRegistered) return;
-        if (keyboardPrefs == null || !keyboardPrefs.isOtpSuggestEnabled()) return;
-        if (checkSelfPermission(android.Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) return;
-        try {
-            IntentFilter filter = new IntentFilter(android.provider.Telephony.Sms.Intents.SMS_RECEIVED_ACTION);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
-                registerReceiver(smsOtpReceiver, filter, Context.RECEIVER_EXPORTED);
-            } else {
-                registerReceiver(smsOtpReceiver, filter);
-            }
-            otpReceiverRegistered = true;
-        } catch (Exception e) {
-            AppLogger.log("BlackBerryImeService", "registerOtpReceiverIfNeeded()", e);
-        }
-    }
-
-    private void unregisterOtpReceiverIfNeeded() {
-        if (!otpReceiverRegistered) return;
-        try {
-            unregisterReceiver(smsOtpReceiver);
-        } catch (Exception e) {
-            AppLogger.log("BlackBerryImeService", "unregisterOtpReceiverIfNeeded()", e);
-        }
-        otpReceiverRegistered = false;
     }
 
     private static final String[] EMOJI_CAT_TITLES = new String[]{
@@ -638,7 +580,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (clipboardManager != null) {
             clipboardManager.addPrimaryClipChangedListener(clipListener);
         }
-        registerOtpReceiverIfNeeded();
     }
 
     @Override
@@ -656,7 +597,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (clipboardManager != null) {
             clipboardManager.removePrimaryClipChangedListener(clipListener);
         }
-        unregisterOtpReceiverIfNeeded();
         if (keyboardPrefs != null) keyboardPrefs.unregisterChangeListener(appearanceChangeListener);
         if (activeInstance == this) activeInstance = null;
         super.onDestroy();
@@ -935,12 +875,6 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             AppLogger.log("BlackBerryImeService", "onStartInputView() forceWindowRepaintAfterResize()", e);
         }
         try {
-            if (keyboardPrefs.isOtpSuggestEnabled()) {
-                registerOtpReceiverIfNeeded();
-            } else {
-                unregisterOtpReceiverIfNeeded();
-                pendingOtpCode = null;
-            }
             if (!keyboardPrefs.isWhatsAppOtpSuggestEnabled()) {
                 keyboardPrefs.clearPendingWhatsAppOtp();
             }
