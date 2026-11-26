@@ -629,7 +629,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     static void notifyWhatsAppOtpDetected() {
         BlackBerryImeService instance = activeInstance;
-        if (instance != null) instance.uiHandler.post(instance::refreshPredictions);
+        if (instance == null) return;
+        instance.uiHandler.post(() -> {
+            instance.refreshPredictions();
+            instance.updateInlineStripVisibility();
+        });
+        // Bring the system suggestions back once the code has expired.
+        instance.uiHandler.postDelayed(instance::updateInlineStripVisibility,
+                KeyboardPreferences.OTP_VALIDITY_MS + 500);
     }
 
     @Override
@@ -1126,6 +1133,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void updateInlineStripVisibility() {
         if (inlineStrip == null || keyboardView == null) return;
         boolean show = inlineHasSuggestions && keyboardView.getVisibility() == View.VISIBLE;
+        // While a fresh OTP chip is showing, it must not be covered by the system's suggestion.
+        if (show && hasValidPendingOtp() && fieldIsEmpty(getCurrentInputConnection())) show = false;
         if (show) {
             inlineStrip.setBackgroundColor(keyboardView.getSuggestionBarColor());
             int barH = Math.round(keyboardView.getSuggestionBarHeightPx());
