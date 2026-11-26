@@ -2265,9 +2265,9 @@ public class BlackBerryKeyboardView extends View {
                     if ((keyboardStyle == KeyboardPreferences.STYLE_MODERN_PILL
                             || keyboardStyle == KeyboardPreferences.STYLE_CIRCLES)
                             && scratchSubBounds.width() > 0.28f * (visRight - visLeft)) {
-                        subTextPaint.setTextSize(subTextPaint.getTextSize() * 0.7f);
+                        subTextPaint.setTextSize(subTextPaint.getTextSize() * 0.62f);
                         subTextPaint.getTextBounds(subStr, 0, subStr.length(), scratchSubBounds);
-                        safeMargin = cornerRadius * 0.28f + 0.8f * density;
+                        safeMargin = cornerRadius * 0.24f + 0.6f * density;
                     }
                     float desiredInkRight = visibleRight - safeMargin;
                     float desiredInkTop = visibleTop + safeMargin;
