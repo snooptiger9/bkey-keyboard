@@ -2750,7 +2750,7 @@ public class BlackBerryKeyboardView extends View {
         drawRectB.set(iconLeft, chip.top, iconLeft + iconW, chip.bottom);
         int save = canvas.save();
         if (undoIcon) {
-            drawUndoIcon(canvas, drawRectB.centerX(), drawRectB.centerY(), iconW, iconRight);
+            drawUndoIcon(canvas, drawRectB.centerX(), drawRectB.centerY(), iconW, false);
         } else {
             canvas.scale(0.82f, 0.82f, drawRectB.centerX(), drawRectB.centerY());
             drawClipboardMenuIcon(canvas, drawRectB);
@@ -3210,7 +3210,7 @@ public class BlackBerryKeyboardView extends View {
 
     private final RectF undoArcRect = new RectF();
 
-    /** Undo arrow: arrowhead pointing back, a short shaft and a rounded hook (mirrored for right-to-left). */
+    /** Undo arrow: arrowhead pointing back, a short shaft and a rounded hook (same direction in every language). */
     private void drawUndoIcon(Canvas canvas, float cx, float cy, float size, boolean mirror) {
         if (mirror) canvas.scale(-1f, 1f, cx, cy);
         float s = size;
