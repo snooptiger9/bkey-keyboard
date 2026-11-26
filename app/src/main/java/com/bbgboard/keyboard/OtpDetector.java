@@ -10,13 +10,32 @@ final class OtpDetector {
     private static final String[] CODE_HINTS = {
             "رمز", "كود", "رمزك", "كودك", "code", "otp", "pin", "verification",
             "تحقق", "التحقق", "password", "كلمة المرور المؤقتة", "passcode", "رمز التحقق",
-            "سري", "السري", "الرقم السري"
+            "سري", "السري", "الرقم السري",
+            // Spanish
+            "código", "codigo", "verificación", "verificacion", "contraseña", "clave",
+            // French
+            "vérification", "mot de passe", "code secret",
+            // Hindi
+            "कोड", "ओटीपी", "सत्यापन", "वेरिफिकेशन", "पासवर्ड",
+            // Urdu
+            "کوڈ", "تصدیق", "تصدیقی", "پاس ورڈ", "خفیہ"
     };
 
     private static final String[] NOT_CODE_HINTS = {
             "بطاقة", "card", "تنتهي", "ending", "مبلغ", "amount", "ريال", "sar", "rs.",
             "رصيد", "balance", "حساب", "account", "هاتف", "phone", "%", "دقيقة", "دقائق",
-            "ثانية", "ثواني", "minute", "second", "usd", "$", "aed", "kwd", "bhd", "qar"
+            "ثانية", "ثواني", "minute", "second", "usd", "$", "aed", "kwd", "bhd", "qar",
+            // Spanish
+            "tarjeta", "termina en", "importe", "monto", "saldo", "cuenta", "teléfono",
+            "telefono", "minuto", "segundo", "eur", "mxn", "€",
+            // French
+            "carte", "se termine", "montant", "solde", "compte", "téléphone",
+            "telephone", "seconde", "gbp", "£",
+            // Hindi
+            "कार्ड", "राशि", "रुपये", "₹", "बैलेंस", "शेष", "खाता", "फोन", "फ़ोन",
+            "मिनट", "सेकंड", "inr",
+            // Urdu
+            "کارڈ", "رقم", "روپے", "بیلنس", "اکاؤنٹ", "فون", "منٹ", "سیکنڈ", "pkr"
     };
 
     private static final Pattern DIGIT_RUN = Pattern.compile("\\d+(?:[ \\-]\\d+)*");
