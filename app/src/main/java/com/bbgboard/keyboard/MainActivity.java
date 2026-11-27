@@ -466,6 +466,64 @@ public class MainActivity extends Activity {
         return ownImeId().equals(current);
     }
 
+    /** Large gradient title card at the top of the home page; the gradient drifts slowly. */
+    private FrameLayout buildHomeHero() {
+        FrameLayout hero = new FrameLayout(this);
+        final GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{Color.parseColor("#2563EB"), Color.parseColor("#7C3AED")});
+        bg.setCornerRadius(dp(24));
+        hero.setBackground(bg);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(112));
+        lp.bottomMargin = dp(16);
+        hero.setLayoutParams(lp);
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.setGravity(Gravity.BOTTOM);
+        texts.setPadding(dp(22), dp(14), dp(22), dp(18));
+        TextView big = new TextView(this);
+        big.setText(BuildConfig.OTP_FEATURES_ENABLED
+                ? tr("إعدادات bkey Plus", "bkey Plus settings")
+                : tr("إعدادات bkey", "bkey settings"));
+        big.setTextColor(Color.WHITE);
+        big.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28f);
+        big.setTypeface(Typeface.DEFAULT_BOLD);
+        texts.addView(big);
+        TextView ver = new TextView(this);
+        ver.setText("v" + BuildConfig.VERSION_NAME);
+        ver.setTextColor(Color.argb(190, 255, 255, 255));
+        ver.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        ver.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        texts.addView(ver);
+        hero.addView(texts, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        boolean animationsOn = true;
+        try {
+            animationsOn = android.provider.Settings.Global.getFloat(getContentResolver(),
+                    android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f;
+        } catch (Exception ignored) { }
+        if (animationsOn) {
+            final android.animation.ArgbEvaluator ev = new android.animation.ArgbEvaluator();
+            final int a1 = Color.parseColor("#2563EB"), a2 = Color.parseColor("#0EA5E9");
+            final int b1 = Color.parseColor("#7C3AED"), b2 = Color.parseColor("#2563EB");
+            final android.animation.ValueAnimator anim = android.animation.ValueAnimator.ofFloat(0f, 1f);
+            anim.setDuration(6000L);
+            anim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            anim.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            anim.addUpdateListener(va -> {
+                float f = (Float) va.getAnimatedValue();
+                bg.setColors(new int[]{(Integer) ev.evaluate(f, a1, a2), (Integer) ev.evaluate(f, b1, b2)});
+            });
+            hero.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override public void onViewAttachedToWindow(View v) { if (!anim.isStarted()) anim.start(); }
+                @Override public void onViewDetachedFromWindow(View v) { anim.cancel(); }
+            });
+        }
+        return hero;
+    }
+
     private void showHomeGboardSettingsMenu() {
         mainFrame.removeAllViews();
 
@@ -596,6 +654,8 @@ public class MainActivity extends Activity {
 
         // The in-page test field is gone: the floating button opens the tester instead.
         quickTestEdit = null;
+        final FrameLayout hero = buildHomeHero();
+        root.addView(hero);
         root.addView(quickSetupCard);
 
         LinearLayout group1 = createGroupedWhiteCard();
@@ -704,6 +764,15 @@ public class MainActivity extends Activity {
         copyrightTv.setLayoutParams(lpCopyright);
         root.addView(copyrightTv);
 
+        // The big title scrolls away slower than the cards; the small title in the top bar
+        // fades in as it leaves.
+        pageTitle.setAlpha(0f);
+        scroll.setOnScrollChangeListener((v, sx, sy, ox, oy) -> {
+            float t2 = Math.max(0f, Math.min(1f, (sy - dp(40)) / (float) dp(50)));
+            pageTitle.setAlpha(t2);
+            titleRowTop.setElevation(dp(3) * t2);
+            hero.setTranslationY(sy * 0.35f);
+        });
         scroll.addView(root);
         pageContainer.addView(scroll);
         homeMenuView = pageContainer;
@@ -1244,7 +1313,7 @@ public class MainActivity extends Activity {
             int cur = prefs.getClipRetentionHours();
             int sel = 4;
             for (int i = 0; i < values.length; i++) if (values[i] == cur) sel = i;
-            new android.app.AlertDialog.Builder(this)
+            showGlassDialog(new android.app.AlertDialog.Builder(this)
                     .setTitle(BuildConfig.OTP_FEATURES_ENABLED
                             ? tr("حذف النصوص ولقطة الشاشة القديمة", "Auto-delete old items & screenshot")
                             : tr("حذف النصوص القديمة", "Auto-delete old items"))
@@ -1252,8 +1321,7 @@ public class MainActivity extends Activity {
                         prefs.setClipRetentionHours(values[which]);
                         refresh.run();
                         d.dismiss();
-                    })
-                    .show();
+                    }));
         });
         return card;
     }
@@ -1922,12 +1990,69 @@ public class MainActivity extends Activity {
                 + (ms == 0 ? tr("افتراضي النظام", "System default") : ms + " ms");
     }
 
+    // ---- Live keyboard preview at the top of the theme page: a real keyboard view, drawn
+    // smaller and non-interactive, rebuilt whenever a theme/shape/size choice changes.
+    private static final float THEME_PREVIEW_SCALE = 0.62f;
+    private FrameLayout themePreviewHolder;
+    private final Runnable themePreviewRebuild = this::rebuildThemePreview;
+
+    private View buildThemePreviewCard() {
+        LinearLayout card = createGroupedWhiteCard();
+        card.setPadding(dp(14), dp(12), dp(14), dp(12));
+        card.addView(sectionHeader(tr("معاينة مباشرة", "Live preview")));
+        themePreviewHolder = new FrameLayout(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(8);
+        card.addView(themePreviewHolder, lp);
+        rebuildThemePreview();
+        if (themePreviewHolder.getChildCount() == 0) card.setVisibility(View.GONE);
+        return card;
+    }
+
+    private void schedulePreviewRebuild() {
+        if (themePreviewHolder == null) return;
+        themePreviewHolder.removeCallbacks(themePreviewRebuild);
+        themePreviewHolder.postDelayed(themePreviewRebuild, 120L);
+    }
+
+    private void rebuildThemePreview() {
+        if (themePreviewHolder == null) return;
+        try {
+            int avail = getResources().getDisplayMetrics().widthPixels - dp(32) - dp(28);
+            int kw = Math.round(avail / THEME_PREVIEW_SCALE);
+            BlackBerryKeyboardView kv = new BlackBerryKeyboardView(this, prefs, soundController);
+            kv.setSuggestions(java.util.Arrays.asList("bkey", "keyboard", "hello"));
+            kv.measure(View.MeasureSpec.makeMeasureSpec(kw, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            int kh = kv.getMeasuredHeight();
+            kv.setPivotX(0f);
+            kv.setPivotY(0f);
+            kv.setScaleX(THEME_PREVIEW_SCALE);
+            kv.setScaleY(THEME_PREVIEW_SCALE);
+            themePreviewHolder.removeAllViews();
+            ViewGroup.LayoutParams hl = themePreviewHolder.getLayoutParams();
+            hl.height = Math.round(kh * THEME_PREVIEW_SCALE);
+            themePreviewHolder.setLayoutParams(hl);
+            themePreviewHolder.addView(kv, new FrameLayout.LayoutParams(kw, kh));
+            View shield = new View(this); // swallows touches: this is a picture, not a keyboard
+            shield.setClickable(true);
+            themePreviewHolder.addView(shield, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        } catch (Throwable e) {
+            AppLogger.log("MainActivity", "rebuildThemePreview()", e instanceof Exception ? (Exception) e : new Exception(e));
+            themePreviewHolder.removeAllViews();
+        }
+    }
+
     private void refreshThemeScreen(LinearLayout root) {
         root.removeViews(1, root.getChildCount() - 1);
         fillThemeAndStyleScreen(root);
     }
 
     private void fillThemeAndStyleScreen(final LinearLayout root) {
+
+        root.addView(buildThemePreviewCard());
 
         LinearLayout fontCard = createGroupedWhiteCard();
         fontCard.setPadding(dp(14), dp(12), dp(14), dp(12));
@@ -2023,25 +2148,25 @@ public class MainActivity extends Activity {
         root.addView(buildSizerCard(
                 tr("حجم الحروف داخل المربعات", "Key letter size"),
                 Math.round(prefs.getKeyFontScale() * 100), 100, 50, 150,
-                pct -> prefs.setKeyFontScale(pct / 100f),
+                pct -> { prefs.setKeyFontScale(pct / 100f); schedulePreviewRebuild(); },
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("ارتفاع الكيبورد العام", "Overall keyboard height"),
                 Math.round(prefs.getKeyboardScale() * 100), 100, 70, 145,
-                pct -> prefs.setKeyboardScale(pct / 100f),
+                pct -> { prefs.setKeyboardScale(pct / 100f); schedulePreviewRebuild(); },
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("ارتفاع صف الاقتراحات العلوي", "Suggestion bar height"),
                 Math.round(prefs.getSuggestionBarScale() * 100), 100, 70, 125,
-                pct -> prefs.setSuggestionBarScale(pct / 100f),
+                pct -> { prefs.setSuggestionBarScale(pct / 100f); schedulePreviewRebuild(); },
                 pct -> pct + "%"));
 
         root.addView(buildSizerCard(
                 tr("حجم خط الاقتراحات", "Suggestion text size"),
                 prefs.getSuggestionTextLevel(), 2, 0, 5,
-                lv -> prefs.setSuggestionTextLevel(lv),
+                lv -> { prefs.setSuggestionTextLevel(lv); schedulePreviewRebuild(); },
                 lv -> lv == 0 ? tr("بدون تكبير", "No enlargement") : "+" + lv));
     }
 
@@ -2114,6 +2239,32 @@ public class MainActivity extends Activity {
             }
             return false;
         });
+    }
+
+    /** Shows a dialog as a frosted-glass card: blurred translucent background on Android 12+
+     *  when the system allows blur, and a plain near-opaque card everywhere else. */
+    private void showGlassDialog(android.app.AlertDialog.Builder builder) {
+        android.app.AlertDialog d = builder.create();
+        try {
+            android.view.Window w = d.getWindow();
+            boolean blur = false;
+            if (w != null && android.os.Build.VERSION.SDK_INT >= 31) {
+                android.view.WindowManager wm = (android.view.WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                blur = wm != null && wm.isCrossWindowBlurEnabled();
+            }
+            if (w != null) {
+                GradientDrawable card = new GradientDrawable();
+                card.setCornerRadius(dp(24));
+                card.setColor(Color.argb(blur ? 190 : 245, 255, 255, 255));
+                card.setStroke(dp(1), Color.argb(blur ? 120 : 40, 255, 255, 255));
+                w.setBackgroundDrawable(card);
+                if (blur) {
+                    w.setBackgroundBlurRadius(dp(40));
+                    w.setDimAmount(0.2f);
+                }
+            }
+        } catch (Throwable ignored) { }
+        d.show();
     }
 
     private LinearLayout buildSizerCard(String title, int currentValue, int defaultValue,
