@@ -57,6 +57,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private ClipboardRepository clipboardRepo;
     // True while the settings training field has focus: nothing may be pasted into it.
     private boolean noPasteField = false;
+    // The word that was being typed when the language was switched (null when none).
+    private String langSwitchWord = null;
+
+    private boolean typedBeforeLanguageSwitch(String prefix) {
+        return langSwitchWord != null && prefix != null && !prefix.isEmpty() && prefix.startsWith(langSwitchWord);
+    }
+
+    /** Tells the prediction engine, and the settings screen, which language the keyboard types in. */
+    private void syncEngineLanguage() {
+        if (predictionEngine == null || keyboardView == null) return;
+        String code = keyboardView.getActiveLanguageCode();
+        predictionEngine.setActiveLatinLanguage(code);
+        if (keyboardPrefs != null) keyboardPrefs.setCurrentKeyboardLanguage(code);
+    }
     private ClipboardManager clipboardManager;
 
     private FrameLayout rootContainer;
@@ -76,7 +90,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 keyboardView.requestLayout();
                 keyboardView.invalidate();
                 if (predictionEngine != null) {
-                    predictionEngine.setActiveLatinLanguage(keyboardView.getActiveLanguageCode());
+                    syncEngineLanguage();
                     refreshPredictions();
                 }
             });
@@ -669,6 +683,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
         keyboardView = new BlackBerryKeyboardView(this, keyboardPrefs, soundController);
         keyboardView.setKeyboardActionListener(this);
+        // The view picks its starting language in its constructor, before it has a listener,
+        // so onLanguageChanged() never fires for it: tell the prediction engine here.
+        syncEngineLanguage();
 
         clipboardDrawerView = buildClipboardAndResizeDrawer();
         emojiDrawerView = buildCategorizedEmojiDrawer();
@@ -822,6 +839,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
         noPasteField = info != null && "bkey.trainfield".equals(info.privateImeOptions);
+        langSwitchWord = null;
         lastLearnedEmail = "";
         clearUndo();
 
@@ -1911,7 +1929,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onLanguageChanged(boolean isArabic) {
-        if (keyboardView != null) predictionEngine.setActiveLatinLanguage(keyboardView.getActiveLanguageCode());
+        // A word half-typed in the old language is not learned or auto-corrected in the new one.
+        try {
+            String inProgress = getTypingContext()[0];
+            langSwitchWord = inProgress.isEmpty() ? null : inProgress;
+        } catch (Exception e) {
+            langSwitchWord = null;
+        }
+        syncEngineLanguage();
         refreshPredictions();
 
         if (emojiDrawerView != null && emojiDrawerView.getVisibility() == View.VISIBLE) {
@@ -2300,7 +2325,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 if (expanded != null && !expanded.isEmpty()) {
                     ic.deleteSurroundingText(currentPrefix.length(), 0);
                     ic.commitText(expanded + " ", 1);
-                    predictionEngine.learnFullSentence(expanded, keyboardView != null && keyboardView.isArabic());
+                    // Not learned: a shortcut's text can be in any language, not the active one.
                     lastSpaceTapTime = 0L;
                     refreshPredictions();
                     return;
@@ -2319,6 +2344,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             }
 
             if (!currentPrefix.isEmpty() && keyboardPrefs.isAutoCorrectEnabled() && currentPrefix.indexOf('@') < 0
+                    && !typedBeforeLanguageSwitch(currentPrefix)
                     && !currentPrefix.equalsIgnoreCase(rejectedAutoCorrectWord)
                     && !keyboardPrefs.isAutoCorrectException(currentPrefix)) {
                 String correction = predictionEngine.findAutoCorrection(currentPrefix, keyboardView.isArabic(), keyboardPrefs.isAutoCorrectStrong());
@@ -2355,9 +2381,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 || "،".equals(text) || ",".equals(text) || "!".equals(text)) {
             boolean midEmail = ".".equals(text) && currentPrefix.indexOf('@') > 0;
             if (!currentPrefix.isEmpty() && !midEmail) {
-                predictionEngine.learnWordAndTransition(currentPrefix, prevWord, prevWord2, keyboardView.isArabic());
+                if (!typedBeforeLanguageSwitch(currentPrefix)) {
+                    predictionEngine.learnWordAndTransition(currentPrefix, prevWord, prevWord2, keyboardView.isArabic());
+                }
                 keyboardPrefs.recordWord(keyboardView.getCurrentLangCode());
             }
+            langSwitchWord = null;
         }
 
         // An address that ended a sentence ("write to me@x.com.") is never learned at the
@@ -2648,7 +2677,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String chosen = (zoneIndex >= 0 && zoneIndex < suggestions.size()) ? suggestions.get(zoneIndex) : suggestions.get(0);
 
         if (chosen == null || chosen.isEmpty()) return;
-        boolean learnableChoice = chosen.indexOf(' ') < 0 && containsLetter(chosen);
+        boolean learnableChoice = chosen.indexOf(' ') < 0 && containsLetter(chosen)
+                && !chosen.equals(keyboardPrefs.findShortcutExpansion(currentPrefix));
 
         if (!currentPrefix.isEmpty()) {
             ic.deleteSurroundingText(currentPrefix.length(), 0);
@@ -2698,10 +2728,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         String[] ctx = getTypingContext();
-        if (!ctx[0].isEmpty()) {
+        if (!ctx[0].isEmpty() && !typedBeforeLanguageSwitch(ctx[0])) {
             predictionEngine.learnWordAndTransition(ctx[0], ctx[1], ctx[2], keyboardView.isArabic());
             if (ctx[0].indexOf('@') > 0) lastLearnedEmail = ctx[0];
         }
+        langSwitchWord = null;
 
         EditorInfo info = getCurrentInputEditorInfo();
         int actionId = info != null ? (info.imeOptions & EditorInfo.IME_MASK_ACTION) : EditorInfo.IME_ACTION_NONE;

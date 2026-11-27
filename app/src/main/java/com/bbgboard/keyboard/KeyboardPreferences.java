@@ -1037,6 +1037,17 @@ public class KeyboardPreferences {
         prefs.edit().putBoolean("next_word_prediction_enabled", enabled).apply();
     }
 
+    /** Language the keyboard is typing in right now; written by the keyboard so the settings
+     *  screen (a separate prediction engine) knows it. */
+    public void setCurrentKeyboardLanguage(String code) {
+        if (code == null || code.equals(prefs.getString("current_keyboard_lang", null))) return;
+        prefs.edit().putString("current_keyboard_lang", code).apply();
+    }
+
+    public String getCurrentKeyboardLanguage() {
+        return prefs.getString("current_keyboard_lang", null);
+    }
+
     public boolean isAutoExpandShortcuts() {
         return prefs.getBoolean("auto_expand_shortcuts", true);
     }

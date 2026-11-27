@@ -2556,7 +2556,9 @@ public class MainActivity extends Activity {
                 return;
             }
             if (!s.isEmpty()) {
-                predictionEngine.learnFullSentence(s);
+                String kbLang = prefs.getCurrentKeyboardLanguage();
+                if (kbLang != null) predictionEngine.learnTrainingSentence(s, kbLang);
+                else predictionEngine.learnFullSentence(s);
                 trainBox.setText("");
                 showCoolToast(tr("تم حفظ الكلمات وتوقعات الكلمة التالية!", "Words and next-word predictions saved!"), false);
             }

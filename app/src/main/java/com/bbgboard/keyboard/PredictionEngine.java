@@ -103,7 +103,11 @@ public class PredictionEngine {
         return tag != null && ("," + tag + ",").contains("," + code + ",");
     }
 
+    // Set during learnTrainingSentence(): a word that is already saved keeps its languages.
+    private boolean keepKnownTags = false;
+
     private void tagLatinWord(String word, boolean isArabic, boolean wasKnown) {
+        if (keepKnownTags && wasKnown) return;
         String code = isArabic ? KeyboardPreferences.LANG_AR : activeLatinTag();
         String existing = learnedWordLatinTag.get(word);
         if (existing == null) {
@@ -816,6 +820,34 @@ public class PredictionEngine {
             String prev = i > 0 ? tokens.get(i - 1) : "";
             boolean arabicScript = scriptOf(curr) == SC_ARABIC;
             learnWordAndTransition(curr, prev, arabicScript && !urduSentence);
+        }
+    }
+
+    /** Save button of the settings training field. bkey already learned each word as it was typed,
+     *  in the language it was typed in, so saved words are only reinforced and keep their languages;
+     *  a word not saved yet (the last one, with no space after it) is learned under langCode, the
+     *  language the keyboard was typing in. */
+    public synchronized void learnTrainingSentence(String sentence, String langCode) {
+        if (sentence == null || !ready || langCode == null) return;
+        String before = activeLangCode;
+        setActiveLatinLanguage(langCode);
+        boolean arabic = KeyboardPreferences.LANG_AR.equals(langCode);
+        String[] rawTokens = sentence.trim().split("\\s+");
+        List<String> tokens = new ArrayList<>();
+        for (String r : rawTokens) {
+            String n = normalize(r);
+            if (!n.isEmpty()) tokens.add(n);
+        }
+        keepKnownTags = true;
+        try {
+            for (int i = 0; i < tokens.size(); i++) {
+                String prev = i > 0 ? tokens.get(i - 1) : "";
+                String prev2 = i > 1 ? tokens.get(i - 2) : "";
+                learnWordAndTransition(tokens.get(i), prev, prev2, arabic);
+            }
+        } finally {
+            keepKnownTags = false;
+            setActiveLatinLanguage(before);
         }
     }
 
