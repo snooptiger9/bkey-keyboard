@@ -512,8 +512,11 @@ public class MainActivity extends Activity {
         // calling onResume(). Without this, the enabled/selected state on the
         // home screen stayed stale until the page was closed and reopened.
         if (hasFocus) updateFloatingFab();
+        // Rebuilt only when bkey was switched on or off as the current keyboard (that shows or
+        // hides the training field); any other return, like pulling down the notifications,
+        // keeps the page and whatever is typed in it.
         if (hasFocus && trainScreenView != null && mainFrame != null && mainFrame.getChildCount() > 0
-                && mainFrame.getChildAt(0) == trainScreenView) {
+                && mainFrame.getChildAt(0) == trainScreenView && isOwnImeSelected() != trainScreenImeOn) {
             reopenKeepingScroll(this::openCorrectionsAndMemoryScreen);
             return;
         }
@@ -2541,6 +2544,7 @@ public class MainActivity extends Activity {
     }
 
     private View trainScreenView;
+    private boolean trainScreenImeOn;
 
     private void openCorrectionsAndMemoryScreen() {
         LinearLayout root = createSubScreenTemplate(tr("التصحيح والاقتراحات", "Corrections & suggestions"));
@@ -2672,6 +2676,7 @@ public class MainActivity extends Activity {
 
         root.addView(trainCard);
         trainScreenView = mainFrame.getChildAt(0);
+        trainScreenImeOn = isOwnImeSelected();
         root.addView(createMenuRow(
                 ModernIconView.ICON_DICTIONARY_BOOK,
                 tr("الكلمات المتعلمة", "Learned words"),

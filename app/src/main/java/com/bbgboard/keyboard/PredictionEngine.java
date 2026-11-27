@@ -222,7 +222,9 @@ public class PredictionEngine {
         this.prefs = context.getSharedPreferences("bb_keyboard_learned_prefs", Context.MODE_PRIVATE);
         this.keyboardPrefs = keyboardPrefs;
         final Context appCtx = context.getApplicationContext();
-        Runnable init = () -> initialize(appCtx);
+        // The one-time retag of old words runs only in the keyboard's engine, which starts on a
+        // background thread; the settings screen's engine starts on the main thread and skips it.
+        Runnable init = () -> initialize(appCtx, asyncInit);
         if (asyncInit) {
             Thread t = new Thread(init, "bkey-engine-init");
             t.setPriority(Thread.NORM_PRIORITY - 1);
@@ -232,7 +234,7 @@ public class PredictionEngine {
         }
     }
 
-    private void initialize(Context context) {
+    private void initialize(Context context, boolean runRetag) {
         initBaseDictionaries();
         appContext = context;
         for (String lang : keyboardPrefs.getEnabledLanguages()) loadLanguage(lang);
@@ -242,7 +244,7 @@ public class PredictionEngine {
             loadFromPrefs();
             dirty = false;
             cleanupOldLearnedDataOnce();
-            retagLegacyWordsOnce(context);
+            if (runRetag) retagLegacyWordsOnce(context);
         }
         prefs.registerOnSharedPreferenceChangeListener(prefListener);
         ready = true;
