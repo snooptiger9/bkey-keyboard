@@ -1869,7 +1869,10 @@ public class BlackBerryKeyboardView extends View {
         boolean showSwipeArrows = prefs.isSpaceSwipeLangEnabled()
                 && prefs.getEnabledLanguages().size() >= 2;
         String currentLangName = languageDisplayName(currentLangCode);
-        String spaceLabel = showSwipeArrows ? ("‹  " + currentLangName + "  ›") : currentLangName;
+        // One language only: there is nothing to switch to, so the spacebar stays blank.
+        boolean singleLanguage = prefs.getEnabledLanguages().size() < 2;
+        String spaceLabel = singleLanguage ? ""
+                : (showSwipeArrows ? ("‹  " + currentLangName + "  ›") : currentLangName);
         return Arrays.asList(
             new KeyDef(symLabel, "", Collections.<String>emptyList(), KeyType.SYMBOLS, 1.25f),
 
