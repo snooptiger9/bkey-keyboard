@@ -287,6 +287,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         return currentOtpCode() != null;
     }
 
+    /**
+     * The code chip shows unless a screenshot or copied-text chip arrived after the code
+     * (whichever is newest takes the single chip slot; the older one returns once it's gone).
+     */
+    private boolean otpChipWins(InputConnection ic) {
+        if (!hasValidPendingOtp()) return false;
+        if (numericFieldActive || !chipFieldOk(ic)) return true;
+        long otpAge = System.currentTimeMillis() - keyboardPrefs.getPendingWhatsAppOtpTime();
+        long now = SystemClock.elapsedRealtime();
+        if (hasValidShotChip() && now - screenshotChipTime < otpAge) return false;
+        if (hasValidClipChip() && now - clipChipTime < otpAge) return false;
+        return true;
+    }
+
     private String currentOtpCode() {
         if (keyboardPrefs != null && keyboardPrefs.isIncognitoMode()) return null;
         return keyboardPrefs != null ? keyboardPrefs.getPendingWhatsAppOtp() : null;
@@ -545,6 +559,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                             uiHandler.removeCallbacks(clipChipExpiry);
                             uiHandler.postDelayed(clipChipExpiry, CLIP_CHIP_MS + 100L);
                             refreshPredictions();
+                            updateInlineStripVisibility();
                         }
                     }
                 }
@@ -1167,7 +1182,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (inlineStrip == null || keyboardView == null) return;
         boolean show = inlineHasSuggestions && keyboardView.getVisibility() == View.VISIBLE;
         // While a fresh OTP chip is showing, it must not be covered by the system's suggestion.
-        if (show && hasValidPendingOtp() && fieldIsEmpty(getCurrentInputConnection())) show = false;
+        if (show && otpChipWins(getCurrentInputConnection()) && fieldIsEmpty(getCurrentInputConnection())) show = false;
         if (show) {
             inlineStrip.setBackgroundColor(keyboardView.getSuggestionBarColor());
             int barH = Math.round(keyboardView.getSuggestionBarHeightPx());
@@ -1714,6 +1729,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                             uiHandler.removeCallbacks(clipChipExpiry);
                             uiHandler.postDelayed(clipChipExpiry, SHOT_CHIP_MS + 100L);
                             refreshPredictions();
+                            updateInlineStripVisibility();
                         }
                         if (clipboardDrawerView != null && clipboardDrawerView.getVisibility() == View.VISIBLE) {
                             refreshClipboardDrawerList();
@@ -2150,7 +2166,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (hasValidPendingOtp() && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
+        if (otpChipWins(chipIc) && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
 
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", currentOtpCode(), ""), 3);
@@ -2589,7 +2605,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String lastCompletedWord = ctx[1];
         String lastCompletedWord2 = ctx[2];
 
-        if (hasValidPendingOtp() && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
+        if (otpChipWins(ic) && currentPrefix.isEmpty() && fieldIsEmpty(ic)) {
 
             if (zoneIndex == 1) {
                 ic.commitText(currentOtpCode(), 1);

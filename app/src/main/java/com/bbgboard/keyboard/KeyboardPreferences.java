@@ -152,6 +152,11 @@ public class KeyboardPreferences {
         return code;
     }
 
+    /** Wall-clock time the pending code arrived, 0 if none. */
+    public long getPendingWhatsAppOtpTime() {
+        return prefs.getLong("pending_wa_otp_time", 0L);
+    }
+
     public void clearPendingWhatsAppOtp() {
         prefs.edit().remove("pending_wa_otp_code").remove("pending_wa_otp_time").apply();
     }
