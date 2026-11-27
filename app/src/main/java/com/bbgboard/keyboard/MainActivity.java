@@ -2136,6 +2136,28 @@ public class MainActivity extends Activity {
 
     /** While a slider is being dragged, shows its value in a small bubble above the thumb so the
      *  finger never hides it. The slider itself is untouched (the touch is not consumed). */
+    /** Where the thumb's center sits for a given progress, in the slider's own pixels: the same
+     *  math SeekBar uses, so it matches at any width. Whether the slider runs right-to-left
+     *  (Arabic/Urdu) is read from where the thumb really is, not guessed. */
+    private float sliderCenterX(SeekBar seek, int progress) {
+        int max = seek.getMax();
+        android.graphics.drawable.Drawable thumb = seek.getThumb();
+        int thumbW = thumb != null ? thumb.getIntrinsicWidth() : 0;
+        int off = seek.getThumbOffset();
+        int avail = seek.getWidth() - seek.getPaddingLeft() - seek.getPaddingRight() - thumbW + 2 * off;
+        if (max <= 0 || avail <= 0) return seek.getPaddingLeft();
+        boolean mirrored = seek.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        if (thumb != null && thumbW > 0 && !thumb.getBounds().isEmpty()) {
+            int cur = Math.round(seek.getProgress() / (float) max * avail);
+            float actual = thumb.getBounds().exactCenterX();
+            float asLtr = cur + thumbW / 2f, asRtl = (avail - cur) + thumbW / 2f;
+            if (Math.abs(asLtr - asRtl) > 1f) mirrored = Math.abs(actual - asRtl) < Math.abs(actual - asLtr);
+        }
+        int pos = Math.round(progress / (float) max * avail);
+        if (mirrored) pos = avail - pos;
+        return seek.getPaddingLeft() - off + pos + thumbW / 2f;
+    }
+
     private void attachValueBubble(final SeekBar seek, final IntLabelFormatter fmt) {
         seek.setScaleX(1.01f); // 1% bigger track and thumb; layout size is unchanged
         seek.setScaleY(1.01f);
@@ -3127,10 +3149,8 @@ public class MainActivity extends Activity {
         notchLp.gravity = Gravity.TOP | Gravity.LEFT;
         seekHost.addView(defaultNotch, notchLp);
         sizeSeek.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
-            float track = (r - l) - 2f * seekSidePad;
-            float frac = (KeyboardPreferences.EMOJI_LEVEL_DEFAULT - 1) / 9f;
             FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) defaultNotch.getLayoutParams();
-            int wantLeft = Math.round(seekSidePad + track * frac - lp.width / 2f);
+            int wantLeft = Math.round(sliderCenterX(sizeSeek, KeyboardPreferences.EMOJI_LEVEL_DEFAULT - 1) - lp.width / 2f);
             int wantTop = Math.round(dp(10) + (b - t - dp(10) - dp(2)) / 2f - lp.height / 2f);
             if (lp.leftMargin != wantLeft || lp.topMargin != wantTop) {
                 lp.leftMargin = wantLeft;
