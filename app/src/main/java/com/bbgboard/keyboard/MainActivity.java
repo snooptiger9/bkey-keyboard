@@ -229,7 +229,30 @@ public class MainActivity extends Activity {
         } else {
             flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
         }
+        // Edge-to-edge: the status bar is see-through, so its icons must contrast with the page.
+        if (isEdgeToEdge()) {
+            if (prefs.isAppDarkMode()) flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            else flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        }
         decor.setSystemUiVisibility(flags);
+    }
+
+    /** True only when Android draws this app edge-to-edge: Android 15+ and the build targets 15+. */
+    private boolean isEdgeToEdge() {
+        return android.os.Build.VERSION.SDK_INT >= 35 && getApplicationInfo().targetSdkVersion >= 35;
+    }
+
+    /** API 30+ code kept in its own class so older phones never load it. */
+    private static final class SystemBars {
+        static void padForSystemBars(View root) {
+            root.setOnApplyWindowInsetsListener((v, insets) -> {
+                android.graphics.Insets bars = insets.getInsets(
+                        android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout());
+                android.graphics.Insets ime = insets.getInsets(android.view.WindowInsets.Type.ime());
+                v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
+                return insets;
+            });
+        }
     }
 
     private GradientDrawable roundedCard(String fillHex, int radiusDp) {
@@ -290,7 +313,18 @@ public class MainActivity extends Activity {
         toastHost = rootContainer; // outside mainFrame, so rebuilding a page never removes a toast
         rootContainer.addView(mainFrame);
         addFloatingKeyboardTester(rootContainer);
+        // Android 15+ draws apps that target it under the status and navigation bars: keep the
+        // pages (and the typing area above the keyboard) clear of them. Older builds and older
+        // phones are not edge-to-edge, so nothing changes there.
+        if (isEdgeToEdge()) SystemBars.padForSystemBars(rootContainer);
+        // Android 16 no longer calls onBackPressed() for apps that target it: back from a
+        // sub-page is handled by a back callback, registered only while a sub-page is shown.
+        mainFrame.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override public void onChildViewAdded(View parent, View child) { mainFrame.post(MainActivity.this::updateBackCallback); }
+            @Override public void onChildViewRemoved(View parent, View child) { }
+        });
         setContentView(rootContainer);
+        updateBackCallback();
         checkFlavorSwitch();
     }
 
@@ -407,6 +441,42 @@ public class MainActivity extends Activity {
         floatingTesterKeyboardConfirmedOpen = false;
         updateFloatingFab();
         if (quickTestEdit != null) quickTestEdit.setVisibility(View.VISIBLE);
+    }
+
+    private Object backCallback;
+    private boolean backCallbackOn = false;
+
+    /** Registers the back callback while a sub-page is shown and removes it on the home page, so
+     *  back on the home page still leaves the app normally. Only where onBackPressed() is no
+     *  longer called (Android 16+ with a build that targets it); everywhere else nothing changes. */
+    private void updateBackCallback() {
+        if (android.os.Build.VERSION.SDK_INT < 36 || getApplicationInfo().targetSdkVersion < 36 || mainFrame == null) return;
+        boolean onSubPage = mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) != homeMenuView;
+        if (onSubPage == backCallbackOn) return;
+        if (backCallback == null) backCallback = BackCallbacks.create(this::backFromSubPage);
+        if (onSubPage) BackCallbacks.register(this, backCallback);
+        else BackCallbacks.unregister(this, backCallback);
+        backCallbackOn = onSubPage;
+    }
+
+    private void backFromSubPage() {
+        if (mainFrame != null && mainFrame.getChildCount() > 0 && mainFrame.getChildAt(0) != homeMenuView) {
+            goBack(currentBack != null ? currentBack : this::showHomeGboardSettingsMenu);
+        }
+    }
+
+    /** API 33+ back-callback code kept in its own class so older phones never load it. */
+    private static final class BackCallbacks {
+        static Object create(Runnable action) {
+            return (android.window.OnBackInvokedCallback) action::run;
+        }
+        static void register(Activity a, Object cb) {
+            a.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, (android.window.OnBackInvokedCallback) cb);
+        }
+        static void unregister(Activity a, Object cb) {
+            a.getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback((android.window.OnBackInvokedCallback) cb);
+        }
     }
 
     @Override
