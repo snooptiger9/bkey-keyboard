@@ -21,6 +21,8 @@ final class HindiUi {
         TEXT.put("Nothing copied yet", "अभी तक कुछ कॉपी नहीं किया");
         TEXT.put("Unpin", "अनपिन करें");
         TEXT.put("Pin", "पिन करें");
+        TEXT.put("Expand", "विस्तार करें");
+        TEXT.put("Collapse", "छोटा करें");
         TEXT.put("Powered by KLIPY", "KLIPY द्वारा संचालित");
         TEXT.put("Search KLIPY...", "KLIPY में खोजें...");
         TEXT.put("Undo", "पूर्ववत करें");

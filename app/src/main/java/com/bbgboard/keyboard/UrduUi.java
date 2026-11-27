@@ -20,6 +20,8 @@ final class UrduUi {
         TEXT.put("Nothing copied yet", "ابھی تک کچھ کاپی نہیں ہوا");
         TEXT.put("Unpin", "ان پن کریں");
         TEXT.put("Pin", "پن کریں");
+        TEXT.put("Expand", "پھیلائیں");
+        TEXT.put("Collapse", "چھوٹا کریں");
         TEXT.put("Powered by KLIPY", "KLIPY کے تعاون سے");
         TEXT.put("Search KLIPY...", "KLIPY میں تلاش کریں...");
         TEXT.put("Undo", "واپس لائیں");

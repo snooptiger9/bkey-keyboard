@@ -20,6 +20,8 @@ final class FrenchUi {
         TEXT.put("Nothing copied yet", "Rien n’a encore été copié");
         TEXT.put("Unpin", "Détacher");
         TEXT.put("Pin", "Épingler");
+        TEXT.put("Expand", "Développer");
+        TEXT.put("Collapse", "Réduire");
         TEXT.put("Powered by KLIPY", "Propulsé par KLIPY");
         TEXT.put("Search KLIPY...", "Rechercher sur KLIPY...");
         TEXT.put("Undo", "Annuler");

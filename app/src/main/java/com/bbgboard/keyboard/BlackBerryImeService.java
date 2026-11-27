@@ -3326,7 +3326,22 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         });
         textTv.setOnLongClickListener(v -> {
             final boolean pinned = clip.pinned;
+            final boolean expanded = textTv.getMaxLines() > 2;
+            // Text items only: a card holds nothing else, so Expand is offered here and nowhere
+            // else (screenshots and GIFs have their own views and menus).
             showThemedMenu(v,
+                    buildMenuItemView(ModernIconView.ICON_EXPAND_CORNERS,
+                            expanded ? uiText("تصغير", "Collapse", "Contraer")
+                                     : uiText("توسيع", "Expand", "Expandir"),
+                            () -> {
+                                if (expanded) {
+                                    textTv.setMaxLines(2);
+                                    textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                                } else {
+                                    textTv.setEllipsize(null);
+                                    textTv.setMaxLines(Integer.MAX_VALUE);
+                                }
+                            }),
                     buildMenuItemView(ModernIconView.ICON_PUSHPIN,
                             pinned ? uiText("إلغاء التثبيت", "Unpin", "Desanclar")
                                    : uiText("تثبيت", "Pin", "Anclar"),
