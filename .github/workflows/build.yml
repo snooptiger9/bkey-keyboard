@@ -100,7 +100,13 @@ jobs:
       # continue-on-error so a bundle problem can never block the normal release steps.
       - name: Build lite app bundle for Google Play
         continue-on-error: true
-        run: ./gradlew bundleLiteRelease --no-daemon -PplayTargetSdk=36
+        run: |
+          # Google Play already used versionCode 316, so the Play bundle alone is built as 317.
+          # build.gradle is restored afterwards so the release steps below still see the real number.
+          cp app/build.gradle /tmp/build.gradle.orig
+          sed -i -E 's/^(\s*versionCode\s+)[0-9]+/\1317/' app/build.gradle
+          ./gradlew bundleLiteRelease --no-daemon -PplayTargetSdk=36 || true
+          cp /tmp/build.gradle.orig app/build.gradle
 
       - name: Upload lite app bundle
         uses: actions/upload-artifact@v4
