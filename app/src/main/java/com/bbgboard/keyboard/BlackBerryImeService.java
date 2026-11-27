@@ -55,6 +55,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private SoundController soundController;
     private PredictionEngine predictionEngine;
     private ClipboardRepository clipboardRepo;
+    // True while the settings training field has focus: nothing may be pasted into it.
+    private boolean noPasteField = false;
     private ClipboardManager clipboardManager;
 
     private FrameLayout rootContainer;
@@ -819,6 +821,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
+        noPasteField = info != null && "bkey.trainfield".equals(info.privateImeOptions);
         lastLearnedEmail = "";
         clearUndo();
 
@@ -2180,7 +2183,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             keyboardView.setEmojiKeySuggestion(null);
             return;
         }
-        if (!numericFieldActive && hasValidClipChip() && ctx[0].isEmpty() && chipFieldOk(chipIc)) {
+        if (!noPasteField && !numericFieldActive && hasValidClipChip() && ctx[0].isEmpty() && chipFieldOk(chipIc)) {
             keyboardView.setToolbarIdleMode(false);
             keyboardView.setSuggestions(Arrays.asList("", clipChipDisplay(clipChipText), ""), 4);
             keyboardView.setEmojiKeySuggestion(null);
@@ -2562,7 +2565,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 AppLogger.log("BlackBerryImeService", "onSwipeDownCopyPaste()", e);
             }
             android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            if (cm != null && cm.hasPrimaryClip() && cm.getPrimaryClip().getItemCount() > 0) {
+            if (!noPasteField && cm != null && cm.hasPrimaryClip() && cm.getPrimaryClip().getItemCount() > 0) {
                 CharSequence text = cm.getPrimaryClip().getItemAt(0).coerceToText(this);
                 if (text != null) {
                     ic.commitText(text, 1);
@@ -2628,7 +2631,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             return;
         }
 
-        if (!numericFieldActive && hasValidClipChip() && currentPrefix.isEmpty() && chipFieldOk(ic)) {
+        if (!noPasteField && !numericFieldActive && hasValidClipChip() && currentPrefix.isEmpty() && chipFieldOk(ic)) {
 
             if (zoneIndex == 1) {
                 ic.commitText(clipChipText, 1);
@@ -3261,7 +3264,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 : new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         textTv.setOnClickListener(v -> {
             InputConnection ic = getCurrentInputConnection();
-            if (ic != null) ic.commitText(clip.text + " ", 1);
+            if (ic != null && !noPasteField) ic.commitText(clip.text + " ", 1);
             soundController.playKeyClick();
             showKeyboardMain();
         });

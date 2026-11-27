@@ -442,6 +442,11 @@ public class MainActivity extends Activity {
         // calling onResume(). Without this, the enabled/selected state on the
         // home screen stayed stale until the page was closed and reopened.
         if (hasFocus) updateFloatingFab();
+        if (hasFocus && trainScreenView != null && mainFrame != null && mainFrame.getChildCount() > 0
+                && mainFrame.getChildAt(0) == trainScreenView) {
+            reopenKeepingScroll(this::openCorrectionsAndMemoryScreen);
+            return;
+        }
         if (hasFocus && mainFrame != null && mainFrame.getChildCount() > 0
                 && mainFrame.getChildAt(0) == homeMenuView) {
             reopenKeepingScroll(this::showHomeGboardSettingsMenu);
@@ -2443,6 +2448,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    private View trainScreenView;
+
     private void openCorrectionsAndMemoryScreen() {
         LinearLayout root = createSubScreenTemplate(tr("التصحيح والاقتراحات", "Corrections & suggestions"));
 
@@ -2513,12 +2520,24 @@ public class MainActivity extends Activity {
         trainCard.setPadding(dp(16), dp(16), dp(16), dp(16));
 
         final int indigoA = Color.parseColor("#6366F1"), indigoB = Color.parseColor("#4338CA");
+        if (!isOwnImeSelected()) {
+            // Training is typed with bkey only: until it is the active keyboard the field stays hidden.
+            TextView hint = new TextView(this);
+            hint.setText(tr("فعّل كيبورد bkey واجعله الكيبورد الحالي ليظهر حقل التدريب هنا",
+                    "Enable bkey and make it your current keyboard to show the training field here"));
+            hint.setTextSize(14);
+            hint.setTextColor(Color.parseColor(dm("#475569")));
+            hint.setPadding(0, dp(4), 0, dp(12));
+            trainCard.addView(hint);
+        } else {
         EditText[] trainOut = new EditText[1];
         trainCard.addView(createFieldPill(ModernIconView.ICON_SPARKLE,
                 tr("أدخل جملة هنا لتدريب الكيبورد عليها فوراً...", "Type a sentence here to train the keyboard instantly..."),
                 indigoA, trainOut));
         final EditText trainBox = trainOut[0];
-        // Typing only, with bkey itself: no paste menu, and saving needs bkey to be the active keyboard.
+        // Typing only, with bkey itself: no paste menu, and bkey's own clipboard/paste is switched
+        // off for this field through the marker below.
+        trainBox.setPrivateImeOptions("bkey.trainfield");
         ActionMode.Callback noPaste = new ActionMode.Callback() {
             public boolean onCreateActionMode(ActionMode m, android.view.Menu menu) { return false; }
             public boolean onPrepareActionMode(ActionMode m, android.view.Menu menu) { return false; }
@@ -2542,6 +2561,7 @@ public class MainActivity extends Activity {
                 showCoolToast(tr("تم حفظ الكلمات وتوقعات الكلمة التالية!", "Words and next-word predictions saved!"), false);
             }
         }));
+        }
 
         final TextView[] learnedCountSubtitleHolder = new TextView[1];
 
@@ -2557,6 +2577,7 @@ public class MainActivity extends Activity {
         }));
 
         root.addView(trainCard);
+        trainScreenView = mainFrame.getChildAt(0);
         root.addView(createMenuRow(
                 ModernIconView.ICON_DICTIONARY_BOOK,
                 tr("الكلمات المتعلمة", "Learned words"),
