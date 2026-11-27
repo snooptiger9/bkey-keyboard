@@ -102,12 +102,41 @@ public class PredictionEngine {
 
     /** Learned words that may be offered in the current mode: Arabic mode keeps out words learned
      *  while typing Urdu (same script, other language); the other modes go by latinWordAllowed. */
+    // Writing system of a word, so learned words and word pairs from one language never show up
+    // while another one is active (Arabic/Urdu script, Devanagari, Latin).
+    private static final int SC_NEUTRAL = 0, SC_LATIN = 1, SC_ARABIC = 2, SC_DEVA = 3;
+
+    private static int scriptOf(String w) {
+        if (w == null) return SC_NEUTRAL;
+        for (int i = 0; i < w.length(); i++) {
+            char c = w.charAt(i);
+            if ((c >= 0x0600 && c <= 0x06FF) || (c >= 0x0750 && c <= 0x077F)
+                    || (c >= 0xFB50 && c <= 0xFDFF) || (c >= 0xFE70 && c <= 0xFEFF)) return SC_ARABIC;
+            if (c >= 0x0900 && c <= 0x097F) return SC_DEVA;
+            if (Character.isLetter(c)) return SC_LATIN;
+        }
+        return SC_NEUTRAL;
+    }
+
+    private int expectedScript(boolean isArabic) {
+        if (isArabic || latinIsUrdu) return SC_ARABIC;
+        if (latinIsHindi) return SC_DEVA;
+        return SC_LATIN;
+    }
+
+    private boolean scriptOk(String word, boolean isArabic) {
+        int s = scriptOf(word);
+        return s == SC_NEUTRAL || s == expectedScript(isArabic);
+    }
+
     private boolean learnedAllowed(String word, boolean isArabic) {
+        if (!scriptOk(word, isArabic)) return false;
         if (isArabic) return !KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(word));
         return latinWordAllowed(word);
     }
 
     private boolean latinWordAllowed(String word) {
+        if (!scriptOk(word, false)) return false;
         String tag = learnedWordLatinTag.get(word);
         String active = activeLatinTag();
         // Untagged words predate Spanish/Hindi/French and could only have been English.
@@ -1278,7 +1307,7 @@ public class PredictionEngine {
                 if (cnt == null) continue;
                 if (!isTrustedWord(w)) continue;
                 if (filterLatin && !latinWordAllowed(w)) continue;
-                if (!filterLatin && KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(w))) continue;
+                if (!filterLatin && (!scriptOk(w, true) || KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(w)))) continue;
                 int cur = scored.containsKey(w) ? scored.get(w) : 0;
                 scored.put(w, cur + baseScore + (dist == 1 ? 100000 : 0) + Math.min(cnt, 99999));
             }
@@ -1324,14 +1353,6 @@ public class PredictionEngine {
         return keys;
     }
 
-    private static boolean hasArabicLetters(String w) {
-        for (int i = 0; i < w.length(); i++) {
-            char c = w.charAt(i);
-            if (c >= 0x0600 && c <= 0x06FF) return true;
-        }
-        return false;
-    }
-
     private List<String> getTopLearnedWords(boolean isArabic, int limit) {
         List<Map.Entry<String, Integer>> list = new ArrayList<>(learnedWords.entrySet());
         Collections.sort(list, (a, b) -> Integer.compare(b.getValue(), a.getValue()));
@@ -1340,7 +1361,7 @@ public class PredictionEngine {
             if (out.size() >= limit) break;
             String w = e.getKey();
             if (e.getValue() < 2 || w.indexOf('@') >= 0) continue;
-            if (hasArabicLetters(w) != (isArabic || latinIsUrdu)) continue;
+            if (!scriptOk(w, isArabic)) continue;
             if (!learnedAllowed(w, isArabic)) continue;
             out.add(w);
         }
