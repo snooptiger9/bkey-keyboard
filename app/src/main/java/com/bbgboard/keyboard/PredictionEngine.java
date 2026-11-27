@@ -619,6 +619,8 @@ public class PredictionEngine {
         if (!isLearnable(curr)) return;
         // Never store a word under a language whose writing system it isn't in.
         if (!scriptOk(curr, isArabic)) return;
+        // Urdu-only letters never belong to an untagged Arabic word.
+        if (isArabic && hasUrduOnlyLetters(curr)) return;
 
         String existing = findExistingKey(curr);
         String key = existing != null ? existing : curr;
