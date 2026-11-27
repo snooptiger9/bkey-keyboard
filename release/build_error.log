@@ -1,27 +1,31 @@
 Downloading https://services.gradle.org/distributions/gradle-8.4-bin.zip
+............10%............20%.............30%............40%.............50%............60%.............70%............80%.............90%............100%
 
-Exception in thread "main" java.io.IOException: Downloading from https://services.gradle.org/distributions/gradle-8.4-bin.zip failed: timeout (10000ms)
-	at org.gradle.wrapper.Install.forceFetch(SourceFile:4)
-	at org.gradle.wrapper.Install$1.call(SourceFile:8)
-	at org.gradle.wrapper.GradleWrapperMain.main(SourceFile:67)
-Caused by: java.net.SocketTimeoutException: Read timed out
-	at java.base/sun.nio.ch.NioSocketImpl.timedRead(NioSocketImpl.java:288)
-	at java.base/sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:314)
-	at java.base/sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:355)
-	at java.base/sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:808)
-	at java.base/java.net.Socket$SocketInputStream.read(Socket.java:966)
-	at java.base/sun.security.ssl.SSLSocketInputRecord.read(SSLSocketInputRecord.java:484)
-	at java.base/sun.security.ssl.SSLSocketInputRecord.readHeader(SSLSocketInputRecord.java:478)
-	at java.base/sun.security.ssl.SSLSocketInputRecord.bytesInCompletePacket(SSLSocketInputRecord.java:70)
-	at java.base/sun.security.ssl.SSLSocketImpl.readApplicationRecord(SSLSocketImpl.java:1464)
-	at java.base/sun.security.ssl.SSLSocketImpl$AppInputStream.read(SSLSocketImpl.java:1069)
-	at java.base/java.io.BufferedInputStream.fill(BufferedInputStream.java:244)
-	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:284)
-	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:343)
-	at java.base/sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:834)
-	at java.base/sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:769)
-	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1750)
-	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1644)
-	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getInputStream(HttpsURLConnectionImpl.java:224)
-	at org.gradle.wrapper.Install.forceFetch(SourceFile:2)
-	... 2 more
+Welcome to Gradle 8.4!
+
+Here are the highlights of this release:
+ - Compiling and testing with Java 21
+ - Faster Java compilation on Windows
+ - Role focused dependency configurations creation
+
+For more details see https://docs.gradle.org/8.4/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.4/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/home/runner/work/bkey-keyboard/bkey-keyboard/app/build.gradle' line: 35
+
+* What went wrong:
+A problem occurred evaluating project ':app'.
+> Value is null
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 19s
