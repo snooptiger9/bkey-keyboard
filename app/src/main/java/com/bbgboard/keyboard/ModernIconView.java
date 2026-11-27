@@ -56,6 +56,7 @@ public class ModernIconView extends View {
     public static final int ICON_SHARE = 44;
     public static final int ICON_INFO = 45;
     public static final int ICON_KEYBOARD_CHECK = 46;
+    public static final int ICON_CODE = 47;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -586,6 +587,16 @@ public class ModernIconView extends View {
                 canvas.drawLine(cx - r * 0.36f, cy - r * 0.12f, cx - r * 0.10f, cy + r * 0.14f, strokePaint);
                 canvas.drawLine(cx - r * 0.10f, cy + r * 0.14f, cx + r * 0.40f, cy - r * 0.40f, strokePaint);
                 canvas.drawLine(cx - r * 0.38f, cy + r * 0.46f, cx + r * 0.38f, cy + r * 0.46f, strokePaint);
+                break;
+            }
+            case ICON_CODE: {
+                // "< / >": two angle brackets with a slash between them.
+                float k = r * 0.52f, t = r * 0.86f;
+                canvas.drawLine(cx - r * 0.34f, cy - k, cx - r * 0.98f, cy, strokePaint);
+                canvas.drawLine(cx - r * 0.98f, cy, cx - r * 0.34f, cy + k, strokePaint);
+                canvas.drawLine(cx + r * 0.34f, cy - k, cx + r * 0.98f, cy, strokePaint);
+                canvas.drawLine(cx + r * 0.98f, cy, cx + r * 0.34f, cy + k, strokePaint);
+                canvas.drawLine(cx + r * 0.16f, cy - t * 0.62f, cx - r * 0.16f, cy + t * 0.62f, strokePaint);
                 break;
             }
             case ICON_BOLT: {

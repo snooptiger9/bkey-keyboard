@@ -3340,23 +3340,16 @@ public class MainActivity extends Activity {
                 this::openWhatsNewScreen
         ));
         appCard.addView(createMenuRow(
-                ModernIconView.ICON_SHARE,
-                tr("مشاركة التطبيق", "Share the app"),
+                ModernIconView.ICON_CODE,
+                tr("الكود المصدري", "Source code"),
                 null,
                 false,
                 () -> {
                     try {
-                        Intent send = new Intent(Intent.ACTION_SEND);
-                        send.setType("text/plain");
-                        // Stable pages, not a versioned file: a link to bkey-v<this version>.apk breaks
-                        // as soon as a newer release replaces it. bkey -> its APKPure page,
-                        // bkey Plus (not on APKPure) -> the latest GitHub release page.
-                        send.putExtra(Intent.EXTRA_TEXT, BuildConfig.OTP_FEATURES_ENABLED
-                                ? "bkey Plus keyboard\nhttps://github.com/snooptiger9/bkey-keyboard/releases/latest"
-                                : "bkey keyboard\nhttps://apkpure.com/p/com.snooptiger9.bkey");
-                        startActivity(Intent.createChooser(send, tr("مشاركة التطبيق", "Share the app")));
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                android.net.Uri.parse("https://github.com/snooptiger9/bkey-keyboard")));
                     } catch (Exception e) {
-                        AppLogger.log("MainActivity", "openAboutScreen() share", e);
+                        AppLogger.log("MainActivity", "openAboutScreen() source code", e);
                     }
                 }
         ));
