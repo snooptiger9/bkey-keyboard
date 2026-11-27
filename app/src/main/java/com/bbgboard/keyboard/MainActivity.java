@@ -3588,10 +3588,16 @@ public class MainActivity extends Activity {
         bg.setCornerRadius(dp(12));
         chip.setBackground(bg);
         ModernIconView ic = new ModernIconView(this, iconType, color, Color.TRANSPARENT);
-        ic.setStyle(0.62f, 2.0f);
+        ic.setStyle(0.62f, 1.5f);
         chip.addView(ic, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         chip.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
         return chip;
+    }
+
+    private GradientDrawable statGradient(int from, int to) {
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{from, to});
+        bg.setCornerRadius(dp(24));
+        return bg;
     }
 
     private int statChipAlpha() {
@@ -3703,8 +3709,8 @@ public class MainActivity extends Activity {
     }
 
     /** Near-square tile: icon chip on top, big number, short label, optional progress bar. */
-    private View createStatSquareCard(int iconType, int color, String label, int target, String suffix,
-                                      int barPct, int barTo, long delayMs) {
+    private View createStatSquareCard(int iconType, int color, int colorTo, String label, int target, String suffix,
+                                      int barPct, long delayMs) {
         LinearLayout card = new LinearLayout(this) {
             @Override
             protected void onMeasure(int widthSpec, int heightSpec) {
@@ -3717,25 +3723,25 @@ public class MainActivity extends Activity {
         };
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(16), dp(16), dp(16), dp(16));
-        card.setBackground(roundedCard(dm("#FFFFFF"), 24));
+        card.setBackground(statGradient(color, colorTo));
 
-        card.addView(statIconChip(iconType, color, statChipAlpha()));
+        card.addView(statIconChip(iconType, Color.WHITE, 46));
         card.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1f));
 
-        TextView num = statNumberView(30f, Color.parseColor(dm("#111827")));
+        TextView num = statNumberView(30f, Color.WHITE);
         num.setPadding(0, dp(12), 0, dp(4));
         card.addView(num);
 
         TextView lab = new TextView(this);
         lab.setText(label);
-        lab.setTextColor(Color.parseColor(dm("#6B7280")));
+        lab.setTextColor(Color.argb(215, 255, 255, 255));
         lab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         lab.setMaxLines(2);
         lab.setEllipsize(android.text.TextUtils.TruncateAt.END);
         card.addView(lab);
 
         if (barPct >= 0) {
-            View bar = statProgressBar(barPct, color, barTo, statAlpha(color, statChipAlpha()), delayMs);
+            View bar = statProgressBar(barPct, Color.parseColor("#FDE68A"), Color.WHITE, Color.argb(60, 255, 255, 255), delayMs);
             LinearLayout.LayoutParams lpB = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(6));
             lpB.topMargin = dp(10);
             card.addView(bar, lpB);
@@ -3763,11 +3769,11 @@ public class MainActivity extends Activity {
     }
 
     /** Card shell in the page's card color with an icon chip and a title row. */
-    private LinearLayout statPlainCard(int iconType, int color, String title, String caption) {
+    private LinearLayout statPlainCard(int iconType, int colorFrom, int colorTo, String title, String caption) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(18), dp(16), dp(18), dp(16));
-        card.setBackground(roundedCard(dm("#FFFFFF"), 24));
+        card.setBackground(statGradient(colorFrom, colorTo));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.bottomMargin = dp(12);
         card.setLayoutParams(lp);
@@ -3775,21 +3781,21 @@ public class MainActivity extends Activity {
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(statIconChip(iconType, color, statChipAlpha()));
+        head.addView(statIconChip(iconType, Color.WHITE, 46));
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams lpT = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         lpT.setMarginStart(dp(12));
         TextView t = new TextView(this);
         t.setText(title);
-        t.setTextColor(Color.parseColor(dm("#111827")));
+        t.setTextColor(Color.WHITE);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
         t.setTypeface(Typeface.DEFAULT_BOLD);
         texts.addView(t);
         if (caption != null) {
             TextView c = new TextView(this);
             c.setText(caption);
-            c.setTextColor(Color.parseColor(dm("#6B7280")));
+            c.setTextColor(Color.argb(210, 255, 255, 255));
             c.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
             c.setPadding(0, dp(2), 0, 0);
             texts.addView(c);
@@ -3818,10 +3824,10 @@ public class MainActivity extends Activity {
             this.colors = colors;
             float sp = getResources().getDisplayMetrics().scaledDensity;
             labelPaint.setTextSize(12f * sp);
-            labelPaint.setColor(Color.parseColor(dm("#6B7280")));
+            labelPaint.setColor(Color.argb(200, 255, 255, 255));
             labelPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
             pctPaint.setTextSize(12f * sp);
-            pctPaint.setColor(Color.parseColor(dm("#111827")));
+            pctPaint.setColor(Color.WHITE);
             pctPaint.setTypeface(Typeface.DEFAULT_BOLD);
             pctPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
         }
@@ -3856,7 +3862,7 @@ public class MainActivity extends Activity {
             for (int i = 0; i < n; i++) {
                 int idx = rtl ? n - 1 - i : i;
                 float cx = slot * i + slot / 2f;
-                barPaint.setColor(statAlpha(colors[idx], prefs.isAppDarkMode() ? 46 : 30));
+                barPaint.setColor(Color.argb(34, 255, 255, 255));
                 rect.set(cx - bw / 2f, top, cx + bw / 2f, bottom);
                 canvas.drawRoundRect(rect, radius, radius, barPaint);
                 float frac = pcts[idx] / (float) max * progress;
@@ -3866,7 +3872,7 @@ public class MainActivity extends Activity {
                     rect.set(cx - bw / 2f, bottom - bh, cx + bw / 2f, bottom);
                     canvas.drawRoundRect(rect, radius, radius, barPaint);
                 }
-                pctPaint.setAlpha(Math.round(255 * progress));
+                pctPaint.setAlpha(Math.round((pcts[idx] == 0 ? 150 : 255) * progress));
                 canvas.drawText(pcts[idx] + "%", cx, bottom - bh - dp(6), pctPaint);
                 CharSequence lab = android.text.TextUtils.ellipsize(labels[idx], labelPaint,
                         slot - dp(4), android.text.TextUtils.TruncateAt.END);
@@ -3882,33 +3888,16 @@ public class MainActivity extends Activity {
         int sum = 0;
         int[] counts = new int[codes.length];
         for (int i = 0; i < codes.length; i++) { counts[i] = prefs.getStat("stat_lang_" + codes[i]); sum += counts[i]; }
-        java.util.List<String> enabled = new ArrayList<>();
-        try { enabled = prefs.getEnabledLanguages(); } catch (Exception ignored) {}
-
-        LinearLayout card = statPlainCard(ModernIconView.ICON_GLOBE_LANG, Color.parseColor("#8B5CF6"),
+        LinearLayout card = statPlainCard(ModernIconView.ICON_GLOBE_LANG,
+                Color.parseColor("#475569"), Color.parseColor("#1E293B"),
                 tr("الكتابة بكل لغة", "Words by language"), null);
 
-        if (sum == 0) {
-            TextView empty = new TextView(this);
-            empty.setText(tr("ابدأ الكتابة لتظهر النسب هنا", "Start typing and the shares will show here"));
-            empty.setTextColor(Color.parseColor(dm("#6B7280")));
-            empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-            empty.setPadding(0, dp(12), 0, dp(2));
-            card.addView(empty);
-        } else {
-            java.util.List<Integer> shown = new ArrayList<>();
-            for (int i = 0; i < codes.length; i++) {
-                if (counts[i] > 0 || (enabled != null && enabled.contains(codes[i]))) shown.add(i);
-            }
-            String[] l = new String[shown.size()];
-            int[] p = new int[shown.size()];
-            int[] c = new int[shown.size()];
-            for (int k = 0; k < shown.size(); k++) {
-                int i = shown.get(k);
-                l[k] = names[i];
-                p[k] = Math.round(counts[i] * 100f / sum);
-                c[k] = colors[i];
-            }
+        {
+            // All six languages, unused ones at 0%, so the chart always fills the card.
+            String[] l = names;
+            int[] p = new int[codes.length];
+            int[] c = colors;
+            for (int i = 0; i < codes.length; i++) p[i] = sum == 0 ? 0 : Math.round(counts[i] * 100f / sum);
             StatBarsView chart = new StatBarsView(l, p, c);
             LinearLayout.LayoutParams lpC = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(170));
             lpC.topMargin = dp(14);
@@ -3921,7 +3910,8 @@ public class MainActivity extends Activity {
 
     private View createTypoCard(long delayMs) {
         final int accent = Color.parseColor("#F43F5E");
-        LinearLayout card = statPlainCard(ModernIconView.ICON_TEXT_CORRECTION, accent,
+        LinearLayout card = statPlainCard(ModernIconView.ICON_TEXT_CORRECTION,
+                Color.parseColor("#F43F5E"), Color.parseColor("#9D174D"),
                 tr("أكثر كلمات تخطئ فيها", "Words you mistype most"),
                 tr("كلمات صحّحها لك الكيبورد أكثر من غيرها", "Words the keyboard corrected for you most often"));
 
@@ -3931,7 +3921,7 @@ public class MainActivity extends Activity {
         if (top.isEmpty()) {
             TextView empty = new TextView(this);
             empty.setText(tr("لا توجد أخطاء بعد، ستظهر هنا مع الكتابة", "Nothing yet, it fills in as you type"));
-            empty.setTextColor(Color.parseColor(dm("#6B7280")));
+            empty.setTextColor(Color.argb(215, 255, 255, 255));
             empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
             empty.setPadding(0, dp(12), 0, dp(2));
             card.addView(empty);
@@ -3946,7 +3936,7 @@ public class MainActivity extends Activity {
                 row.setPadding(0, dp(5), 0, dp(5));
                 TextView w = new TextView(this);
                 w.setText(t[0]);
-                w.setTextColor(Color.parseColor(dm("#111827")));
+                w.setTextColor(Color.WHITE);
                 w.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
                 w.setTypeface(Typeface.DEFAULT_BOLD);
                 w.setSingleLine(true);
@@ -3954,8 +3944,8 @@ public class MainActivity extends Activity {
                 row.addView(w, new LinearLayout.LayoutParams(dp(96), ViewGroup.LayoutParams.WRAP_CONTENT));
 
                 int n = Integer.parseInt(t[1]);
-                View bar = statProgressBar(Math.max(1, n * 100 / Math.max(1, max)), accent,
-                        Color.parseColor("#FB7185"), statAlpha(accent, statChipAlpha()), delayMs);
+                View bar = statProgressBar(Math.max(1, n * 100 / Math.max(1, max)), Color.WHITE,
+                        Color.parseColor("#FFE4E6"), Color.argb(56, 255, 255, 255), delayMs);
                 LinearLayout.LayoutParams lpTr = new LinearLayout.LayoutParams(0, dp(8), 1f);
                 lpTr.leftMargin = dp(8);
                 lpTr.rightMargin = dp(8);
@@ -3963,7 +3953,7 @@ public class MainActivity extends Activity {
 
                 TextView c = new TextView(this);
                 c.setText("×" + n);
-                c.setTextColor(Color.parseColor(dm("#6B7280")));
+                c.setTextColor(Color.argb(220, 255, 255, 255));
                 c.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
                 c.setMinWidth(dp(30));
                 c.setGravity(Gravity.END);
@@ -3990,20 +3980,20 @@ public class MainActivity extends Activity {
                 learned, 0L));
 
         root.addView(statPairRow(
-                createStatSquareCard(ModernIconView.ICON_HAND_SWIPE, Color.parseColor("#10B981"),
+                createStatSquareCard(ModernIconView.ICON_HAND_SWIPE, Color.parseColor("#10B981"), Color.parseColor("#0E7490"),
                         tr("كلمات اخترتها بالسحب لأعلى", "Words picked by swiping up"),
-                        flicks, "", -1, 0, 140L),
-                createStatSquareCard(ModernIconView.ICON_GESTURE_SWIPE, Color.parseColor("#EC4899"),
+                        flicks, "", -1, 140L),
+                createStatSquareCard(ModernIconView.ICON_GESTURE_SWIPE, Color.parseColor("#EC4899"), Color.parseColor("#7C3AED"),
                         tr("نسبة كلماتك بالسحب", "Share of words by swiping"),
-                        swipeShare, "%", swipeShare, Color.parseColor("#F59E0B"), 220L)));
+                        swipeShare, "%", swipeShare, 220L)));
 
         root.addView(statPairRow(
-                createStatSquareCard(ModernIconView.ICON_BOLT, Color.parseColor("#06B6D4"),
+                createStatSquareCard(ModernIconView.ICON_KEYBOARD_CHECK, Color.parseColor("#06B6D4"), Color.parseColor("#1D4ED8"),
                         tr("ضغطات وفّرها السحب (تقريباً)", "Taps saved by swiping (approx.)"),
-                        prefs.getStat("stat_saved_keys"), "", -1, 0, 300L),
-                createStatSquareCard(ModernIconView.ICON_BACKSPACE, Color.parseColor("#F97316"),
+                        prefs.getStat("stat_saved_keys"), "", -1, 300L),
+                createStatSquareCard(ModernIconView.ICON_BACKSPACE, Color.parseColor("#F97316"), Color.parseColor("#BE123C"),
                         tr("كلمات حذفتها بسحبة واحدة", "Words deleted with one swipe"),
-                        prefs.getStat("stat_swipe_deletes"), "", -1, 0, 380L)));
+                        prefs.getStat("stat_swipe_deletes"), "", -1, 380L)));
 
         root.addView(createLanguageChartCard(480L));
         root.addView(createTypoCard(580L));
