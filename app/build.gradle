@@ -32,7 +32,7 @@ android {
         applicationId "com.snooptiger9.bkey"
         minSdk 24
         // Only the Google Play bundle built by CI passes -PplayTargetSdk=36; every other build stays on 34.
-        targetSdk (project.findProperty('playTargetSdk') ?: '34').toInteger()
+        targetSdk Integer.parseInt(String.valueOf(project.findProperty('playTargetSdk') ?: '34'))
 
         versionCode 316
         versionName "316.0"
