@@ -746,7 +746,7 @@ public class MainActivity extends Activity {
                 new int[]{base, shade(base, 0.78f)});
         bg.setCornerRadius(dp(22));
         row.setBackground(bg);
-        row.setPadding(dp(16), dp(14), dp(16), dp(14));
+        row.setPadding(dp(15), dp(13), dp(15), dp(13));
         row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         row.setOnClickListener(onClick);
 
