@@ -1,1 +1,1 @@
-A private keyboard with fast swipe gestures and deep customization
+A keyboard built on BlackBerry Keyboard - Classic's swipe gestures
