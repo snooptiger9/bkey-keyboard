@@ -179,12 +179,7 @@ public class MainActivity extends Activity {
      * are never passed through this — only backgrounds/borders/text of the settings screens.
      */
     private String dm(String lightHex) {
-        if (prefs == null || !prefs.isAppDarkMode()) {
-            // Light mode: page and cards swapped (white page, light-gray cards).
-            if ("#FFFFFF".equals(lightHex)) return "#F2F4F8";
-            if ("#F2F4F8".equals(lightHex)) return "#FFFFFF";
-            return lightHex;
-        }
+        if (prefs == null || !prefs.isAppDarkMode()) return lightHex;
         switch (lightHex) {
             case "#111827": case "#1F2937": case "#1E293B": return "#F1F2F4";
             case "#374151": return "#D7DAE0";
