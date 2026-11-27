@@ -63,8 +63,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         static void reserve(View root) {
             root.setOnApplyWindowInsetsListener((v, insets) -> {
                 android.graphics.Insets nav = insets.getInsets(android.view.WindowInsets.Type.navigationBars());
-                if (v.getPaddingLeft() != nav.left || v.getPaddingRight() != nav.right || v.getPaddingBottom() != nav.bottom) {
-                    v.setPadding(nav.left, v.getPaddingTop(), nav.right, nav.bottom);
+                // 75% of the bar's height under the keyboard matches where it sits on Android 14.
+                int bottom = Math.round(nav.bottom * 0.75f);
+                if (v.getPaddingLeft() != nav.left || v.getPaddingRight() != nav.right || v.getPaddingBottom() != bottom) {
+                    v.setPadding(nav.left, v.getPaddingTop(), nav.right, bottom);
                 }
                 // Not consumed: the keyboard view still gets the same insets for its own gap.
                 return insets;
