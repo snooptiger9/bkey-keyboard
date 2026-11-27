@@ -1,4 +1,4 @@
-bkey is a keyboard (IME) built around the swipe gestures of the old BlackBerry Keyboard - Classic app, brought to a modern Android keyboard with more customization.
+bkey is a keyboard (IME) built around fast swipe gestures, with deep customization for a modern Android typing experience.
 
 Gestures:
 
