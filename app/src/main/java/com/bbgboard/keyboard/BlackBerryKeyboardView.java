@@ -3850,7 +3850,7 @@ public class BlackBerryKeyboardView extends View {
                     // language (each language has its own symbols layout) and swiping down again
                     // on the symbols layout returns to the letters.
                     vibrateTap(false);
-                    soundController.playKeyClick();
+                    soundController.playSwipeUpSound();
                     isSymbols = !isSymbols;
                     rebuildKeys();
                     return true;
