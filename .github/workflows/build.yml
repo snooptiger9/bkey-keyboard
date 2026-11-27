@@ -100,7 +100,7 @@ jobs:
       # continue-on-error so a bundle problem can never block the normal release steps.
       - name: Build lite app bundle for Google Play
         continue-on-error: true
-        run: ./gradlew bundleLiteRelease --no-daemon
+        run: ./gradlew bundleLiteRelease --no-daemon -PplayTargetSdk=36
 
       - name: Upload lite app bundle
         uses: actions/upload-artifact@v4
