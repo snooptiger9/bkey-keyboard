@@ -2231,7 +2231,7 @@ public class MainActivity extends Activity {
         tile.setOnClickListener(onClick);
 
         FrameLayout holder = new FrameLayout(this);
-        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(62), dp(54)));
+        holder.setLayoutParams(new LinearLayout.LayoutParams(dp(68), dp(60)));
         holder.setBackground(roundedCard(selected ? dm("#EFF6FF") : dm("#F3F4F6"), 13));
         holder.setElevation(selected ? dp(3) : dp(1));
 
