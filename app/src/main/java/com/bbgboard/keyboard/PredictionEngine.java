@@ -95,9 +95,37 @@ public class PredictionEngine {
     // to English -- the only Latin language that could have written it.
     private final Map<String, String> learnedWordLatinTag = new HashMap<>();
 
-    private void tagLatinWord(String word, boolean isArabic) {
-        if (isArabic) return;
-        learnedWordLatinTag.put(word, activeLatinTag());
+    // A word can be learned in more than one language (e.g. "hotel" in English and Spanish, or a
+    // word shared by Arabic and Urdu), so the tag is a comma-separated list of language codes
+    // ("es,fr"; "ur,ar"). No tag = learned before tags existed: Latin means English, Arabic
+    // script means Arabic.
+    private static boolean tagHas(String tag, String code) {
+        return tag != null && ("," + tag + ",").contains("," + code + ",");
+    }
+
+    private void tagLatinWord(String word, boolean isArabic, boolean wasKnown) {
+        String code = isArabic ? KeyboardPreferences.LANG_AR : activeLatinTag();
+        String existing = learnedWordLatinTag.get(word);
+        if (existing == null) {
+            int sc = scriptOf(word);
+            // An untagged word typed in Arabic mode stays untagged (untagged Arabic script = Arabic).
+            if (isArabic && sc != SC_LATIN) return;
+            if (wasKnown) {
+                // Already saved without a tag (learned before tags existed): Latin = English, Arabic script = Arabic.
+                existing = sc == SC_LATIN ? KeyboardPreferences.LANG_EN
+                        : sc == SC_ARABIC ? KeyboardPreferences.LANG_AR : "";
+            } else {
+                existing = "";
+            }
+        }
+        if (!tagHas(existing, code)) existing = existing.isEmpty() ? code : existing + "," + code;
+        learnedWordLatinTag.put(word, existing);
+    }
+
+    /** Learned Arabic-script word that may be offered in Arabic mode (hides Urdu-only words). */
+    private boolean arabicTagOk(String word) {
+        String tag = learnedWordLatinTag.get(word);
+        return tag == null || tagHas(tag, KeyboardPreferences.LANG_AR);
     }
 
     /** Learned words that may be offered in the current mode: Arabic mode keeps out words learned
@@ -133,7 +161,7 @@ public class PredictionEngine {
 
     private boolean learnedAllowed(String word, boolean isArabic) {
         if (!scriptOk(word, isArabic)) return false;
-        if (isArabic) return !KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(word));
+        if (isArabic) return arabicTagOk(word);
         return latinWordAllowed(word);
     }
 
@@ -143,7 +171,7 @@ public class PredictionEngine {
         String tag = learnedWordLatinTag.get(word);
         String active = activeLatinTag();
         // Untagged words predate Spanish/Hindi/French and could only have been English.
-        return tag == null ? KeyboardPreferences.LANG_EN.equals(active) : tag.equals(active);
+        return tag == null ? KeyboardPreferences.LANG_EN.equals(active) : tagHas(tag, active);
     }
 
     // Only the languages the user has turned on keep their dictionary in memory.
@@ -210,6 +238,7 @@ public class PredictionEngine {
             loadFromPrefs();
             dirty = false;
             cleanupOldLearnedDataOnce();
+            retagLegacyWordsOnce(context);
         }
         prefs.registerOnSharedPreferenceChangeListener(prefListener);
         ready = true;
@@ -274,6 +303,53 @@ public class PredictionEngine {
             }
         } catch (Exception e) {
             AppLogger.log("PredictionEngine", "loadBundledDictionary()", e);
+        }
+    }
+
+    private static java.util.Set<String> readFoldedDictionary(Context context, String asset) {
+        java.util.Set<String> out = new java.util.HashSet<>();
+        try {
+            java.io.BufferedReader r = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(context.getAssets().open(asset), "UTF-8"), 32 * 1024);
+            String line;
+            while ((line = r.readLine()) != null) {
+                String w = line.trim();
+                if (!w.isEmpty()) out.add(fold(w));
+            }
+            r.close();
+        } catch (Exception e) {
+            AppLogger.log("PredictionEngine", "readFoldedDictionary(" + asset + ")", e);
+            return null;
+        }
+        return out;
+    }
+
+    /** One-time: Latin words learned before language tags existed were all treated as English.
+     *  A word that is in the Spanish or French dictionary but not in the English one gets its real
+     *  language, so it stops showing up while English is active. */
+    private void retagLegacyWordsOnce(Context context) {
+        if (prefs.getBoolean("retag_v1_done", false)) return;
+        try {
+            java.util.Set<String> en = readFoldedDictionary(context, "dict_en.txt");
+            java.util.Set<String> es = readFoldedDictionary(context, "dict_es.txt");
+            java.util.Set<String> fr = readFoldedDictionary(context, "dict_fr.txt");
+            if (en == null || es == null || fr == null) return;
+            boolean changed = false;
+            for (String w : learnedWords.keySet()) {
+                if (learnedWordLatinTag.containsKey(w)) continue;
+                if (scriptOf(w) != SC_LATIN || looksLikeEmail(w)) continue;
+                String f = fold(w);
+                if (en.contains(f)) continue;
+                boolean inEs = es.contains(f), inFr = fr.contains(f);
+                if (!inEs && !inFr) continue;
+                learnedWordLatinTag.put(w, inEs && inFr ? KeyboardPreferences.LANG_ES + "," + KeyboardPreferences.LANG_FR
+                        : inEs ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_FR);
+                changed = true;
+            }
+            if (changed) saveToPrefs();
+            prefs.edit().putBoolean("retag_v1_done", true).apply();
+        } catch (Exception e) {
+            AppLogger.log("PredictionEngine", "retagLegacyWordsOnce()", e);
         }
     }
 
@@ -627,9 +703,10 @@ public class PredictionEngine {
 
         String existing = findExistingKey(curr);
         String key = existing != null ? existing : curr;
-        int oldCount = learnedWords.containsKey(key) ? learnedWords.get(key) : 0;
+        boolean wasKnown = learnedWords.containsKey(key);
+        int oldCount = wasKnown ? learnedWords.get(key) : 0;
         learnedWords.put(key, oldCount + 1);
-        tagLatinWord(key, isArabic);
+        tagLatinWord(key, isArabic, wasKnown);
         if (existing == null) {
 
             String kf = fold(key);
@@ -1344,7 +1421,7 @@ public class PredictionEngine {
                 if (cnt == null) continue;
                 if (!isTrustedWord(w)) continue;
                 if (mode == 1 && !latinWordAllowed(w)) continue;
-                if (mode == 2 && (!scriptOk(w, true) || KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(w)))) continue;
+                if (mode == 2 && (!scriptOk(w, true) || !arabicTagOk(w))) continue;
                 int cur = scored.containsKey(w) ? scored.get(w) : 0;
                 scored.put(w, cur + baseScore + (dist == 1 ? 100000 : 0) + Math.min(cnt, 99999));
             }
@@ -1624,7 +1701,7 @@ public class PredictionEngine {
             while (keys.hasNext() && n++ < BACKUP_MAX_WORDS) {
                 String k = keys.next();
                 String v = tags.optString(k, null);
-                if (okKey(k) && v != null && v.length() <= 8 && !learnedWordLatinTag.containsKey(k)) learnedWordLatinTag.put(k, v);
+                if (okKey(k) && v != null && v.length() <= 24 && !learnedWordLatinTag.containsKey(k)) learnedWordLatinTag.put(k, v);
             }
         }
         saveToPrefs();
