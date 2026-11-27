@@ -236,6 +236,8 @@ No — it's lightweight and runs fully on-device, with no background cloud proce
 
 Settings → **About & maintenance** → **Error log** → **"Email developer"** sends crash details straight to **lvl60me@gmail.com** — the same address for suggestions or feedback, and the only way to reach the developer.
 
+**Want to help test bkey on Google Play?** Email the Google account address you use on Google Play to **lvl60me@gmail.com** and I'll add you to the closed test.
+
 <br>
 
 <a id="en-roadmap"></a>

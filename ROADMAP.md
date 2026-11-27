@@ -23,6 +23,8 @@ The standard **bkey** build is headed to the Google Play Store, so you can insta
 - After that, Google reviews the app. That can take a while, so there is no release date here.
 - **bkey Plus** is not part of this step — it keeps its current download options.
 
+**Want to help test?** Email the address you use on Google Play to **lvl60me@gmail.com** and I'll add you to the closed test.
+
 <br>
 
 ## <img src="docs/icons/globe.svg" width="28" height="28" align="absmiddle" alt=""> Step 2 — Bahasa Indonesia &nbsp;![Planned](https://img.shields.io/badge/status-planned-3B82F6?style=flat-square)
