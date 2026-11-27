@@ -2297,7 +2297,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 if (expanded != null && !expanded.isEmpty()) {
                     ic.deleteSurroundingText(currentPrefix.length(), 0);
                     ic.commitText(expanded + " ", 1);
-                    predictionEngine.learnFullSentence(expanded);
+                    predictionEngine.learnFullSentence(expanded, keyboardView != null && keyboardView.isArabic());
                     lastSpaceTapTime = 0L;
                     refreshPredictions();
                     return;

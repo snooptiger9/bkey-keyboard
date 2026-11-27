@@ -617,6 +617,8 @@ public class PredictionEngine {
         if (!learningAllowed || !keyboardPrefs.isAutoLearnEnabled() || keyboardPrefs.isIncognitoMode()) return;
         String curr = normalize(currentWordRaw);
         if (!isLearnable(curr)) return;
+        // Never store a word under a language whose writing system it isn't in.
+        if (!scriptOk(curr, isArabic)) return;
 
         String existing = findExistingKey(curr);
         String key = existing != null ? existing : curr;
@@ -707,7 +709,35 @@ public class PredictionEngine {
         rebuildLearnedIndex();
     }
 
+    private static boolean hasUrduOnlyLetters(String t) {
+        for (int i = 0; i < t.length(); i++) {
+            if ("\u0679\u0688\u0691\u06BA\u06D2\u06BE\u06C1\u06AF\u0686\u067E\u06A9\u06CC\u0698".indexOf(t.charAt(i)) >= 0) return true;
+        }
+        return false;
+    }
+
+    /** Training sentence typed in the settings screen (no keyboard mode there): each word is
+     *  learned under the language its writing system belongs to, and only if that language is
+     *  the active one, so Arabic and Urdu (same script) and the Latin languages never mix. */
     public synchronized void learnFullSentence(String sentence) {
+        if (sentence == null || !ready) return;
+        boolean urduSentence = hasUrduOnlyLetters(sentence);
+        if (urduSentence && !latinIsUrdu) return;
+        String[] rawTokens = sentence.trim().split("\\s+");
+        List<String> tokens = new ArrayList<>();
+        for (String r : rawTokens) {
+            String n = normalize(r);
+            if (!n.isEmpty()) tokens.add(n);
+        }
+        for (int i = 0; i < tokens.size(); i++) {
+            String curr = tokens.get(i);
+            String prev = i > 0 ? tokens.get(i - 1) : "";
+            boolean arabicScript = scriptOf(curr) == SC_ARABIC;
+            learnWordAndTransition(curr, prev, arabicScript && !urduSentence);
+        }
+    }
+
+    public synchronized void learnFullSentence(String sentence, boolean arabicMode) {
         if (sentence == null || !ready) return;
         String[] rawTokens = sentence.trim().split("\\s+");
         List<String> tokens = new ArrayList<>();
@@ -718,15 +748,9 @@ public class PredictionEngine {
         for (int i = 0; i < tokens.size(); i++) {
             String curr = tokens.get(i);
             String prev = i > 0 ? tokens.get(i - 1) : "";
-            boolean isAr = true;
-            for (int c = 0; c < curr.length(); c++) {
-                char ch = curr.charAt(c);
-                if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
-                    isAr = false;
-                    break;
-                }
-            }
-            learnWordAndTransition(curr, prev, isAr);
+            // Learn under the language that is actually active; words in another writing system
+            // are skipped (learnWordAndTransition also refuses them).
+            learnWordAndTransition(curr, prev, arabicMode);
         }
     }
 
