@@ -235,6 +235,8 @@ Non : il est léger et fonctionne entièrement sur l'appareil, sans traitement e
 ### Communauté et rapports de bugs <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 Réglages → **À propos et maintenance** → **Journal d'erreurs** → **« Écrire au développeur »** envoie les détails du plantage directement à **lvl60me@gmail.com**, la même adresse pour les suggestions ou les retours, et le seul moyen de joindre le développeur.
+**Envie d'aider à tester bkey sur Google Play ?** Envoyez l'adresse du compte Google que vous utilisez sur Google Play à **lvl60me@gmail.com** et je vous ajouterai au test fermé.
+
 
 <br>
 

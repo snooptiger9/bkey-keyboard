@@ -235,6 +235,8 @@ No: es ligero y funciona por completo en el dispositivo, sin procesamiento en la
 ### Comunidad y errores <img src="docs/icons/users.svg" width="24" height="24" align="absmiddle" alt="">
 
 Ajustes → **Acerca de y mantenimiento** → **Error log** → **"Email developer"** envía los detalles del fallo directamente a **lvl60me@gmail.com**: la misma dirección sirve para sugerencias o comentarios, y es la única forma de contactar con el desarrollador.
+**¿Quieres ayudar a probar bkey en Google Play?** Envía la dirección de la cuenta de Google que usas en Google Play a **lvl60me@gmail.com** y te añadiré a la prueba cerrada.
+
 
 <br>
 
