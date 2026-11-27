@@ -1,18 +1,16 @@
-<!-- versionCode: 315 -->
-### Release v315.0
+<!-- versionCode: 316 -->
+### Release v316.0
 
-- **Undo after deleting:** A new option in Preferences shows an Undo arrow after you delete text, so you can bring it back.
-- **Auto-switch after apostrophe:** A new option returns to the letters page after typing an apostrophe from the symbols page.
-- **Auto-space after ? and !:** A new option adds a space after question and exclamation marks.
-- **Emoji size slider:** Now has 10 levels with a mark on the default, and the thumb is no longer clipped.
-- **Recent emojis:** The Recently used tab is always visible and shows a message when it is empty.
-- **Number pad:** The small alternate symbols (#, *, +) are larger and easier to read.
-- **Right-to-left settings:** Fixed the text direction of settings labels and the title animation in Arabic and Urdu.
-- **Option check marks:** Now drawn like the toggle check mark.
+- **Typing stats:** A new look with a large card for learned words, square cards with icons and colors, and a bar chart of words by language.
+- **Clipboard:** Cards now sit in two independent columns, long text is cut after two lines, and the spacing is tighter.
+- **Corrections & suggestions:** The settings section has a clearer name, and page titles now match the menu.
+- **Settings text:** Shorter and clearer descriptions in all six languages.
+- **Key shapes:** On Pill and Circles, the small alternate symbols no longer overlap the main symbol.
+- **Autofill suggestions:** They now follow the keyboard's color theme, even before the keyboard is shown.
+- **Theme and Enter key colors:** The color choices are larger.
+- **Setup cards:** Slightly slimmer.
+- **Source code:** The Share button is now a link to the project's source code page.
 
 **bkey Plus only**
 
-- **One-time codes from notifications:** Codes are now read from WhatsApp and your default messages app notifications, so Plus no longer asks for the SMS permission.
-- **More languages for codes:** One-time code detection now understands Spanish, French, Hindi and Urdu messages.
-- **Long messages:** Codes in long, multi-line messages (like bank purchase confirmations) are now found.
-- **Code suggestion is no longer covered:** While a fresh code is showing, Android's own autofill suggestion is hidden for 60 seconds.
+- **Newest suggestion first:** When a one-time code, a screenshot and copied text are all available, the most recent one is shown.
