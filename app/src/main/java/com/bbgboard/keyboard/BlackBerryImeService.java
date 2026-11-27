@@ -57,6 +57,20 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private ClipboardRepository clipboardRepo;
     // True while the settings training field has focus: nothing may be pasted into it.
     private boolean noPasteField = false;
+
+    /** API 30+ code kept in its own class so older phones never load it. */
+    private static final class NavBarSpace {
+        static void reserve(View root) {
+            root.setOnApplyWindowInsetsListener((v, insets) -> {
+                android.graphics.Insets nav = insets.getInsets(android.view.WindowInsets.Type.navigationBars());
+                if (v.getPaddingLeft() != nav.left || v.getPaddingRight() != nav.right || v.getPaddingBottom() != nav.bottom) {
+                    v.setPadding(nav.left, v.getPaddingTop(), nav.right, nav.bottom);
+                }
+                // Not consumed: the keyboard view still gets the same insets for its own gap.
+                return insets;
+            });
+        }
+    }
     // The word that was being typed when the language was switched (null when none).
     private String langSwitchWord = null;
 
@@ -680,6 +694,13 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
+        // Android 15+ draws the keyboard window of a build that targets it under the navigation
+        // bar. Older setups keep the keyboard above that bar, so the same space is reserved
+        // here and the keyboard sits exactly where it does there; its own bottom gap is
+        // computed from the same numbers as before. Nothing changes on other setups.
+        if (android.os.Build.VERSION.SDK_INT >= 35 && getApplicationInfo().targetSdkVersion >= 35) {
+            NavBarSpace.reserve(rootContainer);
+        }
 
         keyboardView = new BlackBerryKeyboardView(this, keyboardPrefs, soundController);
         keyboardView.setKeyboardActionListener(this);
