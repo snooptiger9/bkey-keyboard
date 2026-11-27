@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.TypedValue;
+import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
@@ -2517,11 +2518,24 @@ public class MainActivity extends Activity {
                 tr("أدخل جملة هنا لتدريب الكيبورد عليها فوراً...", "Type a sentence here to train the keyboard instantly..."),
                 indigoA, trainOut));
         final EditText trainBox = trainOut[0];
+        // Typing only, with bkey itself: no paste menu, and saving needs bkey to be the active keyboard.
+        ActionMode.Callback noPaste = new ActionMode.Callback() {
+            public boolean onCreateActionMode(ActionMode m, android.view.Menu menu) { return false; }
+            public boolean onPrepareActionMode(ActionMode m, android.view.Menu menu) { return false; }
+            public boolean onActionItemClicked(ActionMode m, android.view.MenuItem item) { return false; }
+            public void onDestroyActionMode(ActionMode m) {}
+        };
+        trainBox.setCustomSelectionActionModeCallback(noPaste);
+        trainBox.setCustomInsertionActionModeCallback(noPaste);
 
         trainCard.addView(createGradientButton(ModernIconView.ICON_SPARKLE,
                 tr("حفظ وتدريب التوقعات على هذه الجملة", "Save & train predictions on this sentence"),
                 indigoA, indigoB, v -> {
             String s = trainBox.getText().toString().trim();
+            if (!isOwnImeSelected()) {
+                showCoolToast(tr("اكتب الجملة بكيبورد bkey فقط", "Type the sentence with the bkey keyboard only"), true);
+                return;
+            }
             if (!s.isEmpty()) {
                 predictionEngine.learnFullSentence(s);
                 trainBox.setText("");
