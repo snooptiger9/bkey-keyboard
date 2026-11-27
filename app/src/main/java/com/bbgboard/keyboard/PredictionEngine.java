@@ -108,6 +108,8 @@ public class PredictionEngine {
 
     private static int scriptOf(String w) {
         if (w == null) return SC_NEUTRAL;
+        // A saved email address belongs to the user, not to a language.
+        if (w.indexOf('@') > 0 && looksLikeEmail(w)) return SC_NEUTRAL;
         for (int i = 0; i < w.length(); i++) {
             char c = w.charAt(i);
             if ((c >= 0x0600 && c <= 0x06FF) || (c >= 0x0750 && c <= 0x077F)
@@ -137,6 +139,7 @@ public class PredictionEngine {
 
     private boolean latinWordAllowed(String word) {
         if (!scriptOk(word, false)) return false;
+        if (looksLikeEmail(word)) return true;
         String tag = learnedWordLatinTag.get(word);
         String active = activeLatinTag();
         // Untagged words predate Spanish/Hindi/French and could only have been English.
@@ -1311,7 +1314,7 @@ public class PredictionEngine {
 
     private void collectNearMissCandidates(String prefixLower, java.util.TreeMap<String, List<String>> byFold,
                                             Map<String, Integer> wordCounts, Map<String, Integer> scored, int baseScore) {
-        collectNearMissCandidates(prefixLower, byFold, wordCounts, scored, baseScore, false);
+        collectNearMissImpl(prefixLower, byFold, wordCounts, scored, baseScore, 0);
     }
 
     // filterLatin restricts to the active Latin sub-language (English vs Spanish) -- only
@@ -1320,6 +1323,14 @@ public class PredictionEngine {
     private void collectNearMissCandidates(String prefixLower, java.util.TreeMap<String, List<String>> byFold,
                                             Map<String, Integer> wordCounts, Map<String, Integer> scored, int baseScore,
                                             boolean filterLatin) {
+        collectNearMissImpl(prefixLower, byFold, wordCounts, scored, baseScore, filterLatin ? 1 : 2);
+    }
+
+    // mode 0 = base dictionary of the active language (no filtering needed), 1 = learned words
+    // while a Latin/Hindi/Urdu language is active, 2 = learned words while Arabic is active.
+    private void collectNearMissImpl(String prefixLower, java.util.TreeMap<String, List<String>> byFold,
+                                            Map<String, Integer> wordCounts, Map<String, Integer> scored, int baseScore,
+                                            int mode) {
         final int plen = prefixLower.length();
         final int maxDist = plen >= 5 ? 2 : 1;
         for (Map.Entry<String, List<String>> entry : byFold.entrySet()) {
@@ -1332,8 +1343,8 @@ public class PredictionEngine {
                 Integer cnt = wordCounts.get(w);
                 if (cnt == null) continue;
                 if (!isTrustedWord(w)) continue;
-                if (filterLatin && !latinWordAllowed(w)) continue;
-                if (!filterLatin && (!scriptOk(w, true) || KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(w)))) continue;
+                if (mode == 1 && !latinWordAllowed(w)) continue;
+                if (mode == 2 && (!scriptOk(w, true) || KeyboardPreferences.LANG_UR.equals(learnedWordLatinTag.get(w)))) continue;
                 int cur = scored.containsKey(w) ? scored.get(w) : 0;
                 scored.put(w, cur + baseScore + (dist == 1 ? 100000 : 0) + Math.min(cnt, 99999));
             }
