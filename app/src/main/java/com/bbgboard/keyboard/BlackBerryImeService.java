@@ -1412,7 +1412,9 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
 
         // A tap elsewhere in the text ends the Bangla word being composed.
+        // A callback carrying the previous (longer) composing range must not end a word mid-typing.
         if (banglaComposer != null && banglaComposer.isComposing() && candidatesStart >= 0 && candidatesEnd >= 0
+                && (candidatesEnd - candidatesStart) == banglaComposer.composingLength()
                 && (newSelStart < candidatesStart || newSelEnd > candidatesEnd)) {
             composer().finish();
         }
@@ -2436,7 +2438,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 if (beforeTwo != null && beforeTwo.length() >= 2 && beforeTwo.charAt(1) == ' ' && !Character.isWhitespace(beforeTwo.charAt(0))) {
                     ic.deleteSurroundingText(1, 0);
                     ic.commitText(keyboardView != null && keyboardView.isHindi() ? "। "
-                            : keyboardView != null && keyboardView.isUrdu() ? "۔ " : ". ", 1);
+                            : keyboardView != null && keyboardView.isUrdu() ? "۔ "
+                            : keyboardView != null && keyboardView.isBangla() ? "। " : ". ", 1);
                     lastSpaceTapTime = 0L;
                     refreshPredictions();
                     return;
@@ -2522,11 +2525,15 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
+        if (!held) clearUndo();
         if (banglaPhoneticActive() && composer().isComposing() && composer().handleBackspace()) {
+            // The normal delete path clears these on its way out; do the same here so a stale
+            // autocorrect/undo state cannot show an Undo chip instead of Bangla suggestions.
+            lastAutoCorrectOriginal = null;
+            lastAutoCorrectResult = null;
             refreshPredictions();
             return true;
         }
-        if (!held) clearUndo();
         CharSequence selected = ic.getSelectedText(0);
         boolean deleted;
         if (selected != null && selected.length() > 0) {

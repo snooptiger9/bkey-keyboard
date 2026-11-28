@@ -20,6 +20,8 @@ public final class BanglaComposer {
     private final Supplier<InputConnection> inputConnection;
     private final StringBuilder roman = new StringBuilder();
     private boolean composing = false;
+    /** Length of the last text passed to setComposingText, for stale-selection detection. */
+    private int renderedLength = 0;
     /** Fixed Bengali mode: keys are Bangla letters and the buffer holds Bangla text. */
     private boolean fixed = false;
 
@@ -50,6 +52,7 @@ public final class BanglaComposer {
             if (ic == null) return false;
             roman.append(c);
             ic.setComposingText(roman.toString(), 1);
+            renderedLength = roman.length();
             composing = true;
             return true;
         }
@@ -71,8 +74,10 @@ public final class BanglaComposer {
             ic.setComposingText("", 1);
             ic.finishComposingText();
             composing = false;
+            renderedLength = 0;
         } else if (fixed) {
             ic.setComposingText(roman.toString(), 1);
+            renderedLength = roman.length();
         } else {
             render(ic);
         }
@@ -83,11 +88,13 @@ public final class BanglaComposer {
     public void finish() {
         if (roman.length() == 0) {
             composing = false;
+            renderedLength = 0;
             return;
         }
         InputConnection ic = connection();
         roman.setLength(0);
         composing = false;
+        renderedLength = 0;
         if (ic != null) ic.finishComposingText();
     }
 
@@ -95,6 +102,12 @@ public final class BanglaComposer {
     public void reset() {
         roman.setLength(0);
         composing = false;
+        renderedLength = 0;
+    }
+
+    /** Length of the composing text currently on screen, for validating selection callbacks. */
+    public int composingLength() {
+        return renderedLength;
     }
 
     /** True while a word is being built, i.e. while backspace should edit the roman buffer. */
@@ -109,8 +122,10 @@ public final class BanglaComposer {
             // alive, so the next key can still finish the word.
             ic.setComposingText("", 1);
             ic.finishComposingText();
+            renderedLength = 0;
         } else {
             ic.setComposingText(bangla, 1);
+            renderedLength = bangla.length();
         }
         composing = true;
     }
