@@ -879,6 +879,12 @@ public class PredictionEngine {
         if (dirty) { loadFromPrefs(); dirty = false; }
         String prefix = normalize(currentPrefixRaw);
         String lastWord = normalize(lastCompletedWordRaw);
+        // A pasted link, a number or a run of symbols is not a word to complete or to offer back
+        // as a suggestion (it would also let a swipe replace it). Saved shortcuts still work.
+        if (!prefix.isEmpty() && looksLikeLinkOrHasNoLetters(prefix)
+                && (keyboardPrefs == null || keyboardPrefs.findShortcutExpansion(prefix) == null)) {
+            return Arrays.asList("", "", "");
+        }
         if (!isArabic && latinIsFrench && !noSlotPadding) {
             // "l'hom" -> "l'homme": when no word starts with the whole thing, suggest for the
             // word after the apostrophe and keep the elision in front.
@@ -1080,6 +1086,19 @@ public class PredictionEngine {
             if (i > 0 && Character.isUpperCase(c)) return true;
         }
         return false;
+    }
+
+    /** http(s)://..., www.... , or text with no letter at all (digits, symbols, emoji). */
+    static boolean looksLikeLinkOrHasNoLetters(String w) {
+        if (w == null || w.isEmpty()) return false;
+        String lower = w.toLowerCase(Locale.ROOT);
+        if (lower.contains("://") || lower.startsWith("www.")) return true;
+        for (int i = 0; i < w.length(); ) {
+            int cp = w.codePointAt(i);
+            if (Character.isLetter(cp)) return false;
+            i += Character.charCount(cp);
+        }
+        return true;
     }
 
     public synchronized String findAutoCorrection(String wordRaw, boolean isArabic) {
