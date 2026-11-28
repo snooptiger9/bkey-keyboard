@@ -210,7 +210,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private long undoRecordTime = 0L;
     // The Undo card appears only once deleting has stopped (finger off the backspace, no more
     // swipe-deletes) for this long, never while text is still being removed.
-    private static final long UNDO_CHIP_DELAY_MS = 450L;
+    private static final long UNDO_CHIP_DELAY_MS = 300L;
     private final Runnable undoChipReveal = this::refreshPredictions;
 
     private boolean undoChipShowing() {
