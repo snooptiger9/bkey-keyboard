@@ -869,7 +869,7 @@ public class KeyboardPreferences {
         return getFrenchLayout() == FR_LAYOUT_AZERTY;
     }
 
-    /** Bangla key layout: 0 = phonetic (default), 1 = Jatiyo (BDS 1738:2018). */
+    /** Bangla key layout: 0 = phonetic (default), 1 = BSTI Mobile (BDS 1738:2018). */
     public int getBanglaLayout() {
         return prefs.getInt("bangla_layout", 0);
     }

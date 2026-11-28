@@ -2396,7 +2396,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         if (banglaPhoneticActive()) {
-            composer().setJatiyo(keyboardPrefs.getBanglaLayout() == 1);
+            composer().setFixedLayout(keyboardPrefs.getBanglaLayout() == 1);
             if (" ".equals(text) || "।".equals(text) || ".".equals(text)) {
                 composer().finish();
             } else if (composer().handleCharacter(text)) {

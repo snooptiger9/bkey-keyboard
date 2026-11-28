@@ -1443,7 +1443,7 @@ public class BlackBerryKeyboardView extends View {
             } else if (isArabic) {
                 rows.addAll(buildArabicGboardRows());
             } else if (isBangla && prefs.getBanglaLayout() == 1) {
-                rows.addAll(JatiyoLayout.rows(isShift || isCapsLock));
+                rows.addAll(BstiLayout.rows(isShift || isCapsLock));
             } else if (isHindi) {
                 rows.addAll(buildHindiInscriptRows());
             } else if (isUrdu) {

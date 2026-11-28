@@ -10,16 +10,14 @@ Copyright (c) 2026 Wasi Master. Permission is hereby granted, free of charge, to
 
 Adapted for bkey: Java port, same package, no Android dependencies, no behaviour change.
 
-## Jatiyo key mapping (CC-BY-4.0)
+## BSTI key mapping (CC-BY-4.0)
 
-Key rows, shift labels and long-press conjuncts in `JatiyoLayout.java`, and the hasanta/deadkey
-and phola-reordering behaviour in `JatiyoRules.java`, follow the Jatiyo (জাতীয়) Bangla keyboard
-standard BDS 1738:2018 published by BSTI, as implemented in Ekushey's `bn-jatiya.mim`
-(https://github.com/ekushey-org/bangla-bsti-m17n), Copyright (c) 2026 Ekushey, licensed
-CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/). The mapping was retyped into bkey's
-own Java tables for the touch keyboard; no m17n source code was copied. Changes: Latin AltGr
-conjuncts are exposed as long-press options, and the deadkey and reordering rules are applied
-inside bkey's composing buffer.
+The opt-in fixed layout in `BstiLayout.java` follows Ekushey's **Bangla BSTI Mobile** touch layout
+(https://github.com/ekushey-org/bangla-bsti-mobile), Copyright (c) 2026 Ekushey, licensed
+CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/), based on the revised National Keyboard
+Standard BDS 1738:2018 (BSTI). Full independent vowels and common conjuncts are exposed as
+long-press overlays, so no hasanta deadkey or reordering rules are needed in this mode. The key
+tables were retyped from the project's published mapping tables; no source code was copied.
 
 ## Smart-correction data (GPL-3.0)
 

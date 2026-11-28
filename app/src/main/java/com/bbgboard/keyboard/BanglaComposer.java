@@ -20,38 +20,36 @@ public final class BanglaComposer {
     private final Supplier<InputConnection> inputConnection;
     private final StringBuilder roman = new StringBuilder();
     private boolean composing = false;
-    /** Jatiyo (BDS 1738:2018) mode: keys are Bangla letters and the buffer holds Bangla text. */
-    private boolean jatiyo = false;
+    /** Fixed Bengali mode: keys are Bangla letters and the buffer holds Bangla text. */
+    private boolean fixed = false;
 
     public BanglaComposer(Supplier<InputConnection> ic) {
         this.inputConnection = ic;
     }
 
-    /** Switches the composer between phonetic (false) and the fixed Jatiyo layout (true). */
-    public void setJatiyo(boolean on) {
-        if (this.jatiyo != on) {
+    /** Switches between phonetic (false) and a fixed Bengali layout (true). */
+    public void setFixedLayout(boolean on) {
+        if (this.fixed != on) {
             finish(); // commit the buffer with the mode that built it
-            this.jatiyo = on;
+            this.fixed = on;
         }
     }
 
     /**
      * Appends one roman key and shows its Bangla. Returns false, and changes nothing, for
      * anything that is not a single ASCII letter, digit or phonetic punctuation key. In
-     * Jatiyo mode, a single Bangla character is pushed onto the buffer instead.
+     * fixed-layout mode, a single Bengali character is appended as-is instead.
      */
     public boolean handleCharacter(String text) {
         if (text == null || text.length() != 1) return false;
         char c = text.charAt(0);
-        if (jatiyo) {
-            // Fixed layout: only rendered Bengali letters/signs and the explicit joiners.
+        if (fixed) {
+            // Fixed layout: Bangla keys (and explicit joiners) are already the final output.
             if (!isBanglaLetter(c) && c != '\u200C' && c != '\u200D') return false;
             InputConnection ic = connection();
             if (ic == null) return false;
-            String buffer = JatiyoRules.push(roman.toString(), text);
-            roman.setLength(0);
-            roman.append(buffer);
-            ic.setComposingText(JatiyoRules.normalize(buffer), 1);
+            roman.append(c);
+            ic.setComposingText(roman.toString(), 1);
             composing = true;
             return true;
         }
@@ -73,6 +71,8 @@ public final class BanglaComposer {
             ic.setComposingText("", 1);
             ic.finishComposingText();
             composing = false;
+        } else if (fixed) {
+            ic.setComposingText(roman.toString(), 1);
         } else {
             render(ic);
         }
@@ -103,9 +103,7 @@ public final class BanglaComposer {
     }
 
     private void render(InputConnection ic) {
-        String bangla = jatiyo
-                ? JatiyoRules.normalize(roman.toString())
-                : BanglaPhoneticEngine.transliterate(PhoneticCorrections.correct(roman.toString()));
+        String bangla = BanglaPhoneticEngine.transliterate(PhoneticCorrections.correct(roman.toString()));
         if (bangla == null || bangla.isEmpty()) {
             // The keys so far write nothing yet ("`"): keep the screen empty but the buffer
             // alive, so the next key can still finish the word.

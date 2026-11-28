@@ -1565,8 +1565,8 @@ public class MainActivity extends Activity {
                 bnHeader.setPadding(0, 0, 0, dp(8));
                 bnCard.addView(bnHeader);
                 bnCard.addView(createExclusiveRadioList(
-                        tr(new String[]{"ফোনেটিক", "জাতীয় (BDS 1738:2018)"},
-                                new String[]{"Phonetic", "Jatiyo (BDS 1738:2018)"}),
+                        tr(new String[]{"ফোনেটিক", "বিএসটিআই (BDS 1738:2018)"},
+                                new String[]{"Phonetic", "BSTI (BDS 1738:2018)"}),
                         prefs.getBanglaLayout(),
                         idx -> prefs.setBanglaLayout(idx)));
                 root.addView(bnCard);

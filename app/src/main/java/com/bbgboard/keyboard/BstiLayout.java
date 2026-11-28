@@ -8,21 +8,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * National (Jatiya) Bangla keyboard, BDS 1738:2018.
+ * Bangla (BSTI Mobile) keyboard: the National Keyboard Standard (revised) BDS 1738:2018,
+ * adapted for touch by the Ekushey project.
  *
- * <p>Derived from Ekushey's {@code bn-jatiya.mim} (CC-BY-4.0,
- * <a href="https://github.com/ekushey-org/bangla-bsti-m17n">bangla-bsti-m17n</a>), keeping the
- * standard's base and Shift columns and the AltGr conjuncts, which become long-press options
- * here. Three letter rows only: the symbols page carries the digits, and the view appends its
- * own bottom row. Each key's {@code sub} is the Latin key it sits on, so people who know the
- * standard layout can find the letters on a QWERTY keyboard.
+ * <p>Derived from Ekushey's <em>Bangla BSTI Mobile</em> layout (CC-BY-4.0,
+ * <a href="https://github.com/ekushey-org/bangla-bsti-mobile">bangla-bsti-mobile</a>).
+ * Typing follows the Unicode logical order (consonant, then its kar). Three letter rows only:
+ * the view appends its own bottom row, and each key's {@code sub} is the Latin key it sits on.
+ * Full vowels sit on the long-press of their kar; the Shift layer puts the common conjuncts on
+ * long-press. Precomposed letters and conjuncts are written as explicit Unicode escapes so their
+ * codepoint order does not depend on how this file was normalised.
  */
-public final class JatiyoLayout {
-
-    /** U+200C ZERO WIDTH NON-JOINER: keeps a hasanta visible or blocks a conjunct. */
-    private static final String ZWNJ = "\u200C";
-    /** U+200D ZERO WIDTH JOINER: forces an explicit conjunct (ya-phala, ra-phala). */
-    private static final String ZWJ = "\u200D";
+public final class BstiLayout {
 
     // Top row (q..p).
     private static final String[] ROW1_BASE = {"ঙ", "য", "ড", "প", "ট", "চ", "জ", "হ", "গ", "\u09DC"};
@@ -30,33 +27,53 @@ public final class JatiyoLayout {
     private static final String HINTS1_BASE = "qwertyuiop";
     private static final String HINTS1_SHIFT = "QWERTYUIOP";
 
-    // Home row (a..l). g is the hasanta, exactly as in the .mim.
-    private static final String[] ROW2_BASE = {"ৃ", "ু", "ি", "া", "্", "ব", "ক", "ত", "দ"};
-    private static final String[] ROW2_SHIFT = {"র্", "ূ", "ী", "অ", "।", "ভ", "খ", "থ", "ধ"};
+    // Home row (a..l). g is the hasanta.
+    private static final String[] ROW2_BASE = {"ৃ", "ু", "ি", "া", "\u09CD", "ব", "ক", "ত", "দ"};
+    private static final String[] ROW2_SHIFT = {"\u09B0\u09CD", "ূ", "ী", "অ", "ঁ", "ভ", "খ", "থ", "ধ"};
     private static final String HINTS2_BASE = "asdfghjkl";
     private static final String HINTS2_SHIFT = "ASDFGHJKL";
 
     // Bottom row (z..m), in the row that also holds Shift and Backspace.
-    private static final String[] ROW3_BASE = {"্র", "ো", "ে", "র", "ন", "স", "ম"};
-    private static final String[] ROW3_SHIFT = {"্য", "ৌ", "ৈ", "ল", "ণ", "ষ", "শ"};
+    // \u09CB O-KAR and \u09CC AU-KAR are escaped: both decompose canonically into two signs.
+    private static final String[] ROW3_BASE = {"\u09CD\u09AF", "\u09CB", "ে", "র", "ন", "স", "ম"};
+    private static final String[] ROW3_SHIFT = {"\u09CD\u09AF", "\u09CC", "ৈ", "ল", "ণ", "ষ", "শ"};
     private static final String HINTS3_BASE = "zxcvbnm";
     private static final String HINTS3_SHIFT = "ZXCVBNM";
 
-    /** Long-press options taken from the .mim AltGr level, keyed by the unshifted letter. */
+    /**
+     * Long-press options keyed by the key's typed (Bengali) character. The two layers share only
+     * ya-phala on z, which carries no options, so one table serves both.
+     */
     private static final Map<String, List<String>> ALT_EXTRA;
 
     static {
         Map<String, List<String>> extra = new HashMap<>();
-        extra.put("ঙ", alts("ঙ্ক"));
-        extra.put("চ", alts("ঞ্চ"));
-        extra.put("জ", alts("ঞ্জ"));
-        extra.put("হ", alts("জ্ঞ", "হ্ম"));
-        extra.put("গ", alts("ঙ্গ"));
-        extra.put("ক", alts("ক্ষ"));
-        extra.put("র", alts("\u09AC\u09BC\u09CD\u09AF")); // .mim G-v: BA + NUKTA + HASANTA + YA
-        extra.put("স", alts("ষ্ণ"));
-        extra.put("ম", alts("হ্ম"));
-        extra.put("্", alts(ZWNJ, ZWJ));
+        // Normal layer: independent vowels on their kar, khanda-ta on ta, visarga on ma.
+        extra.put("ৃ", alts("\u098B")); // ঋ
+        extra.put("ু", alts("\u0989")); // উ
+        extra.put("ি", alts("\u0987")); // ই
+        extra.put("া", alts("\u0986")); // আ
+        extra.put("ত", alts("\u09CE")); // ৎ
+        extra.put("\u09CB", alts("\u0993")); // ও
+        extra.put("ে", alts("\u098F")); // এ
+        extra.put("ম", alts("\u0983")); // ঃ
+
+        // Shift layer: the remaining independent vowels and the high-frequency conjuncts.
+        extra.put("ং", alts("\u0999\u09CD\u0995")); // ঙ্ক
+        extra.put("\u09DF", alts("\u099E\u09CD\u099D")); // ঞ্ঝ
+        extra.put("ছ", alts("\u099E\u09CD\u099B")); // ঞ্ছ
+        extra.put("ঝ", alts("\u099C\u09CD\u099E")); // জ্ঞ
+        extra.put("ঞ", alts("\u099E\u09CD\u099C")); // ঞ্জ
+        extra.put("ঘ", alts("\u0999\u09CD\u0997")); // ঙ্গ
+        extra.put("ূ", alts("\u098A")); // ঊ
+        extra.put("ী", alts("\u0988")); // ঈ
+        extra.put("খ", alts("\u0995\u09CD\u09B7")); // ক্ষ
+        extra.put("\u09CC", alts("\u0994")); // ঔ
+        extra.put("ৈ", alts("\u0990")); // ঐ
+        extra.put("ল", alts("\u09AC\u09BC\u09CD\u09AF")); // ব়্য: BA + NUKTA + HASANTA + YA
+        extra.put("ণ", alts("\u099E\u09CD\u099A")); // ঞ্চ
+        extra.put("ষ", alts("\u09B7\u09CD\u09A3")); // ষ্ণ
+        extra.put("শ", alts("\u09B9\u09CD\u09AE")); // হ্ম
         ALT_EXTRA = Collections.unmodifiableMap(extra);
     }
 
@@ -68,7 +85,7 @@ public final class JatiyoLayout {
         SHIFT_ROWS = buildRows(true);
     }
 
-    private JatiyoLayout() {
+    private BstiLayout() {
     }
 
     /** The three letter rows for the requested layer, ready to be drawn as-is. */
