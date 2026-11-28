@@ -208,6 +208,14 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private int undoCursor = -1;
     private int undoAnchor = -1;
     private long undoRecordTime = 0L;
+    // The Undo card appears only once deleting has stopped (finger off the backspace, no more
+    // swipe-deletes) for this long, never while text is still being removed.
+    private static final long UNDO_CHIP_DELAY_MS = 450L;
+    private final Runnable undoChipReveal = this::refreshPredictions;
+
+    private boolean undoChipShowing() {
+        return undoPending && SystemClock.uptimeMillis() - undoRecordTime >= UNDO_CHIP_DELAY_MS;
+    }
 
     private boolean undoAllowed() {
         return keyboardPrefs != null && keyboardPrefs.isUndoAfterDeleteEnabled() && !passwordFieldActive;
@@ -241,6 +249,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private void clearUndo() {
         if (!undoPending) return;
         undoPending = false;
+        uiHandler.removeCallbacks(undoChipReveal);
         undoText.setLength(0);
         undoCursor = -1;
         undoAnchor = -1;
@@ -2214,10 +2223,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         final InputConnection chipIc = getCurrentInputConnection();
         keyboardView.setMiddleBlocked(false);
         if (undoPending) {
-            keyboardView.setToolbarIdleMode(false);
-            keyboardView.setSuggestions(Arrays.asList("", uiText("تراجع", "Undo", "Deshacer"), ""), 5);
-            keyboardView.setEmojiKeySuggestion(null);
-            return;
+            if (undoChipShowing()) {
+                keyboardView.setToolbarIdleMode(false);
+                keyboardView.setSuggestions(Arrays.asList("", uiText("تراجع", "Undo", "Deshacer"), ""), 5);
+                keyboardView.setEmojiKeySuggestion(null);
+                return;
+            }
+            // Still deleting: keep the normal bar and bring the card in once it has gone quiet.
+            uiHandler.removeCallbacks(undoChipReveal);
+            uiHandler.postDelayed(undoChipReveal,
+                    Math.max(30L, UNDO_CHIP_DELAY_MS - (SystemClock.uptimeMillis() - undoRecordTime) + 20L));
         }
         if (otpChipWins(chipIc) && ctx[0].isEmpty() && fieldIsEmpty(chipIc)) {
 
@@ -2645,7 +2660,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     public void onSwipeUpSuggestion(int zoneIndex) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
-        if (undoPending) {
+        if (undoChipShowing()) {
             if (zoneIndex == 1) {
                 String back = undoText.toString();
                 undoPending = false;
