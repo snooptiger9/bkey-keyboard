@@ -53,8 +53,9 @@ public class KeyboardPreferences {
     public static final String LANG_FR = "fr";
     public static final String LANG_UR = "ur";
     public static final String LANG_ID = "id";
+    public static final String LANG_BN = "bn";
     // Every language the keyboard knows how to type in, in the order they're offered in settings.
-    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR, LANG_UR, LANG_ID};
+    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR, LANG_UR, LANG_ID, LANG_BN};
 
     public static final int SWIPE_SOUND_BB_AIR_FLICK = 0;
     public static final int SWIPE_SOUND_VELVET_BRUSH = 1;
@@ -866,6 +867,15 @@ public class KeyboardPreferences {
 
     public boolean isFrenchAzerty() {
         return getFrenchLayout() == FR_LAYOUT_AZERTY;
+    }
+
+    /** Bangla key layout: 0 = phonetic (default), 1 = BSTI Mobile (BDS 1738:2018). */
+    public int getBanglaLayout() {
+        return prefs.getInt("bangla_layout", 0);
+    }
+
+    public void setBanglaLayout(int mode) {
+        prefs.edit().putInt("bangla_layout", mode).apply();
     }
 
     /** 0 = automatic (wide screens), 1 = always split, 2 = never split. */

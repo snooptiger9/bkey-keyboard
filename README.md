@@ -15,7 +15,7 @@
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Languages-English%20%2B6-blue)
+![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR%20%7C%20ID%20%7C%20BN-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 [![APKPure](https://img.shields.io/badge/APKPure-v313.0-blue)](https://apkpure.com/p/com.snooptiger9.bkey)
@@ -34,9 +34,8 @@ If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22"
 **bkey** is an Android keyboard (IME) built on the swipe gestures of the **BlackBerry Keyboard -
 Classic** app, with more customization and extra features: swipe up on any suggestion to accept it
 instantly, and swipe sideways across the letter row (direction configurable) for quick deletion
-instead of repeated backspace taps. Fully supports Arabic, English, Spanish, Hindi, French, Urdu, and Indonesian with a carefully
+instead of repeated backspace taps. Fully supports Arabic, English, Spanish, Hindi, French, Urdu, Indonesian and Bangla with a carefully
 tailored experience for each.
-
 <br>
 
 <a id="en-features"></a>
@@ -57,7 +56,7 @@ tailored experience for each.
 - Press-and-hold + drag the space bar: move the cursor character by character.
 
   ![Press-and-hold + drag the space bar to move the cursor](docs/gifs/cursor_move.gif?v=2)
-- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish/Hindi/French/Urdu/Indonesian) without a separate language button.
+- Swipe the space bar left/right: cycle through your enabled languages (Arabic/English/Spanish/Hindi/French/Urdu/Indonesian/Bangla) without a separate language button.
 - French uses the AZERTY layout by default; QWERTY is one tap away in Settings → Languages.
 - Long-press any key: popup with alternate characters (capitals, accents and symbols that fit the active language).
 
