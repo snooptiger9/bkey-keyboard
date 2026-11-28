@@ -15,7 +15,11 @@
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Languages-English%20%2B6-blue)
+<<<<<<< HEAD
+![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR%20%7C%20ID%20%7C%20BN-blue)
+=======
+![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR%20%7C%20BN-blue)
+>>>>>>> 491c42c (feat(bn): Bangla UI strings and cluster-aware backspace)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 [![APKPure](https://img.shields.io/badge/APKPure-v313.0-blue)](https://apkpure.com/p/com.snooptiger9.bkey)

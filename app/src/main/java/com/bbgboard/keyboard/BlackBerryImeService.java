@@ -430,6 +430,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_UR.equals(code)) return UrduUi.EMOJI_CATEGORIES;
         if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.EMOJI_CATEGORIES;
         if (KeyboardPreferences.LANG_ID.equals(code)) return IndonesianUi.EMOJI_CATEGORIES;
+        if (KeyboardPreferences.LANG_BN.equals(code)) return BanglaUi.EMOJI_CATEGORIES;
         return EMOJI_CAT_TITLES_EN;
     }
 
@@ -2047,6 +2048,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_UR.equals(code)) return UrduUi.get(en);
         if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.get(en);
         if (KeyboardPreferences.LANG_ID.equals(code)) return IndonesianUi.get(en);
+        if (KeyboardPreferences.LANG_BN.equals(code)) return BanglaUi.get(en);
         return en;
     }
 
@@ -2545,7 +2547,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 // refreshing predictions for no reason on every repeat tick.
                 deleted = false;
             } else {
-                int len = lastGraphemeLength(ic);
+                // In Bangla mode delete a whole visual cluster, so a conjunct is never shattered
+                // into a base letter plus a dangling hasanta. Other languages keep the old path.
+                int len = (keyboardView != null && keyboardView.isBangla())
+                        ? Math.max(1, BanglaClusterBackspace.deleteLength(textBefore(ic, 32)))
+                        : lastGraphemeLength(ic);
                 if (held && undoAllowed()) {
                     CharSequence gone = textBefore(ic, len);
                     int c = undoPending ? undoCursor : cursorNow(ic);
