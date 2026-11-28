@@ -20,7 +20,10 @@ final class OtpDetector {
             // Urdu
             "کوڈ", "تصدیق", "تصدیقی", "پاس ورڈ", "خفیہ",
             // Indonesian
-            "kode", "verifikasi", "kata sandi"
+            "kode", "verifikasi", "kata sandi",
+            // Bangla
+            "কোড", "কোডটি", "ওটিপি", "ও.টি.পি", "ভেরিফিকেশন", "সত্যায়ন",
+            "পিন", "পাসওয়ার্ড", "নিরাপত্তা কোড", "এক্সেস কোড", "কনফার্মেশন"
     };
 
     private static final String[] NOT_CODE_HINTS = {
@@ -39,28 +42,35 @@ final class OtpDetector {
             // Urdu
             "کارڈ", "رقم", "روپے", "بیلنس", "اکاؤنٹ", "فون", "منٹ", "سیکنڈ", "pkr",
             // Indonesian
-            "kartu", "berakhiran", "jumlah", "rekening", "telepon", "menit", "detik", "idr", "rp ", "rp."
+            "kartu", "berakhiran", "jumlah", "rekening", "telepon", "menit", "detik", "idr", "rp ", "rp.",
+            // Bangla
+            "কার্ড", "টাকা", "ব্যালেন্স", "হিসাব", "ফোন", "মিনিট", "সেকেন্ড", "৳"
     };
 
     private static final Pattern DIGIT_RUN = Pattern.compile("\\d+(?:[ \\-]\\d+)*");
 
     static String extract(String body) {
         if (body == null || body.isEmpty()) return null;
-        String lower = body.toLowerCase(Locale.ROOT);
+        // Bengali digits are BMP characters; normalising them to ASCII keeps indices aligned.
+        String normalized = body;
+        for (int d = 0; d < 10; d++) {
+            normalized = normalized.replace((char) (0x09E6 + d), (char) ('0' + d));
+        }
+        String lower = normalized.toLowerCase(Locale.ROOT);
         if (!containsAny(lower, CODE_HINTS)) return null;
 
-        Matcher m = DIGIT_RUN.matcher(body);
+        Matcher m = DIGIT_RUN.matcher(normalized);
         while (m.find()) {
             String digitsOnly = m.group().replaceAll("[^0-9]", "");
             if (digitsOnly.length() < 4 || digitsOnly.length() > 8) continue;
 
             int start = Math.max(0, m.start() - 80);
             int end = Math.min(body.length(), m.end() + 80);
-            String window = body.substring(start, end).toLowerCase(Locale.ROOT);
+            String window = normalized.substring(start, end).toLowerCase(Locale.ROOT);
 
             int narrowStart = Math.max(0, m.start() - 15);
             int narrowEnd = Math.min(body.length(), m.end() + 15);
-            String narrowWindow = body.substring(narrowStart, narrowEnd).toLowerCase(Locale.ROOT);
+            String narrowWindow = normalized.substring(narrowStart, narrowEnd).toLowerCase(Locale.ROOT);
 
             if (containsAny(narrowWindow, NOT_CODE_HINTS)) continue;
             if (containsAny(window, CODE_HINTS)) return digitsOnly;
