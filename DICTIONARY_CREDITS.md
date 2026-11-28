@@ -40,5 +40,11 @@ removed. Words the rules were unsure about were dropped, so the list is smaller 
 spell-checker and word lists were only used as filters and are not included. Like Hindi and Urdu,
 Indonesian is not auto-corrected; its words show as suggestions.
 dict_bn.txt (Bangla) is derived from the Bengali (bn) list of the same FrequencyWords project
-(CC-BY-SA-4.0), filtered to words written only in Bengali script and re-ranked; no other source was
-used. As with Hindi and Urdu, Bangla is not auto-corrected: its words show as suggestions.
+(CC-BY-SA-4.0), filtered to words written only in Bengali script and re-ranked. Non-word entries
+(Bengali digits, bare vowel signs, hasanta and anusvara) were removed, and vulgar or offensive
+words were filtered against the MIT-licensed Bengali list of
+https://github.com/4troDev/profanity.csv and the Apache-2.0 Bengali list of
+https://github.com/readme-SVG/Banned-words, with a manual pass so ordinary words that appear in
+those lists (for example বাচ্চা and বাংলাদেশ) are kept. The filter lists were used only to decide
+which entries to drop and are not included. As with Hindi and Urdu, Bangla is not auto-corrected:
+its words show as suggestions.
