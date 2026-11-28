@@ -881,7 +881,8 @@ public class PredictionEngine {
         String lastWord = normalize(lastCompletedWordRaw);
         // A pasted link, a number or a run of symbols is not a word to complete or to offer back
         // as a suggestion (it would also let a swipe replace it). Saved shortcuts still work.
-        if (!prefix.isEmpty() && looksLikeLinkOrHasNoLetters(prefix)
+        // Checked on the raw text: normalize() strips the ":" and "." that give a link away.
+        if (!prefix.isEmpty() && looksLikeLinkOrHasNoLetters(currentPrefixRaw == null ? "" : currentPrefixRaw.trim())
                 && (keyboardPrefs == null || keyboardPrefs.findShortcutExpansion(prefix) == null)) {
             return Arrays.asList("", "", "");
         }
