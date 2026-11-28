@@ -394,6 +394,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.EMOJI_CATEGORIES;
         if (KeyboardPreferences.LANG_UR.equals(code)) return UrduUi.EMOJI_CATEGORIES;
         if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.EMOJI_CATEGORIES;
+        if (KeyboardPreferences.LANG_ID.equals(code)) return IndonesianUi.EMOJI_CATEGORIES;
         return EMOJI_CAT_TITLES_EN;
     }
 
@@ -1012,7 +1013,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 : KeyboardPreferences.LANG_ES.equals(voiceLang) ? "es-ES"
                 : KeyboardPreferences.LANG_FR.equals(voiceLang) ? "fr-FR"
                 : KeyboardPreferences.LANG_HI.equals(voiceLang) ? "hi-IN"
-                : KeyboardPreferences.LANG_UR.equals(voiceLang) ? "ur-PK" : "en-US");
+                : KeyboardPreferences.LANG_UR.equals(voiceLang) ? "ur-PK"
+                : KeyboardPreferences.LANG_ID.equals(voiceLang) ? "id-ID" : "en-US");
     }
 
     private final ExecutorService predictionExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -2000,6 +2002,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (KeyboardPreferences.LANG_HI.equals(code)) return HindiUi.get(en);
         if (KeyboardPreferences.LANG_UR.equals(code)) return UrduUi.get(en);
         if (KeyboardPreferences.LANG_FR.equals(code)) return FrenchUi.get(en);
+        if (KeyboardPreferences.LANG_ID.equals(code)) return IndonesianUi.get(en);
         return en;
     }
 

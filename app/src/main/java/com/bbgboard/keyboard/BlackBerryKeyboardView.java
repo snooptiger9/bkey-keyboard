@@ -550,6 +550,7 @@ public class BlackBerryKeyboardView extends View {
                     : KeyboardPreferences.LANG_FR.equals(currentLangCode) ? "Réinitialiser"
                     : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "रीसेट"
                     : KeyboardPreferences.LANG_UR.equals(currentLangCode) ? "ری سیٹ"
+                    : KeyboardPreferences.LANG_ID.equals(currentLangCode) ? "Atur ulang"
                     : "Reset";
             drawResizePill(canvas, resizeResetButtonRect, resizeResetButtonPressed ? resizeResetBarPressedPaint : resizeResetBarPaint,
                     false, resetLabel);
@@ -559,6 +560,7 @@ public class BlackBerryKeyboardView extends View {
                     : KeyboardPreferences.LANG_FR.equals(currentLangCode) ? "Terminé"
                     : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "हो गया"
                     : KeyboardPreferences.LANG_UR.equals(currentLangCode) ? "ہو گیا"
+                    : KeyboardPreferences.LANG_ID.equals(currentLangCode) ? "Selesai"
                     : "Done";
             drawResizePill(canvas, resizeDoneButtonRect, resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint,
                     true, doneLabel);
@@ -2875,6 +2877,7 @@ public class BlackBerryKeyboardView extends View {
         if (KeyboardPreferences.LANG_FR.equals(code)) return "Français";
         if (KeyboardPreferences.LANG_HI.equals(code)) return "हिन्दी";
         if (KeyboardPreferences.LANG_UR.equals(code)) return "اردو";
+        if (KeyboardPreferences.LANG_ID.equals(code)) return "Indonesia";
         return "English";
     }
 

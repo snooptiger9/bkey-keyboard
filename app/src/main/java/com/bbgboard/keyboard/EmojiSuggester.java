@@ -14,6 +14,7 @@ final class EmojiSuggester {
     private static final Map<String, String> FR_MAP = new HashMap<>();
     // Urdu words (Arabic script but different spellings: ک ی ہ), used only on the Urdu keyboard.
     private static final Map<String, String> UR_MAP = new HashMap<>();
+    private static final Map<String, String> ID_MAP = new HashMap<>();
     static {
 
         put("مبروك", "🎉");
@@ -221,6 +222,17 @@ final class EmojiSuggester {
         );
     }
 
+    static {
+        addAllTo(ID_MAP,
+            "cinta|❤️ sayang|❤️ aku cinta kamu|❤️ kangen|🥺 rindu|🥺 peluk|🤗 cium|😘 senang|😊 bahagia|😊 gembira|😄 senyum|😊 tertawa|😂 ketawa|😂 haha|😂 hahaha|😂 wkwk|😂 wkwkwk|😂 lucu|😂 sedih|😢 menangis|😭 nangis|😭 marah|😠 kesal|😤 takut|😨 kaget|😮 malu|😳 capek|😴 lelah|😴 ngantuk|😴 tidur|😴 bosan|😐 sakit|🤒 demam|🤒 keren|😎 hebat|🤩 mantap|👍 sempurna|👌 bagus|👍 oke|👌 setuju|👍 bahaya|⚠️ ",
+            "terima kasih|🙏 makasih|🙏 tolong|🙏 maaf|🙏 mohon|🙏 selamat datang|🤝 halo|👋 hai|👋 sampai jumpa|👋 selamat pagi|☀️ selamat siang|🌞 selamat sore|🌆 selamat malam|🌙 selamat|🎉 ulang tahun|🎂 pesta|🎉 kue|🎂 hadiah|🎁 natal|🎄 lebaran|🌙 ramadan|🌙 ramadhan|🌙 doa|🤲 berdoa|🤲 amin|🤲 alhamdulillah|🤲 insyaallah|🤲 teman|🤝 sahabat|🤝 keluarga|👨‍👩‍👧 ibu|👩 ayah|👨 bayi|👶 nikah|💒 pernikahan|💒 ",
+            "makan|🍽️ makanan|🍽️ lapar|🍽️ sarapan|🍳 nasi|🍚 nasi goreng|🍛 mie|🍜 bakso|🍜 sate|🍢 ayam|🍗 daging|🥩 ikan|🐟 roti|🍞 telur|🥚 susu|🥛 kopi|☕ teh|🍵 es krim|🍦 cokelat|🍫 buah|🍎 apel|🍎 pisang|🍌 jeruk|🍊 mangga|🥭 semangka|🍉 pizza|🍕 ",
+            "rumah|🏠 sekolah|🏫 kampus|🎓 kerja|💼 kantor|🏢 rapat|📅 rumah sakit|🏥 dokter|👨‍⚕️ obat|💊 belanja|🛍️ uang|💰 duit|💰 telepon|📞 pesan|💬 mobil|🚗 motor|🏍️ bus|🚌 kereta|🚆 pesawat|✈️ liburan|🏖️ pantai|🏖️ laut|🌊 gunung|⛰️ kota|🏙️ ",
+            "matahari|☀️ panas|🥵 dingin|🥶 hujan|🌧️ angin|💨 badai|⛈️ bintang|⭐ malam|🌙 pagi|🌅 sepak bola|⚽ bola|⚽ musik|🎵 lagu|🎶 nyanyi|🎤 film|🎬 buku|📚 belajar|📚 ujian|📝 tugas|📝 foto|📸 ",
+            "anjing|🐶 kucing|🐱 kuda|🐴 sapi|🐄 burung|🐦 singa|🦁 beruang|🐻 monyet|🐒 kelinci|🐰 bunga|🌸 mawar|🌹 pohon|🌳 api|🔥 menang|🏆 juara|🏆 kuat|💪 semangat|💪 tepuk tangan|👏 indonesia|🇮🇩 malaysia|🇲🇾 "
+        );
+    }
+
     private static void addAll(String... chunks) {
         addAllTo(MAP, chunks);
     }
@@ -254,6 +266,10 @@ final class EmojiSuggester {
         if (KeyboardPreferences.LANG_FR.equals(langCode)) {
             String e = FR_MAP.get(k);
             if (e != null) return e;
+        }
+        if (KeyboardPreferences.LANG_ID.equals(langCode)) {
+            // Indonesian words only: many look like English words with another meaning ("air").
+            return ID_MAP.get(k);
         }
         if (KeyboardPreferences.LANG_UR.equals(langCode)) {
             // Urdu has its own words; the Arabic list would only match by accident.

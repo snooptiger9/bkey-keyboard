@@ -1466,6 +1466,7 @@ public class MainActivity extends Activity {
         if (KeyboardPreferences.LANG_HI.equals(code)) return tr("الهندية", "Hindi");
         if (KeyboardPreferences.LANG_FR.equals(code)) return tr("الفرنسية", "French");
         if (KeyboardPreferences.LANG_UR.equals(code)) return tr("الأردية", "Urdu");
+        if (KeyboardPreferences.LANG_ID.equals(code)) return tr("الإندونيسية", "Indonesian");
         return tr("الإنجليزية", "English");
     }
 
@@ -1869,7 +1870,7 @@ public class MainActivity extends Activity {
 
         root.addView(createSwitchTile(
                 tr("أحرف كبيرة تلقائياً بداية كل جملة", "Auto-capitalize sentences"),
-                tr("يكتب أول حرف كبيراً تلقائياً في بداية النص وفي السطر الجديد وبعد . أو ! أو ? في الإنجليزية والإسبانية والفرنسية. لا يعمل في الإيميلات والروابط وكلمات المرور", "Capitalizes the first letter at the start of text, on a new line and after . ! or ?, in English, Spanish and French. Not used in emails, links or passwords"),
+                tr("يكتب أول حرف كبيراً تلقائياً في بداية النص وفي السطر الجديد وبعد . أو ! أو ? في الإنجليزية والإسبانية والفرنسية والإندونيسية. لا يعمل في الإيميلات والروابط وكلمات المرور", "Capitalizes the first letter at the start of text, on a new line and after . ! or ?, in English, Spanish, French and Indonesian. Not used in emails, links or passwords"),
                 prefs.isAutoCapitalizeSentences(),
                 checked -> prefs.setAutoCapitalizeSentences(checked)
         ));
@@ -4009,9 +4010,17 @@ public class MainActivity extends Activity {
     }
 
     private View createLanguageChartCard(long delayMs) {
-        String[] codes = {KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES, KeyboardPreferences.LANG_HI, KeyboardPreferences.LANG_FR, KeyboardPreferences.LANG_UR};
-        String[] names = tr(new String[]{"العربية", "الإنجليزية", "الإسبانية", "الهندية", "الفرنسية", "الأردية"}, new String[]{"Arabic", "English", "Spanish", "Hindi", "French", "Urdu"});
-        int[] colors = {Color.parseColor("#10B981"), Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B"), Color.parseColor("#EC4899"), Color.parseColor("#8B5CF6"), Color.parseColor("#14B8A6")};
+        String[] codes = {KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES, KeyboardPreferences.LANG_HI, KeyboardPreferences.LANG_FR, KeyboardPreferences.LANG_UR, KeyboardPreferences.LANG_ID};
+        String[] names = tr(new String[]{"العربية", "الإنجليزية", "الإسبانية", "الهندية", "الفرنسية", "الأردية", "الإندونيسية"}, new String[]{"Arabic", "English", "Spanish", "Hindi", "French", "Urdu", "Indonesian"});
+        int[] colors = {Color.parseColor("#10B981"), Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B"), Color.parseColor("#EC4899"), Color.parseColor("#8B5CF6"), Color.parseColor("#14B8A6"), Color.parseColor("#EF4444")};
+        // Indonesian gets its bar only once it is turned on or has been typed, so the chart of
+        // everyone else stays as it was.
+        if (!prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_ID)
+                && prefs.getStat("stat_lang_" + KeyboardPreferences.LANG_ID) == 0) {
+            codes = java.util.Arrays.copyOf(codes, codes.length - 1);
+            names = java.util.Arrays.copyOf(names, names.length - 1);
+            colors = java.util.Arrays.copyOf(colors, colors.length - 1);
+        }
         int sum = 0;
         int[] counts = new int[codes.length];
         for (int i = 0; i < codes.length; i++) { counts[i] = prefs.getStat("stat_lang_" + codes[i]); sum += counts[i]; }
@@ -4020,7 +4029,7 @@ public class MainActivity extends Activity {
                 tr("الكتابة بكل لغة", "Words by language"), null);
 
         {
-            // All six languages, unused ones at 0%, so the chart always fills the card.
+            // Every language, unused ones at 0%, so the chart always fills the card.
             String[] l = names;
             int[] p = new int[codes.length];
             int[] c = colors;

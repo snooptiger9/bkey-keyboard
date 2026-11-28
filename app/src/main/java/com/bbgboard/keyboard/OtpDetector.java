@@ -18,7 +18,9 @@ final class OtpDetector {
             // Hindi
             "कोड", "ओटीपी", "सत्यापन", "वेरिफिकेशन", "पासवर्ड",
             // Urdu
-            "کوڈ", "تصدیق", "تصدیقی", "پاس ورڈ", "خفیہ"
+            "کوڈ", "تصدیق", "تصدیقی", "پاس ورڈ", "خفیہ",
+            // Indonesian
+            "kode", "verifikasi", "kata sandi"
     };
 
     private static final String[] NOT_CODE_HINTS = {
@@ -35,7 +37,9 @@ final class OtpDetector {
             "कार्ड", "राशि", "रुपये", "₹", "बैलेंस", "शेष", "खाता", "फोन", "फ़ोन",
             "मिनट", "सेकंड", "inr",
             // Urdu
-            "کارڈ", "رقم", "روپے", "بیلنس", "اکاؤنٹ", "فون", "منٹ", "سیکنڈ", "pkr"
+            "کارڈ", "رقم", "روپے", "بیلنس", "اکاؤنٹ", "فون", "منٹ", "سیکنڈ", "pkr",
+            // Indonesian
+            "kartu", "berakhiran", "jumlah", "rekening", "telepon", "menit", "detik", "idr", "rp ", "rp."
     };
 
     private static final Pattern DIGIT_RUN = Pattern.compile("\\d+(?:[ \\-]\\d+)*");
