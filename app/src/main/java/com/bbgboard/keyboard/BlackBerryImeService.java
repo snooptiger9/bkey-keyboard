@@ -213,6 +213,42 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private static final long UNDO_CHIP_DELAY_MS = 300L;
     private final Runnable undoChipReveal = this::refreshPredictions;
 
+    /** Letters (any script, with their marks) and single spaces only: no digits, symbols or line breaks. */
+    static boolean isPureWords(String t) {
+        if (t == null || t.isEmpty()) return false;
+        // Already ends with a space or line break: leave it exactly as copied.
+        if (Character.isWhitespace(t.charAt(t.length() - 1))) return false;
+        String s = t.trim();
+        boolean hasLetter = false;
+        for (int i = 0; i < s.length(); ) {
+            int cp = s.codePointAt(i);
+            i += Character.charCount(cp);
+            if (Character.isLetter(cp)) { hasLetter = true; continue; }
+            int type = Character.getType(cp);
+            if (type == Character.NON_SPACING_MARK || type == Character.COMBINING_SPACING_MARK
+                    || type == Character.ENCLOSING_MARK) continue;
+            if (cp == ' ') continue;
+            return false;
+        }
+        return hasLetter;
+    }
+
+    /** A trailing space is fine only in ordinary text fields, never in links, emails, passwords or numbers. */
+    private boolean spaceAfterPasteFieldOk() {
+        if (numericFieldActive || passwordFieldActive) return false;
+        EditorInfo ei = getCurrentInputEditorInfo();
+        if (ei == null) return true;
+        int type = ei.inputType;
+        if ((type & android.text.InputType.TYPE_MASK_CLASS) != android.text.InputType.TYPE_CLASS_TEXT) return false;
+        int var = type & android.text.InputType.TYPE_MASK_VARIATION;
+        return var != android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                && var != android.text.InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
+                && var != android.text.InputType.TYPE_TEXT_VARIATION_URI
+                && var != android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                && var != android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                && var != android.text.InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
+    }
+
     private boolean undoChipShowing() {
         return undoPending && SystemClock.uptimeMillis() - undoRecordTime >= UNDO_CHIP_DELAY_MS;
     }
@@ -2703,7 +2739,11 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         if (!noPasteField && !numericFieldActive && hasValidClipChip() && currentPrefix.isEmpty() && chipFieldOk(ic)) {
 
             if (zoneIndex == 1) {
-                ic.commitText(clipChipText, 1);
+                String toPaste = clipChipText;
+                // Plain words (no digits or symbols) get a space after them so the next-word
+                // suggestions appear; links, numbers and mixed text are pasted exactly as copied.
+                if (isPureWords(toPaste) && spaceAfterPasteFieldOk()) toPaste = toPaste + " ";
+                ic.commitText(toPaste, 1);
                 clearClipChip();
                 refreshPredictions();
             }
