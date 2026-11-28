@@ -15,7 +15,7 @@
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR-blue)
+![Languages](https://img.shields.io/badge/Languages-English%20%2B6-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 [![APKPure](https://img.shields.io/badge/APKPure-v306.0-blue)](https://apkpure.com/p/com.snooptiger9.bkey)
@@ -35,7 +35,7 @@ Si te resulta útil, una <img src="docs/icons/star.svg" width="22" height="22" a
 Keyboard - Classic**, con más personalización y funciones extra: desliza hacia arriba sobre cualquier
 sugerencia para aceptarla al instante, y desliza hacia los lados sobre la fila de letras (dirección
 configurable) para borrar rápido en lugar de pulsar la tecla de retroceso una y otra vez. Es
-totalmente compatible con árabe, inglés, español, hindi, francés y urdu, con una experiencia cuidada para cada idioma.
+totalmente compatible con árabe, inglés, español, hindi, francés, urdu e indonesio, con una experiencia cuidada para cada idioma.
 
 <br>
 
@@ -57,7 +57,7 @@ totalmente compatible con árabe, inglés, español, hindi, francés y urdu, con
 - Mantén pulsada la barra espaciadora y arrastra: mueve el cursor carácter a carácter.
 
   ![Mantén pulsada y arrastra la barra espaciadora para mover el cursor](docs/gifs/cursor_move.gif?v=2)
-- Desliza la barra espaciadora a izquierda/derecha: cambia entre tus idiomas activados (árabe/inglés/español/hindi/francés/urdu) sin un botón de idioma aparte.
+- Desliza la barra espaciadora a izquierda/derecha: cambia entre tus idiomas activados (árabe/inglés/español/hindi/francés/urdu/indonesio) sin un botón de idioma aparte.
 - El francés usa la distribución AZERTY por defecto; QWERTY se elige en Ajustes → Idiomas.
 - Mantén pulsada cualquier tecla: ventana con caracteres alternativos (mayúsculas, acentos y símbolos según el idioma activo).
 

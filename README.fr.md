@@ -15,7 +15,7 @@
 ![Release](https://img.shields.io/github/v/release/snooptiger9/bkey-keyboard)
 ![Downloads](https://img.shields.io/github/downloads/snooptiger9/bkey-keyboard/total)
 ![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white)
-![Languages](https://img.shields.io/badge/Languages-AR%20%7C%20EN%20%7C%20ES%20%7C%20HI%20%7C%20FR%20%7C%20UR-blue)
+![Languages](https://img.shields.io/badge/Languages-English%20%2B6-blue)
 ![License](https://img.shields.io/github/license/snooptiger9/bkey-keyboard)
 ![Last Commit](https://img.shields.io/github/last-commit/snooptiger9/bkey-keyboard)
 [![APKPure](https://img.shields.io/badge/APKPure-v306.0-blue)](https://apkpure.com/p/com.snooptiger9.bkey)
@@ -35,7 +35,7 @@ Si ce projet vous est utile, une <img src="docs/icons/star.svg" width="22" heigh
 Classic**, avec plus de personnalisation et des fonctions en plus : glissez vers le haut sur une
 suggestion pour l'accepter aussitôt, et glissez sur le côté le long des lettres (direction
 configurable) pour effacer vite, au lieu de taper plusieurs fois sur retour arrière. Il prend en
-charge l'arabe, l'anglais, l'espagnol, l'hindi, le français et l'ourdou, avec une expérience soignée pour chaque langue.
+charge l'arabe, l'anglais, l'espagnol, l'hindi, le français, l'ourdou et l'indonésien, avec une expérience soignée pour chaque langue.
 
 <br>
 
@@ -57,7 +57,7 @@ charge l'arabe, l'anglais, l'espagnol, l'hindi, le français et l'ourdou, avec u
 - Appui long + glisser sur la barre d'espace : déplacer le curseur caractère par caractère.
 
   ![Appui long + glisser sur la barre d'espace pour déplacer le curseur](docs/gifs/cursor_move.gif?v=2)
-- Glisser la barre d'espace à gauche/droite : passer d'une langue activée à l'autre (arabe/anglais/espagnol/hindi/français/ourdou) sans bouton de langue séparé.
+- Glisser la barre d'espace à gauche/droite : passer d'une langue activée à l'autre (arabe/anglais/espagnol/hindi/français/ourdou/indonésien) sans bouton de langue séparé.
 - Le français utilise la disposition AZERTY par défaut ; QWERTY se choisit dans Réglages → Langues.
 - Appui long sur une touche : fenêtre avec des caractères alternatifs (majuscules, accents et symboles adaptés à la langue active).
 
