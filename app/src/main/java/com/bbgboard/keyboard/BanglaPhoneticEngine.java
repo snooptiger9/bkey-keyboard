@@ -10,10 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Borno Phonetic: the phonetic layout of Codepotro's Borno keyboard, written
- * here from how it behaves. No code, table or data is taken from Borno, whose
- * parser is GPL. Which keys write which letters follows Borno's published keymap
- * and its parser's behaviour; which consonants join is the list in {@link #JOINS}.
+ * Borno Phonetic: the phonetic layout of Codepotro's Borno keyboard. Java port of
+ * {@code BornoPhonetic.kt} by Wasi Master (wmkeyboard), licensed MIT — see
+ * THIRD_PARTY_NOTICES.md. It implements Borno's published Android keymap and
+ * observed behaviour; no code or data is taken from Borno's GPL parser (BornoTSF).
+ * Which keys write which letters follows that keymap; which consonants join is
+ * the list in {@link #JOINS}.
  *
  * <p>It differs from Avro in the keys people notice: {@code c} is চ and {@code ch}
  * is ছ, {@code z} is য, {@code y} and {@code w} after a consonant are য-ফলা and

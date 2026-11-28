@@ -1553,6 +1553,24 @@ public class MainActivity extends Activity {
                         idx -> prefs.setFrenchLayout(idx)));
                 root.addView(frCard);
             }
+            if (KeyboardPreferences.LANG_BN.equals(code) && enabled.contains(code)) {
+                // Shown only while Bangla is on, right under its switch.
+                LinearLayout bnCard = createGroupedWhiteCard();
+                bnCard.setPadding(dp(16), dp(14), dp(16), dp(14));
+                TextView bnHeader = new TextView(this);
+                bnHeader.setText(tr("বাংলা লেআউট:", "Bangla layout:"));
+                bnHeader.setTextColor(Color.parseColor(dm("#111827")));
+                bnHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+                bnHeader.setTypeface(Typeface.DEFAULT_BOLD);
+                bnHeader.setPadding(0, 0, 0, dp(8));
+                bnCard.addView(bnHeader);
+                bnCard.addView(createExclusiveRadioList(
+                        tr(new String[]{"ফোনেটিক", "জাতীয় (BDS 1738:2018)"},
+                                new String[]{"Phonetic", "Jatiyo (BDS 1738:2018)"}),
+                        prefs.getBanglaLayout(),
+                        idx -> prefs.setBanglaLayout(idx)));
+                root.addView(bnCard);
+            }
         }
 
         boolean multiLangOn = enabled.size() >= 2;

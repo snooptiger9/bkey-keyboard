@@ -133,7 +133,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             "key_font_scale", "keyboard_scale", "suggestion_bar_scale", "suggestion_text_level"));
     private final SharedPreferences.OnSharedPreferenceChangeListener appearanceChangeListener = (sp, key) -> {
         if ("enabled_languages".equals(key) || "hide_emoji_key".equals(key) || "space_swipe_lang_enabled".equals(key)
-                || "split_keyboard_mode".equals(key) || "french_layout".equals(key)) {
+                || "split_keyboard_mode".equals(key) || "french_layout".equals(key)
+                || "bangla_layout".equals(key)) {
             // Languages turned on/off or reordered in Settings apply to the open keyboard at once.
             if (keyboardView == null) return;
             keyboardView.post(() -> {
@@ -2393,6 +2394,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         if (banglaPhoneticActive()) {
+            composer().setJatiyo(keyboardPrefs.getBanglaLayout() == 1);
             if (" ".equals(text) || "।".equals(text) || ".".equals(text)) {
                 composer().finish();
             } else if (composer().handleCharacter(text)) {

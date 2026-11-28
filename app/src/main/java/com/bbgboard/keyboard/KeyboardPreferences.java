@@ -869,6 +869,15 @@ public class KeyboardPreferences {
         return getFrenchLayout() == FR_LAYOUT_AZERTY;
     }
 
+    /** Bangla key layout: 0 = phonetic (default), 1 = Jatiyo (BDS 1738:2018). */
+    public int getBanglaLayout() {
+        return prefs.getInt("bangla_layout", 0);
+    }
+
+    public void setBanglaLayout(int mode) {
+        prefs.edit().putInt("bangla_layout", mode).apply();
+    }
+
     /** 0 = automatic (wide screens), 1 = always split, 2 = never split. */
     public int getSplitKeyboardMode() {
         return prefs.getInt("split_keyboard_mode", 0);
