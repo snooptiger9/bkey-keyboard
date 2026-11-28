@@ -3292,6 +3292,17 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
     }
 
+    /** True when a clip card's text does not fit in its two lines (something is hidden). */
+    private static boolean clipTextIsCutOff(TextView tv) {
+        android.text.Layout layout = tv.getLayout();
+        CharSequence text = tv.getText();
+        if (layout == null || text == null) return false;
+        int last = layout.getLineCount() - 1;
+        if (last < 0) return false;
+        if (layout.getEllipsisCount(last) > 0) return true;
+        return layout.getLineEnd(last) < text.toString().trim().length();
+    }
+
     private View buildClipCard(final ClipboardRepository.ClipEntry clip) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -3328,32 +3339,37 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             final boolean pinned = clip.pinned;
             final boolean expanded = textTv.getMaxLines() > 2;
             // Text items only: a card holds nothing else, so Expand is offered here and nowhere
-            // else (screenshots and GIFs have their own views and menus).
-            showThemedMenu(v,
-                    buildMenuItemView(ModernIconView.ICON_EXPAND_CORNERS,
-                            expanded ? uiText("تصغير", "Collapse", "Contraer")
-                                     : uiText("توسيع", "Expand", "Expandir"),
-                            () -> {
-                                if (expanded) {
-                                    textTv.setMaxLines(2);
-                                    textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
-                                } else {
-                                    textTv.setEllipsize(null);
-                                    textTv.setMaxLines(Integer.MAX_VALUE);
-                                }
-                            }),
-                    buildMenuItemView(ModernIconView.ICON_PUSHPIN,
-                            pinned ? uiText("إلغاء التثبيت", "Unpin", "Desanclar")
-                                   : uiText("تثبيت", "Pin", "Anclar"),
-                            () -> {
-                                clipboardRepo.togglePin(clip.text);
-                                refreshClipboardDrawerList();
-                            }),
-                    buildMenuItemView(ModernIconView.ICON_TRASH, uiText("حذف", "Delete", "Eliminar"),
-                            () -> {
-                                clipboardRepo.removeClip(clip.text);
-                                refreshClipboardDrawerList();
-                            }));
+            // else (screenshots and GIFs have their own views and menus). It only appears when
+            // the text is really cut off; once expanded the same row becomes Collapse.
+            final java.util.List<View> items = new java.util.ArrayList<>();
+            if (expanded || clipTextIsCutOff(textTv)) {
+                items.add(buildMenuItemView(
+                        expanded ? ModernIconView.ICON_COLLAPSE_CORNERS : ModernIconView.ICON_EXPAND_CORNERS,
+                        expanded ? uiText("تصغير", "Collapse", "Contraer")
+                                 : uiText("توسيع", "Expand", "Expandir"),
+                        () -> {
+                            if (expanded) {
+                                textTv.setMaxLines(2);
+                                textTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                            } else {
+                                textTv.setEllipsize(null);
+                                textTv.setMaxLines(Integer.MAX_VALUE);
+                            }
+                        }));
+            }
+            items.add(buildMenuItemView(ModernIconView.ICON_PUSHPIN,
+                    pinned ? uiText("إلغاء التثبيت", "Unpin", "Desanclar")
+                           : uiText("تثبيت", "Pin", "Anclar"),
+                    () -> {
+                        clipboardRepo.togglePin(clip.text);
+                        refreshClipboardDrawerList();
+                    }));
+            items.add(buildMenuItemView(ModernIconView.ICON_TRASH, uiText("حذف", "Delete", "Eliminar"),
+                    () -> {
+                        clipboardRepo.removeClip(clip.text);
+                        refreshClipboardDrawerList();
+                    }));
+            showThemedMenu(v, items.toArray(new View[0]));
             return true;
         });
 

@@ -57,6 +57,7 @@ public class ModernIconView extends View {
     public static final int ICON_INFO = 45;
     public static final int ICON_KEYBOARD_CHECK = 46;
     public static final int ICON_CODE = 47;
+    public static final int ICON_COLLAPSE_CORNERS = 48;
 
     private boolean filled = false;
     private float iconScale = 1f;
@@ -666,6 +667,20 @@ public class ModernIconView extends View {
                     head.moveTo(tx - d[0] * r * 0.46f, ty);
                     head.lineTo(tx, ty);
                     head.lineTo(tx, ty - d[1] * r * 0.46f);
+                    canvas.drawPath(head, strokePaint);
+                }
+                break;
+            }
+            case ICON_COLLAPSE_CORNERS: {
+                // Same four corner arrows as ICON_EXPAND_CORNERS, pointing inward.
+                float[][] dirs = {{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+                for (float[] d : dirs) {
+                    float px = cx + d[0] * r * 0.20f, py = cy + d[1] * r * 0.20f;
+                    canvas.drawLine(cx + d[0] * r * 0.82f, cy + d[1] * r * 0.82f, px, py, strokePaint);
+                    Path head = new Path();
+                    head.moveTo(px + d[0] * r * 0.46f, py);
+                    head.lineTo(px, py);
+                    head.lineTo(px, py + d[1] * r * 0.46f);
                     canvas.drawPath(head, strokePaint);
                 }
                 break;
