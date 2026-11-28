@@ -1467,6 +1467,7 @@ public class MainActivity extends Activity {
         if (KeyboardPreferences.LANG_FR.equals(code)) return tr("الفرنسية", "French");
         if (KeyboardPreferences.LANG_UR.equals(code)) return tr("الأردية", "Urdu");
         if (KeyboardPreferences.LANG_ID.equals(code)) return tr("الإندونيسية", "Indonesian");
+        if (KeyboardPreferences.LANG_BN.equals(code)) return tr("البنغالية", "Bangla");
         return tr("الإنجليزية", "English");
     }
 
@@ -4010,17 +4011,32 @@ public class MainActivity extends Activity {
     }
 
     private View createLanguageChartCard(long delayMs) {
-        String[] codes = {KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES, KeyboardPreferences.LANG_HI, KeyboardPreferences.LANG_FR, KeyboardPreferences.LANG_UR, KeyboardPreferences.LANG_ID};
-        String[] names = tr(new String[]{"العربية", "الإنجليزية", "الإسبانية", "الهندية", "الفرنسية", "الأردية", "الإندونيسية"}, new String[]{"Arabic", "English", "Spanish", "Hindi", "French", "Urdu", "Indonesian"});
-        int[] colors = {Color.parseColor("#10B981"), Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B"), Color.parseColor("#EC4899"), Color.parseColor("#8B5CF6"), Color.parseColor("#14B8A6"), Color.parseColor("#EF4444")};
-        // Indonesian gets its bar only once it is turned on or has been typed, so the chart of
-        // everyone else stays as it was.
+        java.util.List<String> codeList = new java.util.ArrayList<>(java.util.Arrays.asList(
+                KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES,
+                KeyboardPreferences.LANG_HI, KeyboardPreferences.LANG_FR, KeyboardPreferences.LANG_UR,
+                KeyboardPreferences.LANG_ID, KeyboardPreferences.LANG_BN));
+        java.util.List<String> nameList = new java.util.ArrayList<>(java.util.Arrays.asList(tr(
+                new String[]{"العربية", "الإنجليزية", "الإسبانية", "الهندية", "الفرنسية", "الأردية", "الإندونيسية", "البنغالية"},
+                new String[]{"Arabic", "English", "Spanish", "Hindi", "French", "Urdu", "Indonesian", "Bangla"})));
+        java.util.List<Integer> colorList = new java.util.ArrayList<>(java.util.Arrays.asList(
+                Color.parseColor("#10B981"), Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B"),
+                Color.parseColor("#EC4899"), Color.parseColor("#8B5CF6"), Color.parseColor("#14B8A6"),
+                Color.parseColor("#EF4444"), Color.parseColor("#F97316")));
+        // New languages get a bar only once enabled or used, so the other languages keep their chart.
+        if (!prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_BN)
+                && prefs.getStat("stat_lang_" + KeyboardPreferences.LANG_BN) == 0) {
+            int last = codeList.size() - 1;
+            codeList.remove(last); nameList.remove(last); colorList.remove(last);
+        }
         if (!prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_ID)
                 && prefs.getStat("stat_lang_" + KeyboardPreferences.LANG_ID) == 0) {
-            codes = java.util.Arrays.copyOf(codes, codes.length - 1);
-            names = java.util.Arrays.copyOf(names, names.length - 1);
-            colors = java.util.Arrays.copyOf(colors, colors.length - 1);
+            int last = codeList.size() - 1;
+            codeList.remove(last); nameList.remove(last); colorList.remove(last);
         }
+        String[] codes = codeList.toArray(new String[0]);
+        String[] names = nameList.toArray(new String[0]);
+        int[] colors = new int[colorList.size()];
+        for (int i = 0; i < colors.length; i++) colors[i] = colorList.get(i);
         int sum = 0;
         int[] counts = new int[codes.length];
         for (int i = 0; i < codes.length; i++) { counts[i] = prefs.getStat("stat_lang_" + codes[i]); sum += counts[i]; }

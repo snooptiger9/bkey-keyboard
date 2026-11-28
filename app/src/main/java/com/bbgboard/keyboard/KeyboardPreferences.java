@@ -53,8 +53,9 @@ public class KeyboardPreferences {
     public static final String LANG_FR = "fr";
     public static final String LANG_UR = "ur";
     public static final String LANG_ID = "id";
+    public static final String LANG_BN = "bn";
     // Every language the keyboard knows how to type in, in the order they're offered in settings.
-    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR, LANG_UR, LANG_ID};
+    public static final String[] ALL_LANGUAGES = {LANG_AR, LANG_EN, LANG_ES, LANG_HI, LANG_FR, LANG_UR, LANG_ID, LANG_BN};
 
     public static final int SWIPE_SOUND_BB_AIR_FLICK = 0;
     public static final int SWIPE_SOUND_VELVET_BRUSH = 1;

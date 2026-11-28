@@ -20,4 +20,8 @@ The roman-to-roman spelling table in `app/src/main/assets/bn_phonetic_fixes.txt`
 
 ## Bangla word list (CC-BY-SA-4.0)
 
-_(to be filled in Phase 2)_
+`app/src/main/assets/dict_bn.txt` (45,757 words) is derived from the Bengali (`bn`) list of
+hermitdave/FrequencyWords (https://github.com/hermitdave/FrequencyWords), licensed
+CC-BY-SA-4.0. Only words made entirely of Bengali-script characters (U+0980–U+09FF) were
+kept, in original frequency order, and the list was re-ranked by bkey's dictionary loader.
+See `DICTIONARY_CREDITS.md` for the full credit.

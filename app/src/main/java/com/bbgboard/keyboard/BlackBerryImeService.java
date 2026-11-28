@@ -55,6 +55,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private SoundController soundController;
     private PredictionEngine predictionEngine;
     private ClipboardRepository clipboardRepo;
+    // Latin-to-Bangla composing while the keyboard is in Bangla mode (see BanglaComposer).
+    private BanglaComposer banglaComposer;
     // True while the settings training field has focus: nothing may be pasted into it.
     private boolean noPasteField = false;
 
@@ -88,6 +90,38 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         String code = keyboardView.getActiveLanguageCode();
         predictionEngine.setActiveLatinLanguage(code);
         if (keyboardPrefs != null) keyboardPrefs.setCurrentKeyboardLanguage(code);
+        if (KeyboardPreferences.LANG_BN.equals(code)) loadBanglaPhoneticCorrections();
+    }
+
+    /** Loads the phonetic correction table for Bangla mode; reloading per switch is cheap. */
+    private void loadBanglaPhoneticCorrections() {
+        try (java.io.InputStream in = getAssets().open("bn_phonetic_fixes.txt")) {
+            PhoneticCorrections.load(in);
+        } catch (Exception e) {
+            AppLogger.log("BlackBerryImeService", "loadBanglaPhoneticCorrections()", e);
+        }
+    }
+
+    private BanglaComposer composer() {
+        if (banglaComposer == null) banglaComposer = new BanglaComposer(this::getCurrentInputConnection);
+        return banglaComposer;
+    }
+
+    /** True when typed letters go through the Latin-to-Bangla phonetic engine instead of plain text. */
+    private boolean banglaPhoneticActive() {
+        if (keyboardView == null || !keyboardView.isBangla()) return false;
+        if (passwordFieldActive || numericFieldActive) return false;
+        android.view.inputmethod.EditorInfo ei = getCurrentInputEditorInfo();
+        if (ei == null) return false;
+        int type = ei.inputType;
+        if ((type & android.text.InputType.TYPE_MASK_CLASS) != android.text.InputType.TYPE_CLASS_TEXT) return false;
+        int v = type & android.text.InputType.TYPE_MASK_VARIATION;
+        return v != android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            && v != android.text.InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
+            && v != android.text.InputType.TYPE_TEXT_VARIATION_URI
+            && v != android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            && v != android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            && v != android.text.InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
     }
     private ClipboardManager clipboardManager;
 
@@ -1014,7 +1048,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
                 : KeyboardPreferences.LANG_FR.equals(voiceLang) ? "fr-FR"
                 : KeyboardPreferences.LANG_HI.equals(voiceLang) ? "hi-IN"
                 : KeyboardPreferences.LANG_UR.equals(voiceLang) ? "ur-PK"
-                : KeyboardPreferences.LANG_ID.equals(voiceLang) ? "id-ID" : "en-US");
+                : KeyboardPreferences.LANG_ID.equals(voiceLang) ? "id-ID"
+                : KeyboardPreferences.LANG_BN.equals(voiceLang) ? "bn-BD" : "en-US");
     }
 
     private final ExecutorService predictionExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -1282,6 +1317,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onFinishInputView(boolean finishingInput) {
+        composer().finish();
         dismissClipMenu();
         clearUndo();
         // An address typed into a field and left by tapping Next/Login or switching app never
@@ -1371,6 +1407,12 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
             boolean lateUpdate = collapsed && newSelStart > undoCursor && newSelStart <= undoAnchor
                     && SystemClock.uptimeMillis() - undoRecordTime < 400L;
             if (!atUndo && !lateUpdate) clearUndo();
+        }
+
+        // A tap elsewhere in the text ends the Bangla word being composed.
+        if (banglaComposer != null && banglaComposer.isComposing() && candidatesStart >= 0 && candidatesEnd >= 0
+                && (newSelStart < candidatesStart || newSelEnd > candidatesEnd)) {
+            composer().finish();
         }
 
         if (SystemClock.uptimeMillis() - lastCursorStepTime > CURSOR_SESSION_MS) {
@@ -1965,6 +2007,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onLanguageChanged(boolean isArabic) {
+        composer().finish();
         // A word half-typed in the old language is not learned or auto-corrected in the new one.
         try {
             String inProgress = getTypingContext()[0];
@@ -2349,6 +2392,16 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         clearUndo();
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
+        if (banglaPhoneticActive()) {
+            if (" ".equals(text) || "।".equals(text) || ".".equals(text)) {
+                composer().finish();
+            } else if (composer().handleCharacter(text)) {
+                refreshPredictions();
+                return;
+            } else if (composer().isComposing()) {
+                composer().finish();   // commitText replaces the composing region
+            }
+        }
         maybeAutoSpaceAfterPunctuation(ic, text);
         String[] ctx = getTypingContext();
         String currentPrefix = ctx[0];
@@ -2465,6 +2518,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
         }
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return false;
+        if (banglaPhoneticActive() && composer().isComposing() && composer().handleBackspace()) {
+            refreshPredictions();
+            return true;
+        }
         if (!held) clearUndo();
         CharSequence selected = ic.getSelectedText(0);
         boolean deleted;
@@ -2661,6 +2718,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onSwipeUpSuggestion(int zoneIndex) {
+        composer().finish();
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
         if (undoChipShowing()) {
@@ -2763,6 +2821,7 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     @Override
     public void onEnterKey() {
+        composer().finish();
         if (gifSearchFocused) {
             closeGifSearchKeyboard(true);
             return;

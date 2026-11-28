@@ -35,8 +35,7 @@ Si ce projet vous est utile, une <img src="docs/icons/star.svg" width="22" heigh
 Classic**, avec plus de personnalisation et des fonctions en plus : glissez vers le haut sur une
 suggestion pour l'accepter aussitôt, et glissez sur le côté le long des lettres (direction
 configurable) pour effacer vite, au lieu de taper plusieurs fois sur retour arrière. Il prend en
-charge l'arabe, l'anglais, l'espagnol, l'hindi, le français, l'ourdou et l'indonésien, avec une expérience soignée pour chaque langue.
-
+charge l'arabe, l'anglais, l'espagnol, l'hindi, le français, l'ourdou, l'indonésien et le bengali, avec une expérience soignée pour chaque langue.
 <br>
 
 <a id="fr-features"></a>
@@ -57,7 +56,7 @@ charge l'arabe, l'anglais, l'espagnol, l'hindi, le français, l'ourdou et l'indo
 - Appui long + glisser sur la barre d'espace : déplacer le curseur caractère par caractère.
 
   ![Appui long + glisser sur la barre d'espace pour déplacer le curseur](docs/gifs/cursor_move.gif?v=2)
-- Glisser la barre d'espace à gauche/droite : passer d'une langue activée à l'autre (arabe/anglais/espagnol/hindi/français/ourdou/indonésien) sans bouton de langue séparé.
+- Glisser la barre d'espace à gauche/droite : passer d'une langue activée à l'autre (arabe/anglais/espagnol/hindi/français/ourdou/indonésien/bengali) sans bouton de langue séparé.
 - Le français utilise la disposition AZERTY par défaut ; QWERTY se choisit dans Réglages → Langues.
 - Appui long sur une touche : fenêtre avec des caractères alternatifs (majuscules, accents et symboles adaptés à la langue active).
 

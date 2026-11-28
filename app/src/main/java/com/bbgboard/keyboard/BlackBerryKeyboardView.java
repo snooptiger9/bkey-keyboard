@@ -101,6 +101,9 @@ public class BlackBerryKeyboardView extends View {
     private boolean isHindi = false;
     // Urdu: Arabic script (right-to-left text, ؟ ، ۔ punctuation) but its own layout and words.
     private boolean isUrdu = false;
+    // Bangla: typed phonetically on the same plain Latin QWERTY as English (the service maps the
+    // Latin letters to Bangla), so it only needs its own label, digits and danda.
+    private boolean isBangla = false;
     // The single source of truth for which language is active; isArabic above is just
     // "== LANG_AR", kept as its own field since almost all RTL/UI logic already keys off it.
     private String currentLangCode = KeyboardPreferences.LANG_AR;
@@ -1058,6 +1061,10 @@ public class BlackBerryKeyboardView extends View {
         return isHindi;
     }
 
+    public boolean isBangla() {
+        return isBangla;
+    }
+
     public int getActiveKeyboardStyle() {
         return keyboardStyle;
     }
@@ -1239,7 +1246,7 @@ public class BlackBerryKeyboardView extends View {
     }
 
     public void updateAutoCapitalization(boolean shouldCapitalizeNext) {
-        if (isArabic || isHindi || isUrdu || isSymbols || isCapsLock) return;
+        if (isArabic || isHindi || isUrdu || isBangla || isSymbols || isCapsLock) return;
         if (prefs.isAutoCapitalizeSentences() && shouldCapitalizeNext != isShift) {
             isShift = shouldCapitalizeNext;
             rebuildKeys();
@@ -1442,6 +1449,8 @@ public class BlackBerryKeyboardView extends View {
             } else if (KeyboardPreferences.LANG_FR.equals(currentLangCode) && prefs.isFrenchAzerty()) {
                 rows.addAll(buildFrenchAzertyRows());
             } else {
+                // English, Spanish and Bangla share the plain Latin QWERTY -- Bangla is typed
+                // phonetically in Latin and the service maps it to Bangla.
                 rows.addAll(buildEnglishQwertyRows());
             }
             if (isNumberRowActive() && !isSymbols) {
@@ -1784,10 +1793,14 @@ public class BlackBerryKeyboardView extends View {
         boolean arabicOff = !prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_AR);
         final boolean hindiOn = isHindi || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_HI);
         final boolean urduOn = isUrdu || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_UR);
+        final boolean banglaOn = isBangla || prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_BN);
         // Long-press digits follow the language being typed: ١٢٣ for Arabic, १२३ for Hindi, ۱۲۳ for
-        // Urdu. A Latin language shows the digits of whichever of those is also turned on.
+        // Urdu, ১২৩ for Bangla. A Latin language shows the digits of whichever of those is also
+        // turned on.
         String localDigits = isArabic ? "١٢٣٤٥٦٧٨٩٠" : isHindi ? "१२३४५६७८९०" : isUrdu ? "۱۲۳۴۵۶۷۸۹۰"
-                : !arabicOff ? "١٢٣٤٥٦٧٨٩٠" : hindiOn ? "१२३४५६७८९०" : urduOn ? "۱۲۳۴۵۶۷۸۹۰" : null;
+                : isBangla ? "১২৩৪৫৬৭৮৯০"
+                : !arabicOff ? "١٢٣٤٥٦٧٨٩٠" : hindiOn ? "१२३४५६७८९०" : urduOn ? "۱۲۳۴۵۶۷۸۹۰"
+                : banglaOn ? "১২৩৪৫৬৭৮৯০" : null;
         List<KeyDef> row1 = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             String d = String.valueOf("1234567890".charAt(i));
@@ -1846,6 +1859,7 @@ public class BlackBerryKeyboardView extends View {
     private KeyDef currencyKey(boolean arabicEnabled, boolean hindiOn, boolean urduOn) {
         List<String> alts = new ArrayList<>();
         if (isHindi) alts.add("₹");
+        if (isBangla) alts.add("৳");
         if (isUrdu) alts.add("₨");
         if (isArabic) alts.add("﷼");
         alts.add("€"); alts.add("£"); alts.add("¥");
@@ -1884,9 +1898,10 @@ public class BlackBerryKeyboardView extends View {
                     ? makeEmojiHostKey()
                     : new KeyDef("😀", "", Collections.<String>emptyList(), KeyType.EMOJI, 1.0f)),
             new KeyDef(spaceLabel, "", Collections.<String>emptyList(), KeyType.SPACE, 4.7f),
-            new KeyDef(isHindi ? "।" : (isUrdu ? "۔" : "."), isRtlScript() ? "؟" : "?",
+            new KeyDef(isHindi ? "।" : (isUrdu ? "۔" : (isBangla ? "।" : ".")), isRtlScript() ? "؟" : "?",
                     isArabic ? Arrays.asList("؟", "،", "!", "؛", ":", "…")
                             : isUrdu ? Arrays.asList("؟", "،", "!", "؛", ":", "…", ".")
+                            : isBangla ? Arrays.asList("?", ".", ",", "!", ";", ":", "…", "।।")
                             : (isHindi ? Arrays.asList("?", ".", ",", "!", ";", ":", "…", "॥")
                             : KeyboardPreferences.LANG_ES.equals(currentLangCode)
                                     ? Arrays.asList("?", "¿", ",", "!", "¡", ";", ":", "…")
@@ -2334,7 +2349,7 @@ public class BlackBerryKeyboardView extends View {
                         mainTextPaint.setTextSize(prevSize * 0.9f);
                     }
                     String displayLabel = hindiDisplay(k.main);
-                    if (!isArabic && !isHindi && !isUrdu && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
+                    if (!isArabic && !isHindi && !isUrdu && !isBangla && !isSymbols && k.type == KeyType.CHAR && prefs.isAlwaysShowUppercaseKeycapsEn()) {
                         displayLabel = k.main.toUpperCase(Locale.ROOT);
                     }
                     float textY = k.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
@@ -2361,7 +2376,7 @@ public class BlackBerryKeyboardView extends View {
             drawStyledKeyCell(canvas, dup, dupBg);
             float prevSize = mainTextPaint.getTextSize();
             String displayLabel = hindiDisplay(dup.main);
-            if (!isArabic && !isHindi && !isUrdu && !isSymbols && prefs.isAlwaysShowUppercaseKeycapsEn()) {
+            if (!isArabic && !isHindi && !isUrdu && !isBangla && !isSymbols && prefs.isAlwaysShowUppercaseKeycapsEn()) {
                 displayLabel = dup.main.toUpperCase(Locale.ROOT);
             }
             float textY = dup.rect.centerY() - (mainTextPaint.descent() + mainTextPaint.ascent()) / 2f + 1.5f * density;
@@ -2878,6 +2893,7 @@ public class BlackBerryKeyboardView extends View {
         if (KeyboardPreferences.LANG_HI.equals(code)) return "हिन्दी";
         if (KeyboardPreferences.LANG_UR.equals(code)) return "اردو";
         if (KeyboardPreferences.LANG_ID.equals(code)) return "Indonesia";
+        if (KeyboardPreferences.LANG_BN.equals(code)) return "বাংলা";
         return "English";
     }
 
@@ -2886,6 +2902,7 @@ public class BlackBerryKeyboardView extends View {
         isArabic = KeyboardPreferences.LANG_AR.equals(code);
         isHindi = KeyboardPreferences.LANG_HI.equals(code);
         isUrdu = KeyboardPreferences.LANG_UR.equals(code);
+        isBangla = KeyboardPreferences.LANG_BN.equals(code);
     }
 
     private void toggleLanguage() {
@@ -3930,7 +3947,7 @@ public class BlackBerryKeyboardView extends View {
                 listener.onCharacterTyped(" ");
                 break;
             case PERIOD:
-                listener.onCharacterTyped(isHindi ? "।" : (isUrdu ? "۔" : "."));
+                listener.onCharacterTyped(isHindi ? "।" : (isUrdu ? "۔" : (isBangla ? "।" : ".")));
                 break;
             case BACKSPACE:
                 if (backspaceHeld) {

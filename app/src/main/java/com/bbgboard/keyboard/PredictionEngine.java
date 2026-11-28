@@ -37,12 +37,15 @@ public class PredictionEngine {
     private final Map<String, Map<String, Integer>> baseFrBigrams = new HashMap<>();
     private final Map<String, Integer> baseHiWords = new HashMap<>();
     private final Map<String, Map<String, Integer>> baseHiBigrams = new HashMap<>();
+    private final Map<String, Integer> baseBnWords = new HashMap<>();
+    private final Map<String, Map<String, Integer>> baseBnBigrams = new HashMap<>();
 
     private final java.util.TreeMap<String, List<String>> baseArByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseEnByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseEsByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseFrByFold = new java.util.TreeMap<>();
     private final java.util.TreeMap<String, List<String>> baseHiByFold = new java.util.TreeMap<>();
+    private final java.util.TreeMap<String, List<String>> baseBnByFold = new java.util.TreeMap<>();
     private final Map<String, Integer> baseUrWords = new HashMap<>();
     private final Map<String, Map<String, Integer>> baseUrBigrams = new HashMap<>();
     private final java.util.TreeMap<String, List<String>> baseUrByFold = new java.util.TreeMap<>();
@@ -63,6 +66,9 @@ public class PredictionEngine {
     private volatile boolean latinIsUrdu = false;
     // Indonesian: Latin letters like English, kept apart by its own dictionary and learned-word tag.
     private volatile boolean latinIsIndonesian = false;
+    // Bangla (Bengali script) rides the same "not Arabic" branch as Hindi, with its own
+    // dictionary, learned-word tag and default words. Its own script keeps it apart from Latin.
+    private volatile boolean latinIsBangla = false;
 
     public void setActiveLatinLanguage(String languageCode) {
         activeLangCode = languageCode;
@@ -78,20 +84,22 @@ public class PredictionEngine {
         latinIsHindi = KeyboardPreferences.LANG_HI.equals(languageCode);
         latinIsUrdu = KeyboardPreferences.LANG_UR.equals(languageCode);
         latinIsIndonesian = KeyboardPreferences.LANG_ID.equals(languageCode);
+        latinIsBangla = KeyboardPreferences.LANG_BN.equals(languageCode);
     }
 
     /** The language code of the active non-Arabic language (en / es / hi). */
     private String activeLatinTag() {
         return latinIsHindi ? KeyboardPreferences.LANG_HI
+                : latinIsBangla ? KeyboardPreferences.LANG_BN
                 : latinIsUrdu ? KeyboardPreferences.LANG_UR
                 : latinIsFrench ? KeyboardPreferences.LANG_FR
                 : latinIsIndonesian ? KeyboardPreferences.LANG_ID
                 : (latinIsSpanish ? KeyboardPreferences.LANG_ES : KeyboardPreferences.LANG_EN);
     }
 
-    private Map<String, Integer> currentLatinWords() { return latinIsHindi ? baseHiWords : latinIsUrdu ? baseUrWords : latinIsFrench ? baseFrWords : latinIsIndonesian ? baseIdWords : (latinIsSpanish ? baseEsWords : baseEnWords); }
-    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsHindi ? baseHiBigrams : latinIsUrdu ? baseUrBigrams : latinIsFrench ? baseFrBigrams : latinIsIndonesian ? baseIdBigrams : (latinIsSpanish ? baseEsBigrams : baseEnBigrams); }
-    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsHindi ? baseHiByFold : latinIsUrdu ? baseUrByFold : latinIsFrench ? baseFrByFold : latinIsIndonesian ? baseIdByFold : (latinIsSpanish ? baseEsByFold : baseEnByFold); }
+    private Map<String, Integer> currentLatinWords() { return latinIsHindi ? baseHiWords : latinIsBangla ? baseBnWords : latinIsUrdu ? baseUrWords : latinIsFrench ? baseFrWords : latinIsIndonesian ? baseIdWords : (latinIsSpanish ? baseEsWords : baseEnWords); }
+    private Map<String, Map<String, Integer>> currentLatinBigrams() { return latinIsHindi ? baseHiBigrams : latinIsBangla ? baseBnBigrams : latinIsUrdu ? baseUrBigrams : latinIsFrench ? baseFrBigrams : latinIsIndonesian ? baseIdBigrams : (latinIsSpanish ? baseEsBigrams : baseEnBigrams); }
+    private java.util.TreeMap<String, List<String>> currentLatinByFold() { return latinIsHindi ? baseHiByFold : latinIsBangla ? baseBnByFold : latinIsUrdu ? baseUrByFold : latinIsFrench ? baseFrByFold : latinIsIndonesian ? baseIdByFold : (latinIsSpanish ? baseEsByFold : baseEnByFold); }
 
     // learnedWords/learnedBigrams/learnedByFold below are shared across every language --
     // that's fine between Arabic and Latin (different Unicode ranges keep them apart
@@ -142,8 +150,8 @@ public class PredictionEngine {
     /** Learned words that may be offered in the current mode: Arabic mode keeps out words learned
      *  while typing Urdu (same script, other language); the other modes go by latinWordAllowed. */
     // Writing system of a word, so learned words and word pairs from one language never show up
-    // while another one is active (Arabic/Urdu script, Devanagari, Latin).
-    private static final int SC_NEUTRAL = 0, SC_LATIN = 1, SC_ARABIC = 2, SC_DEVA = 3;
+    // while another one is active (Arabic/Urdu script, Devanagari, Bengali, Latin).
+    private static final int SC_NEUTRAL = 0, SC_LATIN = 1, SC_ARABIC = 2, SC_DEVA = 3, SC_BANGLA = 4;
 
     private static int scriptOf(String w) {
         if (w == null) return SC_NEUTRAL;
@@ -154,6 +162,8 @@ public class PredictionEngine {
             if ((c >= 0x0600 && c <= 0x06FF) || (c >= 0x0750 && c <= 0x077F)
                     || (c >= 0xFB50 && c <= 0xFDFF) || (c >= 0xFE70 && c <= 0xFEFF)) return SC_ARABIC;
             if (c >= 0x0900 && c <= 0x097F) return SC_DEVA;
+            // Bengali must be tested before isLetter: otherwise it would fall into SC_LATIN.
+            if (c >= 0x0980 && c <= 0x09FF) return SC_BANGLA;
             if (Character.isLetter(c)) return SC_LATIN;
         }
         return SC_NEUTRAL;
@@ -162,6 +172,7 @@ public class PredictionEngine {
     private int expectedScript(boolean isArabic) {
         if (isArabic || latinIsUrdu) return SC_ARABIC;
         if (latinIsHindi) return SC_DEVA;
+        if (latinIsBangla) return SC_BANGLA;
         return SC_LATIN;
     }
 
@@ -272,6 +283,7 @@ public class PredictionEngine {
         else if (KeyboardPreferences.LANG_EN.equals(lang)) { asset = "dict_en.txt"; words = baseEnWords; idx = baseEnByFold; }
         else if (KeyboardPreferences.LANG_ES.equals(lang)) { asset = "dict_es.txt"; words = baseEsWords; idx = baseEsByFold; }
         else if (KeyboardPreferences.LANG_HI.equals(lang)) { asset = "dict_hi.txt"; words = baseHiWords; idx = baseHiByFold; }
+        else if (KeyboardPreferences.LANG_BN.equals(lang)) { asset = "dict_bn.txt"; words = baseBnWords; idx = baseBnByFold; }
         else if (KeyboardPreferences.LANG_FR.equals(lang)) { asset = "dict_fr.txt"; words = baseFrWords; idx = baseFrByFold; }
         else if (KeyboardPreferences.LANG_UR.equals(lang)) { asset = "dict_ur.txt"; words = baseUrWords; idx = baseUrByFold; }
         else if (KeyboardPreferences.LANG_ID.equals(lang)) { asset = "dict_id.txt"; words = baseIdWords; idx = baseIdByFold; }
@@ -1168,11 +1180,10 @@ public class PredictionEngine {
                 : (EN_NOT_SURE.contains(wordLower) ? null : COMMON_EN_TYPOS.get(wordLower)));
         if (sure != null) return isArabic ? sure : matchCase(word, sure);
         if (isTrustedWord(word)) return null;
-        // Hindi: the bundled dictionary is much smaller than English/Spanish, so a real word it
-        // doesn't know must never be silently swapped for a "close" one. Only the certain-typo
-        // map above corrects Hindi on its own; everything else stays a suggestion in the bar.
-        // Indonesian too: its clean list leaves out many real words (affixes), so no silent swaps.
-        if ((latinIsHindi || latinIsUrdu || latinIsIndonesian) && !isArabic) return null;
+        // Hindi, Urdu, Bangla and Indonesian: their bundled lists leave out many real words, so a
+        // real word they don't know must never be silently swapped for a "close" one. Only the
+        // certain-typo map above corrects them on its own; everything else stays a suggestion.
+        if ((latinIsHindi || latinIsUrdu || latinIsBangla || latinIsIndonesian) && !isArabic) return null;
         if (!isArabic && !latinIsSpanish && !latinIsHindi && !latinIsFrench && !latinIsIndonesian) {
             String fixed = COMMON_EN_TYPOS.get(wordLower);
             if (fixed != null) return matchCase(word, fixed);
@@ -1558,6 +1569,8 @@ public class PredictionEngine {
                 ? Arrays.asList("السلام", "بسم", "مرحبا", "إن", "صباح", "الحمد")
                 : latinIsHindi
                     ? Arrays.asList("मैं", "आप", "नमस्ते", "धन्यवाद", "क्या", "ठीक")
+                : latinIsBangla
+                    ? Arrays.asList("আমি", "আপনি", "নমস্কার", "ধন্যবাদ", "কি", "ঠিক")
                 : latinIsUrdu
                     ? Arrays.asList("میں", "آپ", "السلام", "شکریہ", "کیا", "ٹھیک")
                 : latinIsFrench
