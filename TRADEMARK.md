@@ -25,10 +25,6 @@ Nothing in this page changes the license of the code. You can still:
 - Publishing a modified version on an app store, website or social account under the bkey name, logo or application ID.
 - Promoting a fork or derivative app using the bkey name or branding, or implying that it is endorsed by this project.
 
-## If you make a fork
-
-Please give it its own name, its own icon and logo, and its own application ID before you publish it anywhere outside GitHub. Keep the GPL v3 license and the copyright notices of the code, and say clearly that your app is a separate project.
-
 ## Asking for permission
 
 If you would like to use the name or the branding for something specific, open an issue on this repository or email **lvl60me@gmail.com** and describe the use. Permission, if given, is given in writing.
