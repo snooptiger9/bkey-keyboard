@@ -4028,6 +4028,16 @@ public class MainActivity extends Activity {
         }
     }
 
+    private static void removeChartLanguage(java.util.List<String> codes,
+            java.util.List<String> names, java.util.List<Integer> colors, String code) {
+        int i = codes.indexOf(code);
+        if (i >= 0) {
+            codes.remove(i);
+            names.remove(i);
+            colors.remove(i);
+        }
+    }
+
     private View createLanguageChartCard(long delayMs) {
         java.util.List<String> codeList = new java.util.ArrayList<>(java.util.Arrays.asList(
                 KeyboardPreferences.LANG_AR, KeyboardPreferences.LANG_EN, KeyboardPreferences.LANG_ES,
@@ -4043,13 +4053,11 @@ public class MainActivity extends Activity {
         // New languages get a bar only once enabled or used, so the other languages keep their chart.
         if (!prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_BN)
                 && prefs.getStat("stat_lang_" + KeyboardPreferences.LANG_BN) == 0) {
-            int last = codeList.size() - 1;
-            codeList.remove(last); nameList.remove(last); colorList.remove(last);
+            removeChartLanguage(codeList, nameList, colorList, KeyboardPreferences.LANG_BN);
         }
         if (!prefs.getEnabledLanguages().contains(KeyboardPreferences.LANG_ID)
                 && prefs.getStat("stat_lang_" + KeyboardPreferences.LANG_ID) == 0) {
-            int last = codeList.size() - 1;
-            codeList.remove(last); nameList.remove(last); colorList.remove(last);
+            removeChartLanguage(codeList, nameList, colorList, KeyboardPreferences.LANG_ID);
         }
         String[] codes = codeList.toArray(new String[0]);
         String[] names = nameList.toArray(new String[0]);
