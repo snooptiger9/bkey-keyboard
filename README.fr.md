@@ -246,7 +246,7 @@ Réglages → **À propos et maintenance** → **Journal d'erreurs** → **« É
 
 <a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="Feuille de route" width="520"></a>
 
-Prochainement dans bkey : **Google Play**, **l'indonésien** et **la saisie dans plusieurs langues à la fois**.
+Prochainement dans bkey : **Google Play**, **la saisie par glissement (glide)** et **la saisie dans plusieurs langues à la fois**.
 
 [**Voir la feuille de route complète (en anglais)**](ROADMAP.md)
 

@@ -246,7 +246,7 @@ Ajustes → **Acerca de y mantenimiento** → **Error log** → **"Email develop
 
 <a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="Hoja de ruta" width="520"></a>
 
-Lo próximo en bkey: **Google Play**, **indonesio** y **escribir en varios idiomas a la vez**.
+Lo próximo en bkey: **Google Play**, **escritura deslizando (glide)** y **escribir en varios idiomas a la vez**.
 
 [**Ver la hoja de ruta completa (en inglés)**](ROADMAP.md)
 

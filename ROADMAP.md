@@ -1,7 +1,7 @@
 <p align="center"><a href="README.md">← Back to README</a></p>
 
 <p align="center">
-  <img src="docs/images/roadmap-banner.svg" alt="bkey roadmap: three steps ahead — Google Play, Bahasa Indonesia, and typing in several languages at once" width="100%">
+  <img src="docs/images/roadmap-banner.svg" alt="bkey roadmap: three steps ahead — Google Play, glide typing, and typing in several languages at once" width="100%">
 </p>
 
 <p align="center"><b>Where bkey is heading next.</b><br>No dates and no promises — just the direction, in the order I plan to go.</p>
@@ -27,18 +27,20 @@ The standard **bkey** build is headed to the Google Play Store, so you can insta
 
 <br>
 
-## <img src="docs/icons/globe.svg" width="28" height="28" align="absmiddle" alt=""> Step 2 — Bahasa Indonesia &nbsp;![Planned](https://img.shields.io/badge/status-planned-3B82F6?style=flat-square)
+## <img src="docs/icons/gesture.svg" width="28" height="28" align="absmiddle" alt=""> Step 2 — Glide typing &nbsp;![Planned](https://img.shields.io/badge/status-planned-3B82F6?style=flat-square)
 
-Indonesian becomes the **7th language** in bkey, joining Arabic, English, Spanish, Hindi, French and Urdu.
+Write a word by **sliding your finger across the letters** without lifting it, instead of tapping each one.
 
 **What it means for you**
-- A layout, suggestions and auto-correct made for Indonesian typing.
-- Settings screens in Indonesian.
+- Faster one-handed typing, especially on long words.
+- It works alongside normal tapping — you can mix both in the same sentence.
+- Like the rest of bkey, it runs entirely on your phone. Nothing is sent anywhere.
 
 **What's involved**
-- An Indonesian word list for prediction and correction.
-- The Indonesian layout, and translating every settings screen.
-- It follows the same steps as every other language — see [ADDING_A_LANGUAGE.md](ADDING_A_LANGUAGE.md). Native speakers who'd like to help check the wording are welcome to [open an issue](https://github.com/snooptiger9/bkey-keyboard/issues).
+- Reading the finger path and matching it to the most likely word from the word list.
+- Starting with the Latin-script languages (English, Spanish, French, Indonesian). Arabic, Hindi and Urdu need their own care, so they may come later.
+- Making sure it never interferes with the existing space-bar swipe, long-press symbols and the cursor gestures.
+- It will be tested on real devices first, because the feel of it matters as much as the accuracy.
 
 <br>
 
@@ -47,7 +49,7 @@ Indonesian becomes the **7th language** in bkey, joining Arabic, English, Spanis
 For languages that **share the same keyboard layout**, bkey will understand all of them at the same time — no switching in the middle of a sentence.
 
 **What it means for you**
-- English and Spanish already share the same QWERTY letters (and Indonesian will too). Write a sentence that mixes them and suggestions, next-word prediction and auto-correct work for each word, instead of treating the other language as typos.
+- English, Spanish and Indonesian already share the same QWERTY letters. Write a sentence that mixes them and suggestions, next-word prediction and auto-correct work for each word, instead of treating the other language as typos.
 - Languages with a different layout, like Arabic or Hindi, keep switching with a swipe on the space bar, exactly as today.
 
 **What's involved**

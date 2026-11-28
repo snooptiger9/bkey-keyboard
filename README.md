@@ -246,7 +246,7 @@ Settings → **About & maintenance** → **Error log** → **"Email developer"**
 
 <a href="ROADMAP.md"><img src="docs/images/roadmap-card.svg" alt="Roadmap" width="520"></a>
 
-What's next for bkey: **Google Play**, **Bahasa Indonesia**, and **typing in several languages at once**.
+What's next for bkey: **Google Play**, **glide typing**, and **typing in several languages at once**.
 
 [**See the full roadmap (in English)**](ROADMAP.md)
 
