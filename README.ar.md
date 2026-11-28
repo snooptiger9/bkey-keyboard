@@ -27,7 +27,7 @@
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [خارطة الطريق](#ar-roadmap) · [الدعم](#ar-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **اختصارات سريعة:** [المميزات](#ar-features) · [الخصوصية والأمان](#ar-privacy) · [التحميل](#ar-download) · [ابنِه بنفسك](BUILDING.md) · [الأسئلة الشائعة](#ar-faq) · [المجتمع والإبلاغ عن الأخطاء](#ar-community) · [خارطة الطريق](#ar-roadmap) · [الدعم](#ar-support) · [العلامة التجارية والهوية](#ar-trademark)
 
 ### الوصف <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -292,7 +292,11 @@
 
 [![ادعمني عبر Ko-fi](https://img.shields.io/badge/Ko--fi-ادعم_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
-**الاسم والشعار:** يمنع استخدام اسم "bkey" وشعاره لتسمية أو تمييز أي تطبيق أو نسخة معدلة أخرى.
+<a id="ar-trademark"></a>
+
+### العلامة التجارية والهوية <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
+
+اسم "bkey" وشعار التطبيق وأي مواد هوية مرتبطة بهما مستثناة من رخصة الكود المفتوح، ولا يجوز استخدامها لتسمية أو تمييز أو الترويج لأي نسخة معدلة (فورك) أو تطبيق مشتق بدون إذن صريح.
 
 ---
 

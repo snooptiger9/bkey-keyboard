@@ -27,7 +27,7 @@
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **त्वरित लिंक:** [सुविधाएँ](#hi-features) · [गोपनीयता और सुरक्षा](#hi-privacy) · [डाउनलोड](#hi-download) · [खुद बनाएँ](BUILDING.md) · [अक्सर पूछे जाने वाले प्रश्न](#hi-faq) · [समुदाय और बग](#hi-community) · [रोडमैप](#hi-roadmap) · [सहयोग](#hi-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **त्वरित लिंक:** [सुविधाएँ](#hi-features) · [गोपनीयता और सुरक्षा](#hi-privacy) · [डाउनलोड](#hi-download) · [खुद बनाएँ](BUILDING.md) · [अक्सर पूछे जाने वाले प्रश्न](#hi-faq) · [समुदाय और बग](#hi-community) · [रोडमैप](#hi-roadmap) · [सहयोग](#hi-support) · [ट्रेडमार्क और ब्रांडिंग](#hi-trademark)
 
 ### परिचय <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -259,7 +259,11 @@ bkey में आगे: **Google Play**, **इंडोनेशियाई �
 
 [![Ko-fi पर सहयोग करें](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
-**नाम और लोगो:** "bkey" नाम और इसके लोगो का उपयोग किसी अन्य ऐप या फ़ोर्क का नाम रखने या उसे पहचान देने के लिए करना मना है।
+<a id="hi-trademark"></a>
+
+### ट्रेडमार्क और ब्रांडिंग <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
+
+"bkey" नाम, ऐप का लोगो और संबंधित ब्रांडिंग सामग्री ओपन-सोर्स कोड लाइसेंस से बाहर हैं, और स्पष्ट अनुमति के बिना किसी भी फ़ोर्क या व्युत्पन्न ऐप का नाम रखने, उसे पहचान देने या उसका प्रचार करने के लिए इनका उपयोग नहीं किया जा सकता।
 
 ---
 

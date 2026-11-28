@@ -27,7 +27,7 @@ Si ce projet vous est utile, une <img src="docs/icons/star.svg" width="22" heigh
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Liens rapides :** [Fonctionnalités](#fr-features) · [Confidentialité et sécurité](#fr-privacy) · [Téléchargement](#fr-download) · [Compiler soi-même](BUILDING.md) · [FAQ](#fr-faq) · [Communauté et bugs](#fr-community) · [Feuille de route](#fr-roadmap) · [Soutien](#fr-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Liens rapides :** [Fonctionnalités](#fr-features) · [Confidentialité et sécurité](#fr-privacy) · [Téléchargement](#fr-download) · [Compiler soi-même](BUILDING.md) · [FAQ](#fr-faq) · [Communauté et bugs](#fr-community) · [Feuille de route](#fr-roadmap) · [Soutien](#fr-support) · [Marque et identité](#fr-trademark)
 
 ### Présentation <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -260,7 +260,11 @@ Si vous aimez le projet et voulez le soutenir, vous pouvez m'offrir un café sur
 
 [![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
-**Nom et logo :** il est interdit d'utiliser le nom « bkey » et son logo pour nommer ou identifier une autre application ou un fork.
+<a id="fr-trademark"></a>
+
+### Marque et identité <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
+
+Le nom « bkey », le logo de l'application et les éléments de marque associés sont exclus de la licence open source du code et ne peuvent pas être utilisés pour nommer, identifier ou promouvoir un fork ou une application dérivée sans autorisation explicite.
 
 ---
 

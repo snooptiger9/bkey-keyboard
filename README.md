@@ -27,7 +27,7 @@ If you find this useful, a <img src="docs/icons/star.svg" width="22" height="22"
 ---
 
 
-<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Roadmap](#en-roadmap) · [Support](#en-support)
+<img src="docs/icons/link.svg" width="22" height="22" align="absmiddle" alt=""> **Quick links:** [Features](#en-features) · [Privacy & security](#en-privacy) · [Download](#en-download) · [Build it yourself](BUILDING.md) · [FAQ](#en-faq) · [Community & bug reports](#en-community) · [Roadmap](#en-roadmap) · [Support](#en-support) · [Trademark & Branding](#en-trademark)
 
 ### Overview <img src="docs/icons/sparkles.svg" width="24" height="24" align="absmiddle" alt="">
 
@@ -260,7 +260,11 @@ If you like the project and want to support it, you can buy me a coffee on Ko-fi
 
 [![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
-**Name and logo:** the name "bkey" and its logo may not be used to name or brand another app or fork.
+<a id="en-trademark"></a>
+
+### Trademark & Branding <img src="docs/icons/lock.svg" width="24" height="24" align="absmiddle" alt="">
+
+The name "bkey", the app logo, and related branding assets are excluded from the open-source code license and may not be used to name, brand, or promote any fork or derivative application without explicit permission.
 
 ---
 
