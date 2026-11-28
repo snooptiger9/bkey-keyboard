@@ -576,7 +576,9 @@ public class MainActivity extends Activity {
         titleRowTop.setOrientation(LinearLayout.HORIZONTAL);
         titleRowTop.setGravity(Gravity.CENTER_VERTICAL);
         titleRowTop.setBackgroundColor(Color.parseColor(dm("#F2F4F8")));
-        titleRowTop.setPadding(dp(16), dp(22), dp(16), dp(0));
+        // Edge-to-edge (Android 15+ Play build): 16dp puts the title at the same height as the
+        // sub-page titles (their 22dp counts from the page edge, this title has 6dp of its own).
+        titleRowTop.setPadding(dp(16), dp(isEdgeToEdge() ? 16 : 22), dp(16), dp(0));
         titleRowTop.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
