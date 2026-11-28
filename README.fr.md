@@ -167,7 +167,7 @@ Deux versions, choisissez celle qui vous convient :
 #### <img src="docs/icons/dot-green.svg" width="18" height="18" align="absmiddle" alt=""> bkey (recommandé)
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v318.apk"><img src="docs/images/badges/dl_bkey_fr.png" alt="Télécharger bkey (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-v319.apk"><img src="docs/images/badges/dl_bkey_fr.png" alt="Télécharger bkey (APK)" width="300"></a>
 &nbsp;
 <a href="https://apkpure.com/p/com.snooptiger9.bkey"><img src="docs/images/badges/ap_bkey_fr.png" alt="Obtenir bkey sur APKPure" width="300"></a>
 &nbsp;
@@ -179,7 +179,7 @@ Deux versions, choisissez celle qui vous convient :
 #### <img src="docs/icons/dot-blue.svg" width="18" height="18" align="absmiddle" alt=""> bkey Plus
 
 <p>
-<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v318.apk"><img src="docs/images/badges/dl_plus_fr.png" alt="Télécharger bkey Plus (APK)" width="300"></a>
+<a href="https://github.com/snooptiger9/bkey-keyboard/releases/latest/download/bkey-plus-v319.apk"><img src="docs/images/badges/dl_plus_fr.png" alt="Télécharger bkey Plus (APK)" width="300"></a>
 &nbsp;
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.snooptiger9.bkey%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fsnooptiger9%2Fbkey-keyboard%22%2C%22author%22%3A%22snooptiger9%22%2C%22name%22%3A%22bkey%20Plus%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Ebkey-plus-v%5B0-9%5D%2B%5C%5C%5C%5C.apk%24%5C%22%7D%22%7D"><img src="docs/images/badges/ob_plus_fr.png" alt="Ajouter bkey Plus à Obtainium" width="300"></a>
 </p>
