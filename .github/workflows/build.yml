@@ -72,6 +72,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Run unit tests
+        run: ./gradlew testLiteDebugUnitTest --no-daemon
+
       - name: Build release APKs (lite + full)
         run: |
           set -o pipefail
