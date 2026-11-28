@@ -260,6 +260,8 @@ Si vous aimez le projet et voulez le soutenir, vous pouvez m'offrir un café sur
 
 [![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
+**Licence :** GPL v3. Vous pouvez l'utiliser et le modifier si le code reste ouvert sous la même licence et que ce projet est cité. Le nom « bkey » et son logo ne sont pas couverts par la licence.
+
 ---
 
 <p align="center">Fait avec <img src="docs/icons/heart.svg" width="22" height="22" align="absmiddle" alt=""> — bkey</p>

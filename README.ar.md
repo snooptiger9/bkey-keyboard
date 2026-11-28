@@ -292,6 +292,8 @@
 
 [![ادعمني عبر Ko-fi](https://img.shields.io/badge/Ko--fi-ادعم_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
+**الرخصة:** GPL v3. يمكنك استخدامه وتعديله بشرط إبقاء الكود مفتوحاً بنفس الرخصة وذكر المشروع. اسم "bkey" وشعاره غير مشمولين بالرخصة.
+
 ---
 
 <p align="center">Made with <img src="docs/icons/heart.svg" width="22" height="22" align="absmiddle" alt=""> — bkey</p>

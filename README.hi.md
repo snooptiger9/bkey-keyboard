@@ -259,6 +259,8 @@ bkey में आगे: **Google Play**, **इंडोनेशियाई �
 
 [![Ko-fi पर सहयोग करें](https://img.shields.io/badge/Ko--fi-Support_bkey-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/snooptiger)
 
+**लाइसेंस:** GPL v3. आप इसे उपयोग और संशोधित कर सकते हैं, बशर्ते कोड उसी लाइसेंस के तहत खुला रहे और इस प्रोजेक्ट का उल्लेख हो। "bkey" नाम और इसका लोगो लाइसेंस में शामिल नहीं हैं।
+
 ---
 
 <p align="center"><img src="docs/icons/heart.svg" width="22" height="22" align="absmiddle" alt=""> के साथ बनाया — bkey</p>
