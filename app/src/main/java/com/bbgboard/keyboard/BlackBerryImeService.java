@@ -2073,7 +2073,10 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
     private String lettersKeyLabel(boolean isArabic) {
         if (isArabic) return "أبجد";
         if (keyboardView != null && keyboardView.isUrdu()) return "ابپ";
-        return keyboardView != null && keyboardView.isHindi() ? "अआइ" : "ABC";
+        if (keyboardView != null && keyboardView.isHindi()) return "अआइ";
+        // Phonetic Bangla types on Latin keys; BSTI mode returns to Bengali letters.
+        if (keyboardView != null && keyboardView.isBangla() && keyboardPrefs.getBanglaLayout() == 1) return "অআই";
+        return "ABC";
     }
 
     private void updateAbcBackLabels(boolean isArabic) {
@@ -2199,7 +2202,8 @@ public class BlackBerryImeService extends InputMethodService implements BlackBer
 
     private void applyAutoCapitalizeAtStart() {
         try {
-            if (keyboardView == null || keyboardView.isArabic() || keyboardView.isHindi() || keyboardView.isUrdu() || numericFieldActive) return;
+            if (keyboardView == null || keyboardView.isArabic() || keyboardView.isHindi() || keyboardView.isUrdu()
+                    || keyboardView.isBangla() || numericFieldActive) return;
             EditorInfo ei = getCurrentInputEditorInfo();
             if (ei != null) {
                 int type = ei.inputType;

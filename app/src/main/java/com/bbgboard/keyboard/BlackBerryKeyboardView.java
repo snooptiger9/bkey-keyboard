@@ -554,6 +554,7 @@ public class BlackBerryKeyboardView extends View {
                     : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "रीसेट"
                     : KeyboardPreferences.LANG_UR.equals(currentLangCode) ? "ری سیٹ"
                     : KeyboardPreferences.LANG_ID.equals(currentLangCode) ? "Atur ulang"
+                    : KeyboardPreferences.LANG_BN.equals(currentLangCode) ? "রিসেট"
                     : "Reset";
             drawResizePill(canvas, resizeResetButtonRect, resizeResetButtonPressed ? resizeResetBarPressedPaint : resizeResetBarPaint,
                     false, resetLabel);
@@ -564,6 +565,7 @@ public class BlackBerryKeyboardView extends View {
                     : KeyboardPreferences.LANG_HI.equals(currentLangCode) ? "हो गया"
                     : KeyboardPreferences.LANG_UR.equals(currentLangCode) ? "ہو گیا"
                     : KeyboardPreferences.LANG_ID.equals(currentLangCode) ? "Selesai"
+                    : KeyboardPreferences.LANG_BN.equals(currentLangCode) ? "হয়ে গেছে"
                     : "Done";
             drawResizePill(canvas, resizeDoneButtonRect, resizeDoneButtonPressed ? resizeBarPressedPaint : resizeBarPaint,
                     true, doneLabel);
@@ -1610,6 +1612,8 @@ public class BlackBerryKeyboardView extends View {
         boolean combining = (c >= 0x0900 && c <= 0x0903) || (c >= 0x093A && c <= 0x093C)
                 || (c >= 0x093E && c <= 0x094F) || (c >= 0x0951 && c <= 0x0957)
                 || c == 0x0962 || c == 0x0963
+                // Bengali vowel signs, hasanta and nukta on the BSTI keyboard
+                || (c >= 0x09BE && c <= 0x09CD) || c == 0x09D7 || c == 0x09BC
                 // Arabic-script marks on the Urdu keyboard (zabar, zer, pesh, shadd, sukun...)
                 || (c >= 0x064B && c <= 0x065F) || c == 0x0670;
         return combining ? "◌" + s : s;
@@ -1882,7 +1886,8 @@ public class BlackBerryKeyboardView extends View {
     }
 
     private List<KeyDef> buildBottomRow() {
-        String symLabel = isSymbols ? (isArabic ? "أبجد" : (isHindi ? "अआइ" : (isUrdu ? "ابپ" : "ABC"))) : (isRtlScript() ? "؟123" : "?123");
+        String symLabel = isSymbols ? (isArabic ? "أبجد" : (isHindi ? "अआइ" : (isUrdu ? "ابپ"
+                : (isBangla && prefs.getBanglaLayout() == 1 ? "অআই" : "ABC")))) : (isRtlScript() ? "؟123" : "?123");
 
         boolean showSwipeArrows = prefs.isSpaceSwipeLangEnabled()
                 && prefs.getEnabledLanguages().size() >= 2;
@@ -2544,7 +2549,7 @@ public class BlackBerryKeyboardView extends View {
                 popupTextPaint.setColor(normalTextColor);
             }
             float ty = cell.centerY() - (popupTextPaint.descent() + popupTextPaint.ascent()) / 2f;
-            canvas.drawText(isHindi || isUrdu ? hindiDisplay(opt) : opt, cell.centerX(), ty, popupTextPaint);
+            canvas.drawText(isHindi || isUrdu || isBangla ? hindiDisplay(opt) : opt, cell.centerX(), ty, popupTextPaint);
         }
         popupTextPaint.setColor(normalTextColor);
     }
